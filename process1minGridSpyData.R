@@ -92,7 +92,7 @@ for(hh in hhIDs){
         # we have UTC
         tempDT$r_dateTime <- ymd_hm(tempDT$"date UTC", tz = "UTC") # requires lubridate
         }
-      print(head(tempDT)) # test
+      #print(head(tempDT)) # test
       fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
       fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
       tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
@@ -104,10 +104,10 @@ for(hh in hhIDs){
   
   # > remove duplicates caused by over-lapping files ----
   nObs <- nrow(tempHhDT)
-  print(paste0("N rows before removal of dublicates: ", nObs))
+  print(paste0("N rows before removal of duplicates: ", nObs))
   tempHhDT <- unique(tempHhDT)
   nObs <- nrow(tempHhDT)
-  print(paste0("N rows after removal of dublicates: ", nObs))
+  print(paste0("N rows after removal of duplicates: ", nObs))
   
   
   # > save out ----
