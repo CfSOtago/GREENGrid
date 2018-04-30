@@ -11,6 +11,7 @@
 library(data.table) # for data munching
 library(lubridate) # for date munching - keep here otherwise data.table masks various functions
 library(readr) # for reading/writing csv
+library(ggplot2) # for fancy graphs
 library(greenGridr) # local utilities
 
 # Local parameters ----
@@ -101,7 +102,7 @@ for(hh in hhIDs){
     }
   }
   
-  # > remove duplicates caused by over-lapping files ----
+  # > Remove duplicates caused by over-lapping files ----
   nObs <- nrow(tempHhDT)
   print(paste0("N rows before removal of duplicates: ", nObs))
   tempHhDT <- unique(tempHhDT)
@@ -109,7 +110,7 @@ for(hh in hhIDs){
   print(paste0("N rows after removal of duplicates: ", nObs))
   
   
-  # > save out ----
+  # > Save hh file ----
   ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
   write_csv(tempHhDT, ofile)
   print(paste0("Saved ", ofile, ", gzipping..."))
@@ -118,6 +119,53 @@ for(hh in hhIDs){
   print(paste0("Gzipped ", ofile))
 }
 
+#> Save updated file stats for all files processed ----
 print("Updating 1 minute data index file...") # write out version with file stats
 write.csv(fListCompleteDT, paste0(outPath, indexFile))
 print("Done")
+
+#> Generate file stats ----
+fListCompleteDT[, .(meanfSize = mean(fSize),
+                    nFiles = .N,
+                    meanNObs = mean(nObs),
+                    maxNObs = max(nObs),
+                    minNObs = min(nObs)), keyby = .(fileLoaded, year(obsStartDate))]
+
+#> Generate file stats graphs ----
+print("Updating 1 minute data index graphs...")
+myCaption <- paste0("Data source: ", fpath)
+
+plotDT <- fListCompleteDT[, .(nFiles = .N,
+                              meanfSize = mean(fSize)), 
+                          keyby = .(hhID, fMDate)]
+#>> All files ----
+myCaption <- paste0(myCaption, 
+                    "\nLog file size used as some files are full year data")
+
+ggplot(plotDT, aes( x = fMDate, y = hhID, fill = log(meanfSize))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black") + 
+  scale_x_date(date_labels = "%a %b %d", date_breaks = "1 month") +
+  labs(title = "Mean file size of all grid spy data files received per day",
+       caption = myCaption
+    
+  )
+ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
+
+plotDT <- fListCompleteDT[fileLoaded == "Yes", .(nFiles = .N,
+                              meanfSize = mean(fSize)), 
+                          keyby = .(hhID, fMDate)]
+
+#>> Loaded files ----
+myCaption <- paste0(myCaption, 
+                    "\nFiles loaded if size > 3000 bytes (assumed to have observations)")
+ggplot(plotDT, aes( x = fMDate, y = hhID, fill = log(meanfSize))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black") +
+  scale_x_date(date_labels = "%a %b %d", date_breaks = "1 month") +
+  labs(title = "Mean file size of all loaded grid spy data files received per day",
+       caption = myCaption
+       
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
+
