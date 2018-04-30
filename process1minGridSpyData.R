@@ -72,9 +72,8 @@ for(hh in hhIDs){
     # check file
     # print(paste0("Checking: ", f))
     rf <- path.expand(f) # just in case of ~ etc
-    finfo <- file.info(rf)
     fsize <- file.size(rf)
-    fmtime <- file.mtime(rf)
+    fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
     fListCompleteDT <- fListCompleteDT[fullPath == f, fSize := fsize]
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
