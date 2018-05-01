@@ -1,8 +1,6 @@
 ---
 title: "Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data"
-author: "Ben Anderson"
-author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`), Tom Rushby (t.w.rushby@soton.ac.uk,
-  `@tom_rushby`)"
+author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
   html_document:
@@ -64,7 +62,7 @@ dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or 
 
 \newpage
 
-> Citation
+# Citation
 
 If you wish to use any of the material from this report please cite as:
 
@@ -92,7 +90,7 @@ This report is intended to:
 
 ## History
 
-Generally tracked via [git.soton](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
+Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
  
 ## Support
 
@@ -102,7 +100,7 @@ This work was supported by:
  * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
  * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
  
- > (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
+This work uis (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
 
 # Obtain listing of files
 
@@ -144,7 +142,7 @@ if(nrow(fListCompleteDT) == 0){
 
 ```
 
-Overall we have `r nrow(fListCompleteDT)` files from `r uniqueN(fListCompleteDT$hhID)` households. The following chart shows the distirbution of these files over time.
+Overall we have `r nrow(fListCompleteDT)` files from `r uniqueN(fListCompleteDT$hhID)` households. The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
 
 ```{r allFileSizesPlot}
 myCaption <- paste0("Data source: ", fpath,
@@ -172,8 +170,11 @@ ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
 
 In this section we load the data files that have a file size > `r dataThreshold` bytes. Things to note:
 
- * We assume that any files smaller than this value have no observations. We should probably test the first few lines to double check...
- * We have to deal with at least 2 different date formats and quite a lot of duplication
+ * We assume that any files smaller than this value have no observations. This is based on:
+     * Manual inspection of several small files
+     * The identical (small) file sizes involved
+     * _But_ we should probably test the first few lines to double check...
+ * We have to deal with at least 2 different date formats and quite a lot of duplication some of which causes the differnt date formats. The code to fix these is included below but see also our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
  
 
 ```{r loadValidFiles}
@@ -187,10 +188,10 @@ for(hh in hhIDs){
   fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"]
   filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath] # select the files that meet our size threshold
   for(f in filesToLoad){
-    print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
+    #print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
     # attempt to load the file
     tempDT <- fread(f)
-    print("File loaded")
+    #print("File loaded")
     # set some file stats
     fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
@@ -257,3 +258,81 @@ write.csv(hhStatDT, ofile)
 print("Done")
 ```
 
+Now produce some data quality plots & tables.
+
+The following plots show the number of observations per day per household. In theory we should not see:
+
+ * dates before 2014 or in to the future (they indicate data conversion errors)
+ * more than 1440 observations per day (they indicate potentially duplicate data)
+
+```{r loadedFilesObsPlots}
+# tile plot ----
+ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
+  geom_tile() +
+  scale_fill_gradient(low = "red", high = "green") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "N observations per household per day for all loaded grid spy data",
+       caption = paste0(myCaption,
+                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+       
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
+
+# point plot ----
+ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
+  geom_point() +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "N observations per household per day for all loaded grid spy data",
+       caption = paste0(myCaption,
+                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+       
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
+```
+
+The following table shows the min/max observations per day and min/max dates. As above, we should not see:
+
+ * dates before 2014 or in to the future (indicates date conversion errors)
+ * more than 1440 observations per day (indicates potentially duplicate observations)
+ 
+ We should also not see NA in any row (indicates date conversion errors)
+
+```{r summaryTable}
+# Stats table (so we can pick out the dateTime errors)
+t <- hhStatDT[, .(minObs = min(nObs),
+             maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
+             minDate = min(date),
+             maxDate = max(date)),
+         keyby = .(hhID)]
+
+kable(caption = "Summary observation stats by hhID", t)
+```
+
+# Runtime
+
+
+```{r check runtime}
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+```
+
+Analysis completed in `r elapsed` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+# R environment
+
+R packages used:
+
+ * base R - for the basics [@baseR]
+ * data.table - for fast (big) data handling [@data.table]
+ * ggplot2 - for slick graphics [@ggplot2]
+ * dplyr - for rename [@dplyr]
+ * lubridate - date manipulation [@lubridate]
+ * knitr - to create this document [@knitr]
+ * greenGridr - for local NZ GREEN Grid utilities
+ 
+```{r sessionInfo}
+sessionInfo()
+```
