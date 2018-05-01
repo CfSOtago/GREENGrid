@@ -64,7 +64,7 @@ print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(
 # > Load, process & save the ones which probably have data ----
 
 hhIDs <- unique(fListCompleteDT$hhID) # list of household ids
-
+hhStatDT <- data.table() # stats collector
 for(hh in hhIDs){
   print(paste0("Loading: ", hh))
   tempHhDT <- data.table() # create data.table to hold file contents
@@ -85,14 +85,26 @@ for(hh in hhIDs){
       # set some file stats
       fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
       fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
-      if(uniqueN(tempDT$'date NZ') > 0){
-        # then we have NZ time
-        tempDT$r_dateTime <- ymd_hm(tempDT$"date NZ", tz = "Pacific/Auckland") # requires lubridate
+      if(nrow(select(tempDT, contains("NZ"))) > 0){
+        # => there is at least 1 column whose name contains NZ so we have NZ time
+        setnames(tempDT, 'date NZ', "date_NZ")
+        # Check the date format as it could be y-m-d or d/m/y :-(
+        tempDT <- tempDT[, testDate := ifelse(substr(date_NZ,2,2) == "/" | # day is 1 digit
+                                                substr(date_NZ,3,3) == "/" , # day is 2 digits
+                                              "dmy", "ymd")] # if there is a "/" then it is d/m/y
+        # Now use that to correctly parse dates
+        tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
+        tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "Pacific/Auckland")]
       } else {
         # we have UTC
-        tempDT$r_dateTime <- ymd_hm(tempDT$"date UTC", tz = "UTC") # requires lubridate
+        setnames(tempDT, 'date UTC', "date_UTC")
+        tempDT <- tempDT[, testDate := ifelse(substr(date_UTC,2,2) == "/" | # day is 1 digit
+                                                substr(date_UTC,3,3) == "/", # 2 digits
+                                              "dmy", "ymd")]
+        tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_UTC, tz = "UTC")] # requires lubridate
+        tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_UTC, tz = "UTC")]
         }
-      #print(head(tempDT)) # test
+      print(head(tempDT)) # test
       fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
       fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
       tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
@@ -102,13 +114,28 @@ for(hh in hhIDs){
     }
   }
   
-  # > Remove duplicates caused by over-lapping files ----
+  # > Remove duplicates caused by over-lapping files and dates etc ----
+  # Need to remove all test vars for this
+  try(tempDT$date_UTC <- NULL)
+  try(tempDT$date_NZ <- NULL)
+  try(tempDT$testDate <- NULL)
+  
   nObs <- nrow(tempHhDT)
   print(paste0("N rows before removal of duplicates: ", nObs))
   tempHhDT <- unique(tempHhDT)
   nObs <- nrow(tempHhDT)
   print(paste0("N rows after removal of duplicates: ", nObs))
   
+  # Add up all Wh cols
+  #tempHhDT <- tempHhDT[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = grep("$", names(tempHhDT))] 
+  
+  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do mean Wh as label varies
+  hhStatTempDT <- hhStatTempDT[, hhID := hh]
+  # 
+  # ,
+  # sumWh := sum(names(select(tempDT, contains("$")))
+               
+  hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # > Save hh file ----
   ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
@@ -121,6 +148,7 @@ for(hh in hhIDs){
 
 #> Save updated file stats for all files processed ----
 print("Updating 1 minute data index file...") # write out version with file stats
+#fListCompleteDT <- fListCompleteDT[, fMDate := as.Date(fMDate)] # why do we need to do this?
 write.csv(fListCompleteDT, paste0(outPath, indexFile))
 print("Done")
 
@@ -133,19 +161,21 @@ fListCompleteDT[, .(meanfSize = mean(fSize),
 
 #> Generate file stats graphs ----
 print("Updating 1 minute data index graphs...")
-myCaption <- paste0("Data source: ", fpath)
+myCaption <- paste0("Data source: ", fpath,
+                    "\nUsing data received up to ", Sys.Date())
 
 plotDT <- fListCompleteDT[, .(nFiles = .N,
                               meanfSize = mean(fSize)), 
-                          keyby = .(hhID, fMDate)]
+                          keyby = .(hhID, date = as.Date(fMDate))]
 #>> All files ----
 myCaption <- paste0(myCaption, 
                     "\nLog file size used as some files are full year data")
 
-ggplot(plotDT, aes( x = fMDate, y = hhID, fill = log(meanfSize))) +
+ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") + 
-  scale_x_date(date_labels = "%a %b %d", date_breaks = "1 month") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Mean file size of all grid spy data files received per day",
        caption = myCaption
     
@@ -154,7 +184,7 @@ ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
 
 plotDT <- fListCompleteDT[fileLoaded == "Yes", .(nFiles = .N,
                               meanfSize = mean(fSize)), 
-                          keyby = .(hhID, fMDate)]
+                          keyby = .(hhID, date = as.Date(fMDate))]
 
 #>> Loaded files ----
 myCaption <- paste0(myCaption, 
@@ -162,10 +192,46 @@ myCaption <- paste0(myCaption,
 ggplot(plotDT, aes( x = fMDate, y = hhID, fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") +
-  scale_x_date(date_labels = "%a %b %d", date_breaks = "1 month") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Mean file size of all loaded grid spy data files received per day",
-       caption = myCaption
+       caption = paste0(myCaption,
+                        "\nLog file size used as some files are full year data")
        
   )
 ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
 
+#> Save observed data stats for all files loaded ----
+print("Updating 1 minute file stats...") # write out version with file stats
+write.csv(hhStatDT, paste0(outPath, "hhDailyObservationsStats.csv"))
+print("Done")
+
+#>> Loaded files ----
+ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "N observations per household per day for all loaded grid spy data",
+       caption = myCaption
+       
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
+
+ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
+  geom_point() +
+  scale_fill_gradient(low = "white", high = "black") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "N observations per household per day for all loaded grid spy data",
+       caption = myCaption
+       
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
+
+# Stats table (so we can pick out the dateTime errors)
+hhStatDT[, .(minObs = min(nObs),
+             maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
+             minDate = min(date),
+             maxDate = max(date)),
+         keyby = .(hhID)]
