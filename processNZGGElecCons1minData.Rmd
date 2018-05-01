@@ -1,0 +1,250 @@
+---
+title: "Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data"
+author: "Ben Anderson"
+author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`), Tom Rushby (t.w.rushby@soton.ac.uk,
+  `@tom_rushby`)"
+date: 'Last run at: `r Sys.time()`'
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    self_contained: no
+    toc: yes
+    toc_float: yes
+    code_folding: "hide"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r codeSetup, include=FALSE}
+# Housekeeping ----
+rm(list=ls(all=TRUE)) # remove all objects from workspace
+
+# Set start time ----
+startTime <- proc.time()
+
+# Load greenGrid package ----
+library(greenGridr) # local utilities
+
+# Libraries ----
+reqLibsLocal <- c("data.table", # for data munching
+                  "lubridate", # for date/time munching
+                  "ggplot2", # for fancy graphs
+                  "readr", # for read/write_csv
+                  "dplyr", # for select columns
+                  #"dtplyr", # if needed
+                  "knitr" # for kable
+                  )
+
+myRequiredPackages(reqLibsLocal)
+
+# Local parameters ----
+baTest <- 1
+
+if(baTest == 1){
+  # Local test
+  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
+  fpath <- paste0(dPath,"1min_orig/") # location of data
+  outPath <- paste0(dPath, "consolidated/") # place to save them - add "1min/" for folder etc
+} else {
+  # full monty
+  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
+  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
+  outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
+}
+
+pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
+indexFile <- "fListCompleteDT.csv" # place to store the complete file list with meta-data
+dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
+
+```
+
+\newpage
+
+> Citation
+
+If you wish to use any of the material from this report please cite as:
+
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data, University of Otago: Dunedin, NZ.
+
+\newpage
+
+# Introduction
+
+Report circulation:
+
+ * Restricted to: [NZ GREEn Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
+
+## Purpose
+
+This report is intended to: 
+
+ * load and clean the project electricity consumption data (Grid Spy)
+ * save the cleaned data out as a single file per household
+ * produce summary data quality statistics
+
+## Requirements:
+
+ * grid spy 1 minute data downloads
+
+## History
+
+Generally tracked via [git.soton](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
+ 
+## Support
+
+This work was supported by:
+
+ * The [University of Otago](https://www.otago.ac.nz/)
+ * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
+ * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
+ 
+ > (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
+
+# Obtain listing of files
+
+In this section we generate a listing of all 1 minute data files that we have received. If we are running over the complete dataset then we will be using data from:
+
+ * /hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
+ 
+In this run we are using data from:
+
+ * `r fpath`
+
+If these do not match then this may be a test run.
+
+```{r getCompleteFileList}
+
+print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath))
+fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
+                                            recursive = TRUE))
+if(nrow(fListCompleteDT) == 0){
+  stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
+} else {
+  print(paste0("Processing file list and getting file meta-data (please be patient)"))
+  fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := tstrsplit(V1, "/")]
+  fListCompleteDT <- fListCompleteDT[, fullPath := paste0(fpath, hhID,"/",fileName)]
+  
+  for(f in fListCompleteDT[,fullPath]){
+    rf <- path.expand(f) # just in case of ~ etc
+    fsize <- file.size(rf)
+    fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fSize := fsize]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
+  }
+  print("Saving 1 minute data files metadata...")
+  write.csv(fListCompleteDT, paste0(outPath, indexFile))
+  print("Done")
+}
+
+```
+
+Overall we have `r nrow(fListCompleteDT)` files from `r uniqueN(fListCompleteDT$hhID)` households. The following chart shows the distirbution of these files over time.
+
+```{r allFileSizesPlot}
+myCaption <- paste0("Data source: ", fpath,
+                    "\nUsing data received up to ", Sys.Date())
+
+plotDT <- fListCompleteDT[, .(nFiles = .N,
+                              meanfSize = mean(fSize)), 
+                          keyby = .(hhID, date = as.Date(fMDate))]
+
+#>> All files plots ----
+ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black") + 
+  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Mean file size of all grid spy data files received per day",
+       caption = paste0(myCaption, 
+                        "\nLog file size used as some files are full year data")
+    
+  )
+ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
+```
+
+# Load data files
+
+In this section we load the data files that have a file size > `r dataThreshold` bytes. Things to note:
+
+ * We assume that any files smaller than this value have no observations. We should probably test the first few lines to double check...
+ * We have to deal with at least 2 different date formats and quite a lot of duplication
+ 
+
+```{r loadValidFiles}
+# > Load, process & save the ones which probably have data ----
+
+hhIDs <- unique(fListCompleteDT$hhID) # list of household ids
+hhStatDT <- data.table() # stats collector
+for(hh in hhIDs){
+  print(paste0("Loading: ", hh))
+  tempHhDT <- data.table() # create data.table to hold file contents
+  fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"]
+  filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath]
+  for(f in filesToLoad){
+    print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
+    # attempt to load the file
+    tempDT <- fread(f)
+    # set some file stats
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
+    if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
+      # => there is at least 1 column whose name contains NZ so we have NZ time
+      print("NZ time")
+      setnames(tempDT, 'date NZ', "date_NZ")
+      # Check the date format as it could be y-m-d or d/m/y :-(
+      tempDT <- tempDT[, testDate := ifelse(substr(date_NZ,2,2) == "/" | # day is 1 digit
+                                              substr(date_NZ,3,3) == "/" , # day is 2 digits
+                                            "dmy", "ymd")] # if there is a "/" then it is d/m/y
+      # Now use that to correctly parse dates
+      tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
+      tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "Pacific/Auckland")]
+    } else {
+      # we have UTC
+      print("UTC")
+      setnames(tempDT, 'date UTC', "date_UTC")
+      tempDT <- tempDT[, testDate := ifelse(substr(date_UTC,2,2) == "/" | # day is 1 digit
+                                              substr(date_UTC,3,3) == "/", # 2 digits
+                                            "dmy", "ymd")]
+      tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_UTC, tz = "UTC")] # requires lubridate
+      tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_UTC, tz = "UTC")]
+    }
+    print(head(tempDT)) # test
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
+    tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
+  }
+  
+  # > Remove duplicates caused by over-lapping files and dates etc ----
+  # Need to remove all test vars for this
+  try(tempHhDT$date_UTC <- NULL)
+  try(tempHhDT$date_NZ <- NULL)
+  try(tempHhDT$testDate <- NULL)
+  
+  #nObs <- nrow(tempHhDT)
+  #print(paste0("N rows before removal of duplicates: ", nObs))
+  tempHhDT <- unique(tempHhDT)
+  #nObs <- nrow(tempHhDT)
+  #print(paste0("N rows after removal of duplicates: ", nObs))
+  
+  # Add up all Wh cols
+  #tempHhDT <- tempHhDT[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = grep("$", names(tempHhDT))] 
+  
+  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do mean Wh as label varies
+  hhStatTempDT <- hhStatTempDT[, hhID := hh]
+  
+  hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
+  
+  # > Save hh file ----
+  ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
+  write_csv(tempHhDT, ofile)
+  print(paste0("Saved ", ofile, ", gzipping..."))
+  cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
+  try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
+  print(paste0("Gzipped ", ofile))
+}
+```
