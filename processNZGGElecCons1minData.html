@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Ben Anderson (b.anderson@soton.ac.uk, @dataknut)" />
+
+
+<title>Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</title>
+
+<script src="processNZGGElecCons1minData_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="processNZGGElecCons1minData_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="processNZGGElecCons1minData_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="processNZGGElecCons1minData_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="processNZGGElecCons1minData_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="processNZGGElecCons1minData_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="processNZGGElecCons1minData_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="processNZGGElecCons1minData_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="processNZGGElecCons1minData_files/navigation-1.1/tabsets.js"></script>
+<script src="processNZGGElecCons1minData_files/navigation-1.1/codefolding.js"></script>
+<link href="processNZGGElecCons1minData_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="processNZGGElecCons1minData_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
+<h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-01 17:09:57</em></h4>
+
+</div>
+
+
+
+<blockquote>
+<p>Citation</p>
+</blockquote>
+<p>If you wish to use any of the material from this report please cite as:</p>
+<ul>
+<li>Anderson, B. (2018) Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data, University of Otago: Dunedin, NZ.</li>
+</ul>
+
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Report circulation:</p>
+<ul>
+<li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEn Grid</a> project partners and contractors.</li>
+</ul>
+<div id="purpose" class="section level2">
+<h2><span class="header-section-number">1.1</span> Purpose</h2>
+<p>This report is intended to:</p>
+<ul>
+<li>load and clean the project electricity consumption data (Grid Spy)</li>
+<li>save the cleaned data out as a single file per household</li>
+<li>produce summary data quality statistics</li>
+</ul>
+</div>
+<div id="requirements" class="section level2">
+<h2><span class="header-section-number">1.2</span> Requirements:</h2>
+<ul>
+<li>grid spy 1 minute data downloads</li>
+</ul>
+</div>
+<div id="history" class="section level2">
+<h2><span class="header-section-number">1.3</span> History</h2>
+<p>Generally tracked via <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">git.soton</a>.</p>
+</div>
+<div id="support" class="section level2">
+<h2><span class="header-section-number">1.4</span> Support</h2>
+<p>This work was supported by:</p>
+<ul>
+<li>The <a href="https://www.otago.ac.nz/">University of Otago</a></li>
+<li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a></li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-202).</li>
+</ul>
+<blockquote>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>2018 the University of Southampton.</li>
+</ol>
+</blockquote>
+</div>
+</div>
+<div id="obtain-listing-of-files" class="section level1">
+<h1><span class="header-section-number">2</span> Obtain listing of files</h1>
+<p>In this section we generate a listing of all 1 minute data files that we have received. If we are running over the complete dataset then we will be using data from:</p>
+<ul>
+<li>/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/</li>
+</ul>
+<p>In this run we are using data from:</p>
+<ul>
+<li>~/Data/NZGreenGrid/gridspy/1min_orig/</li>
+</ul>
+<p>If these do not match then this may be a test run.</p>
+<pre class="r"><code>print(paste0(&quot;Looking for 1 minute data using pattern = &quot;, pattern1Min, &quot; in &quot;, fpath))</code></pre>
+<pre><code>## [1] &quot;Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/&quot;</code></pre>
+<pre class="r"><code>fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
+                                            recursive = TRUE))
+if(nrow(fListCompleteDT) == 0){
+  stop(paste0(&quot;No matching data files found, please check your path (&quot;, fpath, &quot;) or your search pattern (&quot;, pattern1Min, &quot;)&quot;))
+} else {
+  print(paste0(&quot;Processing file list and getting file meta-data (please be patient)&quot;))
+  fListCompleteDT &lt;- fListCompleteDT[, c(&quot;hhID&quot;,&quot;fileName&quot;) := tstrsplit(V1, &quot;/&quot;)]
+  fListCompleteDT &lt;- fListCompleteDT[, fullPath := paste0(fpath, hhID,&quot;/&quot;,fileName)]
+  
+  for(f in fListCompleteDT[,fullPath]){
+    rf &lt;- path.expand(f) # just in case of ~ etc
+    fsize &lt;- file.size(rf)
+    fmtime &lt;- ymd_hms(file.mtime(rf), tz = &quot;Pacific/Auckland&quot;) # requires lubridate
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, fSize := fsize]
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, fMTime := fmtime]
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
+  }
+  ofile &lt;- paste0(outPath, indexFile)
+  print(paste0(&quot;Saving 1 minute data files metadata to &quot;, ofile))
+  write.csv(fListCompleteDT, ofile)
+  print(&quot;Done&quot;)
+}</code></pre>
+<pre><code>## [1] &quot;Processing file list and getting file meta-data (please be patient)&quot;
+## [1] &quot;Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/fListCompleteDT.csv&quot;
+## [1] &quot;Done&quot;</code></pre>
+<p>Overall we have 1913 files from 4 households. The following chart shows the distirbution of these files over time.</p>
+<pre class="r"><code>myCaption &lt;- paste0(&quot;Data source: &quot;, fpath,
+                    &quot;\nUsing data received up to &quot;, Sys.Date())
+
+plotDT &lt;- fListCompleteDT[, .(nFiles = .N,
+                              meanfSize = mean(fSize)), 
+                          keyby = .(hhID, date = as.Date(fMDate))]
+
+#&gt;&gt; All files plots ----
+ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
+  geom_tile() +
+  scale_fill_gradient(low = &quot;white&quot;, high = &quot;black&quot;) + 
+  scale_x_date(date_labels = &quot;%Y %b&quot;, date_breaks = &quot;1 month&quot;) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = &quot;Mean file size of all grid spy data files received per day&quot;,
+       caption = paste0(myCaption, 
+                        &quot;\nLog file size used as some files are full year data&quot;)
+    
+  )</code></pre>
+<p><img src="processNZGGElecCons1minData_files/figure-html/allFileSizesPlot-1.png" /><!-- --></p>
+<pre class="r"><code>ggsave(paste0(outPath, &quot;gridSpyAllFileListSizeTilePlot.png&quot;))</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+</div>
+<div id="load-data-files" class="section level1">
+<h1><span class="header-section-number">3</span> Load data files</h1>
+<p>In this section we load the data files that have a file size &gt; 3000 bytes. Things to note:</p>
+<ul>
+<li>We assume that any files smaller than this value have no observations. We should probably test the first few lines to double check…</li>
+<li>We have to deal with at least 2 different date formats and quite a lot of duplication</li>
+</ul>
+<pre class="r"><code># &gt; Load, process &amp; save the ones which probably have data ----
+
+hhIDs &lt;- unique(fListCompleteDT$hhID) # list of household ids
+hhStatDT &lt;- data.table() # stats collector
+for(hh in hhIDs){
+  print(paste0(&quot;Loading: &quot;, hh))
+  tempHhDT &lt;- data.table() # create data.table to hold file contents
+  fListCompleteDT &lt;- fListCompleteDT[, fileLoaded := &quot;No&quot;]
+  filesToLoad &lt;- fListCompleteDT[hhID == hh &amp; fSize &gt; dataThreshold, fullPath] # select the files that meet our size threshold
+  for(f in filesToLoad){
+    print(paste0(&quot;File size (&quot;, f, &quot;) = &quot;, fListCompleteDT[fullPath == f, fSize], &quot; so probably OK&quot;)) # files under 3kb are probably empty
+    # attempt to load the file
+    tempDT &lt;- fread(f)
+    print(&quot;File loaded&quot;)
+    # set some file stats
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, fileLoaded := &quot;Yes&quot;]
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
+    if(nrow(select(tempDT, contains(&quot;NZ&quot;))) &gt; 0){ # requires dplyr
+      # =&gt; there is at least 1 column whose name contains NZ so we have NZ time
+      #print(&quot;NZ time&quot;)
+      setnames(tempDT, &#39;date NZ&#39;, &quot;date_NZ&quot;)
+      # Check the date format as it could be y-m-d or d/m/y :-(
+      tempDT &lt;- tempDT[, testDate := ifelse(substr(date_NZ,2,2) == &quot;/&quot; | # day is 1 digit
+                                              substr(date_NZ,3,3) == &quot;/&quot; , # day is 2 digits
+                                            &quot;dmy&quot;, &quot;ymd&quot;)] # if there is a &quot;/&quot; then it is d/m/y
+      # Now use that to correctly parse dates
+      tempDT &lt;- tempDT[testDate == &quot;ymd&quot;, r_dateTime := ymd_hm(date_NZ, tz = &quot;Pacific/Auckland&quot;)] # requires lubridate
+      tempDT &lt;- tempDT[testDate == &quot;dmy&quot;, r_dateTime := dmy_hm(date_NZ, tz = &quot;Pacific/Auckland&quot;)]
+    } else {
+      # we have UTC
+      #print(&quot;UTC&quot;)
+      setnames(tempDT, &#39;date UTC&#39;, &quot;date_UTC&quot;)
+      tempDT &lt;- tempDT[, testDate := ifelse(substr(date_UTC,2,2) == &quot;/&quot; | # day is 1 digit
+                                              substr(date_UTC,3,3) == &quot;/&quot;, # 2 digits
+                                            &quot;dmy&quot;, &quot;ymd&quot;)]
+      tempDT &lt;- tempDT[testDate == &quot;ymd&quot;, r_dateTime := ymd_hm(date_UTC, tz = &quot;UTC&quot;)] # requires lubridate
+      tempDT &lt;- tempDT[testDate == &quot;dmy&quot;, r_dateTime := dmy_hm(date_UTC, tz = &quot;UTC&quot;)]
+    }
+    #print(head(tempDT)) # test
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
+    tempHhDT &lt;- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
+  }
+  
+  # &gt; Remove duplicates caused by over-lapping files and dates etc ----
+  # Need to remove all test vars for this
+  try(tempHhDT$date_UTC &lt;- NULL)
+  try(tempHhDT$date_NZ &lt;- NULL)
+  try(tempHhDT$testDate &lt;- NULL)
+  
+  #nObs &lt;- nrow(tempHhDT)
+  #print(paste0(&quot;N rows before removal of duplicates: &quot;, nObs))
+  tempHhDT &lt;- unique(tempHhDT)
+  #nObs &lt;- nrow(tempHhDT)
+  #print(paste0(&quot;N rows after removal of duplicates: &quot;, nObs))
+  
+  # Add up all Wh cols
+  #tempHhDT &lt;- tempHhDT[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = grep(&quot;$&quot;, names(tempHhDT))] 
+  
+  hhStatTempDT &lt;- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can&#39;t do mean Wh as label varies
+  hhStatTempDT &lt;- hhStatTempDT[, hhID := hh]
+  
+  hhStatDT &lt;- rbind(hhStatDT,hhStatTempDT) # add to the collector
+  
+  # &gt; Save hh file ----
+  ofile &lt;- paste0(outPath, &quot;1min/&quot;, hh,&quot;_all_1min_data.csv&quot;)
+  write_csv(tempHhDT, ofile)
+  print(paste0(&quot;Saved &quot;, ofile, &quot;, gzipping...&quot;))
+  cmd &lt;- paste0(&quot;gzip -f &quot;, &quot;&#39;&quot;, path.expand(ofile), &quot;&#39;&quot;) # gzip it - use quotes in case of spaces in file name, expand path if needed
+  try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
+  print(paste0(&quot;Gzipped &quot;, ofile))
+}</code></pre>
+<pre><code>## [1] &quot;Loading: rf_01&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/1Jan2014-24May2014at1.csv) = 6255737 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/24May2014-24May2015at1.csv) = 28791553 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/25May2015-25May2016at1.csv) = 11597234 so probably OK&quot;
+## [1] &quot;File loaded&quot;</code></pre>
+<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
+## &#39;date_UTC&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_02&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/1Jan2014-24May2014at1.csv) = 6131625 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/24May2014-24May2015at1.csv) = 23987713 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/25May2015-25May2016at1.csv) = 283467 so probably OK&quot;
+## [1] &quot;File loaded&quot;</code></pre>
+<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
+## &#39;date_UTC&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_06&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Apr2018-11Apr2018at1.csv) = 156944 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Dec2017-11Dec2017at1.csv) = 156601 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Feb2018-11Feb2018at1.csv) = 153353 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Jan2018-11Jan2018at1.csv) = 153982 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Mar2018-11Mar2018at1.csv) = 156471 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Nov2017-11Nov2017at1.csv) = 155639 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Apr2018-12Apr2018at1.csv) = 157181 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Dec2017-12Dec2017at1.csv) = 157814 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Feb2018-12Feb2018at1.csv) = 153859 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Jan2018-12Jan2018at1.csv) = 153786 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Mar2018-12Mar2018at1.csv) = 154349 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Nov2017-12Nov2017at1.csv) = 155620 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Apr2018-13Apr2018at1.csv) = 156204 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Dec2017-13Dec2017at1.csv) = 157116 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Feb2018-13Feb2018at1.csv) = 154422 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Jan2018-13Jan2018at1.csv) = 153566 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Mar2018-13Mar2018at1.csv) = 154513 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Nov2017-13Nov2017at1.csv) = 155784 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Oct2016-20Nov2017at1.csv) = 24221496 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Apr2018-14Apr2018at1.csv) = 155496 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Dec2017-14Dec2017at1.csv) = 155225 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Feb2018-14Feb2018at1.csv) = 154351 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Jan2018-14Jan2018at1.csv) = 152591 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Mar2018-14Mar2018at1.csv) = 155461 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Nov2017-14Nov2017at1.csv) = 155701 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Apr2018-15Apr2018at1.csv) = 156156 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Dec2017-15Dec2017at1.csv) = 155056 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Feb2018-15Feb2018at1.csv) = 155160 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Jan2018-15Jan2018at1.csv) = 152395 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Mar2018-15Mar2018at1.csv) = 154898 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Nov2017-15Nov2017at1.csv) = 154948 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Apr2018-16Apr2018at1.csv) = 155915 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Dec2017-16Dec2017at1.csv) = 154847 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Feb2018-16Feb2018at1.csv) = 155107 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jan2018-16Jan2018at1.csv) = 152637 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jul2014-25May2016at1.csv) = 36333616 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Mar2018-16Mar2018at1.csv) = 154929 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Nov2017-16Nov2017at1.csv) = 155366 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Apr2018-17Apr2018at1.csv) = 155976 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Dec2017-17Dec2017at1.csv) = 154077 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Feb2018-17Feb2018at1.csv) = 154146 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Jan2018-17Jan2018at1.csv) = 152366 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Mar2018-17Mar2018at1.csv) = 155168 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Nov2017-17Nov2017at1.csv) = 154987 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Apr2018-18Apr2018at1.csv) = 157151 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Dec2017-18Dec2017at1.csv) = 154605 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Feb2018-18Feb2018at1.csv) = 153476 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Jan2018-18Jan2018at1.csv) = 153983 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Mar2018-18Mar2018at1.csv) = 155425 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Nov2017-18Nov2017at1.csv) = 156377 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Apr2018-19Apr2018at1.csv) = 156682 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Dec2017-19Dec2017at1.csv) = 155278 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Feb2018-19Feb2018at1.csv) = 153841 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Jan2018-19Jan2018at1.csv) = 156007 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Mar2018-19Mar2018at1.csv) = 155682 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Nov2017-19Nov2017at1.csv) = 157535 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Apr2018-20Apr2018at1.csv) = 155596 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Dec2017-20Dec2017at1.csv) = 155040 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Feb2018-20Feb2018at1.csv) = 154104 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Jan2018-20Jan2018at1.csv) = 155390 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Mar2018-20Mar2018at1.csv) = 154893 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Nov2017-20Nov2017at1.csv) = 155701 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Apr2018-2Apr2018at1.csv) = 156595 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Dec2017-2Dec2017at1.csv) = 154810 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Feb2018-2Feb2018at1.csv) = 154426 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Jan2018-2Jan2018at1.csv) = 154620 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Mar2018-2Mar2018at1.csv) = 154686 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Apr2018-21Apr2018at1.csv) = 155079 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Dec2017-21Dec2017at1.csv) = 155269 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Feb2018-21Feb2018at1.csv) = 154584 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Jan2018-21Jan2018at1.csv) = 154271 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Mar2018-21Mar2018at1.csv) = 155169 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Nov2017-21Nov2017at1.csv) = 155030 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Apr2018-22Apr2018at1.csv) = 154703 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Dec2017-22Dec2017at1.csv) = 154669 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Feb2018-22Feb2018at1.csv) = 155119 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Jan2018-22Jan2018at1.csv) = 153747 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Mar2018-22Mar2018at1.csv) = 156162 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Nov2017-22Nov2017at1.csv) = 155120 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Apr2018-23Apr2018at1.csv) = 155217 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Dec2017-23Dec2017at1.csv) = 154231 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Feb2018-23Feb2018at1.csv) = 154611 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Jan2018-23Jan2018at1.csv) = 153121 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Mar2018-23Mar2018at1.csv) = 155749 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Nov2017-23Nov2017at1.csv) = 155211 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Apr2018-24Apr2018at1.csv) = 156400 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Dec2017-24Dec2017at1.csv) = 154246 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Feb2018-24Feb2018at1.csv) = 154647 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Jan2018-24Jan2018at1.csv) = 153433 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Mar2018-24Mar2018at1.csv) = 155067 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Nov2017-24Nov2017at1.csv) = 155419 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Apr2018-25Apr2018at1.csv) = 157124 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Dec2017-25Dec2017at1.csv) = 153457 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Feb2018-25Feb2018at1.csv) = 154728 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Jan2018-25Jan2018at1.csv) = 153781 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Mar2018-25Mar2018at1.csv) = 155229 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24May2014-24May2015at1.csv) = 19398444 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Nov2017-25Nov2017at1.csv) = 155694 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Apr2018-26Apr2018at1.csv) = 156496 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Dec2017-26Dec2017at1.csv) = 154229 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Feb2018-26Feb2018at1.csv) = 154273 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Jan2018-26Jan2018at1.csv) = 153719 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Mar2018-26Mar2018at1.csv) = 156019 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25May2015-25May2016at1.csv) = 28112770 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Nov2017-26Nov2017at1.csv) = 156026 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Apr2018-27Apr2018at1.csv) = 156557 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Dec2017-27Dec2017at1.csv) = 155966 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Feb2018-27Feb2018at1.csv) = 155160 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Jan2018-27Jan2018at1.csv) = 153423 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Mar2018-27Mar2018at1.csv) = 155149 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26May2016-11Oct2016at1.csv) = 10824473 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Nov2017-27Nov2017at1.csv) = 155423 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Apr2018-28Apr2018at1.csv) = 157287 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Dec2017-28Dec2017at1.csv) = 156446 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Feb2018-28Feb2018at1.csv) = 156539 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Jan2018-28Jan2018at1.csv) = 153340 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Mar2018-28Mar2018at1.csv) = 154187 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Nov2017-28Nov2017at1.csv) = 154682 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Apr2018-29Apr2018at1.csv) = 156873 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Dec2017-29Dec2017at1.csv) = 155342 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Feb2018-1Mar2018at1.csv) = 155918 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Jan2018-29Jan2018at1.csv) = 154055 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Mar2018-29Mar2018at1.csv) = 155418 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Nov2017-29Nov2017at1.csv) = 154383 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Dec2017-30Dec2017at1.csv) = 153845 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Jan2018-30Jan2018at1.csv) = 154443 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Mar2018-30Mar2018at1.csv) = 155003 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Nov2017-30Nov2017at1.csv) = 154359 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Apr2018-3Apr2018at1.csv) = 155092 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Dec2017-3Dec2017at1.csv) = 154752 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Feb2018-3Feb2018at1.csv) = 155019 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Jan2018-3Jan2018at1.csv) = 154661 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Mar2018-3Mar2018at1.csv) = 154010 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Dec2017-31Dec2017at1.csv) = 153947 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Jan2018-31Jan2018at1.csv) = 153829 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Mar2018-31Mar2018at1.csv) = 154067 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Nov2017-1Dec2017at1.csv) = 154805 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Dec2017-1Jan2018at1.csv) = 154906 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Jan2018-1Feb2018at1.csv) = 153717 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Mar2018-1Apr2018at1.csv) = 156134 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Apr2018-4Apr2018at1.csv) = 154995 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Dec2017-4Dec2017at1.csv) = 155234 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Feb2018-4Feb2018at1.csv) = 154791 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Jan2018-4Jan2018at1.csv) = 155888 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Mar2018-4Mar2018at1.csv) = 153765 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Apr2018-5Apr2018at1.csv) = 154972 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Dec2017-5Dec2017at1.csv) = 155171 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Feb2018-5Feb2018at1.csv) = 154631 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Jan2018-5Jan2018at1.csv) = 156633 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Mar2018-5Mar2018at1.csv) = 154410 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Apr2018-6Apr2018at1.csv) = 155277 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Dec2017-6Dec2017at1.csv) = 154991 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Feb2018-6Feb2018at1.csv) = 155700 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Jan2018-6Jan2018at1.csv) = 154876 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Mar2018-6Mar2018at1.csv) = 154627 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Apr2018-7Apr2018at1.csv) = 155880 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Dec2017-7Dec2017at1.csv) = 154146 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Feb2018-7Feb2018at1.csv) = 155052 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Jan2018-7Jan2018at1.csv) = 153082 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Mar2018-7Mar2018at1.csv) = 155312 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Apr2018-8Apr2018at1.csv) = 155196 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Dec2017-8Dec2017at1.csv) = 153823 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Feb2018-8Feb2018at1.csv) = 153986 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Jan2018-8Jan2018at1.csv) = 154393 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Mar2018-8Mar2018at1.csv) = 156059 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Apr2018-9Apr2018at1.csv) = 155215 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Dec2017-9Dec2017at1.csv) = 154740 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Feb2018-9Feb2018at1.csv) = 154210 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Jan2018-9Jan2018at1.csv) = 154371 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Mar2018-9Mar2018at1.csv) = 155052 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Nov2017-9Nov2017at1.csv) = 156449 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Apr2018-10Apr2018at1.csv) = 156396 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Dec2017-10Dec2017at1.csv) = 155670 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Feb2018-10Feb2018at1.csv) = 154155 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Jan2018-10Jan2018at1.csv) = 153872 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Mar2018-10Mar2018at1.csv) = 155857 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Nov2017-10Nov2017at1.csv) = 155754 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_27&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/15Jul2014-25May2016at1.csv) = 20059135 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/24May2014-24May2015at1.csv) = 22666661 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/25May2015-25May2016at1.csv) = 25097300 so probably OK&quot;
+## [1] &quot;File loaded&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv&quot;</code></pre>
+<pre class="r"><code>#&gt; Save observed data stats for all files loaded ----
+ofile &lt;- paste0(outPath, &quot;hhDailyObservationsStats.csv&quot;)
+print(paste0(&quot;Saving daily observations stats by hhid to &quot;, ofile)) # write out version with file stats</code></pre>
+<pre><code>## [1] &quot;Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/hhDailyObservationsStats.csv&quot;</code></pre>
+<pre class="r"><code>write.csv(hhStatDT, ofile)
+print(&quot;Done&quot;)</code></pre>
+<pre><code>## [1] &quot;Done&quot;</code></pre>
+<p>Now produce some data quality plots &amp; tables.</p>
+<p>The following plots show the number of observations per day per household. In theory we should not see:</p>
+<ul>
+<li>dates before 2014 or in to the future (they indicate data conversion errors)</li>
+<li>more than 1440 observations per day (they indicate potentially duplicate data)</li>
+</ul>
+<pre class="r"><code>#&gt;&gt; Loaded files ----
+ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
+  geom_tile() +
+  scale_fill_gradient(low = &quot;red&quot;, high = &quot;green&quot;) +
+  scale_x_date(date_labels = &quot;%Y %b&quot;, date_breaks = &quot;6 months&quot;) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = &quot;N observations per household per day for all loaded grid spy data&quot;,
+       caption = paste0(myCaption,
+                        &quot;\nOnly files of size &gt; &quot;, dataThreshold, &quot; bytes loaded&quot;)
+       
+  )</code></pre>
+<p><img src="processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlot-1.png" /><!-- --></p>
+<pre class="r"><code>ggsave(paste0(outPath, &quot;gridSpyLoadedFileNobsTilePlot.png&quot;))</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code>ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
+  geom_point() +
+  scale_x_date(date_labels = &quot;%Y %b&quot;, date_breaks = &quot;6 months&quot;) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = &quot;N observations per household per day for all loaded grid spy data&quot;,
+       caption = paste0(myCaption,
+                        &quot;\nOnly files of size &gt; &quot;, dataThreshold, &quot; bytes loaded&quot;)
+       
+  )</code></pre>
+<p><img src="processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlot-2.png" /><!-- --></p>
+<pre class="r"><code>ggsave(paste0(outPath, &quot;gridSpyLoadedFileNobsPointPlot.png&quot;))</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<p>The following table shows the min/max observations per day and min/max dates. As above, we should not see:</p>
+<ul>
+<li>dates before 2014 or in to the future (they indicate date conversion errors)</li>
+<li>more than 1440 observations per day (they indicate potentially duplicate data)</li>
+</ul>
+<p>We should also not see NA in any row (indicates date conversion errors)</p>
+<pre class="r"><code># Stats table (so we can pick out the dateTime errors)
+t &lt;- hhStatDT[, .(minObs = min(nObs),
+             maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
+             minDate = min(date),
+             maxDate = max(date)),
+         keyby = .(hhID)]
+
+kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
+<table>
+<caption>Summary observation stats by hhID</caption>
+<thead>
+<tr class="header">
+<th align="left">hhID</th>
+<th align="right">minObs</th>
+<th align="right">maxObs</th>
+<th align="left">minDate</th>
+<th align="left">maxDate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">rf_01</td>
+<td align="right">171</td>
+<td align="right">1500</td>
+<td align="left">2014-01-05</td>
+<td align="left">2015-10-20</td>
+</tr>
+<tr class="even">
+<td align="left">rf_02</td>
+<td align="right">215</td>
+<td align="right">1440</td>
+<td align="left">2014-03-02</td>
+<td align="left">2015-05-28</td>
+</tr>
+<tr class="odd">
+<td align="left">rf_06</td>
+<td align="right">243</td>
+<td align="right">1500</td>
+<td align="left">2014-06-08</td>
+<td align="left">2018-04-29</td>
+</tr>
+<tr class="even">
+<td align="left">rf_27</td>
+<td align="right">567</td>
+<td align="right">1560</td>
+<td align="left">2014-07-27</td>
+<td align="left">2016-05-13</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="runtime" class="section level1">
+<h1><span class="header-section-number">4</span> Runtime</h1>
+<pre class="r"><code>t &lt;- proc.time() - startTime
+
+elapsed &lt;- t[[3]]</code></pre>
+<p>Analysis completed in 173.684 seconds ( 2.89 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+</div>
+<div id="r-environment" class="section level1">
+<h1><span class="header-section-number">5</span> R environment</h1>
+<p>R packages used:</p>
+<ul>
+<li>base R - for the basics <span class="citation">[@baseR]</span></li>
+<li>data.table - for fast (big) data handling <span class="citation">[@data.table]</span></li>
+<li>ggplot2 - for slick graphics <span class="citation">[@ggplot2]</span></li>
+<li>dplyr - for rename <span class="citation">[@dplyr]</span></li>
+<li>lubridate - date manipulation <span class="citation">[@lubridate]</span></li>
+<li>knitr - to create this document <span class="citation">[@knitr]</span></li>
+<li>greenGridr - for local NZ GREEN Grid utilities</li>
+</ul>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 3.4.4 (2018-03-15)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.4
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.20          dplyr_0.7.4         readr_1.1.1        
+## [4] ggplot2_2.2.1       lubridate_1.7.3     data.table_1.10.4-3
+## [7] greenGridr_0.1.0   
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.16      bindr_0.1.1       magrittr_1.5     
+##  [4] hms_0.4.2         munsell_0.4.3     colorspace_1.3-2 
+##  [7] R6_2.2.2          rlang_0.2.0.9001  highr_0.6        
+## [10] stringr_1.3.0     plyr_1.8.4        tools_3.4.4      
+## [13] grid_3.4.4        gtable_0.2.0      htmltools_0.3.6  
+## [16] assertthat_0.2.0  yaml_2.1.18       lazyeval_0.2.1   
+## [19] rprojroot_1.3-2   digest_0.6.15     tibble_1.4.2     
+## [22] bindrcpp_0.2.2    glue_1.2.0        evaluate_0.10.1  
+## [25] rmarkdown_1.9     labeling_0.3      stringi_1.1.7    
+## [28] compiler_3.4.4    pillar_1.2.1      scales_0.5.0.9000
+## [31] backports_1.1.2   pkgconfig_2.0.1</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
