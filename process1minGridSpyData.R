@@ -12,6 +12,7 @@ library(data.table) # for data munching
 library(lubridate) # for date munching - keep here otherwise data.table masks various functions
 library(readr) # for reading/writing csv
 library(ggplot2) # for fancy graphs
+library(dplyr) # for select and contains
 library(greenGridr) # local utilities
 
 # Housekeeping ----
@@ -92,7 +93,7 @@ for(hh in hhIDs){
       # set some file stats
       fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
       fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
-      if(nrow(select(tempDT, contains("NZ"))) > 0){
+      if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
         # => there is at least 1 column whose name contains NZ so we have NZ time
         setnames(tempDT, 'date NZ', "date_NZ")
         # Check the date format as it could be y-m-d or d/m/y :-(
