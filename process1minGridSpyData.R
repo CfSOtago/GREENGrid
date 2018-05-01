@@ -14,6 +14,12 @@ library(readr) # for reading/writing csv
 library(ggplot2) # for fancy graphs
 library(greenGridr) # local utilities
 
+# Housekeeping ----
+rm(list=ls(all=TRUE)) # remove all objects from workspace
+
+# Set start time ----
+startTime <- proc.time()
+
 # Local parameters ----
 
 #dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/"
@@ -27,7 +33,7 @@ pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
 #outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
 outPath <- paste0(dPath, "consolidated/")
 
-indexFile <- "gridSpy1minIndex.csv"
+indexFile <- "fListCompleteDT.csv"
 
 dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
@@ -37,13 +43,14 @@ dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or 
 # First check if the complete file list exists and it was created today
 fListComplete <- paste0(outPath, indexFile)
 if(file.exists(fListComplete)){
-  print("1 minute data index file exists")
-  if(as.Date(file.mtime(fListComplete)) > Sys.Date() - 2)
-    print("and it was created within the last 2 days so re-using...")
+  print("1 minute data index file exists...")
+  dateCreated <- as.Date(file.mtime(fListComplete))
+  if( dateCreated == Sys.Date())
+    print(paste0("and it was created today (",dateCreated, ") so re-using."))
     fListCompleteDT <- fread(fListComplete) 
 } else {
   # create from scratch
-  print("1 minute data index file does not exist and/or it was not created in the last day so re-create...")
+  print("1 minute data index file does not exist and/or it was not created today day so re-create...")
   print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath))
   fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                       recursive = TRUE))
@@ -116,9 +123,9 @@ for(hh in hhIDs){
   
   # > Remove duplicates caused by over-lapping files and dates etc ----
   # Need to remove all test vars for this
-  try(tempDT$date_UTC <- NULL)
-  try(tempDT$date_NZ <- NULL)
-  try(tempDT$testDate <- NULL)
+  try(tempHhDT$date_UTC <- NULL)
+  try(tempHhDT$date_NZ <- NULL)
+  try(tempHhDT$testDate <- NULL)
   
   nObs <- nrow(tempHhDT)
   print(paste0("N rows before removal of duplicates: ", nObs))
@@ -131,10 +138,7 @@ for(hh in hhIDs){
   
   hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do mean Wh as label varies
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
-  # 
-  # ,
-  # sumWh := sum(names(select(tempDT, contains("$")))
-               
+
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # > Save hh file ----
@@ -157,7 +161,7 @@ fListCompleteDT[, .(meanfSize = mean(fSize),
                     nFiles = .N,
                     meanNObs = mean(nObs),
                     maxNObs = max(nObs),
-                    minNObs = min(nObs)), keyby = .(fileLoaded, year(obsStartDate))]
+                    minNObs = min(nObs)), keyby = .(fileLoaded, year(obsStartDate))] # requires lubridate
 
 #> Generate file stats graphs ----
 print("Updating 1 minute data index graphs...")
@@ -167,29 +171,28 @@ myCaption <- paste0("Data source: ", fpath,
 plotDT <- fListCompleteDT[, .(nFiles = .N,
                               meanfSize = mean(fSize)), 
                           keyby = .(hhID, date = as.Date(fMDate))]
-#>> All files ----
-myCaption <- paste0(myCaption, 
-                    "\nLog file size used as some files are full year data")
 
+#>> All files plots ----
 ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") + 
   scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Mean file size of all grid spy data files received per day",
-       caption = myCaption
+       caption = paste0(myCaption, 
+                        "\nLog file size used as some files are full year data")
     
   )
 ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
 
+#>> Loaded files plots ----
+myCaption <- paste0(myCaption,
+                    "\nFiles loaded if size > 3000 bytes (assumed to have observations)")
 plotDT <- fListCompleteDT[fileLoaded == "Yes", .(nFiles = .N,
-                              meanfSize = mean(fSize)), 
+                                                 meanfSize = mean(fSize)), 
                           keyby = .(hhID, date = as.Date(fMDate))]
 
-#>> Loaded files ----
-myCaption <- paste0(myCaption, 
-                    "\nFiles loaded if size > 3000 bytes (assumed to have observations)")
-ggplot(plotDT, aes( x = fMDate, y = hhID, fill = log(meanfSize))) +
+ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") +
   scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
@@ -209,7 +212,7 @@ print("Done")
 #>> Loaded files ----
 ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   geom_tile() +
-  scale_fill_gradient(low = "white", high = "black") +
+  scale_fill_gradient(low = "red", high = "green") +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
@@ -220,7 +223,6 @@ ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 
 ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
   geom_point() +
-  scale_fill_gradient(low = "white", high = "black") +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
@@ -235,3 +237,10 @@ hhStatDT[, .(minObs = min(nObs),
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
+
+# Elapsed time
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+
+elapsed
