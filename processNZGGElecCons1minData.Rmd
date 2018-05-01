@@ -258,6 +258,8 @@ write.csv(hhStatDT, ofile)
 print("Done")
 ```
 
+# Data quality analysis
+
 Now produce some data quality plots & tables.
 
 The following plots show the number of observations per day per household. In theory we should not see:
@@ -292,12 +294,14 @@ ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
 ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
 ```
 
-The following table shows the min/max observations per day and min/max dates. As above, we should not see:
+The following table shows the min/max observations per day and min/max dates for each household. As above, we should not see:
 
  * dates before 2014 or in to the future (indicates date conversion errors)
  * more than 1440 observations per day (indicates potentially duplicate observations)
  
- We should also not see NA in any row (indicates date conversion errors)
+ We should also not see NA in any row (indicates date conversion errors). 
+ 
+ If we do see any of these then we still have data cleaning work to do!
 
 ```{r summaryTable}
 # Stats table (so we can pick out the dateTime errors)
