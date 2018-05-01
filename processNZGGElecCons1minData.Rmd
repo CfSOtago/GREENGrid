@@ -1,16 +1,22 @@
 ---
-title: "Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data"
-author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
+title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
+  consumption data'
+author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
   html_document:
-    fig_caption: yes
-    keep_md: yes
-    number_sections: yes
+    code_folding: hide
+    fig_caption: true
+    keep_md: true
+    number_sections: true
     self_contained: no
-    toc: yes
-    toc_float: yes
-    code_folding: "hide"
+    toc: true
+    toc_float: true
+    toc_depth: 2
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -332,7 +338,7 @@ R packages used:
  * base R - for the basics [@baseR]
  * data.table - for fast (big) data handling [@data.table]
  * ggplot2 - for slick graphics [@ggplot2]
- * dplyr - for rename [@dplyr]
+ * dplyr - for select and contains [@dplyr]
  * lubridate - date manipulation [@lubridate]
  * knitr - to create this document [@knitr]
  * greenGridr - for local NZ GREEN Grid utilities
