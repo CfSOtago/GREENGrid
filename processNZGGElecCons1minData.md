@@ -1,7 +1,7 @@
 ---
 title: "Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data"
 author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
-date: 'Last run at: 2018-05-01 17:09:57'
+date: 'Last run at: 2018-05-01 17:27:02'
 output:
   html_document:
     fig_caption: yes
@@ -19,7 +19,7 @@ output:
 
 \newpage
 
-> Citation
+# Citation
 
 If you wish to use any of the material from this report please cite as:
 
@@ -47,7 +47,7 @@ This report is intended to:
 
 ## History
 
-Generally tracked via [git.soton](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
+Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
  
 ## Support
 
@@ -57,7 +57,7 @@ This work was supported by:
  * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
  * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
  
- > (c) 2018 the University of Southampton.
+This work uis (c) 2018 the University of Southampton.
 
 # Obtain listing of files
 
@@ -111,7 +111,7 @@ if(nrow(fListCompleteDT) == 0){
 ## [1] "Done"
 ```
 
-Overall we have 1913 files from 4 households. The following chart shows the distirbution of these files over time.
+Overall we have 1913 files from 4 households. The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
 
 
 ```r
@@ -149,8 +149,11 @@ ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
 
 In this section we load the data files that have a file size > 3000 bytes. Things to note:
 
- * We assume that any files smaller than this value have no observations. We should probably test the first few lines to double check...
- * We have to deal with at least 2 different date formats and quite a lot of duplication
+ * We assume that any files smaller than this value have no observations. This is based on:
+     * Manual inspection of several small files
+     * The identical (small) file sizes involved
+     * _But_ we should probably test the first few lines to double check...
+ * We have to deal with at least 2 different date formats and quite a lot of duplication some of which causes the differnt date formats. The code to fix these is included below but see also our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
  
 
 
@@ -165,10 +168,10 @@ for(hh in hhIDs){
   fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"]
   filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath] # select the files that meet our size threshold
   for(f in filesToLoad){
-    print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
+    #print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
     # attempt to load the file
     tempDT <- fread(f)
-    print("File loaded")
+    #print("File loaded")
     # set some file stats
     fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
@@ -231,12 +234,6 @@ for(hh in hhIDs){
 
 ```
 ## [1] "Loading: rf_01"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/1Jan2014-24May2014at1.csv) = 6255737 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/24May2014-24May2015at1.csv) = 28791553 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_01/25May2015-25May2016at1.csv) = 11597234 so probably OK"
-## [1] "File loaded"
 ```
 
 ```
@@ -248,12 +245,6 @@ for(hh in hhIDs){
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv"
 ## [1] "Loading: rf_02"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/1Jan2014-24May2014at1.csv) = 6131625 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/24May2014-24May2015at1.csv) = 23987713 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_02/25May2015-25May2016at1.csv) = 283467 so probably OK"
-## [1] "File loaded"
 ```
 
 ```
@@ -265,369 +256,9 @@ for(hh in hhIDs){
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv"
 ## [1] "Loading: rf_06"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Apr2018-11Apr2018at1.csv) = 156944 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Dec2017-11Dec2017at1.csv) = 156601 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Feb2018-11Feb2018at1.csv) = 153353 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Jan2018-11Jan2018at1.csv) = 153982 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Mar2018-11Mar2018at1.csv) = 156471 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/10Nov2017-11Nov2017at1.csv) = 155639 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Apr2018-12Apr2018at1.csv) = 157181 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Dec2017-12Dec2017at1.csv) = 157814 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Feb2018-12Feb2018at1.csv) = 153859 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Jan2018-12Jan2018at1.csv) = 153786 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Mar2018-12Mar2018at1.csv) = 154349 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/11Nov2017-12Nov2017at1.csv) = 155620 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Apr2018-13Apr2018at1.csv) = 156204 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Dec2017-13Dec2017at1.csv) = 157116 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Feb2018-13Feb2018at1.csv) = 154422 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Jan2018-13Jan2018at1.csv) = 153566 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Mar2018-13Mar2018at1.csv) = 154513 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Nov2017-13Nov2017at1.csv) = 155784 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/12Oct2016-20Nov2017at1.csv) = 24221496 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Apr2018-14Apr2018at1.csv) = 155496 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Dec2017-14Dec2017at1.csv) = 155225 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Feb2018-14Feb2018at1.csv) = 154351 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Jan2018-14Jan2018at1.csv) = 152591 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Mar2018-14Mar2018at1.csv) = 155461 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/13Nov2017-14Nov2017at1.csv) = 155701 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Apr2018-15Apr2018at1.csv) = 156156 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Dec2017-15Dec2017at1.csv) = 155056 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Feb2018-15Feb2018at1.csv) = 155160 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Jan2018-15Jan2018at1.csv) = 152395 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Mar2018-15Mar2018at1.csv) = 154898 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/14Nov2017-15Nov2017at1.csv) = 154948 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Apr2018-16Apr2018at1.csv) = 155915 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Dec2017-16Dec2017at1.csv) = 154847 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Feb2018-16Feb2018at1.csv) = 155107 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jan2018-16Jan2018at1.csv) = 152637 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jul2014-25May2016at1.csv) = 36333616 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Mar2018-16Mar2018at1.csv) = 154929 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Nov2017-16Nov2017at1.csv) = 155366 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Apr2018-17Apr2018at1.csv) = 155976 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Dec2017-17Dec2017at1.csv) = 154077 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Feb2018-17Feb2018at1.csv) = 154146 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Jan2018-17Jan2018at1.csv) = 152366 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Mar2018-17Mar2018at1.csv) = 155168 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/16Nov2017-17Nov2017at1.csv) = 154987 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Apr2018-18Apr2018at1.csv) = 157151 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Dec2017-18Dec2017at1.csv) = 154605 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Feb2018-18Feb2018at1.csv) = 153476 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Jan2018-18Jan2018at1.csv) = 153983 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Mar2018-18Mar2018at1.csv) = 155425 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/17Nov2017-18Nov2017at1.csv) = 156377 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Apr2018-19Apr2018at1.csv) = 156682 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Dec2017-19Dec2017at1.csv) = 155278 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Feb2018-19Feb2018at1.csv) = 153841 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Jan2018-19Jan2018at1.csv) = 156007 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Mar2018-19Mar2018at1.csv) = 155682 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/18Nov2017-19Nov2017at1.csv) = 157535 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Apr2018-20Apr2018at1.csv) = 155596 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Dec2017-20Dec2017at1.csv) = 155040 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Feb2018-20Feb2018at1.csv) = 154104 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Jan2018-20Jan2018at1.csv) = 155390 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Mar2018-20Mar2018at1.csv) = 154893 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/19Nov2017-20Nov2017at1.csv) = 155701 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Apr2018-2Apr2018at1.csv) = 156595 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Dec2017-2Dec2017at1.csv) = 154810 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Feb2018-2Feb2018at1.csv) = 154426 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Jan2018-2Jan2018at1.csv) = 154620 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/1Mar2018-2Mar2018at1.csv) = 154686 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Apr2018-21Apr2018at1.csv) = 155079 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Dec2017-21Dec2017at1.csv) = 155269 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Feb2018-21Feb2018at1.csv) = 154584 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Jan2018-21Jan2018at1.csv) = 154271 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Mar2018-21Mar2018at1.csv) = 155169 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/20Nov2017-21Nov2017at1.csv) = 155030 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Apr2018-22Apr2018at1.csv) = 154703 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Dec2017-22Dec2017at1.csv) = 154669 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Feb2018-22Feb2018at1.csv) = 155119 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Jan2018-22Jan2018at1.csv) = 153747 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Mar2018-22Mar2018at1.csv) = 156162 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/21Nov2017-22Nov2017at1.csv) = 155120 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Apr2018-23Apr2018at1.csv) = 155217 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Dec2017-23Dec2017at1.csv) = 154231 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Feb2018-23Feb2018at1.csv) = 154611 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Jan2018-23Jan2018at1.csv) = 153121 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Mar2018-23Mar2018at1.csv) = 155749 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/22Nov2017-23Nov2017at1.csv) = 155211 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Apr2018-24Apr2018at1.csv) = 156400 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Dec2017-24Dec2017at1.csv) = 154246 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Feb2018-24Feb2018at1.csv) = 154647 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Jan2018-24Jan2018at1.csv) = 153433 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Mar2018-24Mar2018at1.csv) = 155067 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/23Nov2017-24Nov2017at1.csv) = 155419 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Apr2018-25Apr2018at1.csv) = 157124 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Dec2017-25Dec2017at1.csv) = 153457 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Feb2018-25Feb2018at1.csv) = 154728 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Jan2018-25Jan2018at1.csv) = 153781 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Mar2018-25Mar2018at1.csv) = 155229 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24May2014-24May2015at1.csv) = 19398444 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/24Nov2017-25Nov2017at1.csv) = 155694 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Apr2018-26Apr2018at1.csv) = 156496 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Dec2017-26Dec2017at1.csv) = 154229 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Feb2018-26Feb2018at1.csv) = 154273 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Jan2018-26Jan2018at1.csv) = 153719 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Mar2018-26Mar2018at1.csv) = 156019 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25May2015-25May2016at1.csv) = 28112770 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/25Nov2017-26Nov2017at1.csv) = 156026 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Apr2018-27Apr2018at1.csv) = 156557 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Dec2017-27Dec2017at1.csv) = 155966 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Feb2018-27Feb2018at1.csv) = 155160 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Jan2018-27Jan2018at1.csv) = 153423 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Mar2018-27Mar2018at1.csv) = 155149 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26May2016-11Oct2016at1.csv) = 10824473 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/26Nov2017-27Nov2017at1.csv) = 155423 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Apr2018-28Apr2018at1.csv) = 157287 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Dec2017-28Dec2017at1.csv) = 156446 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Feb2018-28Feb2018at1.csv) = 156539 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Jan2018-28Jan2018at1.csv) = 153340 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Mar2018-28Mar2018at1.csv) = 154187 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/27Nov2017-28Nov2017at1.csv) = 154682 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Apr2018-29Apr2018at1.csv) = 156873 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Dec2017-29Dec2017at1.csv) = 155342 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Feb2018-1Mar2018at1.csv) = 155918 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Jan2018-29Jan2018at1.csv) = 154055 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Mar2018-29Mar2018at1.csv) = 155418 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/28Nov2017-29Nov2017at1.csv) = 154383 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Dec2017-30Dec2017at1.csv) = 153845 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Jan2018-30Jan2018at1.csv) = 154443 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Mar2018-30Mar2018at1.csv) = 155003 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/29Nov2017-30Nov2017at1.csv) = 154359 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Apr2018-3Apr2018at1.csv) = 155092 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Dec2017-3Dec2017at1.csv) = 154752 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Feb2018-3Feb2018at1.csv) = 155019 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Jan2018-3Jan2018at1.csv) = 154661 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/2Mar2018-3Mar2018at1.csv) = 154010 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Dec2017-31Dec2017at1.csv) = 153947 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Jan2018-31Jan2018at1.csv) = 153829 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Mar2018-31Mar2018at1.csv) = 154067 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/30Nov2017-1Dec2017at1.csv) = 154805 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Dec2017-1Jan2018at1.csv) = 154906 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Jan2018-1Feb2018at1.csv) = 153717 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/31Mar2018-1Apr2018at1.csv) = 156134 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Apr2018-4Apr2018at1.csv) = 154995 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Dec2017-4Dec2017at1.csv) = 155234 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Feb2018-4Feb2018at1.csv) = 154791 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Jan2018-4Jan2018at1.csv) = 155888 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/3Mar2018-4Mar2018at1.csv) = 153765 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Apr2018-5Apr2018at1.csv) = 154972 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Dec2017-5Dec2017at1.csv) = 155171 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Feb2018-5Feb2018at1.csv) = 154631 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Jan2018-5Jan2018at1.csv) = 156633 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/4Mar2018-5Mar2018at1.csv) = 154410 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Apr2018-6Apr2018at1.csv) = 155277 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Dec2017-6Dec2017at1.csv) = 154991 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Feb2018-6Feb2018at1.csv) = 155700 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Jan2018-6Jan2018at1.csv) = 154876 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/5Mar2018-6Mar2018at1.csv) = 154627 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Apr2018-7Apr2018at1.csv) = 155880 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Dec2017-7Dec2017at1.csv) = 154146 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Feb2018-7Feb2018at1.csv) = 155052 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Jan2018-7Jan2018at1.csv) = 153082 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/6Mar2018-7Mar2018at1.csv) = 155312 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Apr2018-8Apr2018at1.csv) = 155196 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Dec2017-8Dec2017at1.csv) = 153823 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Feb2018-8Feb2018at1.csv) = 153986 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Jan2018-8Jan2018at1.csv) = 154393 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/7Mar2018-8Mar2018at1.csv) = 156059 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Apr2018-9Apr2018at1.csv) = 155215 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Dec2017-9Dec2017at1.csv) = 154740 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Feb2018-9Feb2018at1.csv) = 154210 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Jan2018-9Jan2018at1.csv) = 154371 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Mar2018-9Mar2018at1.csv) = 155052 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/8Nov2017-9Nov2017at1.csv) = 156449 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Apr2018-10Apr2018at1.csv) = 156396 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Dec2017-10Dec2017at1.csv) = 155670 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Feb2018-10Feb2018at1.csv) = 154155 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Jan2018-10Jan2018at1.csv) = 153872 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Mar2018-10Mar2018at1.csv) = 155857 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/9Nov2017-10Nov2017at1.csv) = 155754 so probably OK"
-## [1] "File loaded"
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv"
 ## [1] "Loading: rf_27"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/15Jul2014-25May2016at1.csv) = 20059135 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/24May2014-24May2015at1.csv) = 22666661 so probably OK"
-## [1] "File loaded"
-## [1] "File size (~/Data/NZGreenGrid/gridspy/1min_orig/rf_27/25May2015-25May2016at1.csv) = 25097300 so probably OK"
-## [1] "File loaded"
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv"
 ```
@@ -651,6 +282,8 @@ print("Done")
 ## [1] "Done"
 ```
 
+# Data quality analysis
+
 Now produce some data quality plots & tables.
 
 The following plots show the number of observations per day per household. In theory we should not see:
@@ -660,7 +293,7 @@ The following plots show the number of observations per day per household. In th
 
 
 ```r
-#>> Loaded files ----
+# tile plot ----
 ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -673,7 +306,7 @@ ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   )
 ```
 
-![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlot-1.png)<!-- -->
+![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlots-1.png)<!-- -->
 
 ```r
 ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
@@ -684,6 +317,7 @@ ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 ```
 
 ```r
+# point plot ----
 ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
   geom_point() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
@@ -695,7 +329,7 @@ ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
   )
 ```
 
-![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlot-2.png)<!-- -->
+![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlots-2.png)<!-- -->
 
 ```r
 ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
@@ -705,12 +339,14 @@ ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
 ## Saving 7 x 5 in image
 ```
 
-The following table shows the min/max observations per day and min/max dates. As above, we should not see:
+The following table shows the min/max observations per day and min/max dates for each household. As above, we should not see:
 
- * dates before 2014 or in to the future (they indicate date conversion errors)
- * more than 1440 observations per day (they indicate potentially duplicate data)
+ * dates before 2014 or in to the future (indicates date conversion errors)
+ * more than 1440 observations per day (indicates potentially duplicate observations)
  
- We should also not see NA in any row (indicates date conversion errors)
+ We should also not see NA in any row (indicates date conversion errors). 
+ 
+ If we do see any of these then we still have data cleaning work to do!
 
 
 ```r
@@ -745,7 +381,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 173.684 seconds ( 2.89 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 168.541 seconds ( 2.81 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
