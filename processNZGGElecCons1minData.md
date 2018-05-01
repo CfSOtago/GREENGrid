@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-01 17:45:10'
+date: 'Last run at: 2018-05-01 17:51:24'
 output:
   html_document:
     code_folding: hide
@@ -73,7 +73,7 @@ In this section we generate a listing of all 1 minute data files that we have re
  
 In this run we are using data from:
 
- * ~/Data/NZGreenGrid/gridspy/1min_orig/
+ * /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
 
 If these do not match then this may be a test run.
 
@@ -83,7 +83,7 @@ print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", 
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/"
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/"
 ```
 
 ```r
@@ -113,11 +113,11 @@ if(nrow(fListCompleteDT) == 0){
 
 ```
 ## [1] "Processing file list and getting file meta-data (please be patient)"
-## [1] "Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/fListCompleteDT.csv"
+## [1] "Saving 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/fListCompleteDT.csv"
 ## [1] "Done"
 ```
 
-Overall we have 1913 files from 4 households. The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
+Overall we have 21088 files from 44 households. The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
 
 
 ```r
@@ -248,8 +248,8 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_01_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_01_all_1min_data.csv"
 ## [1] "Loading: rf_02"
 ```
 
@@ -259,14 +259,196 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_02_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_02_all_1min_data.csv"
 ## [1] "Loading: rf_06"
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_06_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_06_all_1min_data.csv"
+## [1] "Loading: rf_07"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_07_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_07_all_1min_data.csv"
+## [1] "Loading: rf_08"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_08_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_08_all_1min_data.csv"
+## [1] "Loading: rf_09"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_09_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_09_all_1min_data.csv"
+## [1] "Loading: rf_10"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_10_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_10_all_1min_data.csv"
+## [1] "Loading: rf_11"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_11_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_11_all_1min_data.csv"
+## [1] "Loading: rf_12"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_12_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_12_all_1min_data.csv"
+## [1] "Loading: rf_13"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_13_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_13_all_1min_data.csv"
+## [1] "Loading: rf_14"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_14_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_14_all_1min_data.csv"
+## [1] "Loading: rf_15"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_15_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_15_all_1min_data.csv"
+## [1] "Loading: rf_16"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_16_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_16_all_1min_data.csv"
+## [1] "Loading: rf_17"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_17_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_17_all_1min_data.csv"
+## [1] "Loading: rf_18"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_18_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_18_all_1min_data.csv"
+## [1] "Loading: rf_19"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_19_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_19_all_1min_data.csv"
+## [1] "Loading: rf_20"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'date_UTC' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_20_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_20_all_1min_data.csv"
+## [1] "Loading: rf_21"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_21_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_21_all_1min_data.csv"
+## [1] "Loading: rf_22"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_22_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_22_all_1min_data.csv"
+## [1] "Loading: rf_23"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_23_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_23_all_1min_data.csv"
+## [1] "Loading: rf_24"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_24_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_24_all_1min_data.csv"
+## [1] "Loading: rf_25"
+```
+
+```
+## Warning: 115200 failed to parse.
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_25_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_25_all_1min_data.csv"
+## [1] "Loading: rf_26"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_26_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_26_all_1min_data.csv"
 ## [1] "Loading: rf_27"
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_27_all_1min_data.csv"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_27_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_27_all_1min_data.csv"
+## [1] "Loading: rf_28"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_28_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_28_all_1min_data.csv"
+## [1] "Loading: rf_29"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_29_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_29_all_1min_data.csv"
+## [1] "Loading: rf_30"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_30_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_30_all_1min_data.csv"
+## [1] "Loading: rf_31"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_31_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_31_all_1min_data.csv"
+## [1] "Loading: rf_32"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_32_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_32_all_1min_data.csv"
+## [1] "Loading: rf_33"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_33_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_33_all_1min_data.csv"
+## [1] "Loading: rf_34"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_34_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_34_all_1min_data.csv"
+## [1] "Loading: rf_35"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_35_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_35_all_1min_data.csv"
+## [1] "Loading: rf_36"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_36_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_36_all_1min_data.csv"
+## [1] "Loading: rf_37"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_37_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_37_all_1min_data.csv"
+## [1] "Loading: rf_38"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_38_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_38_all_1min_data.csv"
+## [1] "Loading: rf_39"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_39_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_39_all_1min_data.csv"
+## [1] "Loading: rf_40"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_40_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_40_all_1min_data.csv"
+## [1] "Loading: rf_41"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_41_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_41_all_1min_data.csv"
+## [1] "Loading: rf_42"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_42_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_42_all_1min_data.csv"
+## [1] "Loading: rf_43"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_43_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_43_all_1min_data.csv"
+## [1] "Loading: rf_44"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_44_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_44_all_1min_data.csv"
+## [1] "Loading: rf_45"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_45_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_45_all_1min_data.csv"
+## [1] "Loading: rf_46"
+```
+
+```
+## Warning: 115200 failed to parse.
+```
+
+```
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_46_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_46_all_1min_data.csv"
+## [1] "Loading: rf_47"
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_47_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/rf_47_all_1min_data.csv"
 ```
 
 ```r
@@ -276,7 +458,7 @@ print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out 
 ```
 
 ```
-## [1] "Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/hhDailyObservationsStats.csv"
+## [1] "Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/hhDailyObservationsStats.csv"
 ```
 
 ```r
@@ -312,6 +494,10 @@ ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   )
 ```
 
+```
+## Warning: Removed 2 rows containing missing values (geom_tile).
+```
+
 ![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlots-1.png)<!-- -->
 
 ```r
@@ -320,6 +506,10 @@ ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 
 ```
 ## Saving 7 x 5 in image
+```
+
+```
+## Warning: Removed 2 rows containing missing values (geom_tile).
 ```
 
 ```r
@@ -335,6 +525,10 @@ ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
   )
 ```
 
+```
+## Warning: Removed 2 rows containing missing values (geom_point).
+```
+
 ![](processNZGGElecCons1minData_files/figure-html/loadedFilesObsPlots-2.png)<!-- -->
 
 ```r
@@ -343,6 +537,10 @@ ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
 
 ```
 ## Saving 7 x 5 in image
+```
+
+```
+## Warning: Removed 2 rows containing missing values (geom_point).
 ```
 
 The following table shows the min/max observations per day and min/max dates for each household. As above, we should not see:
@@ -374,8 +572,48 @@ hhID     minObs   maxObs  minDate      maxDate
 ------  -------  -------  -----------  -----------
 rf_01       171     1500  2014-01-05   2015-10-20 
 rf_02       215     1440  2014-03-02   2015-05-28 
-rf_06       243     1500  2014-06-08   2018-04-29 
+rf_06       243     1500  2014-06-08   2018-04-30 
+rf_07       105     1500  2014-07-13   2018-04-30 
+rf_08       123     1500  2014-05-28   2017-05-15 
+rf_09       163     1500  2014-07-13   2015-07-16 
+rf_10       389     1500  2014-07-08   2018-03-29 
+rf_11       278     1500  2014-07-07   2018-04-30 
+rf_12        85     1500  2014-07-08   2015-06-02 
+rf_13       456     1500  2014-06-05   2018-04-30 
+rf_14       120     1500  2014-07-13   2017-12-30 
+rf_15        62     1440  2015-01-14   2016-04-18 
+rf_16       720     1500  2014-07-09   2015-03-25 
+rf_17        22     1500  2014-05-29   2018-04-11 
+rf_18       157     1500  2014-05-29   2015-06-11 
+rf_19       387     1500  2014-07-14   2018-04-30 
+rf_20        98     1500  2014-05-28   2015-06-11 
+rf_21       195     1500  2014-07-14   2016-07-01 
+rf_22         6     1500  2014-06-05   2018-01-14 
+rf_23       171     1500  2014-05-25   2018-04-30 
+rf_24       571     1500  2014-05-28   2018-04-30 
+rf_25        45    93816  NA           NA         
+rf_26       362     2231  2014-07-10   2018-04-30 
 rf_27       567     1560  2014-07-27   2016-05-13 
+rf_28       297     1440  2015-03-26   2015-05-26 
+rf_29       720     1500  2015-03-25   2018-04-30 
+rf_30       205     1500  2015-03-27   2016-09-29 
+rf_31       720     1500  2015-03-25   2018-04-30 
+rf_32       325     1500  2015-03-25   2016-04-05 
+rf_33       369     1500  2015-03-23   2018-04-30 
+rf_34       317     1500  2014-11-03   2016-08-24 
+rf_35        50     1500  2015-03-22   2017-05-17 
+rf_36        29     1500  2015-03-23   2018-04-30 
+rf_37       720     1500  2015-03-23   2018-04-30 
+rf_38       398     1500  2015-03-24   2017-08-22 
+rf_39       163     1823  2015-03-27   2018-04-30 
+rf_40       268     1500  2015-03-24   2015-11-22 
+rf_41         1     1573  2015-03-25   2018-04-30 
+rf_42        79     1500  2015-03-23   2017-02-18 
+rf_43       780     1495  2015-03-26   2015-10-18 
+rf_44       720     1500  2015-03-24   2018-04-30 
+rf_45        69     1499  2015-03-24   2016-10-15 
+rf_46       305   114306  NA           NA         
+rf_47       159     1500  2015-03-24   2016-05-08 
 
 # Runtime
 
@@ -387,7 +625,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 261.794 seconds ( 4.36 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 7607.885 seconds ( 126.8 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

@@ -46,7 +46,7 @@ reqLibsLocal <- c("data.table", # for data munching
 myRequiredPackages(reqLibsLocal)
 
 # Local parameters ----
-baTest <- 1
+baTest <- 0
 
 if(baTest == 1){
   # Local test
