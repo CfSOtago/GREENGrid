@@ -184,17 +184,18 @@ for(hh in hhIDs){
   print(paste0("Loading: ", hh))
   tempHhDT <- data.table() # create data.table to hold file contents
   fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"]
-  filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath]
+  filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath] # select the files that meet our size threshold
   for(f in filesToLoad){
     print(paste0("File size (", f, ") = ", fListCompleteDT[fullPath == f, fSize], " so probably OK")) # files under 3kb are probably empty
     # attempt to load the file
     tempDT <- fread(f)
+    print("File loaded")
     # set some file stats
     fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
     if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
       # => there is at least 1 column whose name contains NZ so we have NZ time
-      print("NZ time")
+      #print("NZ time")
       setnames(tempDT, 'date NZ', "date_NZ")
       # Check the date format as it could be y-m-d or d/m/y :-(
       tempDT <- tempDT[, testDate := ifelse(substr(date_NZ,2,2) == "/" | # day is 1 digit
@@ -205,7 +206,7 @@ for(hh in hhIDs){
       tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "Pacific/Auckland")]
     } else {
       # we have UTC
-      print("UTC")
+      #print("UTC")
       setnames(tempDT, 'date UTC', "date_UTC")
       tempDT <- tempDT[, testDate := ifelse(substr(date_UTC,2,2) == "/" | # day is 1 digit
                                               substr(date_UTC,3,3) == "/", # 2 digits
@@ -213,7 +214,7 @@ for(hh in hhIDs){
       tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_UTC, tz = "UTC")] # requires lubridate
       tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_UTC, tz = "UTC")]
     }
-    print(head(tempDT)) # test
+    #print(head(tempDT)) # test
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
