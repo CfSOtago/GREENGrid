@@ -1,16 +1,22 @@
 ---
-title: "Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data"
-author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
-date: 'Last run at: 2018-05-01 17:27:02'
+title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
+  consumption data'
+author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
+date: 'Last run at: 2018-05-01 17:45:10'
 output:
   html_document:
-    fig_caption: yes
-    keep_md: yes
-    number_sections: yes
+    code_folding: hide
+    fig_caption: true
+    keep_md: true
+    number_sections: true
     self_contained: no
-    toc: yes
-    toc_float: yes
-    code_folding: "hide"
+    toc: true
+    toc_float: true
+    toc_depth: 2
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
 ---
 
 
@@ -381,7 +387,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 168.541 seconds ( 2.81 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 261.794 seconds ( 4.36 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -390,7 +396,7 @@ R packages used:
  * base R - for the basics [@baseR]
  * data.table - for fast (big) data handling [@data.table]
  * ggplot2 - for slick graphics [@ggplot2]
- * dplyr - for rename [@dplyr]
+ * dplyr - for select and contains [@dplyr]
  * lubridate - date manipulation [@lubridate]
  * knitr - to create this document [@knitr]
  * greenGridr - for local NZ GREEN Grid utilities
@@ -417,7 +423,7 @@ sessionInfo()
 ## 
 ## other attached packages:
 ## [1] knitr_1.20          dplyr_0.7.4         readr_1.1.1        
-## [4] ggplot2_2.2.1       lubridate_1.7.3     data.table_1.10.4-3
+## [4] ggplot2_2.2.1       lubridate_1.7.4     data.table_1.10.4-3
 ## [7] greenGridr_0.1.0   
 ## 
 ## loaded via a namespace (and not attached):
@@ -430,6 +436,6 @@ sessionInfo()
 ## [19] rprojroot_1.3-2   digest_0.6.15     tibble_1.4.2     
 ## [22] bindrcpp_0.2.2    glue_1.2.0        evaluate_0.10.1  
 ## [25] rmarkdown_1.9     labeling_0.3      stringi_1.1.7    
-## [28] compiler_3.4.4    pillar_1.2.1      scales_0.5.0.9000
+## [28] compiler_3.4.4    pillar_1.2.2      scales_0.5.0.9000
 ## [31] backports_1.1.2   pkgconfig_2.0.1
 ```
