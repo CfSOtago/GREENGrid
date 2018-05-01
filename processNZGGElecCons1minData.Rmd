@@ -136,8 +136,9 @@ if(nrow(fListCompleteDT) == 0){
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
   }
-  print("Saving 1 minute data files metadata...")
-  write.csv(fListCompleteDT, paste0(outPath, indexFile))
+  ofile <- paste0(outPath, indexFile)
+  print(paste0("Saving 1 minute data files metadata to ", ofile))
+  write.csv(fListCompleteDT, ofile)
   print("Done")
 }
 
@@ -248,4 +249,11 @@ for(hh in hhIDs){
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
   print(paste0("Gzipped ", ofile))
 }
+
+#> Save observed data stats for all files loaded ----
+ofile <- paste0(outPath, "hhDailyObservationsStats.csv")
+print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out version with file stats
+write.csv(hhStatDT, ofile)
+print("Done")
 ```
+
