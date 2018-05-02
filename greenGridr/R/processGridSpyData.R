@@ -1,6 +1,6 @@
 #' Check date fomrats
 #'
-#' \code{checkDates} takes character column in a data.table which is thought to be a date and tries to work out what format the date is in. 
+#' \code{checkDates} takes character column in a data.table which is thought to be a date and tries to work out what format the date is in.
 #' Returns the best guess as a new column dateFormat in the data.table. If can't guess, sets dateFormat to 'ambiguous'.
 #' Assumes the character column is called 'date_char' - I suppose this ought to be parameterised but...
 #' Requires data.table as it uses tstrsplit
@@ -16,9 +16,9 @@ checkDates <- function(dt) {
   # if this split failed then tstrsplit puts the dateVar in each one so we can check
   # and then split on / instead
   dt <- dt[date_char1 == date_char2, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
-  
+
  dt$dateFormat <- "ambiguous"
-  
+
   if(max(as.integer(dt$date_char3)) > 32){
     # char 3 = year
     if(max(as.integer(dt$date_char2)) > 12){
@@ -46,5 +46,5 @@ checkDates <- function(dt) {
 
 
 
-    
+
 
