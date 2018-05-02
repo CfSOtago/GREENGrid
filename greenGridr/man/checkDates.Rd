@@ -10,7 +10,7 @@ checkDates(dt)
 \item{dt}{the data table to use & return}
 }
 \description{
-\code{checkDates} takes character column in a data.table which is thought to be a date and tries to work out what format the date is in. 
+\code{checkDates} takes character column in a data.table which is thought to be a date and tries to work out what format the date is in.
 Returns the best guess as a new column dateFormat in the data.table. If can't guess, sets dateFormat to 'ambiguous'.
 Assumes the character column is called 'date_char' - I suppose this ought to be parameterised but...
 Requires data.table as it uses tstrsplit
