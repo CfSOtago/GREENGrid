@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-02 17:08:00</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-03 10:19:42</em></h4>
 
 </div>
 
@@ -296,20 +296,27 @@ div.tocify {
 <li>~/Data/NZGreenGrid/gridspy/1min_orig/</li>
 </ul>
 <p>If these do not match then this may be a test run.</p>
-<pre class="r"><code>print(paste0(&quot;Looking for 1 minute data using pattern = &quot;, pattern1Min, &quot; in &quot;, fpath))</code></pre>
-<pre><code>## [1] &quot;Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/&quot;</code></pre>
-<pre class="r"><code>fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
-                                            recursive = TRUE))
-if(nrow(fListCompleteDT) == 0){
+<pre class="r"><code>print(paste0(&quot;Looking for 1 minute data using pattern = &quot;, pattern1Min, &quot; in &quot;, fpath, &quot; - could take a while&quot;))</code></pre>
+<pre><code>## [1] &quot;Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while&quot;</code></pre>
+<pre class="r"><code>system.time(fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
+                                            recursive = TRUE)))</code></pre>
+<pre><code>##    user  system elapsed 
+##   0.014   0.017   0.040</code></pre>
+<pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
+print(paste0(&quot;Found &quot;, nFiles, &quot; files&quot;))</code></pre>
+<pre><code>## [1] &quot;Found 1915 files&quot;</code></pre>
+<pre class="r"><code>if(nrow(fListCompleteDT) == 0){
   stop(paste0(&quot;No matching data files found, please check your path (&quot;, fpath, &quot;) or your search pattern (&quot;, pattern1Min, &quot;)&quot;))
 } else {
   print(paste0(&quot;Processing file list and getting file meta-data (please be patient)&quot;))
   fListCompleteDT &lt;- fListCompleteDT[, c(&quot;hhID&quot;,&quot;fileName&quot;) := tstrsplit(V1, &quot;/&quot;)]
   fListCompleteDT &lt;- fListCompleteDT[, fullPath := paste0(fpath, hhID,&quot;/&quot;,fileName)]
-  
+  loopCount &lt;- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    if(fullFb){print(paste0(&quot;Checking &quot;, f))}
+    pcDone &lt;- 100*(loopCount/nFiles)
+    if(fullFb){print(paste0(&quot;Checking file &quot;, loopCount, &quot; of &quot;, nFiles ,
+                            &quot; (&quot;, round(pcDone,2), &quot;% checked) - &quot;, f))}
     rf &lt;- path.expand(f) # just in case of ~ etc
     fsize &lt;- file.size(rf)
     fmtime &lt;- ymd_hms(file.mtime(rf), tz = &quot;Pacific/Auckland&quot;) # requires lubridate
@@ -343,6 +350,7 @@ if(nrow(fListCompleteDT) == 0){
       fListCompleteDT &lt;- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0(&quot;Done &quot;, f))}
     }
+    loopCount &lt;- loopCount + 1
   }
   if(baTest | fullFb){print(&quot;All files checked&quot;)}
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
@@ -992,7 +1000,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 462.786 seconds ( 7.71 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 461.618 seconds ( 7.69 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>

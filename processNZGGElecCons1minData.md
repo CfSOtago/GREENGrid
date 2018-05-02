@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-02 17:08:00'
+date: 'Last run at: 2018-05-03 10:19:42'
 output:
   html_document:
     code_folding: hide
@@ -79,26 +79,45 @@ If these do not match then this may be a test run.
 
 
 ```r
-print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath))
+print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while"))
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/"
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while"
 ```
 
 ```r
-fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
-                                            recursive = TRUE))
+system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
+                                            recursive = TRUE)))
+```
+
+```
+##    user  system elapsed 
+##   0.014   0.017   0.040
+```
+
+```r
+nFiles <- nrow(fListCompleteDT)
+print(paste0("Found ", nFiles, " files"))
+```
+
+```
+## [1] "Found 1915 files"
+```
+
+```r
 if(nrow(fListCompleteDT) == 0){
   stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
 } else {
   print(paste0("Processing file list and getting file meta-data (please be patient)"))
   fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := tstrsplit(V1, "/")]
   fListCompleteDT <- fListCompleteDT[, fullPath := paste0(fpath, hhID,"/",fileName)]
-  
+  loopCount <- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    if(fullFb){print(paste0("Checking ", f))}
+    pcDone <- 100*(loopCount/nFiles)
+    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
+                            " (", round(pcDone,2), "% checked) - ", f))}
     rf <- path.expand(f) # just in case of ~ etc
     fsize <- file.size(rf)
     fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
@@ -132,6 +151,7 @@ if(nrow(fListCompleteDT) == 0){
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0("Done ", f))}
     }
+    loopCount <- loopCount + 1
   }
   if(baTest | fullFb){print("All files checked")}
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
@@ -684,7 +704,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 462.786 seconds ( 7.71 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 461.618 seconds ( 7.69 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

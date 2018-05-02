@@ -464,8 +464,11 @@ for(hh in hhIDs){
   write_csv(tempHhDT, ofile)
   print(paste0("Saved ", ofile, ", gzipping..."))
 
-  print("Col names: ")
-  print(names(tempHhDT))
+  if(fullFb){
+    print("Col names: ")
+    print(names(tempHhDT))
+  }
+  
   cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
   print(paste0("Gzipped ", ofile))
