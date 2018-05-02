@@ -43,7 +43,49 @@ reqLibsLocal <- c("data.table", # for data munching
                   "knitr" # for kable
                   )
 
-myRequiredPackages(reqLibsLocal)
+greenGridr::myRequiredPackages(reqLibsLocal)
+
+# Local functions ----
+# move to package?
+gs_checkDates <- function(dt) {
+  # Check the date format as it could be y-m-d or d/m/y or m/d/y :-(
+  dt <- dt[, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "/")]
+  # if this split failed then tstrsplit puts the dateVar in each one so we can check
+  # and then split on / instead
+  dt <- dt[date_char1 == date_char2, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
+  
+ dt$dateFormat <- "ambiguous"
+  
+  if(max(as.integer(dt$date_char3)) > 32){
+    # char 3 = year so use default dmy
+    dt$dateFormat <- "dmy - default (check as m & d may be reversed)"
+    if(max(as.integer(dt$date_char2)) > 12){
+      # char 2 = day
+      dt$dateFormat <- "mdy"
+    }
+    if(max(as.integer(dt$date_char1)) > 12){
+      # char 1 = day
+      dt$dateFormat <- "dmy"
+    }
+  }
+  if(max(as.integer(dt$date_char1)) > 32){
+    # char 1 = year so default is ymd
+    dt$dateFormat <- "ymd - default (check as m & d may be reversed)"
+    if(max(as.integer(dt$date_char2)) > 12){
+      # char 2 = day
+      dt$dateFormat <- "ydm"
+    }
+    if(max(as.integer(dt$date_char3)) > 12){
+      # char 3 = day
+      dt$dateFormat <- "ymd"
+    }
+  }
+  return(dt)
+}
+
+
+
+    
 
 # Local parameters ----
 fullFb <- 0 # switch on full feedback
@@ -123,26 +165,32 @@ If these do not match then this may be a test run.
 
 ```{r getCompleteFileList}
 
-print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath))
-fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
-                                            recursive = TRUE))
+print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while"))
+system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
+                                            recursive = TRUE)))
+
+nFiles <- nrow(fListCompleteDT)
+print(paste0("Found ", nFiles, " files"))
+
+
 if(nrow(fListCompleteDT) == 0){
   stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
 } else {
   print(paste0("Processing file list and getting file meta-data (please be patient)"))
   fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := tstrsplit(V1, "/")]
   fListCompleteDT <- fListCompleteDT[, fullPath := paste0(fpath, hhID,"/",fileName)]
-  
+  loopCount <- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    if(baTest | fullFb){print(paste0("Checking ", f))}
+    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
+                            " (", round(100*(loopCount/nFiles),2), "% checked) - ", f))}
     rf <- path.expand(f) # just in case of ~ etc
     fsize <- file.size(rf)
     fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
     fListCompleteDT <- fListCompleteDT[fullPath == f, fSize := fsize]
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
-    fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "unknown - not loaded"]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := paste0("unknown - file not loaded (fsize = ", fsize, ")")]
     # only try to read files where we think there might be data
     if(fsize > dataThreshold){
       if(fullFb){print(paste0("fSize (", fsize, ") > threshold (", dataThreshold, ") -> loading ", f))}
@@ -151,10 +199,12 @@ if(nrow(fListCompleteDT) == 0){
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "unknown - can't tell"]
       if(nrow(select(row1DT, contains("NZ"))) > 0){ # requires dplyr
         setnames(row1DT, 'date NZ', "dateTime_char")
+        row1DT <- row1DT[, dateColName := "date NZ"]
         fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "date NZ"]
       } 
       if(nrow(select(row1DT, contains("UTC"))) > 0){ # requires dplyr
         setnames(row1DT, 'date UTC', "dateTime_char")
+        row1DT <- row1DT[, dateColName := "date UTC"]
         fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "date UTC"]
       }
       # split dateTime
@@ -163,10 +213,11 @@ if(nrow(fListCompleteDT) == 0){
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateExample := row1DT[1, date_char]]
       
       if(fullFb){print(paste0("Checking date formats in ", f))}
-      row1DT <- checkDates(row1DT)
-      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := row1DT[1, dateFormat]]
+      dt <- gs_checkDates(row1DT)
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0("Done ", f))}
     }
+    loopCount <- loopCount + 1
   }
   if(baTest | fullFb){print("All files checked")}
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
@@ -184,9 +235,9 @@ if(nrow(fListCompleteDT) == 0){
       
     }
     dt <- dt[, c("date_char", "time_char") := tstrsplit(dateTime_char, " ")]
-    dt <- checkDates(dt)
+    dt <- gs_checkDates(dt)
     # set what we now know (or guess!)
-    fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1,dateFormat]]
+    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := dt[1,dateFormat]]
   }
       
   ofile <- paste0(outPath, indexFile)
@@ -197,12 +248,79 @@ if(nrow(fListCompleteDT) == 0){
 
 print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(fListCompleteDT$hhID), " households."))
 
-t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
-
-kable(caption = "Number of files with given data column names", t)
+# for use below
+nFiles <- nrow(fListCompleteDT)
+nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 ```
 
-Overall we have `r nrow(fListCompleteDT)` files from `r uniqueN(fListCompleteDT$hhID)` households. The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
+Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteDT$hhID))` households. Of the `r tidyNum(nFiles)`,  `r tidyNum(nFilesNotLoaded)` (`r round(100*(nFilesNotLoaded/nFiles),2)`%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
+
+We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
+
+```{r initialDateFormatTable}
+t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+
+kable(caption = "Number of files with given date column names by inferred date format", t)
+```
+
+Results to note:
+
+ * There are `r nrow(fListCompleteDT[dateFormat == "ambiguous"])` ambiguous files
+ * The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data. 
+ 
+We now inspect the ambiguous and (some of) the default files.
+
+To help with data cleaning the following table lists files that are ambiguous.
+
+```{r listAmbigFiles}
+# list ambigious files
+aList <- fListCompleteDT[dateFormat == "ambiguous", .(file = V1, dateColName, dateExample, dateFormat)]
+
+kable(caption = "Files with ambigious date formats", aList)
+
+```
+
+Looking at the file names we will assume they are dmy.
+
+```{r setAmbiguous}
+fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", dateFormat := "dmy - inferred"]
+```
+
+
+The following table lists 'date NZ' files which are set by default only - do they look OK to assume dateFormat?
+
+```{r listDefaultDateFilesNZT}
+# list default files
+aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
+
+kable(caption = "Files with inferred default date formats", head(aList))
+
+```
+
+These look OK if we compare the file names with the dateExample.
+
+The following table lists 'date NZ' files which are set by default only - do they look OK to assume dateFormat?
+
+```{r listDefaultDateFilesUTC}
+# list default files
+aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
+
+kable(caption = "Files with inferred default date formats", head(aList))
+
+
+```
+
+These also look OK so we will stick with the following derived date formats:
+
+```{r finalDateFormatTable}
+t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+
+kable(caption = "Number of files with given date column names by final imputed date format", t)
+```
+
+## Data file quality checks
+
+The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
 
 ```{r allFileSizesPlot}
 myCaption <- paste0("Data source: ", fpath,
@@ -212,7 +330,6 @@ plotDT <- fListCompleteDT[, .(nFiles = .N,
                               meanfSize = mean(fSize)), 
                           keyby = .(hhID, date = as.Date(fMDate))]
 
-#>> All files plots ----
 ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") + 
@@ -226,6 +343,30 @@ ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
 ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
 ```
 
+
+The following chart shows the same chart but only for files which we think contain data.
+
+```{r loadedFileSizesPlot}
+myCaption <- paste0("Data source: ", fpath,
+                    "\nUsing data received up to ", Sys.Date())
+
+plotDT <- fListCompleteDT[!is.na(dateFormat), .(nFiles = .N,
+                              meanfSize = mean(fSize)), 
+                          keyby = .(hhID, date = as.Date(fMDate))]
+
+ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black") + 
+  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Mean file size of all grid spy data files received per day",
+       caption = paste0(myCaption, 
+                        "\nLog file size used as some files are full year data")
+    
+  )
+ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
+```
+
 # Load data files
 
 In this section we load the data files that have a file size > `r dataThreshold` bytes. Things to note:
@@ -234,123 +375,78 @@ In this section we load the data files that have a file size > `r dataThreshold`
      * Manual inspection of several small files
      * The identical (small) file sizes involved
      * _But_ we should probably test the first few lines to double check...
- * We have to deal with at least 2 different date formats and quite a lot of duplication some of which causes the differnt date formats. The code to fix these is included below but see also our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
+ * We have to deal with quite a lot of duplication some of which has caused the different date formats. See our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
  
+The following table shows the number of files per household that we willl load.
+
+```{r filesToLoadTable}
+filesToLoadDT <- fListCompleteDT[!is.na(dateFormat)]
+
+t <- filesToLoadDT[, .(nFiles = .N,
+                       meanSize = mean(fSize),
+                       minFileDate = min(fMDate),
+                       maxFileDate = max(fMDate)), keyby = .(hhID)]
+
+kable(caption = "Summary of household files to load", t)
+```
+
 
 ```{r loadValidFiles}
 # > Load, process & save the ones which probably have data ----
-
-hhIDs <- unique(fListCompleteDT$hhID) # list of household ids
+fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"] # set default
+hhIDs <- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT <- data.table() # stats collector
 for(hh in hhIDs){
+  tempHhDT <- data.table() # hh data collector
   print(paste0("Loading: ", hh))
-  tempHhDT <- data.table() # create data.table to hold file contents
-  fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"]
-  filesToLoad <- fListCompleteDT[hhID == hh & fSize > dataThreshold, fullPath] # select the files that meet our size threshold
+  filesToLoad <- filesToLoadDT[hhID == hh, fullPath]
   for(f in filesToLoad){
-    if(baTest){print(paste0("File size (", f, ") = ", 
-                            fListCompleteDT[fullPath == f, fSize], 
+    if(fullFb){print(paste0("File size (", f, ") = ", 
+                            filesToLoadDT[fullPath == f, fSize], 
                             " so probably OK"))} # files under 3kb are probably empty
     # attempt to load the file
     tempDT <- fread(f)
-    if(baTest){print("File loaded")}
+    if(fullFb){print("File loaded")}
     # set some file stats
     fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
     
-    if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
-      # => there is at least 1 column whose name contains NZ so we have NZ time
-      if(baTest){print("NZ time")}
-      setnames(tempDT, 'date NZ', "date_NZ")
-      # Check the date format as it could be y-m-d or d/m/y or m/d/y :-(
-      tempDT <- tempDT[, c("date_char", "time_char") := tstrsplit(date_NZ, " ")]
-      try(tempDT <- tempDT[, c("date_char1", "date_char2", "date_char3") := tstrsplit(date_char, "/")])
-      try(tempDT <- tempDT[, c("date_char1", "date_char2", "date_char3") := tstrsplit(date_char, "-")])
-      tempDT$dateFormat <- "ambiguous"
-      if(max(as.integer(tempDT$date_char3)) > 32){
-        # char 3 = year
-        if(max(as.integer(tempDT$date_char2)) > 12){
-          # char 2 = day
-          tempDT$dateFormat <- "mdy"
-        }
-        if(max(as.integer(tempDT$date_char1)) > 12){
-          # char 1 = month
-          tempDT$dateFormat <- "dmy"
-        }
+    # what is the date column called?
+      if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
+        setnames(tempDT, 'date NZ', "dateTime_char")
+        tempDT <- tempDT[, dateColName := "date NZ"]
+      } 
+      if(nrow(select(tempDT, contains("UTC"))) > 0){ # requires dplyr
+        setnames(tempDT, 'date UTC', "dateTime_char")
+        tempDT <- tempDT[, dateColName := "date UTC"]
       }
-      if(max(as.integer(tempDT$date_char1)) > 32){
-        # char 1 = year
-        if(max(as.integer(tempDT$date_char2)) > 12){
-          # char 2 = day
-          tempDT$dateFormat <- "ydm"
-        }
-        if(max(as.integer(tempDT$date_char1)) > 12){
-          # char 1 = month
-          tempDT$dateFormat <- "ymd"
-        }
-      }
-      # Now use that to correctly parse dates
-      tempDT <- tempDT[dateFormat == "mdy", r_dateTime := mdy_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "ydm", r_dateTime := ymd_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "ymd", r_dateTime := ymd_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
-      if(baTest){
+      
+      # Now use the pre-inferred dateFormat
+      tempDT <- tempDT[, dateFormat := filesToLoadDT[fullPath == f, dateFormat]]
+      tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "NZ", r_dateTime := mdy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "dmy" & dateColName %like% "NZ", r_dateTime := dmy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "ydm" & dateColName %like% "NZ", r_dateTime := ymd_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "ymd" & dateColName %like% "NZ", r_dateTime := ymd_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "UTC", r_dateTime := mdy_hm(dateTime_char, tz = "UTC")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "dmy" & dateColName %like% "UTC", r_dateTime := dmy_hm(dateTime_char, tz = "UTC")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "ydm" & dateColName %like% "UTC", r_dateTime := ymd_hm(dateTime_char, tz = "UTC")] # requires lubridate
+      tempDT <- tempDT[dateFormat %like% "ymd" & dateColName %like% "UTC", r_dateTime := ymd_hm(dateTime_char, tz = "UTC")] # requires lubridate
+      if(fullFb){
         print(head(tempDT))
         print(summary(tempDT))
-        print(table(tempDT$dateFormat))
+        #print(table(tempDT$dateFormat))
         }
-    } else {
-      # we have UTC
-      if(baTest){print("UTC")}
-      setnames(tempDT, 'date UTC', "date_UTC")
-      tempDT <- tempDT[, c("date_char", "time_char") := tstrsplit(date_NZ, " ")]
-      tempDT <- tempDT[, c("date_char1", "date_char2", "date_char3") := tstrsplit(date_char, "-")]
-      tempDT$dateFormat <- "ambiguous"
-      if(max(as.integer(tempDT$date_char3)) > 32){
-        # char 3 = year
-        if(max(as.integer(tempDT$date_char2)) > 12){
-          # char 2 = day
-          dateFormat <- "mdy"
-        }
-        if(max(as.integer(tempDT$date_char1)) > 12){
-          # char 1 = month
-          dateFormat <- "dmy"
-        }
-      }
-      if(max(as.integer(tempDT$date_char1)) > 32){
-        # char 1 = year
-        if(max(as.integer(tempDT$date_char2)) > 12){
-          # char 2 = day
-          dateFormat <- "ydm"
-        }
-        if(max(as.integer(tempDT$date_char1)) > 12){
-          # char 1 = month
-          dateFormat <- "ymd"
-        }
-      }
-      # Now use that to correctly parse dates
-      tempDT$dateFormat <- dateFormat
-      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dateFormat]
-      tempDT <- tempDT[dateFormat == "mdy", r_dateTime := mdy_hm(date_NZ, tz = "UTC")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "UTC")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "ydm", r_dateTime := ymd_hm(date_NZ, tz = "UTC")] # requires lubridate
-      tempDT <- tempDT[dateFormat == "ymd", r_dateTime := ymd_hm(date_NZ, tz = "UTC")] # requires lubridate
-      if(baTest){
-        print(head(tempDT))
-        print(summary(tempDT))
-        print(table(tempDT$dateFormat))
-        }
-    }
-    fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
-    fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
+    
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains("$")))] # check for the number of circuits - all seem to contain "$"
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
   }
   
   # > Remove duplicates caused by over-lapping files and dates etc ----
   # Need to remove all test vars for this
-  try(tempHhDT$date_UTC <- NULL)
-  try(tempHhDT$date_NZ <- NULL)
-  try(tempHhDT$testDate <- NULL)
+  try(tempHhDT$dateColName <- NULL)
+  try(tempHhDT$dateFormat <- NULL)
   
   #nObs <- nrow(tempHhDT)
   #print(paste0("N rows before removal of duplicates: ", nObs))
@@ -358,10 +454,7 @@ for(hh in hhIDs){
   #nObs <- nrow(tempHhDT)
   #print(paste0("N rows after removal of duplicates: ", nObs))
   
-  # Add up all Wh cols
-  #tempHhDT <- tempHhDT[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = grep("$", names(tempHhDT))] 
-  
-  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do mean Wh as label varies
+  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
   
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
@@ -370,9 +463,13 @@ for(hh in hhIDs){
   ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
   write_csv(tempHhDT, ofile)
   print(paste0("Saved ", ofile, ", gzipping..."))
+
+  print("Col names: ")
+  print(names(tempHhDT))
   cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
   print(paste0("Gzipped ", ofile))
+  tempHhDT <- NULL # just in case
 }
 
 #> Save observed data stats for all files loaded ----
