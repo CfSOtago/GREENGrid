@@ -30,6 +30,26 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 # Set start time ----
 startTime <- proc.time()
 
+# Local parameters ----
+fullFb <- 0 # 1 = switch on full feedback
+baTest <- 1 # test or full run?
+
+if(baTest == 1){
+  # Local test
+  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
+  fpath <- paste0(dPath,"1min_orig/") # location of data
+  outPath <- paste0(dPath, "consolidated/") # place to save them - add "1min/" for folder etc
+} else {
+  # full monty
+  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
+  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
+  outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
+}
+
+pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
+indexFile <- "fListCompleteDT.csv" # place to store the complete file list with meta-data
+dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
+
 # Load greenGrid package ----
 library(greenGridr) # local utilities
 
@@ -82,30 +102,6 @@ gs_checkDates <- function(dt) {
   }
   return(dt)
 }
-
-
-
-    
-
-# Local parameters ----
-fullFb <- 0 # switch on full feedback
-baTest <- 1 # test or full run?
-
-if(baTest == 1){
-  # Local test
-  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
-  fpath <- paste0(dPath,"1min_orig/") # location of data
-  outPath <- paste0(dPath, "consolidated/") # place to save them - add "1min/" for folder etc
-} else {
-  # full monty
-  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
-  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
-}
-
-pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
-indexFile <- "fListCompleteDT.csv" # place to store the complete file list with meta-data
-dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
 ```
 
@@ -396,6 +392,7 @@ kable(caption = "Summary of household files to load", t)
 fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"] # set default
 hhIDs <- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT <- data.table() # stats collector
+
 for(hh in hhIDs){
   tempHhDT <- data.table() # hh data collector
   print(paste0("Loading: ", hh))
@@ -440,6 +437,7 @@ for(hh in hhIDs){
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains("$")))] # check for the number of circuits - all seem to contain "$"
+    tempDT <- tempDT[, nCircuits := ncol(select(tempDT, contains("$")))]
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
   }
   
@@ -454,7 +452,12 @@ for(hh in hhIDs){
   #nObs <- nrow(tempHhDT)
   #print(paste0("N rows after removal of duplicates: ", nObs))
   
-  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
+  hhStatTempDT <- tempHhDT[, .(nObs = .N,
+                           maxCircuitsOrig = max(nCircuits), # should = the max
+                           minCircuitsOrig = min(nCircuits),
+                           dataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
+                           keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
+  # add hhID
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
   
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
@@ -522,6 +525,7 @@ The following table shows the min/max observations per day and min/max dates for
 
  * dates before 2014 or in to the future (indicates date conversion errors)
  * more than 1440 observations per day (indicates potentially duplicate observations)
+ * non-integer counts of circuits as it suggests some column errors
  
  We should also not see NA in any row (indicates date conversion errors). 
  
@@ -531,6 +535,7 @@ The following table shows the min/max observations per day and min/max dates for
 # Stats table (so we can pick out the dateTime errors)
 t <- hhStatDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
+             meanNCircuits = max(dataColumns),
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
