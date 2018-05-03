@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-03 10:19:42</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-03 12:15:47</em></h4>
 
 </div>
 
@@ -301,7 +301,7 @@ div.tocify {
 <pre class="r"><code>system.time(fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.014   0.017   0.040</code></pre>
+##   0.014   0.018   0.038</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, nFiles, &quot; files&quot;))</code></pre>
 <pre><code>## [1] &quot;Found 1915 files&quot;</code></pre>
@@ -314,9 +314,8 @@ print(paste0(&quot;Found &quot;, nFiles, &quot; files&quot;))</code></pre>
   loopCount &lt;- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    pcDone &lt;- 100*(loopCount/nFiles)
     if(fullFb){print(paste0(&quot;Checking file &quot;, loopCount, &quot; of &quot;, nFiles ,
-                            &quot; (&quot;, round(pcDone,2), &quot;% checked) - &quot;, f))}
+                            &quot; (&quot;, round(100*(loopCount/nFiles),2), &quot;% checked) - &quot;, f))}
     rf &lt;- path.expand(f) # just in case of ~ etc
     fsize &lt;- file.size(rf)
     fmtime &lt;- ymd_hms(file.mtime(rf), tz = &quot;Pacific/Auckland&quot;) # requires lubridate
@@ -758,6 +757,7 @@ kable(caption = &quot;Summary of household files to load&quot;, t)</code></pre>
 fListCompleteDT &lt;- fListCompleteDT[, fileLoaded := &quot;No&quot;] # set default
 hhIDs &lt;- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT &lt;- data.table() # stats collector
+
 for(hh in hhIDs){
   tempHhDT &lt;- data.table() # hh data collector
   print(paste0(&quot;Loading: &quot;, hh))
@@ -802,6 +802,7 @@ for(hh in hhIDs){
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains(&quot;$&quot;)))] # check for the number of circuits - all seem to contain &quot;$&quot;
+    tempDT &lt;- tempDT[, nCircuits := ncol(select(tempDT, contains(&quot;$&quot;)))]
     tempHhDT &lt;- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
   }
   
@@ -816,7 +817,12 @@ for(hh in hhIDs){
   #nObs &lt;- nrow(tempHhDT)
   #print(paste0(&quot;N rows after removal of duplicates: &quot;, nObs))
   
-  hhStatTempDT &lt;- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can&#39;t do sensible summary stats on W as some circuits are sub-sets of others!
+  hhStatTempDT &lt;- tempHhDT[, .(nObs = .N,
+                           maxCircuitsOrig = max(nCircuits), # should = the max
+                           minCircuitsOrig = min(nCircuits),
+                           dataColumns = ncol(select(tempDT, contains(&quot;$&quot;)))), # the actual number of columns in the whole household file with &quot;$&quot; in them in case of rbind &quot;errors&quot; caused by files with different column names
+                           keyby = (date = as.Date(r_dateTime))] # can&#39;t do sensible summary stats on W as some circuits are sub-sets of others!
+  # add hhID
   hhStatTempDT &lt;- hhStatTempDT[, hhID := hh]
   
   hhStatDT &lt;- rbind(hhStatDT,hhStatTempDT) # add to the collector
@@ -826,8 +832,11 @@ for(hh in hhIDs){
   write_csv(tempHhDT, ofile)
   print(paste0(&quot;Saved &quot;, ofile, &quot;, gzipping...&quot;))
 
-  print(&quot;Col names: &quot;)
-  print(names(tempHhDT))
+  if(fullFb){
+    print(&quot;Col names: &quot;)
+    print(names(tempHhDT))
+  }
+  
   cmd &lt;- paste0(&quot;gzip -f &quot;, &quot;&#39;&quot;, path.expand(ofile), &quot;&#39;&quot;) # gzip it - use quotes in case of spaces in file name, expand path if needed
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
   print(paste0(&quot;Gzipped &quot;, ofile))
@@ -835,64 +844,15 @@ for(hh in hhIDs){
 }</code></pre>
 <pre><code>## [1] &quot;Loading: rf_01&quot;
 ## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Col names: &quot;
-## [1] &quot;dateTime_char&quot;      &quot;Kitchen power$1632&quot; &quot;Heating$1633&quot;      
-## [4] &quot;Mains$1634&quot;         &quot;Lights$1635&quot;        &quot;Hot water$1636&quot;    
-## [7] &quot;Range$1637&quot;         &quot;r_dateTime&quot;        
 ## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_01_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_02&quot;
 ## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Col names: &quot;
-## [1] &quot;dateTime_char&quot;               &quot;Fridge$1572&quot;                
-## [3] &quot;Cooking Bath tile heat$1573&quot; &quot;Hot Water$1574&quot;             
-## [5] &quot;Mains$1575&quot;                  &quot;Heating$1576&quot;               
-## [7] &quot;Lights$1577&quot;                 &quot;r_dateTime&quot;                 
 ## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_25&quot;
 ## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_25_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Col names: &quot;
-## [1] &quot;dateTime_char&quot;                  &quot;Heat Pump$2758&quot;                
-## [3] &quot;Hob &amp; Kitchen Appliances$2759&quot;  &quot;Oven$2760&quot;                     
-## [5] &quot;Hot Water - Controlled$2761&quot;    &quot;Incomer 2 - Uncontrolled $2762&quot;
-## [7] &quot;Incomer 1 - Uncontrolled $2763&quot; &quot;r_dateTime&quot;                    
-## [9] &quot;Incomer 1 - Uncontrolled$2757&quot; 
 ## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_25_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_46&quot;
 ## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_46_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Col names: &quot;
-##  [1] &quot;dateTime_char&quot;                    
-##  [2] &quot;Laundry &amp; Bedrooms$4228&quot;          
-##  [3] &quot;Kitchen &amp; Bedrooms$4229&quot;          
-##  [4] &quot;Incomer - Uncontrolled$4230&quot;      
-##  [5] &quot;Hot Water - Controlled$4231&quot;      
-##  [6] &quot;Heat Pumps (2x) &amp; Power$4232&quot;     
-##  [7] &quot;Lighting$4233&quot;                    
-##  [8] &quot;Heat Pumps (2x) &amp; Power$4399&quot;     
-##  [9] &quot;Hot Water - Controlled$4400&quot;      
-## [10] &quot;Incomer - Uncontrolled$4401&quot;      
-## [11] &quot;Kitchen &amp; Bedrooms$4402&quot;          
-## [12] &quot;Laundry &amp; Bedrooms$4403&quot;          
-## [13] &quot;Lighting$4404&quot;                    
-## [14] &quot;Incomer Voltage$4405&quot;             
-## [15] &quot;r_dateTime&quot;                       
-## [16] &quot;Laundry &amp; Bedrooms1$4228&quot;         
-## [17] &quot;Kitchen &amp; Bedrooms1$4229&quot;         
-## [18] &quot;Incomer - Uncontrolled1$4230&quot;     
-## [19] &quot;Hot Water - Controlled1$4231&quot;     
-## [20] &quot;Heat Pumps (2x) &amp; Power1$4232&quot;    
-## [21] &quot;Lighting1$4233&quot;                   
-## [22] &quot;Heat Pumps (2x) &amp; Power2$4399&quot;    
-## [23] &quot;Hot Water - Controlled2$4400&quot;     
-## [24] &quot;Incomer - Uncontrolled2$4401&quot;     
-## [25] &quot;Kitchen &amp; Bedrooms2$4402&quot;         
-## [26] &quot;Laundry &amp; Bedrooms2$4403&quot;         
-## [27] &quot;Lighting2$4404&quot;                   
-## [28] &quot;Heat Pumps (2x) &amp; Power_Imag$4399&quot;
-## [29] &quot;Hot Water - Controlled_Imag$4400&quot; 
-## [30] &quot;Incomer - Uncontrolled_Imag$4401&quot; 
-## [31] &quot;Kitchen &amp; Bedrooms_Imag$4402&quot;     
-## [32] &quot;Laundry &amp; Bedrooms_Imag$4403&quot;     
-## [33] &quot;Lighting_Imag$4404&quot;               
 ## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_46_all_1min_data.csv&quot;</code></pre>
 <pre class="r"><code>#&gt; Save observed data stats for all files loaded ----
 ofile &lt;- paste0(outPath, &quot;hhDailyObservationsStats.csv&quot;)
@@ -941,12 +901,14 @@ ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
 <ul>
 <li>dates before 2014 or in to the future (indicates date conversion errors)</li>
 <li>more than 1440 observations per day (indicates potentially duplicate observations)</li>
+<li>non-integer counts of circuits as it suggests some column errors</li>
 </ul>
 <p>We should also not see NA in any row (indicates date conversion errors).</p>
 <p>If we do see any of these then we still have data cleaning work to do!</p>
 <pre class="r"><code># Stats table (so we can pick out the dateTime errors)
 t &lt;- hhStatDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
+             meanNCircuits = max(dataColumns),
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
@@ -959,6 +921,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <th align="left">hhID</th>
 <th align="right">minObs</th>
 <th align="right">maxObs</th>
+<th align="right">meanNCircuits</th>
 <th align="left">minDate</th>
 <th align="left">maxDate</th>
 </tr>
@@ -968,6 +931,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">rf_01</td>
 <td align="right">171</td>
 <td align="right">1500</td>
+<td align="right">6</td>
 <td align="left">2014-01-05</td>
 <td align="left">2015-10-20</td>
 </tr>
@@ -975,6 +939,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">rf_02</td>
 <td align="right">215</td>
 <td align="right">1440</td>
+<td align="right">6</td>
 <td align="left">2014-03-02</td>
 <td align="left">2015-05-28</td>
 </tr>
@@ -982,6 +947,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">rf_25</td>
 <td align="right">45</td>
 <td align="right">1500</td>
+<td align="right">6</td>
 <td align="left">2015-05-24</td>
 <td align="left">2016-10-22</td>
 </tr>
@@ -989,6 +955,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">rf_46</td>
 <td align="right">305</td>
 <td align="right">3000</td>
+<td align="right">13</td>
 <td align="left">2015-03-26</td>
 <td align="left">2018-02-19</td>
 </tr>
@@ -1000,7 +967,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 461.618 seconds ( 7.69 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 477.686 seconds ( 7.96 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>
