@@ -393,9 +393,10 @@ ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   scale_fill_gradient(low = "white", high = "black") + 
   scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Mean file size of all grid spy data files received per day",
+  labs(title = "Mean file size of loaded grid spy data files received per day",
        caption = paste0(myCaption, 
-                        "\nLog file size used as some files are full year data")
+                        "\nLog file size used as some files are full year data",
+                        "\nFiles loaded if fsize > ", dataThreshold)
     
   )
 ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
@@ -475,20 +476,23 @@ for(hh in hhIDs){
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains("$")))] # check for the number of circuits - all seem to contain "$"
-    tempDT <- tempDT[, nCircuits := ncol(select(tempDT, contains("$")))]
+    tempDT <- tempDT[, nCircuits := ncol(select(tempDT, contains("$")))] # number of circuits recorded in this file (may vary and/or indicate data for the wrong household!)
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
   }
   
   # > Remove duplicates caused by over-lapping files and dates etc ----
-  # Need to remove all test vars for this
+  # Need to remove all uneccessary vars for this
   try(tempHhDT$dateColName <- NULL)
   try(tempHhDT$dateFormat <- NULL)
+  try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplciates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
   
-  #nObs <- nrow(tempHhDT)
-  #print(paste0("N rows before removal of duplicates: ", nObs))
+  nObs <- nrow(tempHhDT)
+  if(fullFb){print(paste0("N rows before removal of duplicates: ", nObs))}
   tempHhDT <- unique(tempHhDT)
-  #nObs <- nrow(tempHhDT)
-  #print(paste0("N rows after removal of duplicates: ", nObs))
+  nObs <- nrow(tempHhDT)
+  if(fullFb){print(paste0("N rows after removal of duplicates: ", nObs))}
+  
+  
   
   hhStatTempDT <- tempHhDT[, .(nObs = .N,
                            maxCircuitsOrig = max(nCircuits), # should = the max
@@ -501,18 +505,21 @@ for(hh in hhIDs){
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # > Save hh file ----
-  ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
+  
+  ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
+  print(paste0("Saving ", ofile, "..."))
   write_csv(tempHhDT, ofile)
   print(paste0("Saved ", ofile, ", gzipping..."))
-
-  if(fullFb){
-    print("Col names: ")
-    print(names(tempHhDT))
-  }
   
   cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
   print(paste0("Gzipped ", ofile))
+  
+    if(fullFb){
+    print("Col names: ")
+    print(names(tempHhDT))
+    }
+  
   tempHhDT <- NULL # just in case
 }
 
