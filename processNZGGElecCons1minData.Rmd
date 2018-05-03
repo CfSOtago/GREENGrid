@@ -455,7 +455,7 @@ for(hh in hhIDs){
   hhStatTempDT <- tempHhDT[, .(nObs = .N,
                            maxCircuitsOrig = max(nCircuits), # should = the max
                            minCircuitsOrig = min(nCircuits),
-                           dataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
+                           nDataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
                            keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
   # add hhID
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
@@ -535,7 +535,7 @@ The following table shows the min/max observations per day and min/max dates for
 # Stats table (so we can pick out the dateTime errors)
 t <- hhStatDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
-             meanNCircuits = max(dataColumns),
+             meanNDataColumns =mean(nDataColumns), #i.e. n circuits
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
