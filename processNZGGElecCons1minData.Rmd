@@ -38,12 +38,12 @@ if(baTest == 1){
   # Local test
   dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
   fpath <- paste0(dPath,"1min_orig/") # location of data
-  outPath <- paste0(dPath, "consolidated/") # place to save them - add "1min/" for folder etc
+  outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
 } else {
   # full monty
   dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
   fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
+  outPath <- paste0(dPath, "Clean_data/gridSpy/1min/") # place to save them 
 }
 
 pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
