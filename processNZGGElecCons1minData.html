@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-03 12:15:47</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-03 12:31:51</em></h4>
 
 </div>
 
@@ -301,7 +301,7 @@ div.tocify {
 <pre class="r"><code>system.time(fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.014   0.018   0.038</code></pre>
+##   0.012   0.015   0.035</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, nFiles, &quot; files&quot;))</code></pre>
 <pre><code>## [1] &quot;Found 1915 files&quot;</code></pre>
@@ -820,7 +820,7 @@ for(hh in hhIDs){
   hhStatTempDT &lt;- tempHhDT[, .(nObs = .N,
                            maxCircuitsOrig = max(nCircuits), # should = the max
                            minCircuitsOrig = min(nCircuits),
-                           dataColumns = ncol(select(tempDT, contains(&quot;$&quot;)))), # the actual number of columns in the whole household file with &quot;$&quot; in them in case of rbind &quot;errors&quot; caused by files with different column names
+                           nDataColumns = ncol(select(tempDT, contains(&quot;$&quot;)))), # the actual number of columns in the whole household file with &quot;$&quot; in them in case of rbind &quot;errors&quot; caused by files with different column names
                            keyby = (date = as.Date(r_dateTime))] # can&#39;t do sensible summary stats on W as some circuits are sub-sets of others!
   # add hhID
   hhStatTempDT &lt;- hhStatTempDT[, hhID := hh]
@@ -908,7 +908,7 @@ ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
 <pre class="r"><code># Stats table (so we can pick out the dateTime errors)
 t &lt;- hhStatDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
-             meanNCircuits = max(dataColumns),
+             meanNDataColumns =mean(nDataColumns), #i.e. n circuits
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
@@ -921,7 +921,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <th align="left">hhID</th>
 <th align="right">minObs</th>
 <th align="right">maxObs</th>
-<th align="right">meanNCircuits</th>
+<th align="right">meanNDataColumns</th>
 <th align="left">minDate</th>
 <th align="left">maxDate</th>
 </tr>
@@ -967,7 +967,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 477.686 seconds ( 7.96 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 464.764 seconds ( 7.75 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>

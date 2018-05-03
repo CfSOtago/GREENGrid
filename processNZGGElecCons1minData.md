@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-03 12:15:47'
+date: 'Last run at: 2018-05-03 12:31:51'
 output:
   html_document:
     code_folding: hide
@@ -93,7 +93,7 @@ system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = 
 
 ```
 ##    user  system elapsed 
-##   0.014   0.018   0.038
+##   0.012   0.015   0.035
 ```
 
 ```r
@@ -507,7 +507,7 @@ for(hh in hhIDs){
   hhStatTempDT <- tempHhDT[, .(nObs = .N,
                            maxCircuitsOrig = max(nCircuits), # should = the max
                            minCircuitsOrig = min(nCircuits),
-                           dataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
+                           nDataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
                            keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
   # add hhID
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
@@ -637,7 +637,7 @@ The following table shows the min/max observations per day and min/max dates for
 # Stats table (so we can pick out the dateTime errors)
 t <- hhStatDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
-             meanNCircuits = max(dataColumns),
+             meanNDataColumns =mean(nDataColumns), #i.e. n circuits
              minDate = min(date),
              maxDate = max(date)),
          keyby = .(hhID)]
@@ -649,12 +649,12 @@ kable(caption = "Summary observation stats by hhID", t)
 
 Table: Summary observation stats by hhID
 
-hhID     minObs   maxObs   meanNCircuits  minDate      maxDate    
-------  -------  -------  --------------  -----------  -----------
-rf_01       171     1500               6  2014-01-05   2015-10-20 
-rf_02       215     1440               6  2014-03-02   2015-05-28 
-rf_25        45     1500               6  2015-05-24   2016-10-22 
-rf_46       305     3000              13  2015-03-26   2018-02-19 
+hhID     minObs   maxObs   meanNDataColumns  minDate      maxDate    
+------  -------  -------  -----------------  -----------  -----------
+rf_01       171     1500                  6  2014-01-05   2015-10-20 
+rf_02       215     1440                  6  2014-03-02   2015-05-28 
+rf_25        45     1500                  6  2015-05-24   2016-10-22 
+rf_46       305     3000                 13  2015-03-26   2018-02-19 
 
 # Runtime
 
@@ -666,7 +666,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 477.686 seconds ( 7.96 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 464.764 seconds ( 7.75 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
