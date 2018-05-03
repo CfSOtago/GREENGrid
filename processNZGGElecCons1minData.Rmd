@@ -31,8 +31,8 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 startTime <- proc.time()
 
 # Local parameters ----
-fullFb <- 0 # 1 = switch on full feedback
-baTest <- 1 # test or full run?
+fullFb <- 0 # switch on (1) or off (0) full feedback
+baTest <- 1 # test (1) or full (0) run?
 
 if(baTest == 1){
   # Local test
@@ -71,35 +71,60 @@ gs_checkDates <- function(dt) {
   # Check the date format as it could be y-m-d or d/m/y or m/d/y :-(
   dt <- dt[, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "/")]
   # if this split failed then tstrsplit puts the dateVar in each one so we can check
+  # this assumes we never have 9-9-9 10-10-10 or 11-11-11 or 12-12-12 !
+  # would be better if data.table::tstrsplit returned an error if the split failed? We could then check for NA?
+  dt <- dt[, splitFailed := ifelse(date_char1 == date_char2 & date_char1 == date_char3, TRUE, FALSE)]
   # and then split on / instead
-  dt <- dt[date_char1 == date_char2, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
+  dt <- dt[splitFailed == TRUE, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
   
- dt$dateFormat <- "ambiguous"
+  dt$dateFormat <- "ambiguous" # default
+  # Days: 1-31
+  # Months: 1 - 12
+  # Years: could be 2 digit 15 - 18 or 4 digit 2015 - 2018 (+)
+  max1 <- max(as.integer(dt$date_char1))
+  #print(paste0("max1 = " , max1))
+  max2 <- max(as.integer(dt$date_char2))
+  #print(paste0("max2 = " , max2))
+  max3 <- max(as.integer(dt$date_char3))
+  #print(paste0("max3 = " , max3))
   
-  if(max(as.integer(dt$date_char3)) > 32){
-    # char 3 = year so use default dmy
-    dt$dateFormat <- "dmy - default (check as m & d may be reversed)"
-    if(max(as.integer(dt$date_char2)) > 12){
-      # char 2 = day
-      dt$dateFormat <- "mdy"
-    }
-    if(max(as.integer(dt$date_char1)) > 12){
-      # char 1 = day
-      dt$dateFormat <- "dmy"
-    }
-  }
-  if(max(as.integer(dt$date_char1)) > 32){
+  if(max1 > 31){
     # char 1 = year so default is ymd
-    dt$dateFormat <- "ymd - default (check as m & d may be reversed)"
-    if(max(as.integer(dt$date_char2)) > 12){
-      # char 2 = day
+    dt$dateFormat <- "ymd - default (but day/month value <= 12)"
+    if(max2 > 12){
+      # char 2 = day - very unlikely
       dt$dateFormat <- "ydm"
     }
-    if(max(as.integer(dt$date_char3)) > 12){
+    if(max3 > 12){
       # char 3 = day
-      dt$dateFormat <- "ymd"
+      dt$dateFormat <- "ymd - definite"
     }
   }
+  if(max2 > 31){
+    # char 2 is year - this is very unlikely
+    if(max1 > 12){
+      # char 1 = day
+      dt$dateFormat <- "dym"
+    }
+    if(max3 > 12){
+      # char 3 = day
+      dt$dateFormat <- "myd"
+    }
+  }
+  if(max3 > 31){
+    # char 3 is year so default is dmy
+    dt$dateFormat <- "dmy - default (but day/month value <= 12)"
+    if(max1 > 12){
+      # char 1 = day so char 2 = month
+      dt$dateFormat <- "dmy - definite"
+    }
+    if(max2 > 12){
+      # char 2 = day so char 1 = month
+      dt$dateFormat <- "mdy - definite"
+    }
+  }
+  
+  
   return(dt)
 }
 
@@ -161,14 +186,15 @@ If these do not match then this may be a test run.
 
 ```{r getCompleteFileList}
 
-print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while"))
+print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while..."))
 system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))
 
 nFiles <- nrow(fListCompleteDT)
-print(paste0("Found ", nFiles, " files"))
+print(paste0("Found ", tidyNum(nFiles), " files"))
+```
 
-
+```{r processCompleteFileList}
 if(nrow(fListCompleteDT) == 0){
   stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
 } else {
@@ -178,8 +204,6 @@ if(nrow(fListCompleteDT) == 0){
   loopCount <- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
-                            " (", round(100*(loopCount/nFiles),2), "% checked) - ", f))}
     rf <- path.expand(f) # just in case of ~ etc
     fsize <- file.size(rf)
     fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
@@ -188,6 +212,9 @@ if(nrow(fListCompleteDT) == 0){
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
     fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := paste0("unknown - file not loaded (fsize = ", fsize, ")")]
     # only try to read files where we think there might be data
+    skipThis <- ifelse(fsize > dataThreshold, "Loading (fsize > threshold)", "Skipping (fsize < threshold)")
+    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
+                            " (", round(100*(loopCount/nFiles),2), "% checked): ", skipThis))}
     if(fsize > dataThreshold){
       if(fullFb){print(paste0("fSize (", fsize, ") > threshold (", dataThreshold, ") -> loading ", f))}
       row1DT <- fread(f, nrows = 1)
@@ -215,29 +242,33 @@ if(nrow(fListCompleteDT) == 0){
     }
     loopCount <- loopCount + 1
   }
-  if(baTest | fullFb){print("All files checked")}
+  print("All files checked")
+  
+  ofile <- paste0(outPath, indexFile)
+  print(paste0("Saving 1 minute data files metadata to ", ofile))
+  write.csv(fListCompleteDT, ofile)
+  print("Done")
+  
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
   fAmbig <- fListCompleteDT[dateFormat == "ambiguous", fullPath]
   
   for(fa in fAmbig){
     if(baTest | fullFb){print(paste0("Checking ambiguous date formats in ", fa))}
-    dt <- fread(fa)
-    if(nrow(select(dt, contains("NZ"))) > 0){ # requires dplyr
-      setnames(dt, 'date NZ', "dateTime_char")
-      
+    ambDT <- fread(fa)
+    if(nrow(select(ambDT, contains("NZ"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date NZ', "dateTime_char")
     } 
-    if(nrow(select(dt, contains("UTC"))) > 0){ # requires dplyr
-      setnames(dt, 'date UTC', "dateTime_char")
-      
+    if(nrow(select(ambDT, contains("UTC"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date UTC', "dateTime_char")
     }
-    dt <- dt[, c("date_char", "time_char") := tstrsplit(dateTime_char, " ")]
-    dt <- gs_checkDates(dt)
+    ambDT <- ambDT[, c("date_char", "time_char") := tstrsplit(dateTime_char, " ")]
+    ambDT <- gs_checkDates(ambDT)
     # set what we now know (or guess!)
-    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := dt[1,dateFormat]]
+    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
   }
       
   ofile <- paste0(outPath, indexFile)
-  print(paste0("Saving 1 minute data files metadata to ", ofile))
+  print(paste0("Saving final 1 minute data files metadata to ", ofile))
   write.csv(fListCompleteDT, ofile)
   print("Done")
 }
@@ -254,6 +285,13 @@ Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteD
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
 ```{r initialDateFormatTable}
+
+# short cut if file list already saved
+#ifile <- paste0(outPath, indexFile)
+#print(paste0("Loading 1 minute data files metadata to ", ifile))
+#fListCompleteDT <- fread(ifile)
+  
+  
 t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
 
 kable(caption = "Number of files with given date column names by inferred date format", t)
