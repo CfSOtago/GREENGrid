@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-03 12:31:51'
+date: 'Last run at: 2018-05-03 16:50:44'
 output:
   html_document:
     code_folding: hide
@@ -79,11 +79,11 @@ If these do not match then this may be a test run.
 
 
 ```r
-print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while"))
+print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath, " - could take a while..."))
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while"
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
 ```
 
 ```r
@@ -93,17 +93,18 @@ system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = 
 
 ```
 ##    user  system elapsed 
-##   0.012   0.015   0.035
+##   0.019   0.034   0.071
 ```
 
 ```r
 nFiles <- nrow(fListCompleteDT)
-print(paste0("Found ", nFiles, " files"))
+print(paste0("Found ", tidyNum(nFiles), " files"))
 ```
 
 ```
-## [1] "Found 1915 files"
+## [1] "Found 2,397 files"
 ```
+
 
 ```r
 if(nrow(fListCompleteDT) == 0){
@@ -115,8 +116,6 @@ if(nrow(fListCompleteDT) == 0){
   loopCount <- 1
   # now loop over the files and collect metadata
   for(f in fListCompleteDT[,fullPath]){
-    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
-                            " (", round(100*(loopCount/nFiles),2), "% checked) - ", f))}
     rf <- path.expand(f) # just in case of ~ etc
     fsize <- file.size(rf)
     fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
@@ -125,6 +124,9 @@ if(nrow(fListCompleteDT) == 0){
     fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
     fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := paste0("unknown - file not loaded (fsize = ", fsize, ")")]
     # only try to read files where we think there might be data
+    skipThis <- ifelse(fsize > dataThreshold, "Loading (fsize > threshold)", "Skipping (fsize < threshold)")
+    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
+                            " (", round(100*(loopCount/nFiles),2), "% checked): ", skipThis))}
     if(fsize > dataThreshold){
       if(fullFb){print(paste0("fSize (", fsize, ") > threshold (", dataThreshold, ") -> loading ", f))}
       row1DT <- fread(f, nrows = 1)
@@ -152,29 +154,33 @@ if(nrow(fListCompleteDT) == 0){
     }
     loopCount <- loopCount + 1
   }
-  if(baTest | fullFb){print("All files checked")}
+  print("All files checked")
+  
+  ofile <- paste0(outPath, indexFile)
+  print(paste0("Saving 1 minute data files metadata to ", ofile))
+  write.csv(fListCompleteDT, ofile)
+  print("Done")
+  
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
   fAmbig <- fListCompleteDT[dateFormat == "ambiguous", fullPath]
   
   for(fa in fAmbig){
     if(baTest | fullFb){print(paste0("Checking ambiguous date formats in ", fa))}
-    dt <- fread(fa)
-    if(nrow(select(dt, contains("NZ"))) > 0){ # requires dplyr
-      setnames(dt, 'date NZ', "dateTime_char")
-      
+    ambDT <- fread(fa)
+    if(nrow(select(ambDT, contains("NZ"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date NZ', "dateTime_char")
     } 
-    if(nrow(select(dt, contains("UTC"))) > 0){ # requires dplyr
-      setnames(dt, 'date UTC', "dateTime_char")
-      
+    if(nrow(select(ambDT, contains("UTC"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date UTC', "dateTime_char")
     }
-    dt <- dt[, c("date_char", "time_char") := tstrsplit(dateTime_char, " ")]
-    dt <- gs_checkDates(dt)
+    ambDT <- ambDT[, c("date_char", "time_char") := tstrsplit(dateTime_char, " ")]
+    ambDT <- gs_checkDates(ambDT)
     # set what we now know (or guess!)
-    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := dt[1,dateFormat]]
+    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
   }
       
   ofile <- paste0(outPath, indexFile)
-  print(paste0("Saving 1 minute data files metadata to ", ofile))
+  print(paste0("Saving final 1 minute data files metadata to ", ofile))
   write.csv(fListCompleteDT, ofile)
   print("Done")
 }
@@ -183,9 +189,12 @@ if(nrow(fListCompleteDT) == 0){
 ```
 ## [1] "Processing file list and getting file meta-data (please be patient)"
 ## [1] "All files checked"
+## [1] "Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/fListCompleteDT.csv"
+## [1] "Done"
+## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jul2014-25May2016at1.csv"
 ## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_25/12Oct2016-20Nov2017at1.csv"
 ## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
-## [1] "Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/fListCompleteDT.csv"
+## [1] "Saving final 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/fListCompleteDT.csv"
 ## [1] "Done"
 ```
 
@@ -194,7 +203,7 @@ print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(
 ```
 
 ```
-## [1] "Overall we have 1915 files from 4 households."
+## [1] "Overall we have 2397 files from 5 households."
 ```
 
 ```r
@@ -203,12 +212,18 @@ nFiles <- nrow(fListCompleteDT)
 nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 ```
 
-Overall we have 1,915 files from 4 households. Of the 1,915,  1,495 (78.07%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
+Overall we have 2,397 files from 5 households. Of the 2,397,  1,797 (74.97%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
 
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
 
 ```r
+# short cut if file list already saved
+#ifile <- paste0(outPath, indexFile)
+#print(paste0("Loading 1 minute data files metadata to ", ifile))
+#fListCompleteDT <- fread(ifile)
+  
+  
 t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
 
 kable(caption = "Number of files with given date column names by inferred date format", t)
@@ -218,21 +233,21 @@ kable(caption = "Number of files with given date column names by inferred date f
 
 Table: Number of files with given date column names by inferred date format
 
-dateColName                                dateFormat                                        nFiles
------------------------------------------  -----------------------------------------------  -------
-date NZ                                    dmy                                                    1
-date NZ                                    mdy                                                    2
-date NZ                                    ymd                                                    4
-date NZ                                    ymd - default (check as m & d may be reversed)         2
-date UTC                                   ambiguous                                              2
-date UTC                                   ymd                                                  248
-date UTC                                   ymd - default (check as m & d may be reversed)       161
-unknown - file not loaded (fsize = 2751)   NA                                                   604
-unknown - file not loaded (fsize = 43)     NA                                                   891
+dateColName                                dateFormat                                   nFiles
+-----------------------------------------  ------------------------------------------  -------
+date NZ                                    dmy - definite                                    1
+date NZ                                    mdy - definite                                    2
+date NZ                                    ymd - default (but day/month value <= 12)         3
+date NZ                                    ymd - definite                                    5
+date UTC                                   ambiguous                                         3
+date UTC                                   ymd - default (but day/month value <= 12)       228
+date UTC                                   ymd - definite                                  358
+unknown - file not loaded (fsize = 2751)   NA                                              906
+unknown - file not loaded (fsize = 43)     NA                                              891
 
 Results to note:
 
- * There are 2 ambiguous files
+ * There are 3 ambiguous files
  * The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data. 
  
 We now inspect the ambiguous and (some of) the default files.
@@ -253,6 +268,7 @@ Table: Files with ambigious date formats
 
 file                               dateColName   dateExample   dateFormat 
 ---------------------------------  ------------  ------------  -----------
+rf_06/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
 rf_25/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
 rf_46/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
 
@@ -278,10 +294,11 @@ kable(caption = "Files with inferred default date formats", head(aList))
 
 Table: Files with inferred default date formats
 
-file                                 fSize  dateColName   dateExample   dateFormat                                     
---------------------------------  --------  ------------  ------------  -----------------------------------------------
-rf_01/1Jan2014-24May2014at1.csv    6255737  date NZ       2014-01-06    ymd - default (check as m & d may be reversed) 
-rf_02/1Jan2014-24May2014at1.csv    6131625  date NZ       2014-03-03    ymd - default (check as m & d may be reversed) 
+file                                   fSize  dateColName   dateExample   dateFormat                                
+---------------------------------  ---------  ------------  ------------  ------------------------------------------
+rf_01/1Jan2014-24May2014at1.csv      6255737  date NZ       2014-01-06    ymd - default (but day/month value <= 12) 
+rf_02/1Jan2014-24May2014at1.csv      6131625  date NZ       2014-03-03    ymd - default (but day/month value <= 12) 
+rf_06/24May2014-24May2015at1.csv    19398444  date NZ       2014-06-09    ymd - default (but day/month value <= 12) 
 
 These look OK if we compare the file names with the dateExample.
 
@@ -299,14 +316,14 @@ kable(caption = "Files with inferred default date formats", head(aList))
 
 Table: Files with inferred default date formats
 
-file                                 fSize  dateColName   dateExample   dateFormat                                     
----------------------------------  -------  ------------  ------------  -----------------------------------------------
-rf_46/10Apr2017-11Apr2017at1.csv    292721  date UTC      2017-04-09    ymd - default (check as m & d may be reversed) 
-rf_46/10Aug2017-11Aug2017at1.csv    292888  date UTC      2017-08-09    ymd - default (check as m & d may be reversed) 
-rf_46/10Dec2017-11Dec2017at1.csv    292823  date UTC      2017-12-09    ymd - default (check as m & d may be reversed) 
-rf_46/10Feb2017-11Feb2017at1.csv    286736  date UTC      2017-02-09    ymd - default (check as m & d may be reversed) 
-rf_46/10Feb2018-11Feb2018at1.csv    299084  date UTC      2018-02-09    ymd - default (check as m & d may be reversed) 
-rf_46/10Jan2017-11Jan2017at1.csv    297659  date UTC      2017-01-09    ymd - default (check as m & d may be reversed) 
+file                                 fSize  dateColName   dateExample   dateFormat                                
+---------------------------------  -------  ------------  ------------  ------------------------------------------
+rf_06/10Apr2018-11Apr2018at1.csv    156944  date UTC      2018-04-09    ymd - default (but day/month value <= 12) 
+rf_06/10Dec2017-11Dec2017at1.csv    156601  date UTC      2017-12-09    ymd - default (but day/month value <= 12) 
+rf_06/10Feb2018-11Feb2018at1.csv    153353  date UTC      2018-02-09    ymd - default (but day/month value <= 12) 
+rf_06/10Jan2018-11Jan2018at1.csv    153982  date UTC      2018-01-09    ymd - default (but day/month value <= 12) 
+rf_06/10Mar2018-11Mar2018at1.csv    156471  date UTC      2018-03-09    ymd - default (but day/month value <= 12) 
+rf_06/10Nov2017-11Nov2017at1.csv    155639  date UTC      2017-11-09    ymd - default (but day/month value <= 12) 
 
 These also look OK so we will stick with the following derived date formats:
 
@@ -321,17 +338,17 @@ kable(caption = "Number of files with given date column names by final imputed d
 
 Table: Number of files with given date column names by final imputed date format
 
-dateColName                                dateFormat                                        nFiles
------------------------------------------  -----------------------------------------------  -------
-date NZ                                    dmy                                                    1
-date NZ                                    mdy                                                    2
-date NZ                                    ymd                                                    4
-date NZ                                    ymd - default (check as m & d may be reversed)         2
-date UTC                                   dmy - inferred                                         2
-date UTC                                   ymd                                                  248
-date UTC                                   ymd - default (check as m & d may be reversed)       161
-unknown - file not loaded (fsize = 2751)   NA                                                   604
-unknown - file not loaded (fsize = 43)     NA                                                   891
+dateColName                                dateFormat                                   nFiles
+-----------------------------------------  ------------------------------------------  -------
+date NZ                                    dmy - definite                                    1
+date NZ                                    mdy - definite                                    2
+date NZ                                    ymd - default (but day/month value <= 12)         3
+date NZ                                    ymd - definite                                    5
+date UTC                                   dmy - inferred                                    3
+date UTC                                   ymd - default (but day/month value <= 12)       228
+date UTC                                   ymd - definite                                  358
+unknown - file not loaded (fsize = 2751)   NA                                              906
+unknown - file not loaded (fsize = 43)     NA                                              891
 
 ## Data file quality checks
 
@@ -434,6 +451,7 @@ hhID     nFiles     meanSize  minFileDate   maxFileDate
 ------  -------  -----------  ------------  ------------
 rf_01         3   15548174.7  2016-09-20    2016-09-30  
 rf_02         3   10134268.3  2016-09-20    2016-09-30  
+rf_06       180     811227.3  2016-05-25    2018-05-02  
 rf_25         3   12341581.3  2016-06-08    2017-11-21  
 rf_46       411     605048.1  2016-06-08    2018-02-21  
 
@@ -538,6 +556,9 @@ for(hh in hhIDs){
 ## [1] "Loading: rf_02"
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_02_all_1min_data.csv"
+## [1] "Loading: rf_06"
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_06_all_1min_data.csv"
 ## [1] "Loading: rf_25"
 ## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_25_all_1min_data.csv, gzipping..."
 ## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/rf_25_all_1min_data.csv"
@@ -653,6 +674,7 @@ hhID     minObs   maxObs   meanNDataColumns  minDate      maxDate
 ------  -------  -------  -----------------  -----------  -----------
 rf_01       171     1500                  6  2014-01-05   2015-10-20 
 rf_02       215     1440                  6  2014-03-02   2015-05-28 
+rf_06       486     3000                  6  2014-06-08   2018-05-02 
 rf_25        45     1500                  6  2015-05-24   2016-10-22 
 rf_46       305     3000                 13  2015-03-26   2018-02-19 
 
@@ -666,7 +688,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 464.764 seconds ( 7.75 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 719.126 seconds ( 11.99 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
