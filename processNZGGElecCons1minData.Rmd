@@ -32,7 +32,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
+baTest <- 0 # test (1) or full (0) run?
 
 if(baTest == 1){
   # Local test
@@ -396,7 +396,7 @@ ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   labs(title = "Mean file size of loaded grid spy data files received per day",
        caption = paste0(myCaption, 
                         "\nLog file size used as some files are full year data",
-                        "\nFiles loaded if fsize > ", dataThreshold)
+                        "\nFiles loaded if fsize > ", dataThreshold, " bytes")
     
   )
 ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
