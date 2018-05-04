@@ -536,6 +536,9 @@ The following plots show the number of observations per day per household. In th
  * more than 1440 observations per day (they indicate potentially duplicate data)
 
 ```{r loadedFilesObsPlots}
+# short cut if already generated
+# hhStatDT <- as.data.table(read_csv(ofile)) # parses dates
+
 # tile plot ----
 ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   geom_tile() +
@@ -582,6 +585,26 @@ t <- hhStatDT[, .(minObs = min(nObs),
          keyby = .(hhID)]
 
 kable(caption = "Summary observation stats by hhID", t)
+```
+
+
+Finally we show the total number of households which we think are still sending data.
+
+```{r liveDataHouseholds}
+plotDT <- hhStatDT[, .(nHH = uniqueN(hhID)), keyby = .(date)]
+
+# point plot ----
+ggplot(plotDT, aes( x = date, y = nHH)) +
+  geom_point() +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "N live households per day for all loaded grid spy data",
+       caption = paste0(myCaption,
+                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+       
+  )
+ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
+
 ```
 
 # Runtime
