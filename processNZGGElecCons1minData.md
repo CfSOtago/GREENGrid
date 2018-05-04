@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-04 12:33:03'
+date: 'Last run at: 2018-05-04 12:49:00'
 output:
   html_document:
     code_folding: hide
@@ -73,7 +73,7 @@ In this section we generate a listing of all 1 minute data files that we have re
  
 In this run we are using data from:
 
- * ~/Data/NZGreenGrid/gridspy/1min_orig/
+ * /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
 
 If these do not match then this may be a test run.
 
@@ -83,7 +83,7 @@ print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", 
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/ - could take a while..."
 ```
 
 ```r
@@ -93,7 +93,7 @@ system.time(fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = 
 
 ```
 ##    user  system elapsed 
-##   0.024   0.089   0.192
+##   0.753   6.029 497.698
 ```
 
 ```r
@@ -102,7 +102,7 @@ print(paste0("Found ", tidyNum(nFiles), " files"))
 ```
 
 ```
-## [1] "Found 2,397 files"
+## [1] "Found 21,220 files"
 ```
 
 
@@ -189,12 +189,9 @@ if(nrow(fListCompleteDT) == 0){
 ```
 ## [1] "Processing file list and getting file meta-data (please be patient)"
 ## [1] "All files checked"
-## [1] "Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv"
+## [1] "Saving 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv"
 ## [1] "Done"
-## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jul2014-25May2016at1.csv"
-## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_25/12Oct2016-20Nov2017at1.csv"
-## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
-## [1] "Saving final 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv"
+## [1] "Saving final 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv"
 ## [1] "Done"
 ```
 
@@ -203,7 +200,7 @@ print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(
 ```
 
 ```
-## [1] "Overall we have 2397 files from 5 households."
+## [1] "Overall we have 21220 files from 44 households."
 ```
 
 ```r
@@ -212,7 +209,7 @@ nFiles <- nrow(fListCompleteDT)
 nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 ```
 
-Overall we have 2,397 files from 5 households. Of the 2,397,  1,797 (74.97%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
+Overall we have 21,220 files from 44 households. Of the 21,220,  12,334 (58.12%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
 
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
@@ -237,17 +234,17 @@ dateColName                                dateFormat                           
 -----------------------------------------  ------------------------------------------  -------
 date NZ                                    dmy - definite                                    1
 date NZ                                    mdy - definite                                    2
-date NZ                                    ymd - default (but day/month value <= 12)         3
-date NZ                                    ymd - definite                                    5
-date UTC                                   ambiguous                                         3
-date UTC                                   ymd - default (but day/month value <= 12)       228
-date UTC                                   ymd - definite                                  358
-unknown - file not loaded (fsize = 2751)   NA                                              906
-unknown - file not loaded (fsize = 43)     NA                                              891
+date NZ                                    ymd - default (but day/month value <= 12)        12
+date NZ                                    ymd - definite                                   67
+date UTC                                   ambiguous                                        28
+date UTC                                   ymd - default (but day/month value <= 12)      3429
+date UTC                                   ymd - definite                                 5347
+unknown - file not loaded (fsize = 2751)   NA                                             1812
+unknown - file not loaded (fsize = 43)     NA                                            10522
 
 Results to note:
 
- * There are 3 ambiguous files
+ * There are 28 ambiguous files
  * The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data. 
  
 We now inspect the ambiguous and (some of) the default files.
@@ -269,8 +266,33 @@ Table: Files with ambigious date formats
 file                               dateColName   dateExample   dateFormat 
 ---------------------------------  ------------  ------------  -----------
 rf_06/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_07/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_08/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_10/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_11/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_13/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_19/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_21/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_22/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_23/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_24/15Jul2014-25May2016at1.csv   date UTC      27/07/14      ambiguous  
 rf_25/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
+rf_26/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_27/15Jul2014-25May2016at1.csv   date UTC      27/07/14      ambiguous  
+rf_29/24Mar2015-25May2016at1.csv   date UTC      25/03/15      ambiguous  
+rf_30/15Feb2016-25May2016at1.csv   date UTC      14/02/16      ambiguous  
+rf_30/24Mar2015-25May2016at1.csv   date UTC      27/03/15      ambiguous  
+rf_31/24Mar2015-25May2016at1.csv   date UTC      25/03/15      ambiguous  
+rf_34/18Jan2016-25May2016at1.csv   date UTC      17/01/16      ambiguous  
+rf_34/20Jul2015-25May2016at1.csv   date UTC      19/07/15      ambiguous  
+rf_34/24Mar2015-25May2016at1.csv   date UTC      26/03/15      ambiguous  
+rf_35/24Mar2015-25May2016at1.csv   date UTC      23/03/15      ambiguous  
+rf_39/24Mar2015-25May2016at1.csv   date UTC      27/03/15      ambiguous  
+rf_43/24Mar2015-25May2016at1.csv   date UTC      26/03/15      ambiguous  
+rf_43/27Mar2015-18Oct2015at1.csv   date UTC      26/03/15      ambiguous  
+rf_44/24Mar2015-25May2016at1.csv   date UTC      24/03/15      ambiguous  
 rf_46/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
+rf_47/24Mar2015-25May2016at1.csv   date UTC      24/03/15      ambiguous  
 
 Looking at the file names we will assume they are dmy.
 
@@ -299,6 +321,9 @@ file                                   fSize  dateColName   dateExample   dateFo
 rf_01/1Jan2014-24May2014at1.csv      6255737  date NZ       2014-01-06    ymd - default (but day/month value <= 12) 
 rf_02/1Jan2014-24May2014at1.csv      6131625  date NZ       2014-03-03    ymd - default (but day/month value <= 12) 
 rf_06/24May2014-24May2015at1.csv    19398444  date NZ       2014-06-09    ymd - default (but day/month value <= 12) 
+rf_10/24May2014-24May2015at1.csv    24386048  date NZ       2014-07-09    ymd - default (but day/month value <= 12) 
+rf_11/24May2014-24May2015at1.csv    23693893  date NZ       2014-07-08    ymd - default (but day/month value <= 12) 
+rf_12/24May2014-24May2015at1.csv    21191785  date NZ       2014-07-09    ymd - default (but day/month value <= 12) 
 
 These look OK if we compare the file names with the dateExample.
 
@@ -342,13 +367,13 @@ dateColName                                dateFormat                           
 -----------------------------------------  ------------------------------------------  -------
 date NZ                                    dmy - definite                                    1
 date NZ                                    mdy - definite                                    2
-date NZ                                    ymd - default (but day/month value <= 12)         3
-date NZ                                    ymd - definite                                    5
-date UTC                                   dmy - inferred                                    3
-date UTC                                   ymd - default (but day/month value <= 12)       228
-date UTC                                   ymd - definite                                  358
-unknown - file not loaded (fsize = 2751)   NA                                              906
-unknown - file not loaded (fsize = 43)     NA                                              891
+date NZ                                    ymd - default (but day/month value <= 12)        12
+date NZ                                    ymd - definite                                   67
+date UTC                                   dmy - inferred                                   28
+date UTC                                   ymd - default (but day/month value <= 12)      3429
+date UTC                                   ymd - definite                                 5347
+unknown - file not loaded (fsize = 2751)   NA                                             1812
+unknown - file not loaded (fsize = 43)     NA                                            10522
 
 ## Data file quality checks
 
@@ -405,7 +430,7 @@ ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
   labs(title = "Mean file size of loaded grid spy data files received per day",
        caption = paste0(myCaption, 
                         "\nLog file size used as some files are full year data",
-                        "\nFiles loaded if fsize > ", dataThreshold)
+                        "\nFiles loaded if fsize > ", dataThreshold, " bytes")
     
   )
 ```
@@ -452,9 +477,48 @@ hhID     nFiles     meanSize  minFileDate   maxFileDate
 ------  -------  -----------  ------------  ------------
 rf_01         3   15548174.7  2016-09-20    2016-09-30  
 rf_02         3   10134268.3  2016-09-20    2016-09-30  
-rf_06       180     811227.3  2016-05-25    2018-05-02  
+rf_06       181     807610.5  2016-05-25    2018-05-03  
+rf_07       181     868047.3  2016-05-25    2018-05-03  
+rf_08         5   23989121.0  2016-05-25    2017-11-21  
+rf_09         2   14344605.0  2016-09-21    2016-09-21  
+rf_10       358     525455.0  2016-05-25    2018-03-30  
+rf_11       483     427207.1  2016-05-25    2018-05-03  
+rf_12         2   10713096.0  2016-09-21    2016-09-21  
+rf_13       415     494569.5  2016-05-25    2018-05-03  
+rf_14       329     424262.0  2016-06-08    2017-12-31  
+rf_15         2   10553143.0  2016-09-21    2016-09-21  
+rf_16         1   20037376.0  2016-09-20    2016-09-20  
+rf_17       202     415129.2  2016-09-21    2018-04-12  
+rf_18         2   14374309.5  2016-09-21    2016-09-21  
+rf_19       483     567233.1  2016-05-25    2018-05-03  
+rf_20         2   14665810.0  2016-09-21    2016-09-21  
+rf_21         4   23058797.8  2016-05-25    2016-10-12  
+rf_22       371     533704.5  2016-05-25    2018-01-16  
+rf_23       483     442927.8  2016-05-25    2018-05-03  
+rf_24       483     431320.9  2016-05-25    2018-05-03  
 rf_25         3   12341581.3  2016-06-08    2017-11-21  
+rf_26       389     411700.2  2016-05-25    2018-05-03  
+rf_27         3   22607698.7  2016-05-25    2016-09-21  
+rf_28         2    2297483.0  2016-06-08    2016-09-19  
+rf_29       480     342998.6  2016-05-25    2018-05-03  
+rf_30         5   13695336.0  2016-05-25    2016-10-13  
+rf_31       483     342178.4  2016-05-25    2018-05-03  
+rf_32         2   13934454.0  2016-06-08    2016-09-20  
+rf_33       482     288691.1  2016-06-08    2018-05-03  
+rf_34         7   14106275.3  2016-05-25    2016-10-13  
+rf_35       134     573648.6  2016-05-25    2017-11-21  
+rf_36       433     301635.2  2016-06-08    2018-05-03  
+rf_37       482     302610.0  2016-06-08    2018-05-03  
+rf_38       201     385707.5  2016-06-08    2017-11-21  
+rf_39       359     384622.4  2016-05-25    2018-05-03  
+rf_40         2    9299902.0  2016-06-08    2016-09-20  
+rf_41       474     266036.3  2016-06-08    2018-05-03  
+rf_42        45    1315953.6  2016-06-08    2017-11-21  
+rf_43         4    9442492.0  2016-05-25    2016-09-28  
+rf_44       483     343819.4  2016-05-25    2018-05-03  
+rf_45         4   10513812.0  2016-06-08    2017-11-21  
 rf_46       411     605048.1  2016-06-08    2018-02-21  
+rf_47         3   17544847.0  2016-05-25    2016-09-20  
 
 
 
@@ -562,9 +626,9 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv"
 ## [1] "Loading: rf_02"
 ```
 
@@ -574,9 +638,9 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv"
 ## [1] "Loading: rf_06"
 ```
 
@@ -586,9 +650,225 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv"
+## [1] "Loading: rf_07"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv"
+## [1] "Loading: rf_08"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv"
+## [1] "Loading: rf_09"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv"
+## [1] "Loading: rf_10"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv"
+## [1] "Loading: rf_11"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv"
+## [1] "Loading: rf_12"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv"
+## [1] "Loading: rf_13"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv"
+## [1] "Loading: rf_14"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv"
+## [1] "Loading: rf_15"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv"
+## [1] "Loading: rf_16"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv"
+## [1] "Loading: rf_17"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv"
+## [1] "Loading: rf_18"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv"
+## [1] "Loading: rf_19"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv"
+## [1] "Loading: rf_20"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv"
+## [1] "Loading: rf_21"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv"
+## [1] "Loading: rf_22"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv"
+## [1] "Loading: rf_23"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv"
+## [1] "Loading: rf_24"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv"
 ## [1] "Loading: rf_25"
 ```
 
@@ -598,9 +878,249 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv"
+## [1] "Loading: rf_26"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv"
+## [1] "Loading: rf_27"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv"
+## [1] "Loading: rf_28"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv"
+## [1] "Loading: rf_29"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv"
+## [1] "Loading: rf_30"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv"
+## [1] "Loading: rf_31"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv"
+## [1] "Loading: rf_32"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv"
+## [1] "Loading: rf_33"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv"
+## [1] "Loading: rf_34"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv"
+## [1] "Loading: rf_35"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv"
+## [1] "Loading: rf_36"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv"
+## [1] "Loading: rf_37"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv"
+## [1] "Loading: rf_38"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv"
+## [1] "Loading: rf_39"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv"
+## [1] "Loading: rf_40"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv"
+## [1] "Loading: rf_41"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv"
+## [1] "Loading: rf_42"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv"
+## [1] "Loading: rf_43"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv"
+## [1] "Loading: rf_44"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv"
+## [1] "Loading: rf_45"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv"
 ## [1] "Loading: rf_46"
 ```
 
@@ -610,9 +1130,21 @@ for(hh in hhIDs){
 ```
 
 ```
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv"
+## [1] "Loading: rf_47"
+```
+
+```
+## Warning in `[<-.data.table`(x, j = name, value = value): Adding new column
+## 'nCircuits' then assigning NULL (deleting it).
+```
+
+```
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv"
 ```
 
 ```r
@@ -622,7 +1154,7 @@ print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out 
 ```
 
 ```
-## [1] "Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/1min/hhDailyObservationsStats.csv"
+## [1] "Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/hhDailyObservationsStats.csv"
 ```
 
 ```r
@@ -722,9 +1254,48 @@ hhID     minObs   maxObs   meanNDataColumns  minDate      maxDate
 ------  -------  -------  -----------------  -----------  -----------
 rf_01       171     1500                  6  2014-01-05   2015-10-20 
 rf_02       215     1440                  6  2014-03-02   2015-05-28 
-rf_06       243     1500                  6  2014-06-08   2018-05-02 
+rf_06       243     1500                  6  2014-06-08   2018-05-03 
+rf_07       105     1500                  6  2014-07-13   2018-05-03 
+rf_08       123     1500                  6  2014-05-28   2017-05-15 
+rf_09       163     1500                  6  2014-07-13   2015-07-16 
+rf_10       389     1500                  6  2014-07-08   2018-03-29 
+rf_11       278     1500                  6  2014-07-07   2018-05-03 
+rf_12        85     1500                  6  2014-07-08   2015-06-02 
+rf_13       456     1500                  6  2014-06-05   2018-05-03 
+rf_14       120     1500                  6  2014-07-13   2017-12-30 
+rf_15        62     1440                  6  2015-01-14   2016-04-18 
+rf_16       720     1500                  6  2014-07-09   2015-03-25 
+rf_17        22     1500                  6  2014-05-29   2018-04-11 
+rf_18       157     1500                  6  2014-05-29   2015-06-11 
+rf_19       387     1500                  9  2014-07-14   2018-05-03 
+rf_20        98     1500                  6  2014-05-28   2015-06-11 
+rf_21       195     1500                  6  2014-07-14   2016-07-01 
+rf_22         6     1500                  6  2014-06-05   2018-01-14 
+rf_23       171     1500                  6  2014-05-25   2018-05-03 
+rf_24       571     1500                  6  2014-05-28   2018-05-03 
 rf_25        45     1500                  6  2015-05-24   2016-10-22 
+rf_26       362     2231                  6  2014-07-10   2018-05-03 
+rf_27       567     1560                  6  2014-07-27   2016-05-13 
+rf_28       297     1440                  6  2015-03-26   2015-05-26 
+rf_29       720     1500                  6  2015-03-25   2018-05-03 
+rf_30       205     1500                  6  2015-03-27   2016-09-29 
+rf_31       720     1500                  6  2015-03-25   2018-05-03 
+rf_32       325     1500                  6  2015-03-25   2016-04-05 
+rf_33       369     1500                  6  2015-03-23   2018-05-03 
+rf_34       317     1500                  6  2014-11-03   2016-08-24 
+rf_35        50     1500                  6  2015-03-22   2017-05-17 
+rf_36        29     1500                  6  2015-03-23   2018-05-03 
+rf_37       720     1500                  6  2015-03-23   2018-05-03 
+rf_38       398     1500                  6  2015-03-24   2017-08-22 
+rf_39       163     1823                  5  2015-03-27   2018-05-03 
+rf_40       268     1500                  6  2015-03-24   2015-11-22 
+rf_41         1     1573                  6  2015-03-25   2018-05-03 
+rf_42        79     1500                  6  2015-03-23   2017-02-18 
+rf_43       780     1495                  6  2015-03-26   2015-10-18 
+rf_44       720     1500                  6  2015-03-24   2018-05-03 
+rf_45        69     1499                  6  2015-03-24   2016-10-15 
 rf_46       305     3000                 13  2015-03-26   2018-02-19 
+rf_47       159     1500                  6  2015-03-24   2016-05-08 
 
 # Runtime
 
@@ -736,7 +1307,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 654.419 seconds ( 10.91 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 1.0101263\times 10^{4} seconds ( 168.35 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
