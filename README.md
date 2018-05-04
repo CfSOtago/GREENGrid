@@ -1,7 +1,7 @@
 # NZ GREEN Grid
 Repo supporting analysis of the [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project data. This includes:
 
- * 1 minute electricity consumption (Wh) data for XX households in NZ monitored from XXXX
+ * 1 minute electricity consumption (Wh) data for c 40 households in NZ monitored from early 2014
  * Dwelling & appliance surveys
  * Occupant time-use diaries (focused on energy use)
 
