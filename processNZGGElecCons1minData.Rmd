@@ -476,7 +476,6 @@ for(hh in hhIDs){
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains("$")))] # check for the number of circuits - all seem to contain "$"
-    tempDT <- tempDT[, nCircuits := ncol(select(tempDT, contains("$")))] # number of circuits recorded in this file (may vary and/or indicate data for the wrong household!)
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
   }
   
@@ -484,6 +483,7 @@ for(hh in hhIDs){
   # Need to remove all uneccessary vars for this
   try(tempHhDT$dateColName <- NULL)
   try(tempHhDT$dateFormat <- NULL)
+  try(tempHhDT$nCircuits <- NULL)
   try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplciates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
   
   nObs <- nrow(tempHhDT)
@@ -492,11 +492,7 @@ for(hh in hhIDs){
   nObs <- nrow(tempHhDT)
   if(fullFb){print(paste0("N rows after removal of duplicates: ", nObs))}
   
-  
-  
   hhStatTempDT <- tempHhDT[, .(nObs = .N,
-                           maxCircuitsOrig = max(nCircuits), # should = the max
-                           minCircuitsOrig = min(nCircuits),
                            nDataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
                            keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
   # add hhID
