@@ -4,6 +4,11 @@ title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electrici
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
   html_document:
     code_folding: hide
     fig_caption: true
@@ -13,10 +18,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 2
-  pdf_document:
-    toc: true
-    toc_depth: 2
-    number_sections: true
+bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -54,16 +56,16 @@ dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or 
 library(greenGridr) # local utilities
 
 # Libraries ----
-reqLibsLocal <- c("data.table", # for data munching
-                  "lubridate", # for date/time munching
-                  "ggplot2", # for fancy graphs
-                  "readr", # for read/write_csv
-                  "dplyr", # for select columns
-                  #"dtplyr", # if needed
-                  "knitr" # for kable
-                  )
+reqLibs <- c("data.table", # for data munching
+             "lubridate", # for date/time munching
+             "ggplot2", # for fancy graphs
+             "readr", # for read/write_csv
+             "dplyr", # for select columns
+             #"dtplyr", # if needed
+             "knitr" # for kable
+)
 
-greenGridr::myRequiredPackages(reqLibsLocal)
+greenGridr::myRequiredPackages(reqLibs)
 
 # Local functions ----
 # move to package?
@@ -620,13 +622,14 @@ Analysis completed in `r elapsed` seconds ( `r round(elapsed/60,2)` minutes) usi
 
 # R environment
 
-R packages used:
+R packages used: `r reqLibs`
 
  * base R - for the basics [@baseR]
  * data.table - for fast (big) data handling [@data.table]
- * ggplot2 - for slick graphics [@ggplot2]
- * dplyr - for select and contains [@dplyr]
  * lubridate - date manipulation [@lubridate]
+ * ggplot2 - for slick graphics [@ggplot2]
+ * readr - for csv reading/writing [@readr]
+ * dplyr - for select and contains [@dplyr]
  * knitr - to create this document [@knitr]
  * greenGridr - for local NZ GREEN Grid utilities
  
