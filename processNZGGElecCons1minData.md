@@ -1,8 +1,8 @@
 ---
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
-  consumption data'
+  power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-08 16:44:32'
+date: 'Last run at: 2018-05-08 17:14:15'
 output:
   html_document:
     code_folding: hide
@@ -32,7 +32,7 @@ bibliography: bibliography.bib
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (2018) Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data, University of Otago: Dunedin, NZ.
+ * Anderson, B. (2018) Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity power data, University of Otago: Dunedin, NZ.
 
 \newpage
 
@@ -46,7 +46,7 @@ Report circulation:
 
 This report is intended to: 
 
- * load and clean the project electricity consumption data (Grid Spy)
+ * load and clean the project electricity power data (Grid Spy)
  * save the cleaned data out as a single file per household
  * produce summary data quality statistics
 
@@ -56,7 +56,10 @@ This report is intended to:
 
 ## History
 
-Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid).
+Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid):
+
+ * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master)
+ * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
  
 ## Support
 
@@ -66,7 +69,9 @@ This work was supported by:
  * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
  * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
  
-This work uis (c) 2018 the University of Southampton.
+This work is (c) 2018 the University of Southampton.
+
+We do not 'support' the code but if you have a problem check the [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues) on our [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid) and if it doesn't already exist, open one. We might be able to fix it :-)
 
 # Obtain listing of files
 
@@ -76,7 +81,7 @@ In this section we generate a listing of all 1 minute data files that we have re
  
 In this run we are using data from:
 
- * ~/Data/NZGreenGrid/gridspy/1min_orig/
+ * /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
 
 If these do not match then this may be a test run.
 
@@ -86,7 +91,7 @@ print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", 
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/ - could take a while..."
 ```
 
 ```r
@@ -96,7 +101,7 @@ system.time(fListCompleteDT <- data.table::as.data.table(list.files(path = fpath
 
 ```
 ##    user  system elapsed 
-##   0.009   0.010   0.024
+##   0.767   4.852 481.111
 ```
 
 ```r
@@ -105,7 +110,7 @@ print(paste0("Found ", tidyNum(nFiles), " files"))
 ```
 
 ```
-## [1] "Found 958 files"
+## [1] "Found 21,396 files"
 ```
 
 
@@ -193,10 +198,9 @@ if(nrow(fListCompleteDT) == 0){
 ```
 ## [1] "Processing file list and getting file meta-data (please be patient)"
 ## [1] "All files checked"
-## [1] "Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv"
+## [1] "Saving 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv"
 ## [1] "Done"
-## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
-## [1] "Saving final 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv"
+## [1] "Saving final 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv"
 ## [1] "Done"
 ```
 
@@ -205,7 +209,7 @@ print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(
 ```
 
 ```
-## [1] "Overall we have 958 files from 2 households."
+## [1] "Overall we have 21396 files from 44 households."
 ```
 
 ```r
@@ -214,7 +218,7 @@ nFiles <- nrow(fListCompleteDT)
 nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 ```
 
-Overall we have 958 files from 2 households. Of the 958,  544 (56.78%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
+Overall we have 21,396 files from 44 households. Of the 21,396,  12,444 (58.16%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
 
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
@@ -238,18 +242,18 @@ Table: Number of files with given date column names by inferred date format
 dateColName                                dateFormat                                   nFiles
 -----------------------------------------  ------------------------------------------  -------
 date NZ                                    dmy - definite                                    1
-date NZ                                    mdy - definite                                    1
-date NZ                                    ymd - default (but day/month value <= 12)         1
-date NZ                                    ymd - definite                                    2
-date UTC                                   ambiguous                                         1
-date UTC                                   ymd - default (but day/month value <= 12)       161
-date UTC                                   ymd - definite                                  247
-unknown - file not loaded (fsize = 2751)   NA                                              302
-unknown - file not loaded (fsize = 43)     NA                                              242
+date NZ                                    mdy - definite                                    2
+date NZ                                    ymd - default (but day/month value <= 12)        12
+date NZ                                    ymd - definite                                   67
+date UTC                                   ambiguous                                        28
+date UTC                                   ymd - default (but day/month value <= 12)      3495
+date UTC                                   ymd - definite                                 5347
+unknown - file not loaded (fsize = 2751)   NA                                             1812
+unknown - file not loaded (fsize = 43)     NA                                            10632
 
 Results to note:
 
- * There are 1 ambiguous files
+ * There are 28 ambiguous files
  * The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data. 
  
 We now inspect the ambiguous and (some of) the default files.
@@ -270,7 +274,34 @@ Table: Files with ambigious date formats
 
 file                               dateColName   dateExample   dateFormat 
 ---------------------------------  ------------  ------------  -----------
+rf_06/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_07/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_08/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_10/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_11/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_13/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_19/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_21/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_22/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_23/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_24/15Jul2014-25May2016at1.csv   date UTC      27/07/14      ambiguous  
+rf_25/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
+rf_26/15Jul2014-25May2016at1.csv   date UTC      14/07/14      ambiguous  
+rf_27/15Jul2014-25May2016at1.csv   date UTC      27/07/14      ambiguous  
+rf_29/24Mar2015-25May2016at1.csv   date UTC      25/03/15      ambiguous  
+rf_30/15Feb2016-25May2016at1.csv   date UTC      14/02/16      ambiguous  
+rf_30/24Mar2015-25May2016at1.csv   date UTC      27/03/15      ambiguous  
+rf_31/24Mar2015-25May2016at1.csv   date UTC      25/03/15      ambiguous  
+rf_34/18Jan2016-25May2016at1.csv   date UTC      17/01/16      ambiguous  
+rf_34/20Jul2015-25May2016at1.csv   date UTC      19/07/15      ambiguous  
+rf_34/24Mar2015-25May2016at1.csv   date UTC      26/03/15      ambiguous  
+rf_35/24Mar2015-25May2016at1.csv   date UTC      23/03/15      ambiguous  
+rf_39/24Mar2015-25May2016at1.csv   date UTC      27/03/15      ambiguous  
+rf_43/24Mar2015-25May2016at1.csv   date UTC      26/03/15      ambiguous  
+rf_43/27Mar2015-18Oct2015at1.csv   date UTC      26/03/15      ambiguous  
+rf_44/24Mar2015-25May2016at1.csv   date UTC      24/03/15      ambiguous  
 rf_46/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
+rf_47/24Mar2015-25May2016at1.csv   date UTC      24/03/15      ambiguous  
 
 Looking at the file names we will assume they are dmy.
 
@@ -294,9 +325,14 @@ knitr::kable(caption = "Files with inferred default date formats", head(aList))
 
 Table: Files with inferred default date formats
 
-file                                 fSize  dateColName   dateExample   dateFormat                                
---------------------------------  --------  ------------  ------------  ------------------------------------------
-rf_01/1Jan2014-24May2014at1.csv    6255737  date NZ       2014-01-06    ymd - default (but day/month value <= 12) 
+file                                   fSize  dateColName   dateExample   dateFormat                                
+---------------------------------  ---------  ------------  ------------  ------------------------------------------
+rf_01/1Jan2014-24May2014at1.csv      6255737  date NZ       2014-01-06    ymd - default (but day/month value <= 12) 
+rf_02/1Jan2014-24May2014at1.csv      6131625  date NZ       2014-03-03    ymd - default (but day/month value <= 12) 
+rf_06/24May2014-24May2015at1.csv    19398444  date NZ       2014-06-09    ymd - default (but day/month value <= 12) 
+rf_10/24May2014-24May2015at1.csv    24386048  date NZ       2014-07-09    ymd - default (but day/month value <= 12) 
+rf_11/24May2014-24May2015at1.csv    23693893  date NZ       2014-07-08    ymd - default (but day/month value <= 12) 
+rf_12/24May2014-24May2015at1.csv    21191785  date NZ       2014-07-09    ymd - default (but day/month value <= 12) 
 
 These look OK if we compare the file names with the dateExample.
 
@@ -316,12 +352,12 @@ Table: Files with inferred default date formats
 
 file                                 fSize  dateColName   dateExample   dateFormat                                
 ---------------------------------  -------  ------------  ------------  ------------------------------------------
-rf_46/10Apr2017-11Apr2017at1.csv    292721  date UTC      2017-04-09    ymd - default (but day/month value <= 12) 
-rf_46/10Aug2017-11Aug2017at1.csv    292888  date UTC      2017-08-09    ymd - default (but day/month value <= 12) 
-rf_46/10Dec2017-11Dec2017at1.csv    292823  date UTC      2017-12-09    ymd - default (but day/month value <= 12) 
-rf_46/10Feb2017-11Feb2017at1.csv    286736  date UTC      2017-02-09    ymd - default (but day/month value <= 12) 
-rf_46/10Feb2018-11Feb2018at1.csv    299084  date UTC      2018-02-09    ymd - default (but day/month value <= 12) 
-rf_46/10Jan2017-11Jan2017at1.csv    297659  date UTC      2017-01-09    ymd - default (but day/month value <= 12) 
+rf_06/10Apr2018-11Apr2018at1.csv    156944  date UTC      2018-04-09    ymd - default (but day/month value <= 12) 
+rf_06/10Dec2017-11Dec2017at1.csv    156601  date UTC      2017-12-09    ymd - default (but day/month value <= 12) 
+rf_06/10Feb2018-11Feb2018at1.csv    153353  date UTC      2018-02-09    ymd - default (but day/month value <= 12) 
+rf_06/10Jan2018-11Jan2018at1.csv    153982  date UTC      2018-01-09    ymd - default (but day/month value <= 12) 
+rf_06/10Mar2018-11Mar2018at1.csv    156471  date UTC      2018-03-09    ymd - default (but day/month value <= 12) 
+rf_06/10Nov2017-11Nov2017at1.csv    155639  date UTC      2017-11-09    ymd - default (but day/month value <= 12) 
 
 These also look OK so we will stick with the following derived date formats:
 
@@ -339,14 +375,14 @@ Table: Number of files with given date column names by final imputed date format
 dateColName                                dateFormat                                   nFiles
 -----------------------------------------  ------------------------------------------  -------
 date NZ                                    dmy - definite                                    1
-date NZ                                    mdy - definite                                    1
-date NZ                                    ymd - default (but day/month value <= 12)         1
-date NZ                                    ymd - definite                                    2
-date UTC                                   dmy - inferred                                    1
-date UTC                                   ymd - default (but day/month value <= 12)       161
-date UTC                                   ymd - definite                                  247
-unknown - file not loaded (fsize = 2751)   NA                                              302
-unknown - file not loaded (fsize = 43)     NA                                              242
+date NZ                                    mdy - definite                                    2
+date NZ                                    ymd - default (but day/month value <= 12)        12
+date NZ                                    ymd - definite                                   67
+date UTC                                   dmy - inferred                                   28
+date UTC                                   ymd - default (but day/month value <= 12)      3495
+date UTC                                   ymd - definite                                 5347
+unknown - file not loaded (fsize = 2751)   NA                                             1812
+unknown - file not loaded (fsize = 43)     NA                                            10632
 
 ## Data file quality checks
 
@@ -449,7 +485,49 @@ Table: Summary of household files to load
 hhID     nFiles     meanSize  minFileDate   maxFileDate 
 ------  -------  -----------  ------------  ------------
 rf_01         3   15548174.7  2016-09-20    2016-09-30  
+rf_02         3   10134268.3  2016-09-20    2016-09-30  
+rf_06       185     793529.2  2016-05-25    2018-05-07  
+rf_07       185     852619.8  2016-05-25    2018-05-07  
+rf_08         5   23989121.0  2016-05-25    2017-11-21  
+rf_09         2   14344605.0  2016-09-21    2016-09-21  
+rf_10       358     525455.0  2016-05-25    2018-03-30  
+rf_11       487     424952.9  2016-05-25    2018-05-07  
+rf_12         2   10713096.0  2016-09-21    2016-09-21  
+rf_13       419     491412.1  2016-05-25    2018-05-07  
+rf_14       329     424262.0  2016-06-08    2017-12-31  
+rf_15         2   10553143.0  2016-09-21    2016-09-21  
+rf_16         1   20037376.0  2016-09-20    2016-09-20  
+rf_17       204     411367.1  2016-09-21    2018-05-06  
+rf_18         2   14374309.5  2016-09-21    2016-09-21  
+rf_19       487     564177.0  2016-05-25    2018-05-07  
+rf_20         2   14665810.0  2016-09-21    2016-09-21  
+rf_21         4   23058797.8  2016-05-25    2016-10-12  
+rf_22       371     533704.5  2016-05-25    2018-01-16  
+rf_23       487     440557.1  2016-05-25    2018-05-07  
+rf_24       487     429027.2  2016-05-25    2018-05-07  
+rf_25         3   12341581.3  2016-06-08    2017-11-21  
+rf_26       393     409009.8  2016-05-25    2018-05-07  
+rf_27         3   22607698.7  2016-05-25    2016-09-21  
+rf_28         2    2297483.0  2016-06-08    2016-09-19  
+rf_29       484     341423.4  2016-05-25    2018-05-07  
+rf_30         5   13695336.0  2016-05-25    2016-10-13  
+rf_31       487     340623.4  2016-05-25    2018-05-07  
+rf_32         2   13934454.0  2016-06-08    2016-09-20  
+rf_33       486     287545.4  2016-06-08    2018-05-07  
+rf_34         7   14106275.3  2016-05-25    2016-10-13  
+rf_35       134     573648.6  2016-05-25    2017-11-21  
+rf_36       437     300212.8  2016-06-08    2018-05-07  
+rf_37       486     301363.7  2016-06-08    2018-05-07  
+rf_38       201     385707.5  2016-06-08    2017-11-21  
+rf_39       363     381927.8  2016-05-25    2018-05-07  
+rf_40         2    9299902.0  2016-06-08    2016-09-20  
+rf_41       478     265093.9  2016-06-08    2018-05-07  
+rf_42        45    1315953.6  2016-06-08    2017-11-21  
+rf_43         4    9442492.0  2016-05-25    2016-09-28  
+rf_44       487     342216.9  2016-05-25    2018-05-07  
+rf_45         4   10513812.0  2016-06-08    2017-11-21  
 rf_46       411     605048.1  2016-06-08    2018-02-21  
+rf_47         3   17544847.0  2016-05-25    2016-09-20  
 
 
 
@@ -554,13 +632,181 @@ for(hh in hhIDs){
 
 ```
 ## [1] "Loading: rf_01"
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv"
+## [1] "Loading: rf_02"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv"
+## [1] "Loading: rf_06"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv"
+## [1] "Loading: rf_07"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv"
+## [1] "Loading: rf_08"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv"
+## [1] "Loading: rf_09"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv"
+## [1] "Loading: rf_10"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv"
+## [1] "Loading: rf_11"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv"
+## [1] "Loading: rf_12"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv"
+## [1] "Loading: rf_13"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv"
+## [1] "Loading: rf_14"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv"
+## [1] "Loading: rf_15"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv"
+## [1] "Loading: rf_16"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv"
+## [1] "Loading: rf_17"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv"
+## [1] "Loading: rf_18"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv"
+## [1] "Loading: rf_19"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv"
+## [1] "Loading: rf_20"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv"
+## [1] "Loading: rf_21"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv"
+## [1] "Loading: rf_22"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv"
+## [1] "Loading: rf_23"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv"
+## [1] "Loading: rf_24"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv"
+## [1] "Loading: rf_25"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv"
+## [1] "Loading: rf_26"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv"
+## [1] "Loading: rf_27"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv"
+## [1] "Loading: rf_28"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv"
+## [1] "Loading: rf_29"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv"
+## [1] "Loading: rf_30"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv"
+## [1] "Loading: rf_31"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv"
+## [1] "Loading: rf_32"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv"
+## [1] "Loading: rf_33"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv"
+## [1] "Loading: rf_34"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv"
+## [1] "Loading: rf_35"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv"
+## [1] "Loading: rf_36"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv"
+## [1] "Loading: rf_37"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv"
+## [1] "Loading: rf_38"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv"
+## [1] "Loading: rf_39"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv"
+## [1] "Loading: rf_40"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv"
+## [1] "Loading: rf_41"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv"
+## [1] "Loading: rf_42"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv"
+## [1] "Loading: rf_43"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv"
+## [1] "Loading: rf_44"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv"
+## [1] "Loading: rf_45"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv"
 ## [1] "Loading: rf_46"
-## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv..."
-## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv, gzipping..."
-## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv"
+## [1] "Loading: rf_47"
+## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv..."
+## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping..."
+## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv"
 ```
 
 ```r
@@ -570,7 +816,7 @@ print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out 
 ```
 
 ```
-## [1] "Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/1min/hhDailyObservationsStats.csv"
+## [1] "Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/hhDailyObservationsStats.csv"
 ```
 
 ```r
@@ -586,12 +832,15 @@ print("Done")
 
 Now produce some data quality plots & tables.
 
-The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies:
+The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:
 
- * some of the circuit labels for these households may have been changed during the data collection process
- * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process
- * at least one file from one household has been saved to a folder containing data from a different household (the raw data files do _not_ contain household IDs in the data or the file names to enable preventative filtering)
+ * some of the circuit labels for these households may have been changed during the data collection process;
+ * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
+ * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering).
 
+Some or all of these may be true at any given time!
+
+If this table flags a lot of errors then some re-naming of the circuit labels (column names) may be necessary.
 
 
 ```r
@@ -610,21 +859,65 @@ Table: Circuit labels list by household
 
 circuitLabels                                                                                                                                                                                                                                                                                                                                                          hhID     nFiles  minFileDate   maxFileDate   minFileSize (Mb)   maxFileSize (Mb) 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------  -------  ------------  ------------  -----------------  -----------------
+Bed 2, 2nd Fridge$2828, Heat Pump$2826, Hot Water - Controlled$2825, Incomer - Uncontrolled$2824, Kitchen, Laundry & Beds 1&3$2829, Oven & Oven Wall Appliances$2827                                                                                                                                                                                                   rf_27         3  2016-05-25    2016-09-21    19.13              23.93            
+Bedroom & Lounge Heat Pumps$2741, Incomer 1 - All$2738, Incomer 2 - All$2737, Kitchen Appliances$2735, Laundry$2734, Oven$2736, PV 1$2739, PV 2$2733, Theatre Heat Pump$2740                                                                                                                                                                                           rf_19       487  2016-05-25    2018-05-07    0.17               49.7             
+Bedrooms & Lounge$2602, Heat Pump$2598, Incomer - All$2599, Kitchen Appliances$2601, Laundry & Garage$2597, Oven$2600                                                                                                                                                                                                                                                  rf_10       358  2016-05-25    2018-03-30    0.03               39.96            
+Cooking Bath tile heat$1573, Fridge$1572, Heating$1576, Hot Water$1574, Lights$1577, Mains$1575                                                                                                                                                                                                                                                                        rf_02         3  2016-09-20    2016-09-30    0.27               22.88            
+Downstairs (inc 1 Heat Pump)$2212, Hot Water - Controlled$2208, Incomer - Uncontrolled$2209, Kitchen & Laundry$2213, Oven & Hob$2210, Upstairs Heat Pumps$2211                                                                                                                                                                                                         rf_13       419  2016-05-25    2018-05-07    0.08               36.35            
+Fridge$2752, Heat Pump & Washing Machine$2750, Incomer - All$2748, Kitchen Appliances & Garage$2753, Lower Bedrooms & Bathrooms$2751, Oven$2749                                                                                                                                                                                                                        rf_21         4  2016-05-25    2016-10-12    2.66               37.79            
+Hallway & Washing Machine$2683, Hot Water - Controlled$2679, Incomer 1 - Uncont inc Oven$2681, Incomer 2 - Uncont inc Stove$2680, Kitchen Appliances & Bedrooms$2684, Microwave & Breadmaker$2682                                                                                                                                                                      rf_16         1  2016-09-20    2016-09-20    19.11              19.11            
+Heat Pump & 2 x Bathroom Heat$4171, Incomer - All$4170, Kitchen Power & Heat, Lounge$4174, Laundry, Garage & 2 Bedrooms$4173, Lighting$4172, Wall Oven$4169                                                                                                                                                                                                            rf_47         3  2016-05-25    2016-09-20    4.24               24.47            
+Heat Pump & Bedroom 2$2731, Incomer 1 - Uncont - Inc Hob$2729, Incomer 2 - Uncont - Inc Oven$2730, Kitchen Appliances$2727, Laundry$2732, Lounge, Dining & Bedrooms$2728                                                                                                                                                                                               rf_09         2  2016-09-21    2016-09-21    4.02               23.34            
+Heat Pump & Kitchen Appliances$4186, Hot Water - Controlled$4184, Incomer - Uncontrolled$4181, Laundry$4185, Lighting$4183, Oven$4182                                                                                                                                                                                                                                  rf_29       484  2016-05-25    2018-05-07    0.07               29.47            
+Heat Pump & Lounge$2590, Hob$2589, Hot Water Cpbd Heater- Cont$2586, Incomer - Uncontrolled$2585, Kitchen Appliances & Laundry$2588, Spa - Uncontrolled$2587                                                                                                                                                                                                           rf_11       487  2016-05-25    2018-05-07    0.14               39.08            
+Heat Pump & Misc$2107, Hob$2109, Hot Water - Controlled$2110, Incomer 1 - Uncontrolled$2112, Incomer 2 - Uncontrolled$2111, Oven & Kitchen Appliances$2108                                                                                                                                                                                                             rf_20         2  2016-09-21    2016-09-21    1.31               26.66            
+Heat Pump (x2) & Lounge Power$4166, Hot Water - Controlled$4167, Incomer - Uncontrolled$4168, Kitchen Appliances$4163, Laundry$4164, Lighting$4165                                                                                                                                                                                                                     rf_40         2  2016-06-08    2016-09-20    4.41               13.33            
+Heat Pump$2092, Hot Water - Controlled$2094, Incomer - Uncontrolled$2093, Kitchen$2089, Laundry & 2nd Fridge Freezer$2090, Oven & Hob$2091                                                                                                                                                                                                                             rf_08         5  2016-05-25    2017-11-21    9.95               37.46            
+Heat Pump$2148, Hot Water - Controlled$2150, Incomer 1 - Uncont - inc Hob$2152, Incomer 2 - Uncont - inc Oven$2151, Kitchen Appliances$2147, Laundry$2149                                                                                                                                                                                                              rf_17         2  2016-09-21    2016-09-21    21.89              25.34            
+Heat Pump$2758, Hob & Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 1 - Uncontrolled$2757, Incomer 2 - Uncontrolled $2762, Oven$2760                                                                                                                                                                                   rf_25         1  2016-06-08    2016-06-08    25.9               25.9             
+Heat Pump$2758, Hob & Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 2 - Uncontrolled $2762, Oven$2760                                                                                                                                                                                                                  rf_25         2  2016-10-25    2017-11-21    0.56               8.86             
+Heat Pump$4124, Hot Water - Uncontrolled$4125, Incomer - Uncontrolled$4126, Kitchen Appliances$4121, Laundry, Garage Fridge Freezer$4122, Lighting$4123                                                                                                                                                                                                                rf_35       134  2016-05-25    2017-11-21    0.04               15.93            
+Heat Pump$4130, Hot Water - Uncontrolled$4131, Incomer - All$4132, Kitchen Appliances$4127, Laundry & Freezer$4128, Lighting (inc heat lamps)$4129                                                                                                                                                                                                                     rf_42        45  2016-06-08    2017-11-21    0.04               25.96            
+Heat Pump$4134, Hot Water - Controlled$4135, Incomer -Uncontrolled$4136, Kitchen Appliances$4137, Laundry & Fridge Freezer$4138, Lighting$4133                                                                                                                                                                                                                         rf_37       486  2016-06-08    2018-05-07    0.14               29.15            
+Heat Pump$4150, Hot Water - Uncontrolled$4147, Incomer - All$4148, Kitchen Appliances$4145, Lighting$4149, Washing Machine$4146                                                                                                                                                                                                                                        rf_36       437  2016-06-08    2018-05-07    0.05               27.9             
+Heat Pump$4154, Hot Water - Controlled$4155, Incomer - Uncontrolled$4156, Kitchen Appliances$4151, Laundry $4152, Lighting$4153                                                                                                                                                                                                                                        rf_44       487  2016-05-25    2018-05-07    0.13               28.61            
+Heat Pump$4160, Hot Water - Controlled$4158, Incomer - Uncontrolled$4157, Kitchen Appliances$4161, Laundry & Garage Fridge$4162, Lighting$4159                                                                                                                                                                                                                         rf_45         4  2016-06-08    2017-11-21    0.25               25.68            
+Heat Pump$4175, Hot Water - Controlled$4178, Incomer - Uncontrolled$4177, Kitchen, Dining & Office$4179, Laundry, Lounge, Garage, Bed$4180, Lighting$4176                                                                                                                                                                                                              rf_38       201  2016-06-08    2017-11-21    0.06               22.92            
+Heat Pump$4190, Incomer - All$4192, Kitchen Appliances$4187, Laundry$4188, Lighting$4189, Oven$4191                                                                                                                                                                                                                                                                    rf_41       478  2016-06-08    2018-05-07    0.04               29.63            
+Heat Pump$4196, Hot Water - Controlled$4198, Incomer - All$4193, Kitchen Appliances$4195, Laundry$4194, Lighting$4197                                                                                                                                                                                                                                                  rf_32         2  2016-06-08    2016-09-20    4.19               22.38            
+Heat Pump$4204, Hot Water - Controlled$4200, Incomer - All$4199, Kitchen Appliances$4201, Laundry$4202, Lighting$4203                                                                                                                                                                                                                                                  rf_31       487  2016-05-25    2018-05-07    0.07               28.46            
+Heat Pump$4211, Incomer - All$4213, Kitchen Appliances$4210, Laundry, Garage & Guest Bed$4215, Lighting$4212, Oven$4214                                                                                                                                                                                                                                                rf_43         4  2016-05-25    2016-09-28    4.09               10.77            
+Heat Pump$4219, Incomer - All$4221, Kitchen Appliances$4216, Laundry$4217, Lighting$4218, PV & Garage$4220                                                                                                                                                                                                                                                             rf_28         2  2016-06-08    2016-09-19    0.12               4.26             
+Heat Pump$4223, Hot Water - Uncontrolled$4224, Incomer - All$4225, Kitchen Appliances$4226, Laundry & Garage Freezer$4227, Lighting$4222                                                                                                                                                                                                                               rf_34         7  2016-05-25    2016-10-13    4.39               27.1             
 Heat Pumps (2x) & Power$4232, Heat Pumps (2x) & Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen & Bedrooms$4229, Kitchen & Bedrooms$4402, Laundry & Bedrooms$4228, Laundry & Bedrooms$4403, Lighting$4233, Lighting$4404                                 rf_46       408  2016-06-08    2018-02-21    0.07               49.62            
 Heat Pumps (2x) & Power1$4232, Heat Pumps (2x) & Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen & Bedrooms1$4229, Kitchen & Bedrooms2$4402, Laundry & Bedrooms1$4228, Laundry & Bedrooms2$4403, Lighting1$4233, Lighting2$4404                     rf_46         1  2017-11-21    2017-11-21    52.03              52.03            
 Heat Pumps (2x) & Power_Imag$4399, Heat Pumps (2x) & Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen & Bedrooms_Imag$4402, Kitchen & Bedrooms$4229, Laundry & Bedrooms_Imag$4403, Laundry & Bedrooms$4228, Lighting_Imag$4404, Lighting$4233   rf_46         2  2016-09-29    2016-10-25    4                  18.16            
 Heating$1633, Hot water$1636, Kitchen power$1632, Lights$1635, Mains$1634, Range$1637                                                                                                                                                                                                                                                                                  rf_01         3  2016-09-20    2016-09-30    5.97               27.46            
+Hob$3954, Hot Water$3952, Incomer 1$3956, Incomer 2$3955, Laundry & Kitchen Appliances$3951, Oven$3953                                                                                                                                                                                                                                                                 rf_15         2  2016-09-21    2016-09-21    9.55               10.58            
+Hot Water  (2 elements)$4247, Incomer - Uncontrolled$4248, Kitchen Appliances$4244, Lighting & 2 Towel Rail$4245, Oven$4246                                                                                                                                                                                                                                            rf_39       363  2016-05-25    2018-05-07    0.04               26.84            
+Hot Water - Controlled (HEMS)$2081, Incomer - Uncontrolled$2082, Kitchen, Laundry & Ventilation$2084, Oven$2085, PV & Storage$2083, Spa (HEMS)$2080                                                                                                                                                                                                                    rf_23       487  2016-05-25    2018-05-07    0.13               40.5             
+Hot Water - Controlled$2102, Incomer - Uncontrolled$2101, Kitchen$2104, Laundry, Fridge & Freezer$2105, Oven & Hob$2103, PV$2106                                                                                                                                                                                                                                       rf_24       487  2016-05-25    2018-05-07    0.13               37.89            
+Hot Water - Controlled$2129, Incomer 1 - Uncontrolled$2128, Incomer 2 - Uncontrolled$2130, Kitchen Appliances & Ventilati$2131, Laundry & Hob$2133, Oven$2132                                                                                                                                                                                                          rf_18         2  2016-09-21    2016-09-21    1.31               26.11            
+Hot Water - Controlled$2236, Incomer - Uncontrolled$2237, Kitchen & Laundry$2234, Lighting$2232, Oven$2235, Ventilation & Lounge Power$2233                                                                                                                                                                                                                            rf_22       371  2016-05-25    2018-01-16    0.02               41.79            
+Hot Water - Controlled$2248, Incomer - Uncontrolled$2249, Kitchen$2246, Laundry, Downstairs & Lounge$2245, Lighting$2244, Oven & Hob$2247                                                                                                                                                                                                                              rf_06       185  2016-05-25    2018-05-07    0.15               34.65            
+Hot Water - Controlled$2719, Incomer 1 - Uncont inc Stove$2718, Incomer 2 - Uncont inc Oven$2717, Kitchen Appliances$2715, Laundry & Microwave$2720, Power Outlets$2716                                                                                                                                                                                                rf_14       329  2016-06-08    2017-12-31    0.04               27.89            
+Hot Water - Controlled$4144, Incomer - Uncontrolled$4143, Kitchen Appliances & Heat Pump$4140, Laundry & Teenagers Bedroom$4139, Lighting$4142, Oven, Hob & Microwave$4141                                                                                                                                                                                             rf_33       486  2016-06-08    2018-05-07    0.07               26.46            
+Hot Water - Controlled$4238, Incomer - All$4239, Kitchen Appliances$4234, Laundry & Kitchen$4235, Lighting$4236, Oven & Hobb$4237                                                                                                                                                                                                                                      rf_30         5  2016-05-25    2016-10-13    4.17               24.06            
+Incomer 1 - All$2703, Incomer 2 - All$2704, Kitchen Appliances$2706, Laundry, Sauna & 2nd Fridge$2707, Oven$2705, Spa$2708                                                                                                                                                                                                                                             rf_26       393  2016-05-25    2018-05-07    0.03               24.8             
+Incomer 1 - Hot Water - Cont$2626, Incomer 2 - Uncontrolled$2625, Incomer 3 - Uncontrolled$2627, Kitchen Appliances & Lounge$2630, Laundry, Fridge & Microwave$2628, Oven$2629                                                                                                                                                                                         rf_12         2  2016-09-21    2016-09-21    0.22               20.21            
+Incomer 1 - Uncontrolled$2726, Incomer 2 - Uncontrolled$2725, Kitchen Appliances & Laundry$2722, Microwave$2721, Oven$2724, Workshop$2723                                                                                                                                                                                                                              rf_07       185  2016-05-25    2018-05-07    0.14               39.14            
+Incomer 1 - inc Top Oven$5620, Incomer 2 - inc Bottom Oven$5621, Kitchen Appliances$5625, Laundry & Garage$5624, Lighting 1/2$5623, Lighting 2/2$5622                                                                                                                                                                                                                  rf_17       202  2017-01-11    2018-05-06    0.02               13.07            
 
 
 The following plots show the number of observations per day per household. In theory we should not see:
 
  * dates before 2014 or in to the future. These may indicate:
-    * data conversion errors
+    * date conversion errors;
  * more than 1440 observations per day. These may indicate:
-    * duplicate time stamps - i.e. they have the same time stamps but different consumption values or different circuit labels
-    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps
+    * duplicate time stamps - i.e. they have the same time stamps but different power (W) values or different circuit labels;
+    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps.
 
-If present both of the latter may have been implied by the table above.
+If present both of the latter may have been implied by the table above and would have evaded the de-duplication filter which simply checks each complete row against all others within it's consolidated household dataset (a _within household absolute duplicate_ check).
 
 
 ```r
@@ -707,7 +1000,49 @@ Table: Summary observation stats by hhID
 hhID     minObs   maxObs   meanNDataColumns  minDate      maxDate    
 ------  -------  -------  -----------------  -----------  -----------
 rf_01       171     1500                  6  2014-01-05   2015-10-20 
+rf_02       215     1440                  6  2014-03-02   2015-05-28 
+rf_06       243     1500                  6  2014-06-08   2018-05-07 
+rf_07       105     1500                  6  2014-07-13   2018-05-07 
+rf_08       123     1500                  6  2014-05-28   2017-05-15 
+rf_09       163     1500                  6  2014-07-13   2015-07-16 
+rf_10       389     1500                  6  2014-07-08   2018-03-29 
+rf_11       278     1500                  6  2014-07-07   2018-05-07 
+rf_12        85     1500                  6  2014-07-08   2015-06-02 
+rf_13       456     1500                  6  2014-06-05   2018-05-07 
+rf_14       120     1500                  6  2014-07-13   2017-12-30 
+rf_15        62     1440                  6  2015-01-14   2016-04-18 
+rf_16       720     1500                  6  2014-07-09   2015-03-25 
+rf_17        22     1500                  6  2014-05-29   2018-05-05 
+rf_18       157     1500                  6  2014-05-29   2015-06-11 
+rf_19       387     1500                  9  2014-07-14   2018-05-07 
+rf_20        98     1500                  6  2014-05-28   2015-06-11 
+rf_21       195     1500                  6  2014-07-14   2016-07-01 
+rf_22         6     1500                  6  2014-06-05   2018-01-14 
+rf_23       171     1500                  6  2014-05-25   2018-05-07 
+rf_24       571     1500                  6  2014-05-28   2018-05-07 
+rf_25        45     1500                  6  2015-05-24   2016-10-22 
+rf_26       362     2231                  6  2014-07-10   2018-05-07 
+rf_27       567     1560                  6  2014-07-27   2016-05-13 
+rf_28       297     1440                  6  2015-03-26   2015-05-26 
+rf_29       720     1500                  6  2015-03-25   2018-05-07 
+rf_30       205     1500                  6  2015-03-27   2016-09-29 
+rf_31       720     1500                  6  2015-03-25   2018-05-07 
+rf_32       325     1500                  6  2015-03-25   2016-04-05 
+rf_33       369     1500                  6  2015-03-23   2018-05-07 
+rf_34       317     1500                  6  2014-11-03   2016-08-24 
+rf_35        50     1500                  6  2015-03-22   2017-05-17 
+rf_36        29     1500                  6  2015-03-23   2018-05-07 
+rf_37       720     1500                  6  2015-03-23   2018-05-07 
+rf_38       398     1500                  6  2015-03-24   2017-08-22 
+rf_39       163     1823                  5  2015-03-27   2018-05-07 
+rf_40       268     1500                  6  2015-03-24   2015-11-22 
+rf_41         1     1573                  6  2015-03-25   2018-05-07 
+rf_42        79     1500                  6  2015-03-23   2017-02-18 
+rf_43       780     1495                  6  2015-03-26   2015-10-18 
+rf_44       720     1500                  6  2015-03-24   2018-05-07 
+rf_45        69     1499                  6  2015-03-24   2016-10-15 
 rf_46       305     3000                 13  2015-03-26   2018-02-19 
+rf_47       159     1500                  6  2015-03-24   2016-05-08 
 
 
 Finally we show the total number of households which we think are still sending data.
@@ -748,7 +1083,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 486.689 seconds ( 8.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 8943.541 seconds ( 149.06 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
