@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -53,7 +53,8 @@ if(baTest == 1){
 }
 
 pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
-indexFile <- "fListCompleteDT.csv" # place to store the complete file list with meta-data
+fListInterim <- "fListCompleteDT_interim.csv" # place to store the complete file list with interim meta-data
+fListFinal <- "fListCompleteDT_final.csv" # place to store the final complete file list with all meta-data
 dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
 # Load greenGrid package ----
@@ -256,11 +257,6 @@ if(nrow(fListCompleteDT) == 0){
   }
   print("All files checked")
   
-  ofile <- paste0(outPath, indexFile)
-  print(paste0("Saving 1 minute data files metadata to ", ofile))
-  write.csv(fListCompleteDT, ofile)
-  print("Done")
-  
   # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
   fAmbig <- fListCompleteDT[dateFormat == "ambiguous", fullPath]
   
@@ -279,8 +275,8 @@ if(nrow(fListCompleteDT) == 0){
     fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
   }
       
-  ofile <- paste0(outPath, indexFile)
-  print(paste0("Saving final 1 minute data files metadata to ", ofile))
+  ofile <- paste0(outPath, fListInterim)
+  print(paste0("Saving 1 minute data files interim metadata to ", ofile))
   write.csv(fListCompleteDT, ofile)
   print("Done")
 }
@@ -298,9 +294,9 @@ We now need to check how many of the loaded files have an ambiguous or default d
 
 ```{r initialDateFormatTable}
 
-# short cut if file list already saved
-#ifile <- paste0(outPath, indexFile)
-#print(paste0("Loading 1 minute data files metadata to ", ifile))
+# short cut if file list already saved ----
+#ifile <- paste0(outPath, fListInterim)
+#print(paste0("Loading 1 minute data files interim metadata to ", ifile))
 #fListCompleteDT <- fread(ifile)
   
   
@@ -487,6 +483,7 @@ for(hh in hhIDs){
     
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)]
     fListCompleteDT <- fListCompleteDT[fullPath == f, circuitLabels := toString(sort(colnames(dplyr::select(tempDT, 
                                                                                                             dplyr::contains("$")))))] # check the names of circuits - all seem to contain "$"; sort them to make it easier to compare them - this is the only way we have to check if data from different households has been placed in the wrong folder.
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT, 
@@ -541,6 +538,11 @@ ofile <- paste0(outPath, "hhDailyObservationsStats.csv")
 print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out version with file stats
 write.csv(hhStatDT, ofile)
 print("Done")
+
+ofile <- paste0(outPath, fListFinal)
+print(paste0("Saving 1 minute data files final metadata to ", ofile))
+write.csv(fListCompleteDT, ofile)
+print("Done")
 ```
 
 # Data quality analysis
@@ -551,7 +553,7 @@ The following table shows the number of data files with different circuit labels
 
  * some of the circuit labels for these households may have been changed during the data collection process;
  * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
- * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering).
+ * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering). This will be visible in the table if two households appear to share _exactly_ the same list of circuit labels.
 
 Some or all of these may be true at any given time!
 
@@ -559,10 +561,12 @@ If this table flags a lot of errors then some re-naming of the circuit labels (c
 
 ```{r circuitLabelCheck}
 t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
+                                              minObsDate = min(obsStartDate), # helps locate issues in data
+                                              maxObsDate = max(obsEndDate),
                                               minFileDate = min(fMDate), # helps locate issues in files
                                               maxFileDate = max(fMDate),
-                                              "minFileSize (Mb)" = tidyNum(round(min(fSize/b2Mb),2)),
-                                              "maxFileSize (Mb)" = tidyNum(round(max(fSize/b2Mb),2))), keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
+                                              nObs = tidyNum(sum(nObs))),
+                     keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
 
 knitr::kable(caption = "Circuit labels list by household", t)
 ```
