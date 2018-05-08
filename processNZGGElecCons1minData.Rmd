@@ -69,7 +69,7 @@ reqLibs <- c("data.table", # for data munching
              "knitr" # for kable
 )
 
-greenGridr::myRequiredPackages(reqLibs)
+greenGridr::loadLibraries(reqLibs)
 
 # Local functions ----
 # move to package?
