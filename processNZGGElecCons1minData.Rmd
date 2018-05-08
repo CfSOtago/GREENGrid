@@ -4,11 +4,6 @@ title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electrici
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  pdf_document:
-    toc: true
-    toc_depth: 2
-    number_sections: true
-    fig_caption: true
   html_document:
     code_folding: hide
     fig_caption: true
@@ -17,6 +12,12 @@ output:
     self_contained: no
     toc: true
     toc_float: true
+    toc_depth: 2
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
     toc_depth: 2
 bibliography: bibliography.bib
 ---
@@ -34,7 +35,10 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
+
+b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
+b2Mb <- 1048576
 
 if(baTest == 1){
   # Local test
@@ -239,6 +243,7 @@ if(nrow(fListCompleteDT) == 0){
       
       if(fullFb){print(paste0("Checking date formats in ", f))}
       dt <- gs_checkDates(row1DT)
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0("Done ", f))}
     }
@@ -477,15 +482,15 @@ for(hh in hhIDs){
     
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, circuitLabels := toString(sort(colnames(select(tempDT, contains("$")))))] # check the names of circuits - all seem to contain "$"; sort them to make it easier to compare them - this is the only way we have to check if data from different households has been placed in the wrong folder.
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains("$")))] # check for the number of circuits - all seem to contain "$"
-    tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
+    tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
   }
   
   # > Remove duplicates caused by over-lapping files and dates etc ----
   # Need to remove all uneccessary vars for this
   try(tempHhDT$dateColName <- NULL)
   try(tempHhDT$dateFormat <- NULL)
-  try(tempHhDT$nCircuits <- NULL)
   try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplciates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
   
   nObs <- nrow(tempHhDT)
@@ -532,10 +537,32 @@ print("Done")
 
 Now produce some data quality plots & tables.
 
+The following table shows the number of files with different circuit labels by household. In theory there should only be one unique list per household. If this is not the case then this implies:
+
+ * some of the circuit labels for these households may have been changed during the data collection process
+ * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process
+ * at least one file from one household has been saved to a folder containing data from a different household (the raw data files do _not_ contain household IDs in the data or the file names to enable preventative filtering)
+
+```{r circuitLabelCheck}
+t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
+                                              minFileDate = min(fMDate), # helps locate issues in files
+                                              maxFileDate = max(fMDate),
+                                              "minFileSize (Mb)" = tidyNum(round(min(fSize/b2Mb),2)),
+                                              "maxFileSize (Mb)" = tidyNum(round(max(fSize/b2Mb),2))), keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
+
+kable(caption = "Circuit labels list by household", t)
+```
+
+
 The following plots show the number of observations per day per household. In theory we should not see:
 
- * dates before 2014 or in to the future (they indicate data conversion errors)
- * more than 1440 observations per day (they indicate potentially duplicate data)
+ * dates before 2014 or in to the future. These may indicate:
+    * data conversion errors
+ * more than 1440 observations per day. These may indicate:
+    * duplicate time stamps - i.e. they have the same time stamps but different consumption values or different circuit labels
+    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps
+
+If present both of the latter may have been implied by the table above.
 
 ```{r loadedFilesObsPlots}
 # short cut if already generated
