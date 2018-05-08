@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   consumption data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-08 16:03:20'
+date: 'Last run at: 2018-05-08 16:44:32'
 output:
   html_document:
     code_folding: hide
@@ -96,7 +96,7 @@ system.time(fListCompleteDT <- data.table::as.data.table(list.files(path = fpath
 
 ```
 ##    user  system elapsed 
-##   0.008   0.009   0.018
+##   0.009   0.010   0.024
 ```
 
 ```r
@@ -748,7 +748,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 526.048 seconds ( 8.77 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 486.689 seconds ( 8.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

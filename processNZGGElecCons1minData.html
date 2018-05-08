@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-08 16:03:20</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-08 16:44:32</em></h4>
 
 </div>
 
@@ -301,7 +301,7 @@ div.tocify {
 <pre class="r"><code>system.time(fListCompleteDT &lt;- data.table::as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.008   0.009   0.018</code></pre>
+##   0.009   0.010   0.024</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></pre>
 <pre><code>## [1] &quot;Found 958 files&quot;</code></pre>
@@ -1033,7 +1033,7 @@ ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 526.048 seconds ( 8.77 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 486.689 seconds ( 8.11 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>
