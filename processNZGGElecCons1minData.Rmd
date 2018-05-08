@@ -453,6 +453,7 @@ for(hh in hhIDs){
     # set some file stats
     fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
+    tempDT <- tempDT[, sourceFile := f] # record for later checks
     
     # what is the date column called?
       if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
@@ -491,7 +492,7 @@ for(hh in hhIDs){
   # Need to remove all uneccessary vars for this
   try(tempHhDT$dateColName <- NULL)
   try(tempHhDT$dateFormat <- NULL)
-  try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplciates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
+  try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplicates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
   
   nObs <- nrow(tempHhDT)
   if(fullFb){print(paste0("N rows before removal of duplicates: ", nObs))}
@@ -537,11 +538,12 @@ print("Done")
 
 Now produce some data quality plots & tables.
 
-The following table shows the number of files with different circuit labels by household. In theory there should only be one unique list per household. If this is not the case then this implies:
+The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies:
 
  * some of the circuit labels for these households may have been changed during the data collection process
  * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process
  * at least one file from one household has been saved to a folder containing data from a different household (the raw data files do _not_ contain household IDs in the data or the file names to enable preventative filtering)
+
 
 ```{r circuitLabelCheck}
 t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
