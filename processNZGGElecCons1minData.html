@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity consumption data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-04 12:49:00</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-08 15:07:41</em></h4>
 
 </div>
 
@@ -293,18 +293,18 @@ div.tocify {
 </ul>
 <p>In this run we are using data from:</p>
 <ul>
-<li>/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/</li>
+<li>~/Data/NZGreenGrid/gridspy/1min_orig/</li>
 </ul>
 <p>If these do not match then this may be a test run.</p>
 <pre class="r"><code>print(paste0(&quot;Looking for 1 minute data using pattern = &quot;, pattern1Min, &quot; in &quot;, fpath, &quot; - could take a while...&quot;))</code></pre>
-<pre><code>## [1] &quot;Looking for 1 minute data using pattern = *at1.csv$ in /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/ - could take a while...&quot;</code></pre>
+<pre><code>## [1] &quot;Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while...&quot;</code></pre>
 <pre class="r"><code>system.time(fListCompleteDT &lt;- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.753   6.029 497.698</code></pre>
+##   0.024   0.025   0.067</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></pre>
-<pre><code>## [1] &quot;Found 21,220 files&quot;</code></pre>
+<pre><code>## [1] &quot;Found 2,397 files&quot;</code></pre>
 <pre class="r"><code>if(nrow(fListCompleteDT) == 0){
   stop(paste0(&quot;No matching data files found, please check your path (&quot;, fpath, &quot;) or your search pattern (&quot;, pattern1Min, &quot;)&quot;))
 } else {
@@ -348,6 +348,7 @@ print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></p
       if(fullFb){print(paste0(&quot;Checking date formats in &quot;, f))}
       dt &lt;- gs_checkDates(row1DT)
       fListCompleteDT &lt;- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
+      fListCompleteDT &lt;- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0(&quot;Done &quot;, f))}
     }
     loopCount &lt;- loopCount + 1
@@ -384,16 +385,19 @@ print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></p
 }</code></pre>
 <pre><code>## [1] &quot;Processing file list and getting file meta-data (please be patient)&quot;
 ## [1] &quot;All files checked&quot;
-## [1] &quot;Saving 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv&quot;
+## [1] &quot;Saving 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv&quot;
 ## [1] &quot;Done&quot;
-## [1] &quot;Saving final 1 minute data files metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv&quot;
+## [1] &quot;Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_06/15Jul2014-25May2016at1.csv&quot;
+## [1] &quot;Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_25/12Oct2016-20Nov2017at1.csv&quot;
+## [1] &quot;Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv&quot;
+## [1] &quot;Saving final 1 minute data files metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT.csv&quot;
 ## [1] &quot;Done&quot;</code></pre>
 <pre class="r"><code>print(paste0(&quot;Overall we have &quot;, nrow(fListCompleteDT), &quot; files from &quot;, uniqueN(fListCompleteDT$hhID), &quot; households.&quot;))</code></pre>
-<pre><code>## [1] &quot;Overall we have 21220 files from 44 households.&quot;</code></pre>
+<pre><code>## [1] &quot;Overall we have 2397 files from 5 households.&quot;</code></pre>
 <pre class="r"><code># for use below
 nFiles &lt;- nrow(fListCompleteDT)
 nFilesNotLoaded &lt;- nrow(fListCompleteDT[dateColName %like% &quot;unknown&quot;])</code></pre>
-<p>Overall we have 21,220 files from 44 households. Of the 21,220, 12,334 (58.12%) were <em>not</em> loaded/checked as their file sizes indicated that they contained no data.</p>
+<p>Overall we have 2,397 files from 5 households. Of the 2,397, 1,797 (74.97%) were <em>not</em> loaded/checked as their file sizes indicated that they contained no data.</p>
 <p>We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.</p>
 <pre class="r"><code># short cut if file list already saved
 #ifile &lt;- paste0(outPath, indexFile)
@@ -427,43 +431,43 @@ kable(caption = &quot;Number of files with given date column names by inferred d
 <tr class="odd">
 <td align="left">date NZ</td>
 <td align="left">ymd - default (but day/month value &lt;= 12)</td>
-<td align="right">12</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">date NZ</td>
 <td align="left">ymd - definite</td>
-<td align="right">67</td>
+<td align="right">5</td>
 </tr>
 <tr class="odd">
 <td align="left">date UTC</td>
 <td align="left">ambiguous</td>
-<td align="right">28</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">date UTC</td>
 <td align="left">ymd - default (but day/month value &lt;= 12)</td>
-<td align="right">3429</td>
+<td align="right">228</td>
 </tr>
 <tr class="odd">
 <td align="left">date UTC</td>
 <td align="left">ymd - definite</td>
-<td align="right">5347</td>
+<td align="right">358</td>
 </tr>
 <tr class="even">
 <td align="left">unknown - file not loaded (fsize = 2751)</td>
 <td align="left">NA</td>
-<td align="right">1812</td>
+<td align="right">906</td>
 </tr>
 <tr class="odd">
 <td align="left">unknown - file not loaded (fsize = 43)</td>
 <td align="left">NA</td>
-<td align="right">10522</td>
+<td align="right">891</td>
 </tr>
 </tbody>
 </table>
 <p>Results to note:</p>
 <ul>
-<li>There are 28 ambiguous files</li>
+<li>There are 3 ambiguous files</li>
 <li>The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data.</li>
 </ul>
 <p>We now inspect the ambiguous and (some of) the default files.</p>
@@ -490,165 +494,15 @@ kable(caption = &quot;Files with ambigious date formats&quot;, aList)</code></pr
 <td align="left">ambiguous</td>
 </tr>
 <tr class="even">
-<td align="left">rf_07/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_08/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_10/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_11/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_13/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_19/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_21/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_22/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_23/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_24/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">27/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
 <td align="left">rf_25/12Oct2016-20Nov2017at1.csv</td>
 <td align="left">date UTC</td>
 <td align="left">11-10-16</td>
 <td align="left">ambiguous</td>
 </tr>
 <tr class="odd">
-<td align="left">rf_26/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_27/15Jul2014-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">27/07/14</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_29/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">25/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_30/15Feb2016-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">14/02/16</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_30/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">27/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_31/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">25/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_34/18Jan2016-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">17/01/16</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_34/20Jul2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">19/07/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_34/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">26/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_35/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">23/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_39/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">27/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_43/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">26/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_43/27Mar2015-18Oct2015at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">26/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_44/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">24/03/15</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="odd">
 <td align="left">rf_46/12Oct2016-20Nov2017at1.csv</td>
 <td align="left">date UTC</td>
 <td align="left">11-10-16</td>
-<td align="left">ambiguous</td>
-</tr>
-<tr class="even">
-<td align="left">rf_47/24Mar2015-25May2016at1.csv</td>
-<td align="left">date UTC</td>
-<td align="left">24/03/15</td>
 <td align="left">ambiguous</td>
 </tr>
 </tbody>
@@ -691,27 +545,6 @@ kable(caption = &quot;Files with inferred default date formats&quot;, head(aList
 <td align="right">19398444</td>
 <td align="left">date NZ</td>
 <td align="left">2014-06-09</td>
-<td align="left">ymd - default (but day/month value &lt;= 12)</td>
-</tr>
-<tr class="even">
-<td align="left">rf_10/24May2014-24May2015at1.csv</td>
-<td align="right">24386048</td>
-<td align="left">date NZ</td>
-<td align="left">2014-07-09</td>
-<td align="left">ymd - default (but day/month value &lt;= 12)</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_11/24May2014-24May2015at1.csv</td>
-<td align="right">23693893</td>
-<td align="left">date NZ</td>
-<td align="left">2014-07-08</td>
-<td align="left">ymd - default (but day/month value &lt;= 12)</td>
-</tr>
-<tr class="even">
-<td align="left">rf_12/24May2014-24May2015at1.csv</td>
-<td align="right">21191785</td>
-<td align="left">date NZ</td>
-<td align="left">2014-07-09</td>
 <td align="left">ymd - default (but day/month value &lt;= 12)</td>
 </tr>
 </tbody>
@@ -805,37 +638,37 @@ kable(caption = &quot;Number of files with given date column names by final impu
 <tr class="odd">
 <td align="left">date NZ</td>
 <td align="left">ymd - default (but day/month value &lt;= 12)</td>
-<td align="right">12</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">date NZ</td>
 <td align="left">ymd - definite</td>
-<td align="right">67</td>
+<td align="right">5</td>
 </tr>
 <tr class="odd">
 <td align="left">date UTC</td>
 <td align="left">dmy - inferred</td>
-<td align="right">28</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">date UTC</td>
 <td align="left">ymd - default (but day/month value &lt;= 12)</td>
-<td align="right">3429</td>
+<td align="right">228</td>
 </tr>
 <tr class="odd">
 <td align="left">date UTC</td>
 <td align="left">ymd - definite</td>
-<td align="right">5347</td>
+<td align="right">358</td>
 </tr>
 <tr class="even">
 <td align="left">unknown - file not loaded (fsize = 2751)</td>
 <td align="left">NA</td>
-<td align="right">1812</td>
+<td align="right">906</td>
 </tr>
 <tr class="odd">
 <td align="left">unknown - file not loaded (fsize = 43)</td>
 <td align="left">NA</td>
-<td align="right">10522</td>
+<td align="right">891</td>
 </tr>
 </tbody>
 </table>
@@ -935,136 +768,10 @@ kable(caption = &quot;Summary of household files to load&quot;, t)</code></pre>
 </tr>
 <tr class="odd">
 <td align="left">rf_06</td>
-<td align="right">181</td>
-<td align="right">807610.5</td>
+<td align="right">180</td>
+<td align="right">811227.3</td>
 <td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_07</td>
-<td align="right">181</td>
-<td align="right">868047.3</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_08</td>
-<td align="right">5</td>
-<td align="right">23989121.0</td>
-<td align="left">2016-05-25</td>
-<td align="left">2017-11-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_09</td>
-<td align="right">2</td>
-<td align="right">14344605.0</td>
-<td align="left">2016-09-21</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_10</td>
-<td align="right">358</td>
-<td align="right">525455.0</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-03-30</td>
-</tr>
-<tr class="even">
-<td align="left">rf_11</td>
-<td align="right">483</td>
-<td align="right">427207.1</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_12</td>
-<td align="right">2</td>
-<td align="right">10713096.0</td>
-<td align="left">2016-09-21</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_13</td>
-<td align="right">415</td>
-<td align="right">494569.5</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_14</td>
-<td align="right">329</td>
-<td align="right">424262.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2017-12-31</td>
-</tr>
-<tr class="even">
-<td align="left">rf_15</td>
-<td align="right">2</td>
-<td align="right">10553143.0</td>
-<td align="left">2016-09-21</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_16</td>
-<td align="right">1</td>
-<td align="right">20037376.0</td>
-<td align="left">2016-09-20</td>
-<td align="left">2016-09-20</td>
-</tr>
-<tr class="even">
-<td align="left">rf_17</td>
-<td align="right">202</td>
-<td align="right">415129.2</td>
-<td align="left">2016-09-21</td>
-<td align="left">2018-04-12</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_18</td>
-<td align="right">2</td>
-<td align="right">14374309.5</td>
-<td align="left">2016-09-21</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_19</td>
-<td align="right">483</td>
-<td align="right">567233.1</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_20</td>
-<td align="right">2</td>
-<td align="right">14665810.0</td>
-<td align="left">2016-09-21</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_21</td>
-<td align="right">4</td>
-<td align="right">23058797.8</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-10-12</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_22</td>
-<td align="right">371</td>
-<td align="right">533704.5</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-01-16</td>
-</tr>
-<tr class="even">
-<td align="left">rf_23</td>
-<td align="right">483</td>
-<td align="right">442927.8</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_24</td>
-<td align="right">483</td>
-<td align="right">431320.9</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
+<td align="left">2018-05-02</td>
 </tr>
 <tr class="even">
 <td align="left">rf_25</td>
@@ -1074,158 +781,11 @@ kable(caption = &quot;Summary of household files to load&quot;, t)</code></pre>
 <td align="left">2017-11-21</td>
 </tr>
 <tr class="odd">
-<td align="left">rf_26</td>
-<td align="right">389</td>
-<td align="right">411700.2</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_27</td>
-<td align="right">3</td>
-<td align="right">22607698.7</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-09-21</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_28</td>
-<td align="right">2</td>
-<td align="right">2297483.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2016-09-19</td>
-</tr>
-<tr class="even">
-<td align="left">rf_29</td>
-<td align="right">480</td>
-<td align="right">342998.6</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_30</td>
-<td align="right">5</td>
-<td align="right">13695336.0</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-10-13</td>
-</tr>
-<tr class="even">
-<td align="left">rf_31</td>
-<td align="right">483</td>
-<td align="right">342178.4</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_32</td>
-<td align="right">2</td>
-<td align="right">13934454.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2016-09-20</td>
-</tr>
-<tr class="even">
-<td align="left">rf_33</td>
-<td align="right">482</td>
-<td align="right">288691.1</td>
-<td align="left">2016-06-08</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_34</td>
-<td align="right">7</td>
-<td align="right">14106275.3</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-10-13</td>
-</tr>
-<tr class="even">
-<td align="left">rf_35</td>
-<td align="right">134</td>
-<td align="right">573648.6</td>
-<td align="left">2016-05-25</td>
-<td align="left">2017-11-21</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_36</td>
-<td align="right">433</td>
-<td align="right">301635.2</td>
-<td align="left">2016-06-08</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_37</td>
-<td align="right">482</td>
-<td align="right">302610.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_38</td>
-<td align="right">201</td>
-<td align="right">385707.5</td>
-<td align="left">2016-06-08</td>
-<td align="left">2017-11-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_39</td>
-<td align="right">359</td>
-<td align="right">384622.4</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_40</td>
-<td align="right">2</td>
-<td align="right">9299902.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2016-09-20</td>
-</tr>
-<tr class="even">
-<td align="left">rf_41</td>
-<td align="right">474</td>
-<td align="right">266036.3</td>
-<td align="left">2016-06-08</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_42</td>
-<td align="right">45</td>
-<td align="right">1315953.6</td>
-<td align="left">2016-06-08</td>
-<td align="left">2017-11-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_43</td>
-<td align="right">4</td>
-<td align="right">9442492.0</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-09-28</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_44</td>
-<td align="right">483</td>
-<td align="right">343819.4</td>
-<td align="left">2016-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_45</td>
-<td align="right">4</td>
-<td align="right">10513812.0</td>
-<td align="left">2016-06-08</td>
-<td align="left">2017-11-21</td>
-</tr>
-<tr class="odd">
 <td align="left">rf_46</td>
 <td align="right">411</td>
 <td align="right">605048.1</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-02-21</td>
-</tr>
-<tr class="even">
-<td align="left">rf_47</td>
-<td align="right">3</td>
-<td align="right">17544847.0</td>
-<td align="left">2016-05-25</td>
-<td align="left">2016-09-20</td>
 </tr>
 </tbody>
 </table>
@@ -1277,15 +837,15 @@ for(hh in hhIDs){
     
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT &lt;- fListCompleteDT[fullPath == f, circuitLabels := toString(sort(colnames(select(tempDT, contains(&quot;$&quot;)))))] # check the names of circuits - all seem to contain &quot;$&quot;; this is the only way we have to check if data from different households has been placed in the wrong folder.
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, nCircuits := ncol(select(tempDT, contains(&quot;$&quot;)))] # check for the number of circuits - all seem to contain &quot;$&quot;
-    tempHhDT &lt;- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
+    tempHhDT &lt;- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
   }
   
   # &gt; Remove duplicates caused by over-lapping files and dates etc ----
   # Need to remove all uneccessary vars for this
   try(tempHhDT$dateColName &lt;- NULL)
   try(tempHhDT$dateFormat &lt;- NULL)
-  try(tempHhDT$nCircuits &lt;- NULL)
   try(tempHhDT$dateTime_char &lt;- NULL) # if we leave this one in then we get duplciates where we have date NZ &amp; date UTC for the same timestamp due to overlapping file downloads
   
   nObs &lt;- nrow(tempHhDT)
@@ -1320,274 +880,30 @@ for(hh in hhIDs){
   
   tempHhDT &lt;- NULL # just in case
 }</code></pre>
-<pre><code>## [1] &quot;Loading: rf_01&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_02&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_06&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_07&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_08&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_09&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_10&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_11&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_12&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_13&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_14&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_15&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_16&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_17&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_18&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_19&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_20&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_21&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_22&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_23&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_24&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_25&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_26&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_27&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_28&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_29&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_30&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_31&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_32&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_33&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_34&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_35&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_36&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_37&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_38&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_39&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_40&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_41&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_42&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_43&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_44&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_45&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_46&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv&quot;
-## [1] &quot;Loading: rf_47&quot;</code></pre>
-<pre><code>## Warning in `[&lt;-.data.table`(x, j = name, value = value): Adding new column
-## &#39;nCircuits&#39; then assigning NULL (deleting it).</code></pre>
-<pre><code>## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv&quot;</code></pre>
+<pre><code>## [1] &quot;Loading: rf_01&quot;
+## [1] &quot;Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv...&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_02&quot;
+## [1] &quot;Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv...&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_02_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_06&quot;
+## [1] &quot;Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv...&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_06_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_25&quot;
+## [1] &quot;Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv...&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_25_all_1min_data.csv&quot;
+## [1] &quot;Loading: rf_46&quot;
+## [1] &quot;Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv...&quot;
+## [1] &quot;Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv&quot;</code></pre>
 <pre class="r"><code>#&gt; Save observed data stats for all files loaded ----
 ofile &lt;- paste0(outPath, &quot;hhDailyObservationsStats.csv&quot;)
 print(paste0(&quot;Saving daily observations stats by hhid to &quot;, ofile)) # write out version with file stats</code></pre>
-<pre><code>## [1] &quot;Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/hhDailyObservationsStats.csv&quot;</code></pre>
+<pre><code>## [1] &quot;Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/1min/hhDailyObservationsStats.csv&quot;</code></pre>
 <pre class="r"><code>write.csv(hhStatDT, ofile)
 print(&quot;Done&quot;)</code></pre>
 <pre><code>## [1] &quot;Done&quot;</code></pre>
@@ -1595,12 +911,111 @@ print(&quot;Done&quot;)</code></pre>
 <div id="data-quality-analysis" class="section level1">
 <h1><span class="header-section-number">5</span> Data quality analysis</h1>
 <p>Now produce some data quality plots &amp; tables.</p>
+<p>The following table shows the number of files with different circuit labels by household. In theory there should only be one unique list per household.</p>
+<pre class="r"><code>t &lt;- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
+                                              minFileDate = min(fMDate), # helps locate issues in files
+                                              maxFileDate = max(fMDate),
+                                              &quot;minFileSize (Mb)&quot; = tidyNum(round(min(fSize/b2Mb),2)),
+                                              &quot;maxFileSize (Mb)&quot; = tidyNum(round(max(fSize/b2Mb),2))), keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
+
+kable(caption = &quot;Circuit labels list by household&quot;, t)</code></pre>
+<table>
+<caption>Circuit labels list by household</caption>
+<thead>
+<tr class="header">
+<th align="left">circuitLabels</th>
+<th align="left">hhID</th>
+<th align="right">nFiles</th>
+<th align="left">minFileDate</th>
+<th align="left">maxFileDate</th>
+<th align="left">minFileSize (Mb)</th>
+<th align="left">maxFileSize (Mb)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Cooking Bath tile heat$1573, Fridge$1572, Heating$1576, Hot Water$1574, Lights$1577, Mains$1575</td>
+<td align="left">rf_02</td>
+<td align="right">3</td>
+<td align="left">2016-09-20</td>
+<td align="left">2016-09-30</td>
+<td align="left">0.27</td>
+<td align="left">22.88</td>
+</tr>
+<tr class="even">
+<td align="left">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 1 - Uncontrolled$2757, Incomer 2 - Uncontrolled $2762, Oven$2760</td>
+<td align="left">rf_25</td>
+<td align="right">1</td>
+<td align="left">2016-06-08</td>
+<td align="left">2016-06-08</td>
+<td align="left">25.9</td>
+<td align="left">25.9</td>
+</tr>
+<tr class="odd">
+<td align="left">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 2 - Uncontrolled $2762, Oven$2760</td>
+<td align="left">rf_25</td>
+<td align="right">2</td>
+<td align="left">2016-10-25</td>
+<td align="left">2017-11-21</td>
+<td align="left">0.56</td>
+<td align="left">8.86</td>
+</tr>
+<tr class="even">
+<td align="left">Heat Pumps (2x) &amp; Power$4232, Heat Pumps (2x) &amp; Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms$4229, Kitchen &amp; Bedrooms$4402, Laundry &amp; Bedrooms$4228, Laundry &amp; Bedrooms$4403, Lighting$4233, Lighting$4404</td>
+<td align="left">rf_46</td>
+<td align="right">408</td>
+<td align="left">2016-06-08</td>
+<td align="left">2018-02-21</td>
+<td align="left">0.07</td>
+<td align="left">49.62</td>
+</tr>
+<tr class="odd">
+<td align="left">Heat Pumps (2x) &amp; Power1$4232, Heat Pumps (2x) &amp; Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms1$4229, Kitchen &amp; Bedrooms2$4402, Laundry &amp; Bedrooms1$4228, Laundry &amp; Bedrooms2$4403, Lighting1$4233, Lighting2$4404</td>
+<td align="left">rf_46</td>
+<td align="right">1</td>
+<td align="left">2017-11-21</td>
+<td align="left">2017-11-21</td>
+<td align="left">52.03</td>
+<td align="left">52.03</td>
+</tr>
+<tr class="even">
+<td align="left">Heat Pumps (2x) &amp; Power_Imag$4399, Heat Pumps (2x) &amp; Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen &amp; Bedrooms_Imag$4402, Kitchen &amp; Bedrooms$4229, Laundry &amp; Bedrooms_Imag$4403, Laundry &amp; Bedrooms$4228, Lighting_Imag$4404, Lighting$4233</td>
+<td align="left">rf_46</td>
+<td align="right">2</td>
+<td align="left">2016-09-29</td>
+<td align="left">2016-10-25</td>
+<td align="left">4</td>
+<td align="left">18.16</td>
+</tr>
+<tr class="odd">
+<td align="left">Heating$1633, Hot water$1636, Kitchen power$1632, Lights$1635, Mains$1634, Range$1637</td>
+<td align="left">rf_01</td>
+<td align="right">3</td>
+<td align="left">2016-09-20</td>
+<td align="left">2016-09-30</td>
+<td align="left">5.97</td>
+<td align="left">27.46</td>
+</tr>
+<tr class="even">
+<td align="left">Hot Water - Controlled$2248, Incomer - Uncontrolled$2249, Kitchen$2246, Laundry, Downstairs &amp; Lounge$2245, Lighting$2244, Oven &amp; Hob$2247</td>
+<td align="left">rf_06</td>
+<td align="right">180</td>
+<td align="left">2016-05-25</td>
+<td align="left">2018-05-02</td>
+<td align="left">0.15</td>
+<td align="left">34.65</td>
+</tr>
+</tbody>
+</table>
 <p>The following plots show the number of observations per day per household. In theory we should not see:</p>
 <ul>
 <li>dates before 2014 or in to the future (they indicate data conversion errors)</li>
 <li>more than 1440 observations per day (they indicate potentially duplicate data)</li>
 </ul>
-<pre class="r"><code># tile plot ----
+<pre class="r"><code># short cut if already generated
+# hhStatDT &lt;- as.data.table(read_csv(ofile)) # parses dates
+
+# tile plot ----
 ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = &quot;red&quot;, high = &quot;green&quot;) +
@@ -1679,151 +1094,7 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="right">1500</td>
 <td align="right">6</td>
 <td align="left">2014-06-08</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_07</td>
-<td align="right">105</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-13</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_08</td>
-<td align="right">123</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-28</td>
-<td align="left">2017-05-15</td>
-</tr>
-<tr class="even">
-<td align="left">rf_09</td>
-<td align="right">163</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-13</td>
-<td align="left">2015-07-16</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_10</td>
-<td align="right">389</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-08</td>
-<td align="left">2018-03-29</td>
-</tr>
-<tr class="even">
-<td align="left">rf_11</td>
-<td align="right">278</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-07</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_12</td>
-<td align="right">85</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-08</td>
-<td align="left">2015-06-02</td>
-</tr>
-<tr class="even">
-<td align="left">rf_13</td>
-<td align="right">456</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-06-05</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_14</td>
-<td align="right">120</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-13</td>
-<td align="left">2017-12-30</td>
-</tr>
-<tr class="even">
-<td align="left">rf_15</td>
-<td align="right">62</td>
-<td align="right">1440</td>
-<td align="right">6</td>
-<td align="left">2015-01-14</td>
-<td align="left">2016-04-18</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_16</td>
-<td align="right">720</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-09</td>
-<td align="left">2015-03-25</td>
-</tr>
-<tr class="even">
-<td align="left">rf_17</td>
-<td align="right">22</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-29</td>
-<td align="left">2018-04-11</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_18</td>
-<td align="right">157</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-29</td>
-<td align="left">2015-06-11</td>
-</tr>
-<tr class="even">
-<td align="left">rf_19</td>
-<td align="right">387</td>
-<td align="right">1500</td>
-<td align="right">9</td>
-<td align="left">2014-07-14</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_20</td>
-<td align="right">98</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-28</td>
-<td align="left">2015-06-11</td>
-</tr>
-<tr class="even">
-<td align="left">rf_21</td>
-<td align="right">195</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-07-14</td>
-<td align="left">2016-07-01</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_22</td>
-<td align="right">6</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-06-05</td>
-<td align="left">2018-01-14</td>
-</tr>
-<tr class="even">
-<td align="left">rf_23</td>
-<td align="right">171</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_24</td>
-<td align="right">571</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-05-28</td>
-<td align="left">2018-05-03</td>
+<td align="left">2018-05-02</td>
 </tr>
 <tr class="even">
 <td align="left">rf_25</td>
@@ -1834,166 +1105,6 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">2016-10-22</td>
 </tr>
 <tr class="odd">
-<td align="left">rf_26</td>
-<td align="right">362</td>
-<td align="right">2231</td>
-<td align="right">6</td>
-<td align="left">2014-07-10</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_27</td>
-<td align="right">567</td>
-<td align="right">1560</td>
-<td align="right">6</td>
-<td align="left">2014-07-27</td>
-<td align="left">2016-05-13</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_28</td>
-<td align="right">297</td>
-<td align="right">1440</td>
-<td align="right">6</td>
-<td align="left">2015-03-26</td>
-<td align="left">2015-05-26</td>
-</tr>
-<tr class="even">
-<td align="left">rf_29</td>
-<td align="right">720</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_30</td>
-<td align="right">205</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-27</td>
-<td align="left">2016-09-29</td>
-</tr>
-<tr class="even">
-<td align="left">rf_31</td>
-<td align="right">720</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_32</td>
-<td align="right">325</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-25</td>
-<td align="left">2016-04-05</td>
-</tr>
-<tr class="even">
-<td align="left">rf_33</td>
-<td align="right">369</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-23</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_34</td>
-<td align="right">317</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2014-11-03</td>
-<td align="left">2016-08-24</td>
-</tr>
-<tr class="even">
-<td align="left">rf_35</td>
-<td align="right">50</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-22</td>
-<td align="left">2017-05-17</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_36</td>
-<td align="right">29</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-23</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_37</td>
-<td align="right">720</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-23</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_38</td>
-<td align="right">398</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-24</td>
-<td align="left">2017-08-22</td>
-</tr>
-<tr class="even">
-<td align="left">rf_39</td>
-<td align="right">163</td>
-<td align="right">1823</td>
-<td align="right">5</td>
-<td align="left">2015-03-27</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_40</td>
-<td align="right">268</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-24</td>
-<td align="left">2015-11-22</td>
-</tr>
-<tr class="even">
-<td align="left">rf_41</td>
-<td align="right">1</td>
-<td align="right">1573</td>
-<td align="right">6</td>
-<td align="left">2015-03-25</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_42</td>
-<td align="right">79</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-23</td>
-<td align="left">2017-02-18</td>
-</tr>
-<tr class="even">
-<td align="left">rf_43</td>
-<td align="right">780</td>
-<td align="right">1495</td>
-<td align="right">6</td>
-<td align="left">2015-03-26</td>
-<td align="left">2015-10-18</td>
-</tr>
-<tr class="odd">
-<td align="left">rf_44</td>
-<td align="right">720</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-24</td>
-<td align="left">2018-05-03</td>
-</tr>
-<tr class="even">
-<td align="left">rf_45</td>
-<td align="right">69</td>
-<td align="right">1499</td>
-<td align="right">6</td>
-<td align="left">2015-03-24</td>
-<td align="left">2016-10-15</td>
-</tr>
-<tr class="odd">
 <td align="left">rf_46</td>
 <td align="right">305</td>
 <td align="right">3000</td>
@@ -2001,34 +1112,43 @@ kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code></pre>
 <td align="left">2015-03-26</td>
 <td align="left">2018-02-19</td>
 </tr>
-<tr class="even">
-<td align="left">rf_47</td>
-<td align="right">159</td>
-<td align="right">1500</td>
-<td align="right">6</td>
-<td align="left">2015-03-24</td>
-<td align="left">2016-05-08</td>
-</tr>
 </tbody>
 </table>
+<p>Finally we show the total number of households which we think are still sending data.</p>
+<pre class="r"><code>plotDT &lt;- hhStatDT[, .(nHH = uniqueN(hhID)), keyby = .(date)]
+
+# point plot ----
+ggplot(plotDT, aes( x = date, y = nHH)) +
+  geom_point() +
+  scale_x_date(date_labels = &quot;%Y %b&quot;, date_breaks = &quot;6 months&quot;) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = &quot;N live households per day for all loaded grid spy data&quot;,
+       caption = paste0(myCaption,
+                        &quot;\nOnly files of size &gt; &quot;, dataThreshold, &quot; bytes loaded&quot;)
+       
+  )</code></pre>
+<p><img src="processNZGGElecCons1minData_files/figure-html/liveDataHouseholds-1.png" /><!-- --></p>
+<pre class="r"><code>ggsave(paste0(outPath, &quot;gridSpyLiveHouseholdsToDate.png&quot;))</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">6</span> Runtime</h1>
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 1.010126310^{4} seconds ( 168.35 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 639.67 seconds ( 10.66 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>
-<p>R packages used:</p>
+<p>R packages used: data.table, lubridate, ggplot2, readr, dplyr, knitr</p>
 <ul>
-<li>base R - for the basics <span class="citation">[@baseR]</span></li>
-<li>data.table - for fast (big) data handling <span class="citation">[@data.table]</span></li>
-<li>ggplot2 - for slick graphics <span class="citation">[@ggplot2]</span></li>
-<li>dplyr - for select and contains <span class="citation">[@dplyr]</span></li>
-<li>lubridate - date manipulation <span class="citation">[@lubridate]</span></li>
-<li>knitr - to create this document <span class="citation">[@knitr]</span></li>
+<li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>
+<li>data.table - for fast (big) data handling <span class="citation">(Dowle et al. 2015)</span></li>
+<li>lubridate - date manipulation <span class="citation">(Grolemund and Wickham 2011)</span></li>
+<li>ggplot2 - for slick graphics <span class="citation">(Wickham 2009)</span></li>
+<li>readr - for csv reading/writing <span class="citation">(Wickham, Hester, and Francois 2016)</span></li>
+<li>dplyr - for select and contains <span class="citation">(Wickham and Francois 2016)</span></li>
+<li>knitr - to create this document <span class="citation">(Xie 2016)</span></li>
 <li>greenGridr - for local NZ GREEN Grid utilities</li>
 </ul>
 <pre class="r"><code>sessionInfo()</code></pre>
@@ -2063,6 +1183,29 @@ elapsed &lt;- t[[3]]</code></pre>
 ## [25] rmarkdown_1.9     labeling_0.3      stringi_1.1.7    
 ## [28] compiler_3.4.4    pillar_1.2.2      scales_0.5.0.9000
 ## [31] backports_1.1.2   pkgconfig_2.0.1</code></pre>
+<div id="refs" class="references">
+<div id="ref-data.table">
+<p>Dowle, M, A Srinivasan, T Short, S Lianoglou with contributions from R Saporta, and E Antonyan. 2015. <em>Data.table: Extension of Data.frame</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
+</div>
+<div id="ref-lubridate">
+<p>Grolemund, Garrett, and Hadley Wickham. 2011. “Dates and Times Made Easy with lubridate.” <em>Journal of Statistical Software</em> 40 (3): 1–25. <a href="http://www.jstatsoft.org/v40/i03/" class="uri">http://www.jstatsoft.org/v40/i03/</a>.</p>
+</div>
+<div id="ref-baseR">
+<p>R Core Team. 2016. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
+</div>
+<div id="ref-ggplot2">
+<p>Wickham, Hadley. 2009. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="http://ggplot2.org" class="uri">http://ggplot2.org</a>.</p>
+</div>
+<div id="ref-dplyr">
+<p>Wickham, Hadley, and Romain Francois. 2016. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a>.</p>
+</div>
+<div id="ref-readr">
+<p>Wickham, Hadley, Jim Hester, and Romain Francois. 2016. <em>Readr: Read Tabular Data</em>. <a href="https://CRAN.R-project.org/package=readr" class="uri">https://CRAN.R-project.org/package=readr</a>.</p>
+</div>
+<div id="ref-knitr">
+<p>Xie, Yihui. 2016. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://CRAN.R-project.org/package=knitr" class="uri">https://CRAN.R-project.org/package=knitr</a>.</p>
+</div>
+</div>
 </div>
 
 
