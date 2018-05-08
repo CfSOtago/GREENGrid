@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
+baTest <- 0 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -542,12 +542,15 @@ print("Done")
 
 Now produce some data quality plots & tables.
 
-The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies:
+The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:
 
- * some of the circuit labels for these households may have been changed during the data collection process
- * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process
- * at least one file from one household has been saved to a folder containing data from a different household (the raw data files do _not_ contain household IDs in the data or the file names to enable preventative filtering)
+ * some of the circuit labels for these households may have been changed during the data collection process;
+ * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
+ * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering).
 
+Some or all of these may be true at any given time!
+
+If this table flags a lot of errors then some re-naming of the circuit labels (column names) may be necessary.
 
 ```{r circuitLabelCheck}
 t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
@@ -563,12 +566,12 @@ knitr::kable(caption = "Circuit labels list by household", t)
 The following plots show the number of observations per day per household. In theory we should not see:
 
  * dates before 2014 or in to the future. These may indicate:
-    * data conversion errors
+    * date conversion errors;
  * more than 1440 observations per day. These may indicate:
-    * duplicate time stamps - i.e. they have the same time stamps but different consumption values or different circuit labels
-    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps
+    * duplicate time stamps - i.e. they have the same time stamps but different consumption values or different circuit labels;
+    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps.
 
-If present both of the latter may have been implied by the table above.
+If present both of the latter may have been implied by the table above and would have evaded the de-duplication filter which simply checks each complete row against all others within it's consolidated household dataset (a _within household absolute duplicate_ check).
 
 ```{r loadedFilesObsPlots}
 # short cut if already generated
