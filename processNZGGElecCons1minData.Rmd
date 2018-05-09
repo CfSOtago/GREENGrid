@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
+baTest <- 0 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -151,7 +151,7 @@ If you wish to use any of the material from this report please cite as:
 
 Report circulation:
 
- * Restricted to: [NZ GREEn Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
+ * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
 
 ## Purpose
 
@@ -160,6 +160,10 @@ This report is intended to:
  * load and clean the project electricity power data (Grid Spy)
  * save the cleaned data out as a single file per household
  * produce summary data quality statistics
+
+The resulting cleaned data has _no_ identifying information such as names, addresses, email addresses, telephone numbers and is therefore safe to share across all partners.
+
+The data contains a unique household id which can be used to link it to the NZ GREEN Grid time use diaries and dwelling/appliance surveys. With some additional non-disclosure checks it should also be safe to archive all of these linkable datasets for re-use via the UK [reshare](http://reshare.ukdataservice.ac.uk/) service.
 
 ## Requirements:
 
