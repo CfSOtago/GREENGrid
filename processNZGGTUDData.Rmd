@@ -36,8 +36,11 @@ startTime <- proc.time()
 
 dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
 diaryPath <- paste0(dPath,"_RAW DATA/Time Use Diaries/") # location of data
-outPath <- paste0(dPath, "Clean_data/TUD/") # place to save them 
+outPath <- paste0(dPath, "Clean_data/safe/TUD/") # place to save them 
 
+powerCoPath <- paste0(diaryPath, "Powerco/Powerco Annexes/")
+unisonPath <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files/")
+  
 # Load greenGrid package ----
 library(greenGridr) # local utilities
 
@@ -114,25 +117,70 @@ In this section we load and test the two time-use survey datasets.
 
 ## PowerCo
 
-This consists of 1 file found in `r paste0(diaryPath, "Powerco/Powerco Annexes/")`:
+This consists of 1 file found in `r powerCoPath`:
 
- * TUD (Merged data).csv
+ * TUD (Merged data)_BA.csv
 
+This is a version of TUD (Merged data).csv with:
+
+ * small edits to correct dates
+ * redundant rows removed from file header
 
 ```{r getTUDPowerco}
 
-tudPowerCoDT <- fread(paste0(diaryPath, "Powerco/Powerco Annexes/TUD (Merged data).csv"))
+tudPowerCoDT <- fread(paste0(powerCoPath, "TUD (Merged data)_BA.csv"))
 
 nRows <- nrow(tudPowerCoDT)
 print(paste0("Found ", tidyNum(nRows), " rows of data"))
 ```
 
 ```{r processPowerCo}
+# Remove identifying data ----
+tudPowerCoDT <- tudPowerCoDT[, c("RowNum", "Name","EmailAddress") := NULL]
 
-# ofile <- paste0(outPath, "powerCoTUDclean.csv")
-# print(paste0("Saving PowerCo cleaned time use diary to ", ofile))
-# write.csv(tudPowerCoDT, ofile)
-# print("Done")
+# Fix names of variables ----
+tudPowerCoDT <- data.table::setnames(tudPowerCoDT, 
+                                    c("Family size", "Choose the date of your diary / entry:"), 
+                                    c("ba_nPeople", "diaryDate")
+)
+
+# Fix dates ----
+tudPowerCoDT <- tudPowerCoDT[, r_Date := lubridate:: mdy(diaryDate)]
+
+# Fix the hhid
+tudPowerCoDT <- tudPowerCoDT[, hhID := paste0("rf_", HHCODE)]
+tudPowerCoDT <- tudPowerCoDT[, hhID := ifelse(as.integer(HHCODE) < 10, 
+                                              paste0("rf_0", HHCODE), # single digit so needs '0'
+                                                     hhID)]
+
+# Summary table ----
+t <- tudPowerCoDT[, .(nDiaries = .N,
+                      familySize = mean(ba_nPeople, na.rm = TRUE),
+                      minDiaryDate = min(r_Date),
+                      maxDiaryDate = max(r_Date)), keyby = .(hhID)]
+
+knitr::kable(caption = "Summary of PowerCo diaries by household", t)
+
+# save out safe file ----
+ofile <- paste0(outPath, "powerCoTUDsafe.csv")
+print(paste0("Saving PowerCo cleaned time use diary to ", ofile))
+write.csv(tudPowerCoDT, ofile)
+print("Done")
+
+myCaption <- paste0("Data source: ", powerCoPath)
+
+plotDT <- tudPowerCoDT[, .(nDiaries = .N), keyby = .(r_Date)]
+ggplot2::ggplot(plotDT, aes(x = r_Date, y = nDiaries)) +
+  geom_point() +
+    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Number of PowerCo diaries per day",
+       caption = paste0(myCaption),
+       x = "Date",
+       y = "Total number of diaries"
+    
+  )
+ggplot2::ggsave(paste0(outPath, "powerCoTUDdates.png"))
 
 ```
 
@@ -140,38 +188,39 @@ print(paste0("Found ", tidyNum(nRows), " rows of data"))
 
 ## Unison
 
-This consists of 5 files found in `r paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files")`:
+This consists of 5 files found in `r unisonPath`:
 
- * TUDAdult_ONE_Child_Unison_forSAS.xls
- * TUDAdult_TWO_Children_Unison_forSAS.xls
- * TUDAdult-THREE-Children-Unison_forSAS.xls
- * TUDAdult-Unison-forSAS.xlsx
- * TUDTeenagerorChild-Unison_forSAS.xls
+ * TUDAdult_ONE_Child_Unison_forSAS_BA.xlsx
+ * TUDAdult_TWO_Children_Unison_forSAS_BA.xlsx
+ * TUDAdult-THREE-Children-Unison_forSAS_BA.xlsx
+ * TUDAdult-Unison-forSAS_BA.xlsx
+ * TUDTeenagerorChild-Unison_forSAS_BA.xlsx
  
-The relationship between them is currently unclear!
+As before these are copies of the original versions with slight editing to correct dates and for ease of processing. The relationship between them is currently unclear!
 
 ```{r getTUDUnison`}
-uPath <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/")
-uPathSAS <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files/")
-#tudUnison1chDT <- data.table::as.data.table(read_xls(paste0(uPath, "TUDAdult_ONE_Child_Unison_forSAS.xlsx")))
-tudUnison1chDT <- fread(paste0(uPath, "TUDAdult_ONE_Child_Unison_forSAS.xlsx"))
+tudUnison1chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult_ONE_Child_Unison_forSAS_BA.xlsx")))
+tudUnison2chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult_TWO_Children_Unison_forSAS_BA.xlsx")))
+tudUnison3chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult-THREE-Children-Unison_forSAS_BA.xlsx")))
+tudUnisonAdultDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult-Unison-forSAS_BA.xlsx")))
+tudUnisonTeenChDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDTeenagerorChild-Unison_forSAS_BA.xlsx")))
 
-tudUnison2chDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdult_TWO_Children_PILOT.csv"))
-tudUnison3chDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
-tudUnisonAdultchDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
-tudUnisonTeenChchDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
-
-nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nrow(tudUnisonAdultchDT) + nrow(tudUnisonTeenChchDT)
+nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nrow(tudUnisonAdultDT) + nrow(tudUnisonTeenChDT)
 print(paste0("Found ", tidyNum(nRows), " rows in total"))
 ```
 
-```{r processPowerCo}
+```{r processUnison}
 
-      
-  ofile <- paste0(outPath, fListInterim)
-  print(paste0("Saving 1 minute data files interim metadata to ", ofile))
-  write.csv(fListCompleteDT, ofile)
-  print("Done")
+
+# join them together ----
+l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUnisonTeenChDT)
+tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
+
+# save out safe file ----
+ofile <- paste0(outPath, "unisonTUDsafe.csv")
+print(paste0("Saving Unison cleaned time use diary to ", ofile))
+write.csv(tudUnisonAllDT, ofile)
+print("Done")
 
 ```
 
