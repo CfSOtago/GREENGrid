@@ -553,7 +553,20 @@ print("Done")
 
 Now produce some data quality plots & tables.
 
-The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:
+## Circuit label checks
+
+The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. 
+
+```{r circuitLabelCheck}
+# short cut if exists already
+#ifile <- paste0(outPath, fListFinal)
+#fListCompleteDT <- fread(ifile)
+t <- table(fListCompleteDT$hhID,fListCompleteDT$circuitLabels)
+knitr::kable(caption = "Circuit labels list by household", t)
+
+```
+
+If this is not the case then this implies that:
 
  * some of the circuit labels for these households may have been changed during the data collection process;
  * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
@@ -561,20 +574,35 @@ The following table shows the number of data files with different circuit labels
 
 Some or all of these may be true at any given time!
 
-If this table flags a lot of errors then some re-naming of the circuit labels (column names) may be necessary.
+Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.
 
-```{r circuitLabelCheck}
+```{r plotCircuitLabelIssuesAsTile, fig.height=8}
 t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
                                               minObsDate = min(obsStartDate), # helps locate issues in data
                                               maxObsDate = max(obsEndDate),
                                               minFileDate = min(fMDate), # helps locate issues in files
                                               maxFileDate = max(fMDate),
-                                              nObs = tidyNum(sum(nObs))),
-                     keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
+                                              nObs = sum(nObs)),
+                     keyby = .(circuitLabels, hhID)] # ignore NA - it is files not loaded due to size thresholds
 
-knitr::kable(caption = "Circuit labels list by household", t)
+ggplot2::ggplot(t, aes(y = hhID, x = circuitLabels, fill = nObs)) +
+  geom_tile() +
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Circuit label counts for all loaded grid spy data",
+       caption = paste0(myCaption,
+                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+       
+  )
+ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileCircuitLabelsPlot.png"))
 ```
 
+The following table provides more detail to aid error checking. If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
+
+```{r circuitLabelMetaDataCheck}
+knitr::kable(caption = "Circuit labels by household with addiitonal meta-data", t)
+```
+
+## Observations
 
 The following plots show the number of observations per day per household. In theory we should not see:
 
