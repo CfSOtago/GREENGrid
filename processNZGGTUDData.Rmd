@@ -145,7 +145,7 @@ tudPowerCoDT <- data.table::setnames(tudPowerCoDT,
 )
 
 # Fix dates ----
-tudPowerCoDT <- tudPowerCoDT[, r_Date := lubridate:: mdy(diaryDate)]
+tudPowerCoDT <- tudPowerCoDT[, r_diaryDate := lubridate::mdy(diaryDate)]
 
 # Fix the hhid
 tudPowerCoDT <- tudPowerCoDT[, hhID := paste0("rf_", HHCODE)]
@@ -209,10 +209,24 @@ nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nr
 print(paste0("Found ", tidyNum(nRows), " rows in total"))
 ```
 
+Now process the Unison data.
+
 ```{r processUnison}
+# Fix names of variables ----
+tudUnison1chDT <- data.table::setnames(tudUnison1chDT, 
+                                    c("Choose the date of your diary / entry:", "Please enter your designated / CODE"), 
+                                    c("diaryDate", "CODE")
+)
 
+# Fix dates ----
+tudUnison1chDT <- tudUnison1chDT[, r_diaryDate := lubridate::dmy(diaryDate)]
+tudUnison1chDT <- tudUnison1chDT[, r_surveyStart := lubridate::dmy_hms(StartDate)]
+tudUnison1chDT <- tudUnison1chDT[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
 
+# Fix hhID ----
+tudUnison1chDT <- tudUnison1chDT[, hhID := (CODE)]
 # join them together ----
+# column name explosion
 l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUnisonTeenChDT)
 tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
 
