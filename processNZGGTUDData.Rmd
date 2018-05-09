@@ -1,0 +1,205 @@
+---
+title: 'Processing, cleaning and saving NZ GREEN Grid project time use diary data'
+author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
+date: 'Last run at: `r Sys.time()`'
+output:
+  html_document:
+    code_folding: hide
+    fig_caption: true
+    keep_md: true
+    number_sections: true
+    self_contained: no
+    toc: true
+    toc_float: true
+    toc_depth: 2
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r codeSetup, include=FALSE}
+# Housekeeping ----
+rm(list=ls(all=TRUE)) # remove all objects from workspace
+
+# Set start time ----
+startTime <- proc.time()
+
+# Local parameters ----
+
+dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
+diaryPath <- paste0(dPath,"_RAW DATA/Time Use Diaries/") # location of data
+outPath <- paste0(dPath, "Clean_data/TUD/") # place to save them 
+
+# Load greenGrid package ----
+library(greenGridr) # local utilities
+
+# Other packages ----
+reqLibs <- c("data.table", # for data munching
+             "lubridate", # for date/time munching
+             "ggplot2", # for fancy graphs
+             "readr", # for read/write_csv
+             "dplyr", # for select columns
+             "readxl",  #loading xl(s)
+             #"dtplyr", # if needed
+             "knitr" # for kable
+)
+
+greenGridr::loadLibraries(reqLibs)
+
+# Local functions ----
+
+
+```
+
+\newpage
+
+# Citation
+
+If you wish to use any of the material from this report please cite as:
+
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) Processing, cleaning and saving NZ GREEN Grid project time use diary data, University of Otago: Dunedin, NZ.
+
+\newpage
+
+# Introduction
+
+Report circulation:
+
+ * Restricted to: [NZ GREEn Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
+
+## Purpose
+
+This report is intended to: 
+
+ * load and clean the project time use survey data
+ * save the cleaned data out as a single file
+ * produce summary data quality statistics
+
+## Requirements:
+
+ * time use survey data:
+   * PowerCo
+   * Unison
+
+## History
+
+Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid):
+
+ * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master)
+ * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
+ 
+## Support
+
+This work was supported by:
+
+ * The [University of Otago](https://www.otago.ac.nz/)
+ * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
+ * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
+ 
+This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
+
+We do not 'support' the code but if you have a problem check the [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues) on our [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid) and if it doesn't already exist, open one. We might be able to fix it :-)
+
+# Load files
+
+In this section we load and test the two time-use survey datasets.
+
+## PowerCo
+
+This consists of 1 file found in `r paste0(diaryPath, "Powerco/Powerco Annexes/")`:
+
+ * TUD (Merged data).csv
+
+
+```{r getTUDPowerco}
+
+tudPowerCoDT <- fread(paste0(diaryPath, "Powerco/Powerco Annexes/TUD (Merged data).csv"))
+
+nRows <- nrow(tudPowerCoDT)
+print(paste0("Found ", tidyNum(nRows), " rows of data"))
+```
+
+```{r processPowerCo}
+
+# ofile <- paste0(outPath, "powerCoTUDclean.csv")
+# print(paste0("Saving PowerCo cleaned time use diary to ", ofile))
+# write.csv(tudPowerCoDT, ofile)
+# print("Done")
+
+```
+
+
+
+## Unison
+
+This consists of 5 files found in `r paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files")`:
+
+ * TUDAdult_ONE_Child_Unison_forSAS.xls
+ * TUDAdult_TWO_Children_Unison_forSAS.xls
+ * TUDAdult-THREE-Children-Unison_forSAS.xls
+ * TUDAdult-Unison-forSAS.xlsx
+ * TUDTeenagerorChild-Unison_forSAS.xls
+ 
+The relationship between them is currently unclear!
+
+```{r getTUDUnison`}
+uPath <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/")
+uPathSAS <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files/")
+#tudUnison1chDT <- data.table::as.data.table(read_xls(paste0(uPath, "TUDAdult_ONE_Child_Unison_forSAS.xlsx")))
+tudUnison1chDT <- fread(paste0(uPath, "TUDAdult_ONE_Child_Unison_forSAS.xlsx"))
+
+tudUnison2chDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdult_TWO_Children_PILOT.csv"))
+tudUnison3chDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
+tudUnisonAdultchDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
+tudUnisonTeenChchDT <- fread(paste0(diaryPath, "Powerco/Powerco Raw Data/TUDAdultPILOT.csv"))
+
+nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nrow(tudUnisonAdultchDT) + nrow(tudUnisonTeenChchDT)
+print(paste0("Found ", tidyNum(nRows), " rows in total"))
+```
+
+```{r processPowerCo}
+
+      
+  ofile <- paste0(outPath, fListInterim)
+  print(paste0("Saving 1 minute data files interim metadata to ", ofile))
+  write.csv(fListCompleteDT, ofile)
+  print("Done")
+
+```
+
+
+# Runtime
+
+
+```{r check runtime}
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+```
+
+Analysis completed in `r elapsed` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+# R environment
+
+R packages used: `r reqLibs`
+
+ * base R - for the basics [@baseR]
+ * data.table - for fast (big) data handling [@data.table]
+ * lubridate - date manipulation [@lubridate]
+ * ggplot2 - for slick graphics [@ggplot2]
+ * readr - for csv reading/writing [@readr]
+ * dplyr - for select and contains [@dplyr]
+ * knitr - to create this document [@knitr]
+ * greenGridr - for local NZ GREEN Grid utilities
+ 
+```{r sessionInfo}
+sessionInfo()
+```
