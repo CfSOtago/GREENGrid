@@ -49,7 +49,7 @@ if(baTest == 1){
   # full monty
   dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
   fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/gridSpy/1min/") # place to save them 
+  outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them 
 }
 
 pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
