@@ -301,15 +301,17 @@ We now need to check how many of the loaded files have an ambiguous or default d
 
 ```{r initialDateFormatTable}
 
-# short cut if file list already saved ----
+# short cut if interim file list already saved ----
 #ifile <- paste0(outPath, fListInterim)
 #print(paste0("Loading 1 minute data files interim metadata to ", ifile))
 #fListCompleteDT <- fread(ifile)
   
   
-t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+t <- fListCompleteDT[, .(nFiles = .N, 
+                         minDate = min(dateExample), # may not make much sense
+                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files with given date column names by inferred date format", t)
+knitr::kable(caption = "Number of files & min/max date (as char) with given date column names by inferred date format", t)
 ```
 
 Results to note:
@@ -371,9 +373,11 @@ knitr::kable(caption = cap, head(aList, 10))
 Check final date formats:
 
 ```{r finalDateFormatTable}
-t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+t <- fListCompleteDT[, .(nFiles = .N, 
+                         minDate = min(dateExample), # may not make much sense
+                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files with given date column names by final imputed date format", t)
+knitr::kable(caption = "Number of files & min/max dates (as char) with given date column names by final imputed date format", t)
 ```
 
 ## Data file quality checks
