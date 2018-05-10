@@ -345,7 +345,7 @@ The following table lists up to 10 of the 'date NZ' files which are set by defau
 # list default files
 aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All ", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
+cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
 
 knitr::kable(caption = cap, head(aList))
 
@@ -728,3 +728,5 @@ R packages used: `r reqLibs`
 ```{r sessionInfo}
 sessionInfo()
 ```
+
+# References
