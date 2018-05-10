@@ -323,34 +323,37 @@ To help with data cleaning the following table lists files that are ambiguous.
 # list ambigious files
 aList <- fListCompleteDT[dateFormat == "ambiguous", .(file, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All", nrow(aList), " files with an ambiguous dateFormat")
+cap <- paste0("All ", nrow(aList), " files with an ambiguous dateFormat")
 
 knitr::kable(caption = cap, aList)
 
 ```
 
-Looking at the file names we will assume they are dmy.
+Check against file names to see what is reasonable and then fix them.
 
 ```{r setAmbiguous}
+# Setting to dmy seems OK
 fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", dateFormat := "dmy - inferred"]
+
+paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
 ```
 
 
-The following table lists 'date NZ' files which are set by default only - do they look OK to assume dateFormat?
+The following table lists up to 10 of the 'date NZ' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
 ```{r listDefaultDateFilesNZT}
 # list default files
 aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
+cap <- paste0("All ", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
 
-knitr::kable(caption = "Files with inferred default date formats", head(aList))
+knitr::kable(caption = cap, head(aList))
 
 ```
 
-These look OK if we compare the file names with the dateExample.
 
-The following table lists the first 10 'date UTC' files which are set by default only - do they look OK to assume dateFormat?
+
+The following table lists up to 10 of the 'date UTC' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
 ```{r listDefaultDateFilesUTC}
 # list default files
@@ -363,7 +366,7 @@ knitr::kable(caption = cap, head(aList, 10))
 
 ```
 
-These also look OK so we will stick with the following derived date formats:
+Check final date formats:
 
 ```{r finalDateFormatTable}
 t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
