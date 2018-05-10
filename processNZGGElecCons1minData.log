@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.5.3)  7 MAY 2018 16:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.5.3)  10 MAY 2018 15:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -714,951 +714,913 @@ LaTeX Font Info:    Try loading font information for TS1+lmr on input line 147.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [2]
+) [2] [3]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 240.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 263.
 
-Overfull \hbox (359.74257pt too wide) in paragraph at lines 246--246
+Overfull \hbox (359.74257pt too wide) in paragraph at lines 269--269
 []\T1/lmtt/m/n/10 ## [1] "Looking for 1 minute data using pattern = *at1.csv$ i
 n /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/ - coul
 d take a while..."[] 
  []
 
-[3]
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 297
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 320
 .
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-Underfull \vbox (badness 3229) detected at line 351
+Overfull \vbox (0.73456pt too high) detected at line 370
  []
 
 [4]
-Overfull \hbox (259.99286pt too wide) in paragraph at lines 360--360
-[]\T1/lmtt/m/n/10 ## [1] "Saving 1 minute data files metadata to /Volumes/hum-c
-safe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT.csv"[
-] 
- []
-
-
-Overfull \hbox (291.49277pt too wide) in paragraph at lines 360--360
-[]\T1/lmtt/m/n/10 ## [1] "Saving final 1 minute data files metadata to /Volumes
-/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT
-.csv"[] 
+Overfull \hbox (370.24254pt too wide) in paragraph at lines 377--377
+[]\T1/lmtt/m/n/10 ## [1] "Saving 1 minute data files interim metadata to /Volum
+es/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/fListCom
+pleteDT_interim.csv"[] 
  []
 
 [5]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 1 on input line 424.
+(longtable)                in table 1 on input line 441.
 
 [6]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 2 on input line 518.
+(longtable)                in table 2 on input line 535.
 
 
-Overfull \hbox (91.5241pt too wide) in alignment at lines 549--563
+Overfull \hbox (91.5241pt too wide) in alignment at lines 566--580
  [] [] [] [] [] 
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 3 on input line 563.
+(longtable)                in table 3 on input line 580.
 
 
-Overfull \hbox (79.35704pt too wide) in alignment at lines 588--602
+Overfull \hbox (79.35704pt too wide) in alignment at lines 605--619
  [] [] [] [] [] 
  []
 
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 4 on input line 602.
-
-
-Overfull \vbox (1.37871pt too high) has occurred while \output is active []
+(longtable)                in table 4 on input line 619.
 
 [7]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 5 on input line 638.
+(longtable)                in table 5 on input line 655.
 
-<processNZGGElecCons1minData_files/figure-latex/allFileSizesPlot-1.pdf, id=65, 
-458.71375pt x 315.1775pt>
-File: processNZGGElecCons1minData_files/figure-latex/allFileSizesPlot-1.pdf Gra
-phic file (type pdf)
-<use processNZGGElecCons1minData_files/figure-latex/allFileSizesPlot-1.pdf>
-Package pdftex.def Info: processNZGGElecCons1minData_files/figure-latex/allFile
-SizesPlot-1.pdf  used on input line 668.
-(pdftex.def)             Requested size: 458.73363pt x 315.19115pt.
+<processNZGGElecCons1minData_files/figure-html/allFileSizesPlot-1.png, id=70, 6
+74.52pt x 481.8pt>
+File: processNZGGElecCons1minData_files/figure-html/allFileSizesPlot-1.png Grap
+hic file (type png)
+<use processNZGGElecCons1minData_files/figure-html/allFileSizesPlot-1.png>
+Package pdftex.def Info: processNZGGElecCons1minData_files/figure-html/allFileS
+izesPlot-1.png  used on input line 685.
+(pdftex.def)             Requested size: 469.76266pt x 335.54475pt.
 [8]
-<processNZGGElecCons1minData_files/figure-latex/loadedFileSizesPlot-1.pdf, id=7
-2, 458.71375pt x 315.1775pt>
-File: processNZGGElecCons1minData_files/figure-latex/loadedFileSizesPlot-1.pdf 
-Graphic file (type pdf)
-<use processNZGGElecCons1minData_files/figure-latex/loadedFileSizesPlot-1.pdf>
-Package pdftex.def Info: processNZGGElecCons1minData_files/figure-latex/loadedF
-ileSizesPlot-1.pdf  used on input line 706.
-(pdftex.def)             Requested size: 458.73363pt x 315.19115pt.
-[9 <./processNZGGElecCons1minData_files/figure-latex/allFileSizesPlot-1.pdf>] [
-10 <./processNZGGElecCons1minData_files/figure-latex/loadedFileSizesPlot-1.pdf>
-]
+<processNZGGElecCons1minData_files/figure-html/loadedFileSizesPlot-1.png, id=78
+, 674.52pt x 481.8pt>
+File: processNZGGElecCons1minData_files/figure-html/loadedFileSizesPlot-1.png G
+raphic file (type png)
+<use processNZGGElecCons1minData_files/figure-html/loadedFileSizesPlot-1.png>
+Package pdftex.def Info: processNZGGElecCons1minData_files/figure-html/loadedFi
+leSizesPlot-1.png  used on input line 723.
+(pdftex.def)             Requested size: 469.76266pt x 335.54475pt.
+[9 <./processNZGGElecCons1minData_files/figure-html/allFileSizesPlot-1.png>] [1
+0 <./processNZGGElecCons1minData_files/figure-html/loadedFileSizesPlot-1.png>]
 
 Package longtable Warning: Column widths have changed
-(longtable)                in table 6 on input line 817.
+(longtable)                in table 6 on input line 834.
 
 [11]
-Underfull \vbox (badness 10000) detected at line 913
+Underfull \vbox (badness 10000) detected at line 936
  []
 
 
-Underfull \vbox (badness 10000) detected at line 913
+Underfull \vbox (badness 10000) detected at line 936
  []
 
 [12]
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 929--929
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 929--929
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 929--929
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 941--941
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 941--941
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 941--941
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 953--953
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 953--953
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 953--953
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping..."[] 
  []
 
 [13]
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 965--965
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 965--965
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 965--965
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 977--977
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 977--977
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 977--977
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 989--989
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 989--989
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 989--989
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1001--1001
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1001--1001
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1001--1001
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1013--1013
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1013--1013
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1013--1013
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1025--1025
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1025--1025
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1025--1025
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1037--1037
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1037--1037
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1037--1037
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1049--1049
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv"[] 
  []
 
 [14]
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1049--1049
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1049--1049
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1061--1061
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1061--1061
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1061--1061
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1073--1073
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1073--1073
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1073--1073
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1085--1085
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1085--1085
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1085--1085
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1097--1097
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1097--1097
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1097--1097
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1109--1109
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1109--1109
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1109--1109
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1121--1121
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1121--1121
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1121--1121
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1133--1133
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1133--1133
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1133--1133
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping..."[] 
  []
 
 [15]
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1145--1145
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1145--1145
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1145--1145
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1157--1157
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1157--1157
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1157--1157
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1169--1169
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1169--1169
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1169--1169
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1181--1181
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1181--1181
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1181--1181
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1193--1193
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1193--1193
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1193--1193
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1205--1205
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1205--1205
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1205--1205
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1217--1217
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1217--1217
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1217--1217
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv"[] 
  []
 
 
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1229--1229
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv..."[] 
+d/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv..."[] 
  []
 
 
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1229--1229
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping..."[] 
+/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping..."[] 
  []
 
 
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1229--1229
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
 []\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv"[] 
+id/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv"[] 
+ []
+
+
+Overfull \hbox (181.24309pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
+d/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv..."[] 
+ []
+
+
+Overfull \hbox (228.49295pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
+/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping..."[] 
+ []
+
+
+Overfull \hbox (170.74312pt too wide) in paragraph at lines 1115--1115
+[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
+id/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv"[] 
  []
 
 [16]
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1241--1241
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1241--1241
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1241--1241
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1253--1253
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1253--1253
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1253--1253
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1265--1265
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1265--1265
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1265--1265
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1277--1277
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1277--1277
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1277--1277
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1289--1289
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1289--1289
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1289--1289
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1301--1301
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1301--1301
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1301--1301
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1313--1313
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1313--1313
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1313--1313
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1325--1325
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv..."[] 
- []
-
-[17]
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1325--1325
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1325--1325
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1337--1337
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1337--1337
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1337--1337
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1349--1349
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1349--1349
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1349--1349
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1361--1361
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1361--1361
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1361--1361
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1373--1373
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1373--1373
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1373--1373
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1385--1385
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1385--1385
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1385--1385
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1397--1397
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1397--1397
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1397--1397
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1409--1409
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1409--1409
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1409--1409
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv"[] 
- []
-
-[18]
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1421--1421
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1421--1421
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1421--1421
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1433--1433
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1433--1433
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1433--1433
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (154.99316pt too wide) in paragraph at lines 1444--1444
-[]\T1/lmtt/m/n/10 ## [1] "Saving /Volumes/hum-csafe/Research Projects/GREEN Gri
-d/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv..."[] 
- []
-
-
-Overfull \hbox (202.24303pt too wide) in paragraph at lines 1444--1444
-[]\T1/lmtt/m/n/10 ## [1] "Saved /Volumes/hum-csafe/Research Projects/GREEN Grid
-/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping..."[] 
- []
-
-
-Overfull \hbox (144.4932pt too wide) in paragraph at lines 1444--1444
-[]\T1/lmtt/m/n/10 ## [1] "Gzipped /Volumes/hum-csafe/Research Projects/GREEN Gr
-id/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv"[] 
- []
-
-
-Overfull \hbox (328.24266pt too wide) in paragraph at lines 1456--1456
+Overfull \hbox (354.49258pt too wide) in paragraph at lines 1127--1127
 []\T1/lmtt/m/n/10 ## [1] "Saving daily observations stats by hhid to /Volumes/h
-um-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/hhDailyObservatio
-nsStats.csv"[] 
+um-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/hhDailyObser
+vationsStats.csv"[] 
  []
 
-<processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-1.pdf, id=1
-35, 458.71375pt x 315.1775pt>
-File: processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-1.pdf 
-Graphic file (type pdf)
-<use processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-1.pdf>
-Package pdftex.def Info: processNZGGElecCons1minData_files/figure-latex/loadedF
-ilesObsPlots-1.pdf  used on input line 1505.
-(pdftex.def)             Requested size: 458.73363pt x 315.19115pt.
-[19]
-<processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-2.pdf, id=1
-42, 458.71375pt x 318.18875pt>
-File: processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-2.pdf 
-Graphic file (type pdf)
-<use processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-2.pdf>
-Package pdftex.def Info: processNZGGElecCons1minData_files/figure-latex/loadedF
-ilesObsPlots-2.pdf  used on input line 1532.
-(pdftex.def)             Requested size: 458.71263pt x 318.18796pt.
-[20 <./processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-1.pdf
->] [21 <./processNZGGElecCons1minData_files/figure-latex/loadedFilesObsPlots-2.
-pdf>]
 
-Package longtable Warning: Column widths have changed
-(longtable)                in table 7 on input line 1634.
+Overfull \hbox (349.2426pt too wide) in paragraph at lines 1149--1149
+[]\T1/lmtt/m/n/10 ## [1] "Saving 1 minute data files final metadata to /Volumes
+/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/fListCompl
+eteDT_final.csv"[] 
+ []
 
-[22]
-<processNZGGElecCons1minData_files/figure-latex/liveDataHouseholds-1.pdf, id=17
-2, 459.7175pt x 315.1775pt>
-File: processNZGGElecCons1minData_files/figure-latex/liveDataHouseholds-1.pdf G
-raphic file (type pdf)
-<use processNZGGElecCons1minData_files/figure-latex/liveDataHouseholds-1.pdf>
-Package pdftex.def Info: processNZGGElecCons1minData_files/figure-latex/liveDat
-aHouseholds-1.pdf  used on input line 1656.
-(pdftex.def)             Requested size: 459.74442pt x 315.19595pt.
-! Missing $ inserted.
-<inserted text> 
-                $
-l.1678 Analysis completed in 1.3165859\times
-                                             10\^{}\{4\} seconds ( 219.43 
+! Dimension too large.
+\LT@max@sel #1#2->{\ifdim #2=\wd \tw@ 
+                                      #1\else \number \c@LT@chunks \fi }{\th...
+l.1303 \endfirsthead
+                     
 Here is how much of TeX's memory you used:
- 12740 strings out of 492649
- 188580 string characters out of 6129623
- 319462 words of memory out of 5000000
- 16374 multiletter control sequences out of 15000+600000
- 50181 words of font info for 65 fonts, out of 8000000 for 9000
+ 12723 strings out of 492649
+ 187492 string characters out of 6129623
+ 326973 words of memory out of 5000000
+ 16361 multiletter control sequences out of 15000+600000
+ 50347 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,6n,38p,466b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 35i,6n,38p,503b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 !  ==> Fatal error occurred, no output PDF file produced!

@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity power data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-09 10:10:31</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-09 15:31:04</em></h4>
 
 </div>
 
@@ -253,7 +253,7 @@ div.tocify {
 <h1><span class="header-section-number">2</span> Introduction</h1>
 <p>Report circulation:</p>
 <ul>
-<li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEn Grid</a> project partners and contractors.</li>
+<li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project partners and contractors.</li>
 </ul>
 <div id="purpose" class="section level2">
 <h2><span class="header-section-number">2.1</span> Purpose</h2>
@@ -263,6 +263,8 @@ div.tocify {
 <li>save the cleaned data out as a single file per household</li>
 <li>produce summary data quality statistics</li>
 </ul>
+<p>The resulting cleaned data has <em>no</em> identifying information such as names, addresses, email addresses, telephone numbers and is therefore safe to share across all partners.</p>
+<p>The data contains a unique household id which can be used to link it to the NZ GREEN Grid time use diaries and dwelling/appliance surveys. With some additional non-disclosure checks it should also be safe to archive all of these linkable datasets for re-use via the UK <a href="http://reshare.ukdataservice.ac.uk/">reshare</a> service.</p>
 </div>
 <div id="requirements" class="section level2">
 <h2><span class="header-section-number">2.2</span> Requirements:</h2>
@@ -306,7 +308,7 @@ div.tocify {
 <pre class="r"><code>system.time(fListCompleteDT &lt;- data.table::as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.735   5.756 607.496</code></pre>
+##   0.784   5.003 406.906</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></pre>
 <pre><code>## [1] &quot;Found 21,440 files&quot;</code></pre>
@@ -385,7 +387,7 @@ print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></p
 }</code></pre>
 <pre><code>## [1] &quot;Processing file list and getting file meta-data (please be patient)&quot;
 ## [1] &quot;All files checked&quot;
-## [1] &quot;Saving 1 minute data files interim metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT_interim.csv&quot;
+## [1] &quot;Saving 1 minute data files interim metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/fListCompleteDT_interim.csv&quot;
 ## [1] &quot;Done&quot;</code></pre>
 <pre class="r"><code>print(paste0(&quot;Overall we have &quot;, nrow(fListCompleteDT), &quot; files from &quot;, uniqueN(fListCompleteDT$hhID), &quot; households.&quot;))</code></pre>
 <pre><code>## [1] &quot;Overall we have 21440 files from 44 households.&quot;</code></pre>
@@ -1326,191 +1328,191 @@ for(hh in hhIDs){
   tempHhDT &lt;- NULL # just in case
 }</code></pre>
 <pre><code>## [1] &quot;Loading: rf_01&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_01_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_01_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_02&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_02_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_02_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_06&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_06_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_06_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_07&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_07_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_07_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_08&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_08_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_08_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_09&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_09_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_09_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_10&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_10_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_10_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_11&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_11_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_11_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_12&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_12_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_12_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_13&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_13_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_13_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_14&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_14_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_14_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_15&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_15_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_15_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_16&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_16_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_16_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_17&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_17_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_17_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_18&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_18_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_18_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_19&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_19_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_19_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_20&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_20_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_20_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_21&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_21_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_21_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_22&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_22_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_22_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_23&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_23_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_23_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_24&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_24_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_24_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_25&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_25_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_25_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_26&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_26_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_26_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_27&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_27_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_27_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_28&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_28_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_28_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_29&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_29_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_29_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_30&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_30_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_30_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_31&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_31_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_31_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_32&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_32_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_32_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_33&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_33_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_33_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_34&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_34_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_34_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_35&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_35_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_35_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_36&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_36_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_36_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_37&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_37_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_37_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_38&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_38_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_38_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_39&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_39_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_39_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_40&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_40_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_40_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_41&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_41_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_41_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_42&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_42_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_42_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_43&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_43_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_43_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_44&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_44_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_44_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_45&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_45_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_45_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_46&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_46_all_1min_data.csv&quot;
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_46_all_1min_data.csv&quot;
 ## [1] &quot;Loading: rf_47&quot;
-## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv...&quot;
-## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping...&quot;
-## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/data/rf_47_all_1min_data.csv&quot;</code></pre>
+## [1] &quot;Saving /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv...&quot;
+## [1] &quot;Saved /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv, gzipping...&quot;
+## [1] &quot;Gzipped /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/rf_47_all_1min_data.csv&quot;</code></pre>
 <pre class="r"><code>#&gt; Save observed data stats for all files loaded ----
 ofile &lt;- paste0(outPath, &quot;hhDailyObservationsStats.csv&quot;)
 print(paste0(&quot;Saving daily observations stats by hhid to &quot;, ofile)) # write out version with file stats</code></pre>
-<pre><code>## [1] &quot;Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/hhDailyObservationsStats.csv&quot;</code></pre>
+<pre><code>## [1] &quot;Saving daily observations stats by hhid to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/hhDailyObservationsStats.csv&quot;</code></pre>
 <pre class="r"><code>write.csv(hhStatDT, ofile)
 print(&quot;Done&quot;)</code></pre>
 <pre><code>## [1] &quot;Done&quot;</code></pre>
 <pre class="r"><code>ofile &lt;- paste0(outPath, fListFinal)
 print(paste0(&quot;Saving 1 minute data files final metadata to &quot;, ofile))</code></pre>
-<pre><code>## [1] &quot;Saving 1 minute data files final metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/gridSpy/1min/fListCompleteDT_final.csv&quot;</code></pre>
+<pre><code>## [1] &quot;Saving 1 minute data files final metadata to /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/fListCompleteDT_final.csv&quot;</code></pre>
 <pre class="r"><code>write.csv(fListCompleteDT, ofile)
 print(&quot;Done&quot;)</code></pre>
 <pre><code>## [1] &quot;Done&quot;</code></pre>
@@ -1518,25 +1520,2352 @@ print(&quot;Done&quot;)</code></pre>
 <div id="data-quality-analysis" class="section level1">
 <h1><span class="header-section-number">5</span> Data quality analysis</h1>
 <p>Now produce some data quality plots &amp; tables.</p>
-<p>The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:</p>
+<div id="circuit-label-checks" class="section level2">
+<h2><span class="header-section-number">5.1</span> Circuit label checks</h2>
+<p>The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file.</p>
+<pre class="r"><code># short cut if exists already
+#ifile &lt;- paste0(outPath, fListFinal)
+#fListCompleteDT &lt;- fread(ifile)
+t &lt;- table(fListCompleteDT$hhID,fListCompleteDT$circuitLabels)
+knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></pre>
+<table>
+<caption>Circuit labels list by household</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Bed 2, 2nd Fridge$2828, Heat Pump$2826, Hot Water - Controlled$2825, Incomer - Uncontrolled$2824, Kitchen, Laundry &amp; Beds 1&amp;3$2829, Oven &amp; Oven Wall Appliances$2827</th>
+<th align="right">Bedroom &amp; Lounge Heat Pumps$2741, Incomer 1 - All$2738, Incomer 2 - All$2737, Kitchen Appliances$2735, Laundry$2734, Oven$2736, PV 1$2739, PV 2$2733, Theatre Heat Pump$2740</th>
+<th align="right">Bedrooms &amp; Lounge$2602, Heat Pump$2598, Incomer - All$2599, Kitchen Appliances$2601, Laundry &amp; Garage$2597, Oven$2600</th>
+<th align="right">Cooking Bath tile heat$1573, Fridge$1572, Heating$1576, Hot Water$1574, Lights$1577, Mains$1575</th>
+<th align="right">Downstairs (inc 1 Heat Pump)$2212, Hot Water - Controlled$2208, Incomer - Uncontrolled$2209, Kitchen &amp; Laundry$2213, Oven &amp; Hob$2210, Upstairs Heat Pumps$2211</th>
+<th align="right">Fridge$2752, Heat Pump &amp; Washing Machine$2750, Incomer - All$2748, Kitchen Appliances &amp; Garage$2753, Lower Bedrooms &amp; Bathrooms$2751, Oven$2749</th>
+<th align="right">Hallway &amp; Washing Machine$2683, Hot Water - Controlled$2679, Incomer 1 - Uncont inc Oven$2681, Incomer 2 - Uncont inc Stove$2680, Kitchen Appliances &amp; Bedrooms$2684, Microwave &amp; Breadmaker$2682</th>
+<th align="right">Heat Pump (x2) &amp; Lounge Power$4166, Hot Water - Controlled$4167, Incomer - Uncontrolled$4168, Kitchen Appliances$4163, Laundry$4164, Lighting$4165</th>
+<th align="right">Heat Pump &amp; 2 x Bathroom Heat$4171, Incomer - All$4170, Kitchen Power &amp; Heat, Lounge$4174, Laundry, Garage &amp; 2 Bedrooms$4173, Lighting$4172, Wall Oven$4169</th>
+<th align="right">Heat Pump &amp; Bedroom 2$2731, Incomer 1 - Uncont - Inc Hob$2729, Incomer 2 - Uncont - Inc Oven$2730, Kitchen Appliances$2727, Laundry$2732, Lounge, Dining &amp; Bedrooms$2728</th>
+<th align="right">Heat Pump &amp; Kitchen Appliances$4186, Hot Water - Controlled$4184, Incomer - Uncontrolled$4181, Laundry$4185, Lighting$4183, Oven$4182</th>
+<th align="right">Heat Pump &amp; Lounge$2590, Hob$2589, Hot Water Cpbd Heater- Cont$2586, Incomer - Uncontrolled$2585, Kitchen Appliances &amp; Laundry$2588, Spa - Uncontrolled$2587</th>
+<th align="right">Heat Pump &amp; Misc$2107, Hob$2109, Hot Water - Controlled$2110, Incomer 1 - Uncontrolled$2112, Incomer 2 - Uncontrolled$2111, Oven &amp; Kitchen Appliances$2108</th>
+<th align="right">Heat Pump$2092, Hot Water - Controlled$2094, Incomer - Uncontrolled$2093, Kitchen$2089, Laundry &amp; 2nd Fridge Freezer$2090, Oven &amp; Hob$2091</th>
+<th align="right">Heat Pump$2148, Hot Water - Controlled$2150, Incomer 1 - Uncont - inc Hob$2152, Incomer 2 - Uncont - inc Oven$2151, Kitchen Appliances$2147, Laundry$2149</th>
+<th align="right">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 1 - Uncontrolled$2757, Incomer 2 - Uncontrolled $2762, Oven$2760</th>
+<th align="right">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 2 - Uncontrolled $2762, Oven$2760</th>
+<th align="right">Heat Pump$4124, Hot Water - Uncontrolled$4125, Incomer - Uncontrolled$4126, Kitchen Appliances$4121, Laundry, Garage Fridge Freezer$4122, Lighting$4123</th>
+<th align="right">Heat Pump$4130, Hot Water - Uncontrolled$4131, Incomer - All$4132, Kitchen Appliances$4127, Laundry &amp; Freezer$4128, Lighting (inc heat lamps)$4129</th>
+<th align="right">Heat Pump$4134, Hot Water - Controlled$4135, Incomer -Uncontrolled$4136, Kitchen Appliances$4137, Laundry &amp; Fridge Freezer$4138, Lighting$4133</th>
+<th align="right">Heat Pump$4150, Hot Water - Uncontrolled$4147, Incomer - All$4148, Kitchen Appliances$4145, Lighting$4149, Washing Machine$4146</th>
+<th align="right">Heat Pump$4154, Hot Water - Controlled$4155, Incomer - Uncontrolled$4156, Kitchen Appliances$4151, Laundry $4152, Lighting$4153</th>
+<th align="right">Heat Pump$4160, Hot Water - Controlled$4158, Incomer - Uncontrolled$4157, Kitchen Appliances$4161, Laundry &amp; Garage Fridge$4162, Lighting$4159</th>
+<th align="right">Heat Pump$4175, Hot Water - Controlled$4178, Incomer - Uncontrolled$4177, Kitchen, Dining &amp; Office$4179, Laundry, Lounge, Garage, Bed$4180, Lighting$4176</th>
+<th align="right">Heat Pump$4190, Incomer - All$4192, Kitchen Appliances$4187, Laundry$4188, Lighting$4189, Oven$4191</th>
+<th align="right">Heat Pump$4196, Hot Water - Controlled$4198, Incomer - All$4193, Kitchen Appliances$4195, Laundry$4194, Lighting$4197</th>
+<th align="right">Heat Pump$4204, Hot Water - Controlled$4200, Incomer - All$4199, Kitchen Appliances$4201, Laundry$4202, Lighting$4203</th>
+<th align="right">Heat Pump$4211, Incomer - All$4213, Kitchen Appliances$4210, Laundry, Garage &amp; Guest Bed$4215, Lighting$4212, Oven$4214</th>
+<th align="right">Heat Pump$4219, Incomer - All$4221, Kitchen Appliances$4216, Laundry$4217, Lighting$4218, PV &amp; Garage$4220</th>
+<th align="right">Heat Pump$4223, Hot Water - Uncontrolled$4224, Incomer - All$4225, Kitchen Appliances$4226, Laundry &amp; Garage Freezer$4227, Lighting$4222</th>
+<th align="right">Heat Pumps (2x) &amp; Power_Imag$4399, Heat Pumps (2x) &amp; Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen &amp; Bedrooms_Imag$4402, Kitchen &amp; Bedrooms$4229, Laundry &amp; Bedrooms_Imag$4403, Laundry &amp; Bedrooms$4228, Lighting_Imag$4404, Lighting$4233</th>
+<th align="right">Heat Pumps (2x) &amp; Power$4232, Heat Pumps (2x) &amp; Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms$4229, Kitchen &amp; Bedrooms$4402, Laundry &amp; Bedrooms$4228, Laundry &amp; Bedrooms$4403, Lighting$4233, Lighting$4404</th>
+<th align="right">Heat Pumps (2x) &amp; Power1$4232, Heat Pumps (2x) &amp; Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms1$4229, Kitchen &amp; Bedrooms2$4402, Laundry &amp; Bedrooms1$4228, Laundry &amp; Bedrooms2$4403, Lighting1$4233, Lighting2$4404</th>
+<th align="right">Heating$1633, Hot water$1636, Kitchen power$1632, Lights$1635, Mains$1634, Range$1637</th>
+<th align="right">Hob$3954, Hot Water$3952, Incomer 1$3956, Incomer 2$3955, Laundry &amp; Kitchen Appliances$3951, Oven$3953</th>
+<th align="right">Hot Water (2 elements)$4247, Incomer - Uncontrolled$4248, Kitchen Appliances$4244, Lighting &amp; 2 Towel Rail$4245, Oven$4246</th>
+<th align="right">Hot Water - Controlled (HEMS)$2081, Incomer - Uncontrolled$2082, Kitchen, Laundry &amp; Ventilation$2084, Oven$2085, PV &amp; Storage$2083, Spa (HEMS)$2080</th>
+<th align="right">Hot Water - Controlled$2102, Incomer - Uncontrolled$2101, Kitchen$2104, Laundry, Fridge &amp; Freezer$2105, Oven &amp; Hob$2103, PV$2106</th>
+<th align="right">Hot Water - Controlled$2129, Incomer 1 - Uncontrolled$2128, Incomer 2 - Uncontrolled$2130, Kitchen Appliances &amp; Ventilati$2131, Laundry &amp; Hob$2133, Oven$2132</th>
+<th align="right">Hot Water - Controlled$2236, Incomer - Uncontrolled$2237, Kitchen &amp; Laundry$2234, Lighting$2232, Oven$2235, Ventilation &amp; Lounge Power$2233</th>
+<th align="right">Hot Water - Controlled$2248, Incomer - Uncontrolled$2249, Kitchen$2246, Laundry, Downstairs &amp; Lounge$2245, Lighting$2244, Oven &amp; Hob$2247</th>
+<th align="right">Hot Water - Controlled$2719, Incomer 1 - Uncont inc Stove$2718, Incomer 2 - Uncont inc Oven$2717, Kitchen Appliances$2715, Laundry &amp; Microwave$2720, Power Outlets$2716</th>
+<th align="right">Hot Water - Controlled$4144, Incomer - Uncontrolled$4143, Kitchen Appliances &amp; Heat Pump$4140, Laundry &amp; Teenagers Bedroom$4139, Lighting$4142, Oven, Hob &amp; Microwave$4141</th>
+<th align="right">Hot Water - Controlled$4238, Incomer - All$4239, Kitchen Appliances$4234, Laundry &amp; Kitchen$4235, Lighting$4236, Oven &amp; Hobb$4237</th>
+<th align="right">Incomer 1 - All$2703, Incomer 2 - All$2704, Kitchen Appliances$2706, Laundry, Sauna &amp; 2nd Fridge$2707, Oven$2705, Spa$2708</th>
+<th align="right">Incomer 1 - Hot Water - Cont$2626, Incomer 2 - Uncontrolled$2625, Incomer 3 - Uncontrolled$2627, Kitchen Appliances &amp; Lounge$2630, Laundry, Fridge &amp; Microwave$2628, Oven$2629</th>
+<th align="right">Incomer 1 - inc Top Oven$5620, Incomer 2 - inc Bottom Oven$5621, Kitchen Appliances$5625, Laundry &amp; Garage$5624, Lighting 1/2$5623, Lighting 2/2$5622</th>
+<th align="right">Incomer 1 - Uncontrolled$2726, Incomer 2 - Uncontrolled$2725, Kitchen Appliances &amp; Laundry$2722, Microwave$2721, Oven$2724, Workshop$2723</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>rf_01</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_02</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_06</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">186</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_07</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">186</td>
+</tr>
+<tr class="odd">
+<td>rf_08</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_09</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_10</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">358</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_11</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_12</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_13</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">420</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_14</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">329</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_15</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_16</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_17</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">202</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_18</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_19</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_20</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_21</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_22</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">371</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_23</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_24</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_25</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_26</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">394</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_27</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_28</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_29</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">485</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_30</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_31</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_32</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_33</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">487</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_34</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_35</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">134</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_36</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">438</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_37</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">487</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_38</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">201</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_39</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">364</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_40</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_41</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">479</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_42</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">45</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_43</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_44</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">488</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_45</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>rf_46</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">408</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>rf_47</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>If this is not the case then this implies that:</p>
 <ul>
 <li>some of the circuit labels for these households may have been changed during the data collection process;</li>
 <li>some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;</li>
 <li>at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do <em>not</em> contain household IDs in the data or the file names which would enable checking/preventative filtering). This will be visible in the table if two households appear to share <em>exactly</em> the same list of circuit labels.</li>
 </ul>
 <p>Some or all of these may be true at any given time!</p>
-<p>If this table flags a lot of errors then some re-naming of the circuit labels (column names) may be necessary.</p>
+<p>Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.</p>
 <pre class="r"><code>t &lt;- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
                                               minObsDate = min(obsStartDate), # helps locate issues in data
                                               maxObsDate = max(obsEndDate),
                                               minFileDate = min(fMDate), # helps locate issues in files
                                               maxFileDate = max(fMDate),
-                                              nObs = tidyNum(sum(nObs))),
-                     keyby = .(circuitLabels,hhID)] # ignore NA - it is files not loaded due to size thresholds
+                                              nObs = sum(nObs)),
+                     keyby = .(circuitLabels, hhID)] # ignore NA - it is files not loaded due to size thresholds
 
-knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></pre>
+ggplot2::ggplot(t, aes(y = hhID, x = circuitLabels, fill = nObs)) +
+  geom_tile() +
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = &quot;Circuit label counts for all loaded grid spy data&quot;,
+       caption = paste0(myCaption,
+                        &quot;\nOnly files of size &gt; &quot;, dataThreshold, &quot; bytes loaded&quot;)
+       
+  )</code></pre>
+<p><img src="processNZGGElecCons1minData_files/figure-html/plotCircuitLabelIssuesAsTile-1.png" /><!-- --></p>
+<pre class="r"><code>ggplot2::ggsave(paste0(outPath, &quot;gridSpyLoadedFileCircuitLabelsPlot.png&quot;))</code></pre>
+<pre><code>## Saving 7 x 8 in image</code></pre>
+<p>The following table provides more detail to aid error checking. Check for:</p>
+<ul>
+<li>2+ adjacent rows which have exactly the same circuit labels but different hh_ids. This implies some data from one household has been saved in the wrong folder;</li>
+<li>2+ adjacent rows which have different circuit labels but identical hh_ids. This could imply the same thing but is more likely to be errors/changes to the circuit labelling.</li>
+</ul>
+<p>If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary.</p>
+<pre class="r"><code>knitr::kable(caption = &quot;Circuit labels by household with addiitonal meta-data&quot;, t)</code></pre>
 <table>
-<caption>Circuit labels list by household</caption>
+<caption>Circuit labels by household with addiitonal meta-data</caption>
 <thead>
 <tr class="header">
 <th align="left">circuitLabels</th>
@@ -1546,7 +3875,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <th align="left">maxObsDate</th>
 <th align="left">minFileDate</th>
 <th align="left">maxFileDate</th>
-<th align="left">nObs</th>
+<th align="right">nObs</th>
 </tr>
 </thead>
 <tbody>
@@ -1558,7 +3887,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-05-13</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-09-21</td>
-<td align="left">1,419,097</td>
+<td align="right">1419097</td>
 </tr>
 <tr class="even">
 <td align="left">Bedroom &amp; Lounge Heat Pumps$2741, Incomer 1 - All$2738, Incomer 2 - All$2737, Kitchen Appliances$2735, Laundry$2734, Oven$2736, PV 1$2739, PV 2$2733, Theatre Heat Pump$2740</td>
@@ -1568,7 +3897,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">4,115,666</td>
+<td align="right">4115666</td>
 </tr>
 <tr class="odd">
 <td align="left">Bedrooms &amp; Lounge$2602, Heat Pump$2598, Incomer - All$2599, Kitchen Appliances$2601, Laundry &amp; Garage$2597, Oven$2600</td>
@@ -1578,7 +3907,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-03-29</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-03-30</td>
-<td align="left">3,734,792</td>
+<td align="right">3734792</td>
 </tr>
 <tr class="even">
 <td align="left">Cooking Bath tile heat$1573, Fridge$1572, Heating$1576, Hot Water$1574, Lights$1577, Mains$1575</td>
@@ -1588,7 +3917,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-05-28</td>
 <td align="left">2016-09-20</td>
 <td align="left">2016-09-30</td>
-<td align="left">592,592</td>
+<td align="right">592592</td>
 </tr>
 <tr class="odd">
 <td align="left">Downstairs (inc 1 Heat Pump)$2212, Hot Water - Controlled$2208, Incomer - Uncontrolled$2209, Kitchen &amp; Laundry$2213, Oven &amp; Hob$2210, Upstairs Heat Pumps$2211</td>
@@ -1598,7 +3927,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,838,753</td>
+<td align="right">3838753</td>
 </tr>
 <tr class="even">
 <td align="left">Fridge$2752, Heat Pump &amp; Washing Machine$2750, Incomer - All$2748, Kitchen Appliances &amp; Garage$2753, Lower Bedrooms &amp; Bathrooms$2751, Oven$2749</td>
@@ -1608,7 +3937,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-07-01</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-10-12</td>
-<td align="left">1,972,512</td>
+<td align="right">1972512</td>
 </tr>
 <tr class="odd">
 <td align="left">Hallway &amp; Washing Machine$2683, Hot Water - Controlled$2679, Incomer 1 - Uncont inc Oven$2681, Incomer 2 - Uncont inc Stove$2680, Kitchen Appliances &amp; Bedrooms$2684, Microwave &amp; Breadmaker$2682</td>
@@ -1618,7 +3947,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-03-25</td>
 <td align="left">2016-09-20</td>
 <td align="left">2016-09-20</td>
-<td align="left">373,523</td>
+<td align="right">373523</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump &amp; 2 x Bathroom Heat$4171, Incomer - All$4170, Kitchen Power &amp; Heat, Lounge$4174, Laundry, Garage &amp; 2 Bedrooms$4173, Lighting$4172, Wall Oven$4169</td>
@@ -1628,7 +3957,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-09-20</td>
-<td align="left">1,180,942</td>
+<td align="right">1180942</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump &amp; Bedroom 2$2731, Incomer 1 - Uncont - Inc Hob$2729, Incomer 2 - Uncont - Inc Oven$2730, Kitchen Appliances$2727, Laundry$2732, Lounge, Dining &amp; Bedrooms$2728</td>
@@ -1638,7 +3967,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-07-16</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">529,363</td>
+<td align="right">529363</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump &amp; Kitchen Appliances$4186, Hot Water - Controlled$4184, Incomer - Uncontrolled$4181, Laundry$4185, Lighting$4183, Oven$4182</td>
@@ -1648,7 +3977,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,230,551</td>
+<td align="right">3230551</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump &amp; Lounge$2590, Hob$2589, Hot Water Cpbd Heater- Cont$2586, Incomer - Uncontrolled$2585, Kitchen Appliances &amp; Laundry$2588, Spa - Uncontrolled$2587</td>
@@ -1658,7 +3987,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">4,132,333</td>
+<td align="right">4132333</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump &amp; Misc$2107, Hob$2109, Hot Water - Controlled$2110, Incomer 1 - Uncontrolled$2112, Incomer 2 - Uncontrolled$2111, Oven &amp; Kitchen Appliances$2108</td>
@@ -1668,7 +3997,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-06-11</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">545,138</td>
+<td align="right">545138</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump (x2) &amp; Lounge Power$4166, Hot Water - Controlled$4167, Incomer - Uncontrolled$4168, Kitchen Appliances$4163, Laundry$4164, Lighting$4165</td>
@@ -1678,7 +4007,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-11-22</td>
 <td align="left">2016-06-08</td>
 <td align="left">2016-09-20</td>
-<td align="left">349,528</td>
+<td align="right">349528</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$2092, Hot Water - Controlled$2094, Incomer - Uncontrolled$2093, Kitchen$2089, Laundry &amp; 2nd Fridge Freezer$2090, Oven &amp; Hob$2091</td>
@@ -1688,7 +4017,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-05-15</td>
 <td align="left">2016-05-25</td>
 <td align="left">2017-11-21</td>
-<td align="left">2,536,195</td>
+<td align="right">2536195</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$2148, Hot Water - Controlled$2150, Incomer 1 - Uncont - inc Hob$2152, Incomer 2 - Uncont - inc Oven$2151, Kitchen Appliances$2147, Laundry$2149</td>
@@ -1698,7 +4027,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-03-28</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">962,873</td>
+<td align="right">962873</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 1 - Uncontrolled$2757, Incomer 2 - Uncontrolled $2762, Oven$2760</td>
@@ -1708,7 +4037,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-05-25</td>
 <td align="left">2016-06-08</td>
 <td align="left">2016-06-08</td>
-<td align="left">507,847</td>
+<td align="right">507847</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$2758, Hob &amp; Kitchen Appliances$2759, Hot Water - Controlled$2761, Incomer 1 - Uncontrolled $2763, Incomer 2 - Uncontrolled $2762, Oven$2760</td>
@@ -1718,7 +4047,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-10-22</td>
 <td align="left">2016-10-25</td>
 <td align="left">2017-11-21</td>
-<td align="left">213,418</td>
+<td align="right">213418</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4124, Hot Water - Uncontrolled$4125, Incomer - Uncontrolled$4126, Kitchen Appliances$4121, Laundry, Garage Fridge Freezer$4122, Lighting$4123</td>
@@ -1728,7 +4057,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-05-17</td>
 <td align="left">2016-05-25</td>
 <td align="left">2017-11-21</td>
-<td align="left">1,494,089</td>
+<td align="right">1494089</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4130, Hot Water - Uncontrolled$4131, Incomer - All$4132, Kitchen Appliances$4127, Laundry &amp; Freezer$4128, Lighting (inc heat lamps)$4129</td>
@@ -1738,7 +4067,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-02-18</td>
 <td align="left">2016-06-08</td>
 <td align="left">2017-11-21</td>
-<td align="left">1,099,072</td>
+<td align="right">1099072</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4134, Hot Water - Controlled$4135, Incomer -Uncontrolled$4136, Kitchen Appliances$4137, Laundry &amp; Fridge Freezer$4138, Lighting$4133</td>
@@ -1748,7 +4077,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,792,074</td>
+<td align="right">2792074</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4150, Hot Water - Uncontrolled$4147, Incomer - All$4148, Kitchen Appliances$4145, Lighting$4149, Washing Machine$4146</td>
@@ -1758,7 +4087,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,618,000</td>
+<td align="right">2618000</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4154, Hot Water - Controlled$4155, Incomer - Uncontrolled$4156, Kitchen Appliances$4151, Laundry $4152, Lighting$4153</td>
@@ -1768,7 +4097,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,406,521</td>
+<td align="right">3406521</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4160, Hot Water - Controlled$4158, Incomer - Uncontrolled$4157, Kitchen Appliances$4161, Laundry &amp; Garage Fridge$4162, Lighting$4159</td>
@@ -1778,7 +4107,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-10-15</td>
 <td align="left">2016-06-08</td>
 <td align="left">2017-11-21</td>
-<td align="left">821,472</td>
+<td align="right">821472</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4175, Hot Water - Controlled$4178, Incomer - Uncontrolled$4177, Kitchen, Dining &amp; Office$4179, Laundry, Lounge, Garage, Bed$4180, Lighting$4176</td>
@@ -1788,7 +4117,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-08-22</td>
 <td align="left">2016-06-08</td>
 <td align="left">2017-11-21</td>
-<td align="left">1,456,669</td>
+<td align="right">1456669</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4190, Incomer - All$4192, Kitchen Appliances$4187, Laundry$4188, Lighting$4189, Oven$4191</td>
@@ -1798,7 +4127,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,384,583</td>
+<td align="right">2384583</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4196, Hot Water - Controlled$4198, Incomer - All$4193, Kitchen Appliances$4195, Laundry$4194, Lighting$4197</td>
@@ -1808,7 +4137,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-04-05</td>
 <td align="left">2016-06-08</td>
 <td align="left">2016-09-20</td>
-<td align="left">542,484</td>
+<td align="right">542484</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4204, Hot Water - Controlled$4200, Incomer - All$4199, Kitchen Appliances$4201, Laundry$4202, Lighting$4203</td>
@@ -1818,7 +4147,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,402,121</td>
+<td align="right">3402121</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4211, Incomer - All$4213, Kitchen Appliances$4210, Laundry, Garage &amp; Guest Bed$4215, Lighting$4212, Oven$4214</td>
@@ -1828,7 +4157,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-10-18</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-09-28</td>
-<td align="left">890,700</td>
+<td align="right">890700</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pump$4219, Incomer - All$4221, Kitchen Appliances$4216, Laundry$4217, Lighting$4218, PV &amp; Garage$4220</td>
@@ -1838,7 +4167,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-05-26</td>
 <td align="left">2016-06-08</td>
 <td align="left">2016-09-19</td>
-<td align="left">87,417</td>
+<td align="right">87417</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pump$4223, Hot Water - Uncontrolled$4224, Incomer - All$4225, Kitchen Appliances$4226, Laundry &amp; Garage Freezer$4227, Lighting$4222</td>
@@ -1848,7 +4177,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-08-24</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-10-13</td>
-<td align="left">2,066,074</td>
+<td align="right">2066074</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pumps (2x) &amp; Power$4232, Heat Pumps (2x) &amp; Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms$4229, Kitchen &amp; Bedrooms$4402, Laundry &amp; Bedrooms$4228, Laundry &amp; Bedrooms$4403, Lighting$4233, Lighting$4404</td>
@@ -1858,7 +4187,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-02-19</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-02-21</td>
-<td align="left">1,684,742</td>
+<td align="right">1684742</td>
 </tr>
 <tr class="even">
 <td align="left">Heat Pumps (2x) &amp; Power1$4232, Heat Pumps (2x) &amp; Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms1$4229, Kitchen &amp; Bedrooms2$4402, Laundry &amp; Bedrooms1$4228, Laundry &amp; Bedrooms2$4403, Lighting1$4233, Lighting2$4404</td>
@@ -1868,7 +4197,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-11-20</td>
 <td align="left">2017-11-21</td>
 <td align="left">2017-11-21</td>
-<td align="left">582,988</td>
+<td align="right">582988</td>
 </tr>
 <tr class="odd">
 <td align="left">Heat Pumps (2x) &amp; Power_Imag$4399, Heat Pumps (2x) &amp; Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen &amp; Bedrooms_Imag$4402, Kitchen &amp; Bedrooms$4229, Laundry &amp; Bedrooms_Imag$4403, Laundry &amp; Bedrooms$4228, Lighting_Imag$4404, Lighting$4233</td>
@@ -1878,7 +4207,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-10-11</td>
 <td align="left">2016-09-29</td>
 <td align="left">2016-10-25</td>
-<td align="left">261,377</td>
+<td align="right">261377</td>
 </tr>
 <tr class="even">
 <td align="left">Heating$1633, Hot water$1636, Kitchen power$1632, Lights$1635, Mains$1634, Range$1637</td>
@@ -1888,7 +4217,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-10-20</td>
 <td align="left">2016-09-20</td>
 <td align="left">2016-09-30</td>
-<td align="left">855,836</td>
+<td align="right">855836</td>
 </tr>
 <tr class="odd">
 <td align="left">Hob$3954, Hot Water$3952, Incomer 1$3956, Incomer 2$3955, Laundry &amp; Kitchen Appliances$3951, Oven$3953</td>
@@ -1898,7 +4227,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-04-18</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">395,011</td>
+<td align="right">395011</td>
 </tr>
 <tr class="even">
 <td align="left">Hot Water (2 elements)$4247, Incomer - Uncontrolled$4248, Kitchen Appliances$4244, Lighting &amp; 2 Towel Rail$4245, Oven$4246</td>
@@ -1908,7 +4237,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,957,170</td>
+<td align="right">2957170</td>
 </tr>
 <tr class="odd">
 <td align="left">Hot Water - Controlled (HEMS)$2081, Incomer - Uncontrolled$2082, Kitchen, Laundry &amp; Ventilation$2084, Oven$2085, PV &amp; Storage$2083, Spa (HEMS)$2080</td>
@@ -1918,7 +4247,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">4,195,622</td>
+<td align="right">4195622</td>
 </tr>
 <tr class="even">
 <td align="left">Hot Water - Controlled$2102, Incomer - Uncontrolled$2101, Kitchen$2104, Laundry, Fridge &amp; Freezer$2105, Oven &amp; Hob$2103, PV$2106</td>
@@ -1928,7 +4257,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">4,146,391</td>
+<td align="right">4146391</td>
 </tr>
 <tr class="odd">
 <td align="left">Hot Water - Controlled$2129, Incomer 1 - Uncontrolled$2128, Incomer 2 - Uncontrolled$2130, Kitchen Appliances &amp; Ventilati$2131, Laundry &amp; Hob$2133, Oven$2132</td>
@@ -1938,7 +4267,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-06-11</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">543,098</td>
+<td align="right">543098</td>
 </tr>
 <tr class="even">
 <td align="left">Hot Water - Controlled$2236, Incomer - Uncontrolled$2237, Kitchen &amp; Laundry$2234, Lighting$2232, Oven$2235, Ventilation &amp; Lounge Power$2233</td>
@@ -1948,7 +4277,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-01-14</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-01-16</td>
-<td align="left">3,837,181</td>
+<td align="right">3837181</td>
 </tr>
 <tr class="odd">
 <td align="left">Hot Water - Controlled$2248, Incomer - Uncontrolled$2249, Kitchen$2246, Laundry, Downstairs &amp; Lounge$2245, Lighting$2244, Oven &amp; Hob$2247</td>
@@ -1958,7 +4287,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,907,116</td>
+<td align="right">2907116</td>
 </tr>
 <tr class="even">
 <td align="left">Hot Water - Controlled$2719, Incomer 1 - Uncont inc Stove$2718, Incomer 2 - Uncont inc Oven$2717, Kitchen Appliances$2715, Laundry &amp; Microwave$2720, Power Outlets$2716</td>
@@ -1968,7 +4297,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2017-12-30</td>
 <td align="left">2016-06-08</td>
 <td align="left">2017-12-31</td>
-<td align="left">2,654,180</td>
+<td align="right">2654180</td>
 </tr>
 <tr class="odd">
 <td align="left">Hot Water - Controlled$4144, Incomer - Uncontrolled$4143, Kitchen Appliances &amp; Heat Pump$4140, Laundry &amp; Teenagers Bedroom$4139, Lighting$4142, Oven, Hob &amp; Microwave$4141</td>
@@ -1978,7 +4307,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-06-08</td>
 <td align="left">2018-05-08</td>
-<td align="left">2,692,342</td>
+<td align="right">2692342</td>
 </tr>
 <tr class="even">
 <td align="left">Hot Water - Controlled$4238, Incomer - All$4239, Kitchen Appliances$4234, Laundry &amp; Kitchen$4235, Lighting$4236, Oven &amp; Hobb$4237</td>
@@ -1988,7 +4317,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2016-09-29</td>
 <td align="left">2016-05-25</td>
 <td align="left">2016-10-13</td>
-<td align="left">1,454,037</td>
+<td align="right">1454037</td>
 </tr>
 <tr class="odd">
 <td align="left">Incomer 1 - All$2703, Incomer 2 - All$2704, Kitchen Appliances$2706, Laundry, Sauna &amp; 2nd Fridge$2707, Oven$2705, Spa$2708</td>
@@ -1998,7 +4327,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,181,536</td>
+<td align="right">3181536</td>
 </tr>
 <tr class="even">
 <td align="left">Incomer 1 - Hot Water - Cont$2626, Incomer 2 - Uncontrolled$2625, Incomer 3 - Uncontrolled$2627, Kitchen Appliances &amp; Lounge$2630, Laundry, Fridge &amp; Microwave$2628, Oven$2629</td>
@@ -2008,7 +4337,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2015-06-02</td>
 <td align="left">2016-09-21</td>
 <td align="left">2016-09-21</td>
-<td align="left">410,063</td>
+<td align="right">410063</td>
 </tr>
 <tr class="odd">
 <td align="left">Incomer 1 - Uncontrolled$2726, Incomer 2 - Uncontrolled$2725, Kitchen Appliances &amp; Laundry$2722, Microwave$2721, Oven$2724, Workshop$2723</td>
@@ -2018,7 +4347,7 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-08</td>
 <td align="left">2016-05-25</td>
 <td align="left">2018-05-08</td>
-<td align="left">3,158,849</td>
+<td align="right">3158849</td>
 </tr>
 <tr class="even">
 <td align="left">Incomer 1 - inc Top Oven$5620, Incomer 2 - inc Bottom Oven$5621, Kitchen Appliances$5625, Laundry &amp; Garage$5624, Lighting 1/2$5623, Lighting 2/2$5622</td>
@@ -2028,10 +4357,13 @@ knitr::kable(caption = &quot;Circuit labels list by household&quot;, t)</code></
 <td align="left">2018-05-05</td>
 <td align="left">2017-01-11</td>
 <td align="left">2018-05-06</td>
-<td align="left">753,820</td>
+<td align="right">753820</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="observations" class="section level2">
+<h2><span class="header-section-number">5.2</span> Observations</h2>
 <p>The following plots show the number of observations per day per household. In theory we should not see:</p>
 <ul>
 <li>dates before 2014 or in to the future. These may indicate:
@@ -2476,12 +4808,13 @@ ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
 <pre class="r"><code>ggplot2::ggsave(paste0(outPath, &quot;gridSpyLiveHouseholdsToDate.png&quot;))</code></pre>
 <pre><code>## Saving 7 x 5 in image</code></pre>
 </div>
+</div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">6</span> Runtime</h1>
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 1.010560710^{4} seconds ( 168.43 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 1.042431710^{4} seconds ( 173.74 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>
