@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -278,7 +278,8 @@ if(nrow(fListCompleteDT) == 0){
     # set what we now know (or guess!)
     fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
   }
-      
+  fListCompleteDT <- setnames(fListCompleteDT, "V1", "file")
+  
   ofile <- paste0(outPath, fListInterim)
   print(paste0("Saving 1 minute data files interim metadata to ", ofile))
   write.csv(fListCompleteDT, ofile)
@@ -320,7 +321,7 @@ To help with data cleaning the following table lists files that are ambiguous.
 
 ```{r listAmbigFiles}
 # list ambigious files
-aList <- fListCompleteDT[dateFormat == "ambiguous", .(fullPath, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateFormat == "ambiguous", .(file, dateColName, dateExample, dateFormat)]
 
 cap <- paste0("All", nrow(aList), " files with an ambiguous dateFormat")
 
@@ -339,7 +340,7 @@ The following table lists 'date NZ' files which are set by default only - do the
 
 ```{r listDefaultDateFilesNZT}
 # list default files
-aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
 
 cap <- paste0("All", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
 
@@ -353,7 +354,7 @@ The following table lists the first 10 'date UTC' files which are set by default
 
 ```{r listDefaultDateFilesUTC}
 # list default files
-aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
 
 cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date UTC' and default dateFormat")
 
