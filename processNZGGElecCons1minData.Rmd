@@ -295,6 +295,8 @@ nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 
 Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteDT$hhID))` households. Of the `r tidyNum(nFiles)`,  `r tidyNum(nFilesNotLoaded)` (`r round(100*(nFilesNotLoaded/nFiles),2)`%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
 
+## Date format checks
+
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
 ```{r initialDateFormatTable}
@@ -317,7 +319,7 @@ Results to note:
  
 We now inspect the ambiguous and (some of) the default files.
 
-To help with data cleaning the following table lists files that are ambiguous.
+To help with data cleaning the following table lists files that have ambiguous dates.
 
 ```{r listAmbigFiles}
 # list ambigious files
