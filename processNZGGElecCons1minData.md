@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-10 16:04:53'
+date: 'Last run at: 2018-05-10 17:11:33'
 output:
   html_document:
     code_folding: hide
@@ -105,7 +105,7 @@ system.time(fListCompleteDT <- data.table::as.data.table(list.files(path = fpath
 
 ```
 ##    user  system elapsed 
-##   0.006   0.006   0.011
+##   0.006   0.007   0.017
 ```
 
 ```r
@@ -219,36 +219,40 @@ nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
 
 Overall we have 958 files from 2 households. Of the 958,  544 (56.78%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
 
+## Date format checks
+
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
 
 ```r
-# short cut if file list already saved ----
+# short cut if interim file list already saved ----
 #ifile <- paste0(outPath, fListInterim)
 #print(paste0("Loading 1 minute data files interim metadata to ", ifile))
 #fListCompleteDT <- fread(ifile)
   
   
-t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+t <- fListCompleteDT[, .(nFiles = .N, 
+                         minDate = min(dateExample), # may not make much sense
+                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files with given date column names by inferred date format", t)
+knitr::kable(caption = "Number of files & min/max date (as char) with given date column names by inferred date format", t)
 ```
 
 
 
-Table: Number of files with given date column names by inferred date format
+Table: Number of files & min/max date (as char) with given date column names by inferred date format
 
-dateColName                                dateFormat                                   nFiles
------------------------------------------  ------------------------------------------  -------
-date NZ                                    dmy - definite                                    1
-date NZ                                    mdy - definite                                    1
-date NZ                                    ymd - default (but day/month value <= 12)         1
-date NZ                                    ymd - definite                                    2
-date UTC                                   ambiguous                                         1
-date UTC                                   ymd - default (but day/month value <= 12)       161
-date UTC                                   ymd - definite                                  247
-unknown - file not loaded (fsize = 2751)   NA                                              302
-unknown - file not loaded (fsize = 43)     NA                                              242
+dateColName                                dateFormat                                   nFiles  minDate      maxDate    
+-----------------------------------------  ------------------------------------------  -------  -----------  -----------
+date NZ                                    dmy - definite                                    1  27/03/2015   27/03/2015 
+date NZ                                    mdy - definite                                    1  5/26/2016    5/26/2016  
+date NZ                                    ymd - default (but day/month value <= 12)         1  2014-01-06   2014-01-06 
+date NZ                                    ymd - definite                                    2  2014-05-24   2015-05-25 
+date UTC                                   ambiguous                                         1  11-10-16     11-10-16   
+date UTC                                   ymd - default (but day/month value <= 12)       161  2017-01-08   2018-02-12 
+date UTC                                   ymd - definite                                  247  2015-05-24   2018-02-19 
+unknown - file not loaded (fsize = 2751)   NA                                              302  NA           NA         
+unknown - file not loaded (fsize = 43)     NA                                              242  NA           NA         
 
 Results to note:
 
@@ -257,57 +261,64 @@ Results to note:
  
 We now inspect the ambiguous and (some of) the default files.
 
-To help with data cleaning the following table lists files that are ambiguous.
+To help with data cleaning the following table lists files that have ambiguous dates.
 
 
 ```r
 # list ambigious files
 aList <- fListCompleteDT[dateFormat == "ambiguous", .(file, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All", nrow(aList), " files with an ambiguous dateFormat")
+cap <- paste0("All ", nrow(aList), " files with an ambiguous dateFormat")
 
 knitr::kable(caption = cap, aList)
 ```
 
 
 
-Table: All1 files with an ambiguous dateFormat
+Table: All 1 files with an ambiguous dateFormat
 
 file                               dateColName   dateExample   dateFormat 
 ---------------------------------  ------------  ------------  -----------
 rf_46/12Oct2016-20Nov2017at1.csv   date UTC      11-10-16      ambiguous  
 
-Looking at the file names we will assume they are dmy.
+Check against file names to see what is reasonable and then fix them.
 
 
 ```r
+# Setting to dmy seems OK
 fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", dateFormat := "dmy - inferred"]
+
+paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
+```
+
+```
+## [1] "Fixed 1 files with an ambiguous dateFormat"
 ```
 
 
-The following table lists 'date NZ' files which are set by default only - do they look OK to assume dateFormat?
+The following table lists up to 10 of the 'date NZ' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
 
 ```r
 # list default files
 aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
+cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
 
-knitr::kable(caption = "Files with inferred default date formats", head(aList))
+knitr::kable(caption = cap, head(aList))
 ```
 
 
 
-Table: Files with inferred default date formats
+Table: First 10 (max) of 1 files with dateColName = 'date NZ' and default dateFormat
 
 file                                 fSize  dateColName   dateExample   dateFormat                                
 --------------------------------  --------  ------------  ------------  ------------------------------------------
 rf_01/1Jan2014-24May2014at1.csv    6255737  date NZ       2014-01-06    ymd - default (but day/month value <= 12) 
 
-These look OK if we compare the file names with the dateExample.
 
-The following table lists the first 10 'date UTC' files which are set by default only - do they look OK to assume dateFormat?
+
+The following table lists up to 10 of the 'date UTC' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
 
 ```r
@@ -336,30 +347,32 @@ rf_46/10Jul2017-11Jul2017at1.csv    291082  date UTC      2017-07-09    ymd - de
 rf_46/10Jun2017-11Jun2017at1.csv    295979  date UTC      2017-06-09    ymd - default (but day/month value <= 12) 
 rf_46/10Mar2017-11Mar2017at1.csv    290244  date UTC      2017-03-09    ymd - default (but day/month value <= 12) 
 
-These also look OK so we will stick with the following derived date formats:
+Check final date formats:
 
 
 ```r
-t <- fListCompleteDT[, .(nFiles = .N), keyby = .(dateColName, dateFormat)]
+t <- fListCompleteDT[, .(nFiles = .N, 
+                         minDate = min(dateExample), # may not make much sense
+                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files with given date column names by final imputed date format", t)
+knitr::kable(caption = "Number of files & min/max dates (as char) with given date column names by final imputed date format", t)
 ```
 
 
 
-Table: Number of files with given date column names by final imputed date format
+Table: Number of files & min/max dates (as char) with given date column names by final imputed date format
 
-dateColName                                dateFormat                                   nFiles
------------------------------------------  ------------------------------------------  -------
-date NZ                                    dmy - definite                                    1
-date NZ                                    mdy - definite                                    1
-date NZ                                    ymd - default (but day/month value <= 12)         1
-date NZ                                    ymd - definite                                    2
-date UTC                                   dmy - inferred                                    1
-date UTC                                   ymd - default (but day/month value <= 12)       161
-date UTC                                   ymd - definite                                  247
-unknown - file not loaded (fsize = 2751)   NA                                              302
-unknown - file not loaded (fsize = 43)     NA                                              242
+dateColName                                dateFormat                                   nFiles  minDate      maxDate    
+-----------------------------------------  ------------------------------------------  -------  -----------  -----------
+date NZ                                    dmy - definite                                    1  27/03/2015   27/03/2015 
+date NZ                                    mdy - definite                                    1  5/26/2016    5/26/2016  
+date NZ                                    ymd - default (but day/month value <= 12)         1  2014-01-06   2014-01-06 
+date NZ                                    ymd - definite                                    2  2014-05-24   2015-05-25 
+date UTC                                   dmy - inferred                                    1  11-10-16     11-10-16   
+date UTC                                   ymd - default (but day/month value <= 12)       161  2017-01-08   2018-02-12 
+date UTC                                   ymd - definite                                  247  2015-05-24   2018-02-19 
+unknown - file not loaded (fsize = 2751)   NA                                              302  NA           NA         
+unknown - file not loaded (fsize = 43)     NA                                              242  NA           NA         
 
 ## Data file quality checks
 
@@ -837,7 +850,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 386.417 seconds ( 6.44 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 391.077 seconds ( 6.52 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -890,3 +903,5 @@ sessionInfo()
 ## [28] compiler_3.4.4    pillar_1.2.2      scales_0.5.0.9000
 ## [31] backports_1.1.2   pkgconfig_2.0.1
 ```
+
+# References
