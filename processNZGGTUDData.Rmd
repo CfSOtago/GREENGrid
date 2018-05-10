@@ -40,7 +40,9 @@ outPath <- paste0(dPath, "Clean_data/safe/TUD/") # place to save them
 
 powerCoPath <- paste0(diaryPath, "Powerco/Powerco Annexes/")
 unisonPath <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diaries included/Cleaned excel data files/")
-  
+
+linkLUT <- paste0(dPath, "_RAW DATA/TUD_2_GridSpyLookup.xlsx")
+
 # Load greenGrid package ----
 library(greenGridr) # local utilities
 
@@ -82,15 +84,18 @@ Report circulation:
 
 This report is intended to: 
 
- * load and clean the project time use survey data
- * save the cleaned data out as a single file
+ * load and clean the two time use survey datasets
+ * save the cleaned data out to `r outPath` as two seperate files, one for each survey
  * produce summary data quality statistics
 
 ## Requirements:
 
- * time use survey data:
-   * PowerCo
-   * Unison
+Time use survey data held in `r diaryPath`:
+
+ * PowerCo
+ * Unison
+
+A lookup table to correct mis-coding of household IDs (`r linkLUT`).
 
 ## History
 
@@ -188,7 +193,7 @@ ggplot2::ggsave(paste0(outPath, "powerCoTUDdates.png"))
 
 ```
 
-
+In total we have `r nrow(tudPowerCoDT)` diaries from `r uniqueN(tudPowerCoDT$hhID)` PowerCo households.
 
 ## Unison
 
@@ -203,11 +208,21 @@ This consists of 5 files found in `r unisonPath`:
 As before these are copies of the original versions with slight editing to correct dates and for ease of processing. The relationship between them is currently unclear!
 
 ```{r getTUDUnison`}
+
+#fList <- c("TUDAdult_ONE_Child_Unison_forSAS_BA.xlsx", "TUDAdult_TWO_Children_Unison_forSAS_BA.xlsx",
+#           "TUDAdult-THREE-Children-Unison_forSAS_BA.xlsx", "TUDAdult-Unison-forSAS_BA.xlsx", "TUDTeenagerorChild-Unison_forSAS_BA.xlsx")
+
+# load and add sourceFile for easy tracking of errors
 tudUnison1chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult_ONE_Child_Unison_forSAS_BA.xlsx")))
+tudUnison1chDT$sourceFile <- "TUDAdult_ONE_Child_Unison_forSAS_BA.xlsx"
 tudUnison2chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult_TWO_Children_Unison_forSAS_BA.xlsx")))
+tudUnison2chDT$sourceFile <- "TUDAdult_TWO_Children_Unison_forSAS_BA.xlsx"
 tudUnison3chDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult-THREE-Children-Unison_forSAS_BA.xlsx")))
+tudUnison3chDT$sourceFile <- "TUDAdult-THREE-Children-Unison_forSAS_BA.xlsx"
 tudUnisonAdultDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDAdult-Unison-forSAS_BA.xlsx")))
+tudUnisonAdultDT$sourceFile <- "TUDAdult-Unison-forSAS_BA.xlsx"
 tudUnisonTeenChDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDTeenagerorChild-Unison_forSAS_BA.xlsx")))
+tudUnisonTeenChDT$sourceFile <- "TUDTeenagerorChild-Unison_forSAS_BA.xlsx"
 
 nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nrow(tudUnisonAdultDT) + nrow(tudUnisonTeenChDT)
 print(paste0("Found ", tidyNum(nRows), " rows in total"))
@@ -229,7 +244,7 @@ processUnison <- function(dt){
   #dt <- dt[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
   
   # Fix hhID ----
-  dt <- dt[, hhID := paste0("check_rf_", substr(code, 0, 2))] # extracts char 1
+  dt <- dt[, tudCode := substr(code, 0, 2)] # extracts char 1
 }
 
 tudUnison1chDT <- processUnison(tudUnison1chDT)
@@ -245,32 +260,30 @@ l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUniso
 tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
 
 # Check for non-parsed diary dates
-t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(r_diaryDate, hhID)])
+t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(r_diaryDate, tudCode)])
 knitr::kable(caption = "Test diaryDates that did not parse", t)
+
+# report edited diary dates (done in .xlsx)
+t <- tudUnisonAllDT[!is.na(dateNote),.(r_diaryDate, tudCode, dateNote, sourceFile)]
+knitr::kable(caption = "Report diaries with edited diary dates (done in .xlsx before loading)", t)
 
 # Summary table ----
 t <- tudUnisonAllDT[, .(nDiaries = .N,
                       minDiaryDate = min(r_diaryDate),
-                      maxDiaryDate = max(r_diaryDate)), keyby = .(hhID)]
+                      maxDiaryDate = max(r_diaryDate)), keyby = .(tudCode)]
 
 knitr::kable(caption = "Summary of Unison diaries by household", t)
-
-# save out safe file ----
-ofile <- paste0(outPath, "unisonTUDsafe.csv")
-print(paste0("Saving Unison cleaned time use diary to ", ofile))
-write.csv(tudUnisonAllDT, ofile)
-print("Done")
 ```
 
 All of the diaries should be in July/August 2015...
 
 ```{r unisonDiaryPLot}
-myCaption <- paste0("Data source: ", powerCoPath)
+myCaption <- paste0("Data source: ", unisonPath)
 
 plotDT <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(r_diaryDate)]
 ggplot2::ggplot(plotDT, aes(x = as.Date(r_diaryDate), y = nDiaries)) +
   geom_point() +
-    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 month") +
+    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Number of Unison diaries per day",
        caption = paste0(myCaption),
@@ -282,6 +295,45 @@ ggplot2::ggsave(paste0(outPath, "unisonTUDdates.png"))
 
 ```
 
+If any of them are earlier than July 2015 they are flagged below for ease of fixing.
+
+```{r listPossibleDateErrors}
+t <- tudUnisonAllDT[r_diaryDate < "2015-07-01", .(nDiaries = .N), keyby = .(r_diaryDate, tudCode, sourceFile)]
+cap <- paste0("Households with potential diary date errors")
+knitr::kable(caption = cap, t)
+```
+
+The tudCodes are _not_ the gridSpy ids, we need to create these from the unison sheet in `r linkLUT`.
+
+```{r fixLinkIDs}
+unisonLinkLUTDT <- data.table::as.data.table(read_xlsx(paste0(linkLUT), sheet = "unison"))
+
+knitr::kable(caption = "Linking table", unisonLinkLUTDT)
+
+tudUnisonAllDT <- tudUnisonAllDT[, linkCode := as.character(tudCode)]
+setkey(tudUnisonAllDT, linkCode)
+unisonLinkLUTDT <- unisonLinkLUTDT[, linkCode := as.character(CODE)]
+setkey(unisonLinkLUTDT, linkCode)
+
+tudUnisonAllDT <- tudUnisonAllDT[unisonLinkLUTDT] # link them
+
+tudUnisonAllDT <- tudUnisonAllDT[, hhID := tag_gridSpy_Hhid]
+
+# check
+
+t <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(linkCode, hhID)]
+knitr::kable(caption = "Check linkage: there should be 1 or 2 diaries for each combination", t)
+```
+
+In total we have `r nrow(tudUnisonAllDT)` diaries from `r uniqueN(tudUnisonAllDT$hhID)` Unison households.
+
+```{r saveUnison}
+# save out safe file ----
+ofile <- paste0(outPath, "unisonTUDsafe.csv")
+print(paste0("Saving Unison cleaned time use diary to ", ofile))
+write.csv(tudUnisonAllDT, ofile)
+print("Done")
+```
 
 # Runtime
 
