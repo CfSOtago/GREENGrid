@@ -156,8 +156,8 @@ tudPowerCoDT <- tudPowerCoDT[, hhID := ifelse(as.integer(HHCODE) < 10,
 # Summary table ----
 t <- tudPowerCoDT[, .(nDiaries = .N,
                       familySize = mean(ba_nPeople, na.rm = TRUE),
-                      minDiaryDate = min(r_Date),
-                      maxDiaryDate = max(r_Date)), keyby = .(hhID)]
+                      minDiaryDate = min(r_diaryDate),
+                      maxDiaryDate = max(r_diaryDate)), keyby = .(hhID)]
 
 knitr::kable(caption = "Summary of PowerCo diaries by household", t)
 
@@ -166,11 +166,15 @@ ofile <- paste0(outPath, "powerCoTUDsafe.csv")
 print(paste0("Saving PowerCo cleaned time use diary to ", ofile))
 write.csv(tudPowerCoDT, ofile)
 print("Done")
+```
 
+Should all be in August 2014...
+
+```{r powerCoDiaryPlot}
 myCaption <- paste0("Data source: ", powerCoPath)
 
-plotDT <- tudPowerCoDT[, .(nDiaries = .N), keyby = .(r_Date)]
-ggplot2::ggplot(plotDT, aes(x = r_Date, y = nDiaries)) +
+plotDT <- tudPowerCoDT[, .(nDiaries = .N), keyby = .(r_diaryDate)]
+ggplot2::ggplot(plotDT, aes(x = r_diaryDate, y = nDiaries)) +
   geom_point() +
     scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
@@ -212,29 +216,69 @@ print(paste0("Found ", tidyNum(nRows), " rows in total"))
 Now process the Unison data.
 
 ```{r processUnison}
-# Fix names of variables ----
-tudUnison1chDT <- data.table::setnames(tudUnison1chDT, 
-                                    c("Choose the date of your diary / entry:", "Please enter your designated / CODE"), 
-                                    c("diaryDate", "CODE")
-)
 
-# Fix dates ----
-tudUnison1chDT <- tudUnison1chDT[, r_diaryDate := lubridate::dmy(diaryDate)]
-tudUnison1chDT <- tudUnison1chDT[, r_surveyStart := lubridate::dmy_hms(StartDate)]
-tudUnison1chDT <- tudUnison1chDT[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
+processUnison <- function(dt){
+  # Fix names of variables ----
+  # do not rename as it's then hard to trace errors
+  dt <- dt[, r_diaryDate := `Choose the date of your diary / entry:`]
+  dt <- dt[, code := `Please enter your designated / CODE`]
 
-# Fix hhID ----
-tudUnison1chDT <- tudUnison1chDT[, hhID := (CODE)]
+  # Fix dates ----
+  #dt <- dt[, r_diaryDate := lubridate::dmy(diaryDate)] # not needed as read_xls gets it right :-)
+  #dt <- dt[, r_surveyStart := lubridate::dmy_hms(StartDate)]
+  #dt <- dt[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
+  
+  # Fix hhID ----
+  dt <- dt[, hhID := paste0("check_rf_", substr(code, 0, 2))] # extracts char 1
+}
+
+tudUnison1chDT <- processUnison(tudUnison1chDT)
+tudUnison2chDT <- processUnison(tudUnison2chDT)
+tudUnison3chDT <- processUnison(tudUnison3chDT)
+tudUnisonAdultDT <- processUnison(tudUnisonAdultDT)
+tudUnisonTeenChDT <- processUnison(tudUnisonTeenChDT)
+
+
 # join them together ----
 # column name explosion
 l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUnisonTeenChDT)
 tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
+
+# Check for non-parsed diary dates
+t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(r_diaryDate, hhID)])
+knitr::kable(caption = "Test diaryDates that did not parse", t)
+
+# Summary table ----
+t <- tudUnisonAllDT[, .(nDiaries = .N,
+                      minDiaryDate = min(r_diaryDate),
+                      maxDiaryDate = max(r_diaryDate)), keyby = .(hhID)]
+
+knitr::kable(caption = "Summary of Unison diaries by household", t)
 
 # save out safe file ----
 ofile <- paste0(outPath, "unisonTUDsafe.csv")
 print(paste0("Saving Unison cleaned time use diary to ", ofile))
 write.csv(tudUnisonAllDT, ofile)
 print("Done")
+```
+
+All of the diaries should be in July/August 2015...
+
+```{r unisonDiaryPLot}
+myCaption <- paste0("Data source: ", powerCoPath)
+
+plotDT <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(r_diaryDate)]
+ggplot2::ggplot(plotDT, aes(x = as.Date(r_diaryDate), y = nDiaries)) +
+  geom_point() +
+    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Number of Unison diaries per day",
+       caption = paste0(myCaption),
+       x = "Date",
+       y = "Total number of diaries"
+    
+  )
+ggplot2::ggsave(paste0(outPath, "unisonTUDdates.png"))
 
 ```
 
