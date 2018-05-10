@@ -320,9 +320,11 @@ To help with data cleaning the following table lists files that are ambiguous.
 
 ```{r listAmbigFiles}
 # list ambigious files
-aList <- fListCompleteDT[dateFormat == "ambiguous", .(file = V1, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateFormat == "ambiguous", .(fullPath, dateColName, dateExample, dateFormat)]
 
-knitr::kable(caption = "Files with ambigious date formats", aList)
+cap <- paste0("All", nrow(aList), " files with an ambiguous dateFormat")
+
+knitr::kable(caption = cap, aList)
 
 ```
 
@@ -339,19 +341,23 @@ The following table lists 'date NZ' files which are set by default only - do the
 # list default files
 aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
 
+cap <- paste0("All", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
+
 knitr::kable(caption = "Files with inferred default date formats", head(aList))
 
 ```
 
 These look OK if we compare the file names with the dateExample.
 
-The following table lists 'date NZ' files which are set by default only - do they look OK to assume dateFormat?
+The following table lists the first 10 'date UTC' files which are set by default only - do they look OK to assume dateFormat?
 
 ```{r listDefaultDateFilesUTC}
 # list default files
 aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", .(file = V1, fSize, dateColName, dateExample, dateFormat)]
 
-knitr::kable(caption = "Files with inferred default date formats", head(aList))
+cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date UTC' and default dateFormat")
+
+knitr::kable(caption = cap, head(aList, 10))
 
 
 ```
@@ -596,7 +602,12 @@ ggplot2::ggplot(t, aes(y = hhID, x = circuitLabels, fill = nObs)) +
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileCircuitLabelsPlot.png"))
 ```
 
-The following table provides more detail to aid error checking. If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
+The following table provides more detail to aid error checking. Check for:
+
+ * 2+ adjacent rows which have exactly the same circuit labels but different hh_ids. This implies some data from one household has been saved in the wrong folder;
+ * 2+ adjacent rows which have different circuit labels but identical hh_ids. This could imply the same thing but is more likely to be errors/changes to the circuit labelling. 
+ 
+If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
 
 ```{r circuitLabelMetaDataCheck}
 knitr::kable(caption = "Circuit labels by household with addiitonal meta-data", t)
