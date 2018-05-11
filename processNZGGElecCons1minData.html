@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity power data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-10 17:11:33</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-11 16:05:33</em></h4>
 
 </div>
 
@@ -308,7 +308,7 @@ div.tocify {
 <pre class="r"><code>system.time(fListCompleteDT &lt;- data.table::as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
                                             recursive = TRUE)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.006   0.007   0.017</code></pre>
+##   0.005   0.006   0.012</code></pre>
 <pre class="r"><code>nFiles &lt;- nrow(fListCompleteDT)
 print(paste0(&quot;Found &quot;, tidyNum(nFiles), &quot; files&quot;))</code></pre>
 <pre><code>## [1] &quot;Found 958 files&quot;</code></pre>
@@ -830,11 +830,11 @@ fListCompleteDT &lt;- fListCompleteDT[, fileLoaded := &quot;No&quot;] # set defa
 hhIDs &lt;- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT &lt;- data.table::data.table() # stats collector
 
-for(hh in hhIDs){
+for(hh in hhIDs){ #&gt;&gt; start of household loop ----
   tempHhDT &lt;- data.table::data.table() # hh data collector
   print(paste0(&quot;Loading: &quot;, hh))
   filesToLoad &lt;- filesToLoadDT[hhID == hh, fullPath]
-  for(f in filesToLoad){
+  for(f in filesToLoad){ # &gt;&gt; start of per-file loop ----
     if(fullFb){print(paste0(&quot;File size (&quot;, f, &quot;) = &quot;, 
                             filesToLoadDT[fullPath == f, fSize], 
                             &quot; so probably OK&quot;))} # files under 3kb are probably empty
@@ -855,7 +855,8 @@ for(hh in hhIDs){
         tempDT &lt;- tempDT[, dateColName := &quot;date UTC&quot;]
       }
       
-      # Now use the pre-inferred dateFormat
+    # &gt; Fix dates ----
+    # Using the pre-inferred dateFormat
       tempDT &lt;- tempDT[, dateFormat := filesToLoadDT[fullPath == f, dateFormat]]
       tempDT &lt;- tempDT[dateFormat %like% &quot;mdy&quot; &amp; dateColName %like% &quot;NZ&quot;, r_dateTime := lubridate::mdy_hm(dateTime_char, tz = &quot;Pacific/Auckland&quot;)] # requires lubridate
       tempDT &lt;- tempDT[dateFormat %like% &quot;dmy&quot; &amp; dateColName %like% &quot;NZ&quot;, r_dateTime := lubridate::dmy_hm(dateTime_char, tz = &quot;Pacific/Auckland&quot;)] # requires lubridate
@@ -879,6 +880,53 @@ for(hh in hhIDs){
     fListCompleteDT &lt;- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT, 
                                                                                       dplyr::contains(&quot;$&quot;)))] # check for the number of circuits - all seem to contain &quot;$&quot;
     #tempDT &lt;- tempDT[, sourceFile := f] # record for later checks - breaks de-duplication code
+    
+    # &gt; Fix circuit labels where we have noticed errors ----
+    # rf_24 has an additional circuit in some files but value is always NA
+    # rf_46 has 3 different versions of the circuit labels:
+    # 1: Heat Pumps (2x) &amp; Power$4232, Heat Pumps (2x) &amp; Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms$4229, Kitchen &amp; Bedrooms$4402, Laundry &amp; Bedrooms$4228, Laundry &amp; Bedrooms$4403, Lighting$4233, Lighting$4404
+    # 2: Heat Pumps (2x) &amp; Power1$4232, Heat Pumps (2x) &amp; Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen &amp; Bedrooms1$4229, Kitchen &amp; Bedrooms2$4402, Laundry &amp; Bedrooms1$4228, Laundry &amp; Bedrooms2$4403, Lighting1$4233, Lighting2$4404
+    # 3: Heat Pumps (2x) &amp; Power_Imag$4399, Heat Pumps (2x) &amp; Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen &amp; Bedrooms_Imag$4402, Kitchen &amp; Bedrooms$4229, Laundry &amp; Bedrooms_Imag$4403, Laundry &amp; Bedrooms$4228, Lighting_Imag$4404, Lighting$4233
+    # Fix to just the first (might also fix duplication of observations)
+    if(hh == &quot;rf_46&quot;){
+      if(fullFb){print(&quot;Checking circuit labels for rf_46&quot;)}
+      # check if we have the second form of labels - they have &#39;Power1$4232&#39; in one col label
+      checkCols2 &lt;- ncol(dplyr::select(tempDT,dplyr::contains(&quot;Power1$4232&quot;)))
+      if(checkCols2 == 1){
+        # we got label set 2
+        if(fullFb){print(paste0(&quot;Found circuit labels set 2 in &quot;, f))}
+        setnames(tempDT, c(&quot;Heat Pumps (2x) &amp; Power1$4232&quot;, &quot;Heat Pumps (2x) &amp; Power2$4399&quot;, 
+                           &quot;Hot Water - Controlled1$4231&quot;, &quot;Hot Water - Controlled2$4400&quot;, 
+                           &quot;Incomer - Uncontrolled1$4230&quot;, &quot;Incomer - Uncontrolled2$4401&quot;, 
+                           &quot;Incomer Voltage$4405&quot;, &quot;Kitchen &amp; Bedrooms1$4229&quot;, 
+                           &quot;Kitchen &amp; Bedrooms2$4402&quot;,&quot;Laundry &amp; Bedrooms1$4228&quot;, 
+                           &quot;Laundry &amp; Bedrooms2$4403&quot;, &quot;Lighting1$4233&quot;, &quot;Lighting2$4404&quot;), 
+                 c(&quot;Heat Pumps (2x) &amp; Power$4232&quot;, &quot;Heat Pumps (2x) &amp; Power$4399&quot;, &quot;Hot Water - Controlled$4231&quot;,
+                   &quot;Hot Water - Controlled$4400&quot;, &quot;Incomer - Uncontrolled$4230&quot;, &quot;Incomer - Uncontrolled$4401&quot;,
+                   &quot;Incomer Voltage$4405&quot;, &quot;Kitchen &amp; Bedrooms$4229&quot;, &quot;Kitchen &amp; Bedrooms$4402&quot;, 
+                   &quot;Laundry &amp; Bedrooms$4228&quot;, &quot;Laundry &amp; Bedrooms$4403&quot;, &quot;Lighting$4233&quot;, &quot;Lighting$4404&quot;))
+      }
+      # check if we have the third form of labels - they have &#39;Power_Imag$4399&#39; in one col label
+      checkCols3 &lt;- ncol(dplyr::select(tempDT,dplyr::contains(&quot;Power_Imag$4399&quot;)))
+      if(checkCols3 == 1){
+        # we got label set 3
+        if(fullFb){print(paste0(&quot;Found circuit labels set 3 in &quot;, f))}
+        # be careful to get this order correct so that it matches the label 1 order
+        setnames(tempDT, c(&quot;Heat Pumps (2x) &amp; Power$4232&quot;, &quot;Heat Pumps (2x) &amp; Power_Imag$4399&quot;,
+                           &quot;Hot Water - Controlled$4231&quot;, &quot;Hot Water - Controlled_Imag$4400&quot;, 
+                           &quot;Incomer - Uncontrolled$4230&quot;, &quot;Incomer - Uncontrolled_Imag$4401&quot;, &quot;Incomer Voltage$4405&quot;,
+                           &quot;Kitchen &amp; Bedrooms$4229&quot;, &quot;Kitchen &amp; Bedrooms_Imag$4402&quot;, 
+                           &quot;Laundry &amp; Bedrooms$4228&quot;, &quot;Laundry &amp; Bedrooms_Imag$4403&quot;, 
+                           &quot;Lighting$4233&quot;, &quot;Lighting_Imag$4404&quot;), 
+                 c(&quot;Heat Pumps (2x) &amp; Power$4232&quot;, &quot;Heat Pumps (2x) &amp; Power$4399&quot;, 
+                   &quot;Hot Water - Controlled$4231&quot;, &quot;Hot Water - Controlled$4400&quot;, 
+                   &quot;Incomer - Uncontrolled$4230&quot;, &quot;Incomer - Uncontrolled$4401&quot;, &quot;Incomer Voltage$4405&quot;, 
+                   &quot;Kitchen &amp; Bedrooms$4229&quot;, &quot;Kitchen &amp; Bedrooms$4402&quot;, 
+                   &quot;Laundry &amp; Bedrooms$4228&quot;, &quot;Laundry &amp; Bedrooms$4403&quot;,
+                   &quot;Lighting$4233&quot;, &quot;Lighting$4404&quot;))
+      }
+    }
+    
     # rbind to hh data collector
     tempHhDT &lt;- rbind(tempHhDT, tempDT, fill = TRUE) # fill just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
   }
@@ -905,7 +953,8 @@ for(hh in hhIDs){
   hhStatDT &lt;- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # &gt; Save hh file ----
-  
+  # add hhid for ease of future loading etc
+  tempHhDT &lt;- tempHhDT[, hhID := hh]
   ofile &lt;- paste0(outPath, &quot;data/&quot;, hh,&quot;_all_1min_data.csv&quot;)
   print(paste0(&quot;Saving &quot;, ofile, &quot;...&quot;))
   write_csv(tempHhDT, ofile)
@@ -1074,6 +1123,10 @@ ggplot2::ggplot(t, aes(y = hhID, x = circuitLabels, fill = nObs)) +
 </tr>
 </tbody>
 </table>
+<p>Things to note:</p>
+<ul>
+<li>rf_25 has an aditional unexpected “Incomer 1 - Uncontrolled$2757” circuit in some files but it’s value is always NA</li>
+</ul>
 </div>
 <div id="observations" class="section level2">
 <h2><span class="header-section-number">5.2</span> Observations</h2>
@@ -1161,7 +1214,7 @@ knitr::kable(caption = &quot;Summary observation stats by hhID&quot;, t)</code><
 <tr class="even">
 <td align="left">rf_46</td>
 <td align="right">305</td>
-<td align="right">3000</td>
+<td align="right">1500</td>
 <td align="right">13</td>
 <td align="left">2015-03-26</td>
 <td align="left">2018-02-19</td>
@@ -1191,7 +1244,7 @@ ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
 <pre class="r"><code>t &lt;- proc.time() - startTime
 
 elapsed &lt;- t[[3]]</code></pre>
-<p>Analysis completed in 391.077 seconds ( 6.52 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 259.762 seconds ( 4.33 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>

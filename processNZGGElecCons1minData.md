@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-10 17:11:33'
+date: 'Last run at: 2018-05-11 16:05:33'
 output:
   html_document:
     code_folding: hide
@@ -105,7 +105,7 @@ system.time(fListCompleteDT <- data.table::as.data.table(list.files(path = fpath
 
 ```
 ##    user  system elapsed 
-##   0.006   0.007   0.017
+##   0.005   0.006   0.012
 ```
 
 ```r
@@ -485,11 +485,11 @@ fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"] # set default
 hhIDs <- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT <- data.table::data.table() # stats collector
 
-for(hh in hhIDs){
+for(hh in hhIDs){ #>> start of household loop ----
   tempHhDT <- data.table::data.table() # hh data collector
   print(paste0("Loading: ", hh))
   filesToLoad <- filesToLoadDT[hhID == hh, fullPath]
-  for(f in filesToLoad){
+  for(f in filesToLoad){ # >> start of per-file loop ----
     if(fullFb){print(paste0("File size (", f, ") = ", 
                             filesToLoadDT[fullPath == f, fSize], 
                             " so probably OK"))} # files under 3kb are probably empty
@@ -510,7 +510,8 @@ for(hh in hhIDs){
         tempDT <- tempDT[, dateColName := "date UTC"]
       }
       
-      # Now use the pre-inferred dateFormat
+    # > Fix dates ----
+    # Using the pre-inferred dateFormat
       tempDT <- tempDT[, dateFormat := filesToLoadDT[fullPath == f, dateFormat]]
       tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "NZ", r_dateTime := lubridate::mdy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
       tempDT <- tempDT[dateFormat %like% "dmy" & dateColName %like% "NZ", r_dateTime := lubridate::dmy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
@@ -534,6 +535,53 @@ for(hh in hhIDs){
     fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT, 
                                                                                       dplyr::contains("$")))] # check for the number of circuits - all seem to contain "$"
     #tempDT <- tempDT[, sourceFile := f] # record for later checks - breaks de-duplication code
+    
+    # > Fix circuit labels where we have noticed errors ----
+    # rf_24 has an additional circuit in some files but value is always NA
+    # rf_46 has 3 different versions of the circuit labels:
+    # 1: Heat Pumps (2x) & Power$4232, Heat Pumps (2x) & Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen & Bedrooms$4229, Kitchen & Bedrooms$4402, Laundry & Bedrooms$4228, Laundry & Bedrooms$4403, Lighting$4233, Lighting$4404
+    # 2: Heat Pumps (2x) & Power1$4232, Heat Pumps (2x) & Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen & Bedrooms1$4229, Kitchen & Bedrooms2$4402, Laundry & Bedrooms1$4228, Laundry & Bedrooms2$4403, Lighting1$4233, Lighting2$4404
+    # 3: Heat Pumps (2x) & Power_Imag$4399, Heat Pumps (2x) & Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen & Bedrooms_Imag$4402, Kitchen & Bedrooms$4229, Laundry & Bedrooms_Imag$4403, Laundry & Bedrooms$4228, Lighting_Imag$4404, Lighting$4233
+    # Fix to just the first (might also fix duplication of observations)
+    if(hh == "rf_46"){
+      if(fullFb){print("Checking circuit labels for rf_46")}
+      # check if we have the second form of labels - they have 'Power1$4232' in one col label
+      checkCols2 <- ncol(dplyr::select(tempDT,dplyr::contains("Power1$4232")))
+      if(checkCols2 == 1){
+        # we got label set 2
+        if(fullFb){print(paste0("Found circuit labels set 2 in ", f))}
+        setnames(tempDT, c("Heat Pumps (2x) & Power1$4232", "Heat Pumps (2x) & Power2$4399", 
+                           "Hot Water - Controlled1$4231", "Hot Water - Controlled2$4400", 
+                           "Incomer - Uncontrolled1$4230", "Incomer - Uncontrolled2$4401", 
+                           "Incomer Voltage$4405", "Kitchen & Bedrooms1$4229", 
+                           "Kitchen & Bedrooms2$4402","Laundry & Bedrooms1$4228", 
+                           "Laundry & Bedrooms2$4403", "Lighting1$4233", "Lighting2$4404"), 
+                 c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power$4399", "Hot Water - Controlled$4231",
+                   "Hot Water - Controlled$4400", "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled$4401",
+                   "Incomer Voltage$4405", "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms$4402", 
+                   "Laundry & Bedrooms$4228", "Laundry & Bedrooms$4403", "Lighting$4233", "Lighting$4404"))
+      }
+      # check if we have the third form of labels - they have 'Power_Imag$4399' in one col label
+      checkCols3 <- ncol(dplyr::select(tempDT,dplyr::contains("Power_Imag$4399")))
+      if(checkCols3 == 1){
+        # we got label set 3
+        if(fullFb){print(paste0("Found circuit labels set 3 in ", f))}
+        # be careful to get this order correct so that it matches the label 1 order
+        setnames(tempDT, c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power_Imag$4399",
+                           "Hot Water - Controlled$4231", "Hot Water - Controlled_Imag$4400", 
+                           "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled_Imag$4401", "Incomer Voltage$4405",
+                           "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms_Imag$4402", 
+                           "Laundry & Bedrooms$4228", "Laundry & Bedrooms_Imag$4403", 
+                           "Lighting$4233", "Lighting_Imag$4404"), 
+                 c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power$4399", 
+                   "Hot Water - Controlled$4231", "Hot Water - Controlled$4400", 
+                   "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled$4401", "Incomer Voltage$4405", 
+                   "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms$4402", 
+                   "Laundry & Bedrooms$4228", "Laundry & Bedrooms$4403",
+                   "Lighting$4233", "Lighting$4404"))
+      }
+    }
+    
     # rbind to hh data collector
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # fill just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
   }
@@ -560,7 +608,8 @@ for(hh in hhIDs){
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # > Save hh file ----
-  
+  # add hhid for ease of future loading etc
+  tempHhDT <- tempHhDT[, hhID := hh]
   ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
   print(paste0("Saving ", ofile, "..."))
   write_csv(tempHhDT, ofile)
@@ -716,6 +765,10 @@ Heat Pumps (2x) & Power1$4232, Heat Pumps (2x) & Power2$4399, Hot Water - Contro
 Heat Pumps (2x) & Power_Imag$4399, Heat Pumps (2x) & Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen & Bedrooms_Imag$4402, Kitchen & Bedrooms$4229, Laundry & Bedrooms_Imag$4403, Laundry & Bedrooms$4228, Lighting_Imag$4404, Lighting$4233   rf_46         2  2015-03-26   2016-10-11   2016-09-29    2016-10-25      261377
 Heating$1633, Hot water$1636, Kitchen power$1632, Lights$1635, Mains$1634, Range$1637                                                                                                                                                                                                                                                                                  rf_01         3  2014-01-05   2015-10-20   2016-09-20    2016-09-30      855836
 
+Things to note:
+
+ * rf_25 has an aditional unexpected "Incomer 1 - Uncontrolled$2757" circuit in some files but it's value is always NA
+ 
 ## Observations
 
 The following plots show the number of observations per day per household. In theory we should not see:
@@ -809,7 +862,7 @@ Table: Summary observation stats by hhID
 hhID     minObs   maxObs   meanNDataColumns  minDate      maxDate    
 ------  -------  -------  -----------------  -----------  -----------
 rf_01       171     1500                  6  2014-01-05   2015-10-20 
-rf_46       305     3000                 13  2015-03-26   2018-02-19 
+rf_46       305     1500                 13  2015-03-26   2018-02-19 
 
 
 Finally we show the total number of households which we think are still sending data.
@@ -850,7 +903,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in 391.077 seconds ( 6.52 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 259.762 seconds ( 4.33 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
