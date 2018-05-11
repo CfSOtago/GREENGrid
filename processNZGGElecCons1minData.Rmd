@@ -583,7 +583,8 @@ for(hh in hhIDs){ #>> start of household loop ----
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
   
   # > Save hh file ----
-  
+  # add hhid for ease of future loading etc
+  tempHhDT <- tempHhDT[, hhID := hh]
   ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
   print(paste0("Saving ", ofile, "..."))
   write_csv(tempHhDT, ofile)
