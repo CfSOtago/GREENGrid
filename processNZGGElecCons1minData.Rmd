@@ -460,7 +460,7 @@ fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"] # set default
 hhIDs <- unique(filesToLoadDT$hhID) # list of household ids
 hhStatDT <- data.table::data.table() # stats collector
 
-for(hh in hhIDs){ #>> start of household loop ----
+for(hh in hhIDs){ #> start of household loop ----
   tempHhDT <- data.table::data.table() # hh data collector
   print(paste0("Loading: ", hh))
   filesToLoad <- filesToLoadDT[hhID == hh, fullPath]
@@ -485,7 +485,7 @@ for(hh in hhIDs){ #>> start of household loop ----
         tempDT <- tempDT[, dateColName := "date UTC"]
       }
       
-    # > Fix dates ----
+    # >> Fix dates ----
     # Using the pre-inferred dateFormat
       tempDT <- tempDT[, dateFormat := filesToLoadDT[fullPath == f, dateFormat]]
       tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "NZ", r_dateTime := lubridate::mdy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
@@ -505,13 +505,8 @@ for(hh in hhIDs){ #>> start of household loop ----
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
     fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)]
-    fListCompleteDT <- fListCompleteDT[fullPath == f, circuitLabels := toString(sort(colnames(dplyr::select(tempDT, 
-                                                                                                            dplyr::contains("$")))))] # check the names of circuits - all seem to contain "$"; sort them to make it easier to compare them - this is the only way we have to check if data from different households has been placed in the wrong folder.
-    fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT, 
-                                                                                      dplyr::contains("$")))] # check for the number of circuits - all seem to contain "$"
-    #tempDT <- tempDT[, sourceFile := f] # record for later checks - breaks de-duplication code
     
-    # > Fix circuit labels where we have noticed errors ----
+    # >> Fix circuit labels where we have noticed errors ----
     # rf_24 has an additional circuit in some files but value is always NA
     # rf_46 has 3 different versions of the circuit labels:
     # 1: Heat Pumps (2x) & Power$4232, Heat Pumps (2x) & Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen & Bedrooms$4229, Kitchen & Bedrooms$4402, Laundry & Bedrooms$4228, Laundry & Bedrooms$4403, Lighting$4233, Lighting$4404
@@ -556,8 +551,17 @@ for(hh in hhIDs){ #>> start of household loop ----
                    "Lighting$4233", "Lighting$4404"))
       }
     }
+    # >> Check circuit labels to see if any remaining errors ----
+    # check the names of circuits - all seem to contain "$"; sort them to make it easier to compare them - this is the only way we have to check if data from different households has been placed in the wrong folder.
+    fListCompleteDT <- fListCompleteDT[fullPath == f, 
+                                       circuitLabels := toString(sort(colnames(dplyr::select(tempDT,
+                                                                                             dplyr::contains("$")))))] 
+    # check for the number of circuits - all seem to contain "$"
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT, 
+                                                                                      dplyr::contains("$")))] 
+    #tempDT <- tempDT[, sourceFile := f] # record for later checks - don't as it breaks de-duplication code
     
-    # rbind to hh data collector
+    # >> rbind file to hh data collector ----
     tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # fill just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
   }
   
