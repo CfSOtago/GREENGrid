@@ -1,247 +1,262 @@
 # About ----
-# Code to process raw NZ GREEN Grid electricity demand data as downloaded from gridSpy
+# Code to process raw 1minute NZ GREEN Grid electricity load (power) data as downloaded from gridSpy
 # Purpose:
 # - process & (slightly) clean  raw data
 # - save data to 1 .csv.gz file per household
 # - report data processing/file info
+# Assumes:
+# - a data.table called fListCompleteDT with all the files you want to process exists & has relevant metadata
 
 # It won't work without the data so you will need access to it!
 
-# Libraries ----
-library(data.table) # for data munching
-library(lubridate) # for date munching - keep here otherwise data.table masks various functions
-library(readr) # for reading/writing csv
-library(ggplot2) # for fancy graphs
-library(dplyr) # for select and contains
-library(greenGridr) # local utilities
+# Setup ----
+#> Script parameters ----
+fListFinal <- "fListCompleteDT_final.csv" # place to store the final complete file list with all meta-data
 
-# Housekeeping ----
-rm(list=ls(all=TRUE)) # remove all objects from workspace
+# > Script libraries ----
+localLibs <- c("data.table", # for data munching
+             "lubridate", # for date/time munching
+             "readr", # for read/write_csv
+             "dplyr", # for select columns
+             "progress" # for a nice progress bar
 
-# Set start time ----
-startTime <- proc.time()
+)
 
-# Local parameters ----
+nzGREENGrid::loadLibraries(localLibs)
 
-#dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/"
-dPath <- "~/Data/NZGreenGrid/gridspy/"
+#> Script functions ----
 
-#fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-fpath <- paste0(dPath,"1min_orig/") # location of data
+gs_checkDates <- function(dt) {
+  # move to package?
+  # Check the date format as it could be y-m-d or d/m/y or m/d/y :-(
+  dt <- dt[, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "/")]
+  # if this split failed then tstrsplit puts the dateVar in each one so we can check
+  # this assumes we never have 9-9-9 10-10-10 or 11-11-11 or 12-12-12 !
+  # would be better if data.table::tstrsplit returned an error if the split failed? We could then check for NA?
+  dt <- dt[, splitFailed := ifelse(date_char1 == date_char2 & date_char1 == date_char3, TRUE, FALSE)]
+  # and then split on / instead
+  dt <- dt[splitFailed == TRUE, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
 
-pattern1Min <- "*at1.csv$" # e.g. *at1.csv$ filters only 1 min data
+  dt$dateFormat <- "ambiguous" # default
+  # Days: 1-31
+  # Months: 1 - 12
+  # Years: could be 2 digit 15 - 18 or 4 digit 2015 - 2018 (+)
+  max1 <- max(as.integer(dt$date_char1))
+  #print(paste0("max1 = " , max1))
+  max2 <- max(as.integer(dt$date_char2))
+  #print(paste0("max2 = " , max2))
+  max3 <- max(as.integer(dt$date_char3))
+  #print(paste0("max3 = " , max3))
 
-#outPath <- paste0(dPath, "Clean_data/gridSpy/") # place to save them - add "1min/" for folder etc
-outPath <- paste0(dPath, "consolidated/")
-
-indexFile <- "fListCompleteDT.csv"
-
-dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
-
-# Code: ----
-# > Get the file listing ----
-
-# First check if the complete file list exists and it was created today
-fListComplete <- paste0(outPath, indexFile)
-if(file.exists(fListComplete)){
-  print("1 minute data index file exists...")
-  dateCreated <- as.Date(file.mtime(fListComplete))
-  if( dateCreated == Sys.Date())
-    print(paste0("and it was created today (",dateCreated, ") so re-using."))
-    fListCompleteDT <- fread(fListComplete) 
-} else {
-  # create from scratch
-  print("1 minute data index file does not exist and/or it was not created today day so re-create...")
-  print(paste0("Looking for 1 minute data using pattern = ", pattern1Min, " in ", fpath))
-  fListCompleteDT <- as.data.table(list.files(path = fpath, pattern = pattern1Min, # use the default pattern to filter e.g. 1m from 30s files
-                                      recursive = TRUE))
-  if(nrow(fListCompleteDT) == 0){
-    stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
-  } else {
-    fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := tstrsplit(V1, "/")]
-    fListCompleteDT <- fListCompleteDT[, fullPath := paste0(fpath, hhID,"/",fileName)]
-    print("Saving 1 minute data index file...")
-    write.csv(fListCompleteDT, paste0(outPath, indexFile))
-    print("Done")
-  }
-}
-
-# So now we have a file list
-print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(fListCompleteDT$hhID), " households."))
-
-# > Load, process & save the ones which probably have data ----
-
-hhIDs <- unique(fListCompleteDT$hhID) # list of household ids
-hhStatDT <- data.table() # stats collector
-for(hh in hhIDs){
-  print(paste0("Loading: ", hh))
-  tempHhDT <- data.table() # create data.table to hold file contents
-  filesToLoad <- fListCompleteDT[hhID == hh, fullPath]
-  for(f in filesToLoad){
-    # check file
-    # print(paste0("Checking: ", f))
-    rf <- path.expand(f) # just in case of ~ etc
-    fsize <- file.size(rf)
-    fmtime <- ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
-    fListCompleteDT <- fListCompleteDT[fullPath == f, fSize := fsize]
-    fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
-    fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
-    if(fsize > dataThreshold){ # set above - if OK, load file
-      print(paste0("File size (", f, ") = ", file.size(f), " so probably OK")) # files under 3kb are probably empty
-      # attempt to load the file
-      tempDT <- fread(f)
-      # set some file stats
-      fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
-      fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
-      if(nrow(select(tempDT, contains("NZ"))) > 0){ # requires dplyr
-        # => there is at least 1 column whose name contains NZ so we have NZ time
-        setnames(tempDT, 'date NZ', "date_NZ")
-        # Check the date format as it could be y-m-d or d/m/y :-(
-        tempDT <- tempDT[, testDate := ifelse(substr(date_NZ,2,2) == "/" | # day is 1 digit
-                                                substr(date_NZ,3,3) == "/" , # day is 2 digits
-                                              "dmy", "ymd")] # if there is a "/" then it is d/m/y
-        # Now use that to correctly parse dates
-        tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_NZ, tz = "Pacific/Auckland")] # requires lubridate
-        tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_NZ, tz = "Pacific/Auckland")]
-      } else {
-        # we have UTC
-        setnames(tempDT, 'date UTC', "date_UTC")
-        tempDT <- tempDT[, testDate := ifelse(substr(date_UTC,2,2) == "/" | # day is 1 digit
-                                                substr(date_UTC,3,3) == "/", # 2 digits
-                                              "dmy", "ymd")]
-        tempDT <- tempDT[testDate == "ymd", r_dateTime := ymd_hm(date_UTC, tz = "UTC")] # requires lubridate
-        tempDT <- tempDT[testDate == "dmy", r_dateTime := dmy_hm(date_UTC, tz = "UTC")]
-        }
-      print(head(tempDT)) # test
-      fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))]
-      fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))]
-      tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # just in case there are different numbers of columns (quite likely!)
-    } else {
-      # don't load anything & skip to the next one
-      fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "No"]
+  if(max1 > 31){
+    # char 1 = year so default is ymd
+    dt$dateFormat <- "ymd - default (but day/month value <= 12)"
+    if(max2 > 12){
+      # char 2 = day - very unlikely
+      dt$dateFormat <- "ydm"
+    }
+    if(max3 > 12){
+      # char 3 = day
+      dt$dateFormat <- "ymd - definite"
     }
   }
-  
+  if(max2 > 31){
+    # char 2 is year - this is very unlikely
+    if(max1 > 12){
+      # char 1 = day
+      dt$dateFormat <- "dym"
+    }
+    if(max3 > 12){
+      # char 3 = day
+      dt$dateFormat <- "myd"
+    }
+  }
+  if(max3 > 31){
+    # char 3 is year so default is dmy
+    dt$dateFormat <- "dmy - default (but day/month value <= 12)"
+    if(max1 > 12){
+      # char 1 = day so char 2 = month
+      dt$dateFormat <- "dmy - definite"
+    }
+    if(max2 > 12){
+      # char 2 = day so char 1 = month
+      dt$dateFormat <- "mdy - definite"
+    }
+  }
+
+
+  return(dt)
+}
+
+# Code ----
+
+#> Load, process & save the ones which probably have data ----
+fListCompleteDT <- fListCompleteDT[, fileLoaded := "No"] # set default
+# select those which we decided were large enough to probably have data
+filesToLoadDT <- fListCompleteDT[!(dateColName %like% "do not load")]
+
+hhIDs <- unique(filesToLoadDT$hhID) # list of household ids
+hhStatDT <- data.table::data.table() # stats collector
+
+for(hh in hhIDs){ #> start of household loop ----
+  tempHhDT <- data.table::data.table() # hh data collector
+  print(paste0("Loading: ", hh))
+  filesToLoad <- filesToLoadDT[hhID == hh, fullPath]
+  pbF <- progress::progress_bar$new(total = length(filesToLoad))
+  for(f in filesToLoad){ # >> start of per-file loop ----
+    if(fullFb){print(paste0("File size (", f, ") = ",
+                            filesToLoadDT[fullPath == f, fSize],
+                            " so probably OK"))} # files under 3kb are probably empty
+    # attempt to load the file
+    tempDT <- data.table::fread(f)
+    pbF$tick()
+    if(fullFb){print("File loaded")}
+    # set some file stats
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fileLoaded := "Yes"]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)] # could include duplicates
+
+    # what is the date column called?
+    if(nrow(dplyr::select(tempDT, dplyr::contains("NZ"))) > 0){ # requires dplyr
+      setnames(tempDT, 'date NZ', "dateTime_char")
+      tempDT <- tempDT[, dateColName := "date NZ"]
+    }
+    if(nrow(dplyr::select(tempDT, dplyr::contains("UTC"))) > 0){ # requires dplyr
+      setnames(tempDT, 'date UTC', "dateTime_char")
+      tempDT <- tempDT[, dateColName := "date UTC"]
+    }
+
+    # >> Fix dates ----
+    # Using the pre-inferred dateFormat
+    tempDT <- tempDT[, dateFormat := filesToLoadDT[fullPath == f, dateFormat]]
+    tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "NZ", r_dateTime := lubridate::mdy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "dmy" & dateColName %like% "NZ", r_dateTime := lubridate::dmy_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "ydm" & dateColName %like% "NZ", r_dateTime := lubridate::ymd_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "ymd" & dateColName %like% "NZ", r_dateTime := lubridate::ymd_hm(dateTime_char, tz = "Pacific/Auckland")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "mdy" & dateColName %like% "UTC", r_dateTime := lubridate::mdy_hm(dateTime_char, tz = "UTC")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "dmy" & dateColName %like% "UTC", r_dateTime := lubridate::dmy_hm(dateTime_char, tz = "UTC")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "ydm" & dateColName %like% "UTC", r_dateTime := lubridate::ymd_hm(dateTime_char, tz = "UTC")] # requires lubridate
+    tempDT <- tempDT[dateFormat %like% "ymd" & dateColName %like% "UTC", r_dateTime := lubridate::ymd_hm(dateTime_char, tz = "UTC")] # requires lubridate
+    if(fullFb){
+      print(head(tempDT))
+      print(summary(tempDT))
+      #print(table(tempDT$dateFormat))
+    }
+
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsStartDate := min(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, obsEndDate := max(as.Date(tempDT$r_dateTime))] # should be a sensible number and not NA
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nObs := nrow(tempDT)]
+
+    # >> Fix circuit labels where we have noticed errors ----
+    # rf_24 has an additional circuit in some files but value is always NA
+    # rf_46 has 3 different versions of the circuit labels:
+    # 1: Heat Pumps (2x) & Power$4232, Heat Pumps (2x) & Power$4399, Hot Water - Controlled$4231, Hot Water - Controlled$4400, Incomer - Uncontrolled$4230, Incomer - Uncontrolled$4401, Incomer Voltage$4405, Kitchen & Bedrooms$4229, Kitchen & Bedrooms$4402, Laundry & Bedrooms$4228, Laundry & Bedrooms$4403, Lighting$4233, Lighting$4404
+    # 2: Heat Pumps (2x) & Power1$4232, Heat Pumps (2x) & Power2$4399, Hot Water - Controlled1$4231, Hot Water - Controlled2$4400, Incomer - Uncontrolled1$4230, Incomer - Uncontrolled2$4401, Incomer Voltage$4405, Kitchen & Bedrooms1$4229, Kitchen & Bedrooms2$4402, Laundry & Bedrooms1$4228, Laundry & Bedrooms2$4403, Lighting1$4233, Lighting2$4404
+    # 3: Heat Pumps (2x) & Power_Imag$4399, Heat Pumps (2x) & Power$4232, Hot Water - Controlled_Imag$4400, Hot Water - Controlled$4231, Incomer - Uncontrolled_Imag$4401, Incomer - Uncontrolled$4230, Incomer Voltage$4405, Kitchen & Bedrooms_Imag$4402, Kitchen & Bedrooms$4229, Laundry & Bedrooms_Imag$4403, Laundry & Bedrooms$4228, Lighting_Imag$4404, Lighting$4233
+    # Fix to just the first (might also fix duplication of observations)
+    if(hh == "rf_46"){
+      if(fullFb){print("Checking circuit labels for rf_46")}
+      # check if we have the second form of labels - they have 'Power1$4232' in one col label
+      checkCols2 <- ncol(dplyr::select(tempDT,dplyr::contains("Power1$4232")))
+      if(checkCols2 == 1){
+        # we got label set 2
+        if(fullFb){print(paste0("Found circuit labels set 2 in ", f))}
+        setnames(tempDT, c("Heat Pumps (2x) & Power1$4232", "Heat Pumps (2x) & Power2$4399",
+                           "Hot Water - Controlled1$4231", "Hot Water - Controlled2$4400",
+                           "Incomer - Uncontrolled1$4230", "Incomer - Uncontrolled2$4401",
+                           "Incomer Voltage$4405", "Kitchen & Bedrooms1$4229",
+                           "Kitchen & Bedrooms2$4402","Laundry & Bedrooms1$4228",
+                           "Laundry & Bedrooms2$4403", "Lighting1$4233", "Lighting2$4404"),
+                 c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power$4399", "Hot Water - Controlled$4231",
+                   "Hot Water - Controlled$4400", "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled$4401",
+                   "Incomer Voltage$4405", "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms$4402",
+                   "Laundry & Bedrooms$4228", "Laundry & Bedrooms$4403", "Lighting$4233", "Lighting$4404"))
+      }
+      # check if we have the third form of labels - they have 'Power_Imag$4399' in one col label
+      checkCols3 <- ncol(dplyr::select(tempDT,dplyr::contains("Power_Imag$4399")))
+      if(checkCols3 == 1){
+        # we got label set 3
+        if(fullFb){print(paste0("Found circuit labels set 3 in ", f))}
+        # be careful to get this order correct so that it matches the label 1 order
+        setnames(tempDT, c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power_Imag$4399",
+                           "Hot Water - Controlled$4231", "Hot Water - Controlled_Imag$4400",
+                           "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled_Imag$4401", "Incomer Voltage$4405",
+                           "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms_Imag$4402",
+                           "Laundry & Bedrooms$4228", "Laundry & Bedrooms_Imag$4403",
+                           "Lighting$4233", "Lighting_Imag$4404"),
+                 c("Heat Pumps (2x) & Power$4232", "Heat Pumps (2x) & Power$4399",
+                   "Hot Water - Controlled$4231", "Hot Water - Controlled$4400",
+                   "Incomer - Uncontrolled$4230", "Incomer - Uncontrolled$4401", "Incomer Voltage$4405",
+                   "Kitchen & Bedrooms$4229", "Kitchen & Bedrooms$4402",
+                   "Laundry & Bedrooms$4228", "Laundry & Bedrooms$4403",
+                   "Lighting$4233", "Lighting$4404"))
+      }
+    }
+    # >> Check circuit labels to see if any remaining errors ----
+    # check the names of circuits - all seem to contain "$"; sort them to make it easier to compare them - this is the only way we have to check if data from different households has been placed in the wrong folder.
+    fListCompleteDT <- fListCompleteDT[fullPath == f,
+                                       circuitLabels := toString(sort(colnames(dplyr::select(tempDT,
+                                                                                             dplyr::contains("$")))))]
+    # check for the number of circuits - all seem to contain "$"
+    fListCompleteDT <- fListCompleteDT[fullPath == f, nCircuits := ncol(dplyr::select(tempDT,
+                                                                                      dplyr::contains("$")))]
+    #tempDT <- tempDT[, sourceFile := f] # record for later checks - don't as it breaks de-duplication code
+
+    # >> rbind file to hh data collector ----
+    tempHhDT <- rbind(tempHhDT, tempDT, fill = TRUE) # fill just in case there are different numbers of columns or columns with different names (quite likely - crcuit labels may vary!)
+  }
+
   # > Remove duplicates caused by over-lapping files and dates etc ----
-  # Need to remove all test vars for this
-  try(tempHhDT$date_UTC <- NULL)
-  try(tempHhDT$date_NZ <- NULL)
-  try(tempHhDT$testDate <- NULL)
-  
+  # Need to remove all uneccessary vars for this to work
+  # Any remaining duplicates will probably be due to over-lapping files which have different circuit labels - see table below
+  try(tempHhDT$dateColName <- NULL)
+  try(tempHhDT$dateFormat <- NULL)
+  try(tempHhDT$dateTime_char <- NULL) # if we leave this one in then we get duplicates where we have date NZ & date UTC for the same timestamp due to overlapping file downloads
+
   nObs <- nrow(tempHhDT)
-  print(paste0("N rows before removal of duplicates: ", nObs))
+  if(fullFb){print(paste0("N rows before removal of duplicates: ", nObs))}
   tempHhDT <- unique(tempHhDT)
   nObs <- nrow(tempHhDT)
-  print(paste0("N rows after removal of duplicates: ", nObs))
-  
-  # Add up all Wh cols
-  #tempHhDT <- tempHhDT[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = grep("$", names(tempHhDT))] 
-  
-  hhStatTempDT <- tempHhDT[, .(nObs = .N),keyby = (date = as.Date(r_dateTime))] # can't do mean Wh as label varies
+  if(fullFb){print(paste0("N rows after removal of duplicates: ", nObs))}
+
+  hhStatTempDT <- tempHhDT[, .(nObs = .N,
+                               nDataColumns = ncol(select(tempDT, contains("$")))), # the actual number of columns in the whole household file with "$" in them in case of rbind "errors" caused by files with different column names
+                           keyby = (date = as.Date(r_dateTime))] # can't do sensible summary stats on W as some circuits are sub-sets of others!
+  # add hhID
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
 
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
-  
+
   # > Save hh file ----
-  ofile <- paste0(outPath, "1min/", hh,"_all_1min_data.csv")
+  # add hhid for ease of future loading etc
+  tempHhDT <- tempHhDT[, hhID := hh]
+  ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
+  if(fullFb | baTest){
+    print(paste0("Saving ", ofile, "..."))
+    }
   write_csv(tempHhDT, ofile)
-  print(paste0("Saved ", ofile, ", gzipping..."))
+  if(fullFb | baTest){
+    print(paste0("Saved ", ofile, ", gzipping..."))
+    }
   cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
   try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
-  print(paste0("Gzipped ", ofile))
+  if(fullFb | baTest){
+    print(paste0("Gzipped ", ofile))
+    }
+  if(fullFb){
+    print("Col names: ")
+    print(names(tempHhDT))
+  }
+
+  tempHhDT <- NULL # just in case
 }
 
-#> Save updated file stats for all files processed ----
-print("Updating 1 minute data index file...") # write out version with file stats
-#fListCompleteDT <- fListCompleteDT[, fMDate := as.Date(fMDate)] # why do we need to do this?
-write.csv(fListCompleteDT, paste0(outPath, indexFile))
-print("Done")
-
-#> Generate file stats ----
-fListCompleteDT[, .(meanfSize = mean(fSize),
-                    nFiles = .N,
-                    meanNObs = mean(nObs),
-                    maxNObs = max(nObs),
-                    minNObs = min(nObs)), keyby = .(fileLoaded, year(obsStartDate))] # requires lubridate
-
-#> Generate file stats graphs ----
-print("Updating 1 minute data index graphs...")
-myCaption <- paste0("Data source: ", fpath,
-                    "\nUsing data received up to ", Sys.Date())
-
-plotDT <- fListCompleteDT[, .(nFiles = .N,
-                              meanfSize = mean(fSize)), 
-                          keyby = .(hhID, date = as.Date(fMDate))]
-
-#>> All files plots ----
-ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "black") + 
-  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Mean file size of all grid spy data files received per day",
-       caption = paste0(myCaption, 
-                        "\nLog file size used as some files are full year data")
-    
-  )
-ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
-
-#>> Loaded files plots ----
-myCaption <- paste0(myCaption,
-                    "\nFiles loaded if size > 3000 bytes (assumed to have observations)")
-plotDT <- fListCompleteDT[fileLoaded == "Yes", .(nFiles = .N,
-                                                 meanfSize = mean(fSize)), 
-                          keyby = .(hhID, date = as.Date(fMDate))]
-
-ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "black") +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Mean file size of all loaded grid spy data files received per day",
-       caption = paste0(myCaption,
-                        "\nLog file size used as some files are full year data")
-       
-  )
-ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
-
 #> Save observed data stats for all files loaded ----
-print("Updating 1 minute file stats...") # write out version with file stats
-write.csv(hhStatDT, paste0(outPath, "hhDailyObservationsStats.csv"))
+ofile <- paste0(outPath, "hhDailyObservationsStats.csv")
+print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out version with file stats
+write.csv(hhStatDT, ofile)
 print("Done")
 
-#>> Loaded files ----
-ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
-  geom_tile() +
-  scale_fill_gradient(low = "red", high = "green") +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "N observations per household per day for all loaded grid spy data",
-       caption = myCaption
-       
-  )
-ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
-
-ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
-  geom_point() +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "N observations per household per day for all loaded grid spy data",
-       caption = myCaption
-       
-  )
-ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
-
-# Stats table (so we can pick out the dateTime errors)
-hhStatDT[, .(minObs = min(nObs),
-             maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
-             minDate = min(date),
-             maxDate = max(date)),
-         keyby = .(hhID)]
-
-# Elapsed time
-t <- proc.time() - startTime
-
-elapsed <- t[[3]]
-
-elapsed
+ofile <- paste0(outPath, fListFinal)
+print(paste0("Saving 1 minute data files final metadata to ", ofile))
+write.csv(fListCompleteDT, ofile)
+print("Done")
