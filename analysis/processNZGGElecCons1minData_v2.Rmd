@@ -59,7 +59,8 @@ library(nzGREENGrid) # local utilities
 
 # Packages needed in thie .Rmd file ----
 rmdLibs <- c("ggplot2", # for fancy graphs
-             "knitr" # for kable
+             "knitr", # for kable
+             "kableExtra" # for extra kable
 )
 # load them
 nzGREENGrid::loadLibraries(rmdLibs)
@@ -147,7 +148,8 @@ If these do not match then this may be a test run.
 
 source("../scripts/process1minGridSpyFiles.R")
 
-print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(fListCompleteDT$hhID), " households."))
+print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", 
+             uniqueN(fListCompleteDT$hhID), " households."))
 
 # for use below
 nFiles <- nrow(fListCompleteDT)
@@ -160,7 +162,7 @@ Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteD
 
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
-```{r initialDateFormatTable}
+```{r initialDateFormatTable, echo=FALSE}
 
 # short cut if interim file list already saved ----
 #ifile <- paste0(outPath, fListInterim)
@@ -170,9 +172,11 @@ We now need to check how many of the loaded files have an ambiguous or default d
   
 t <- fListCompleteDT[, .(nFiles = .N, 
                          minDate = min(dateExample), # may not make much sense
-                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
+                         maxDate = max(dateExample)), 
+                     keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files & min/max date (as char) with given date column names by inferred date format", t)
+knitr::kable(t, 
+             caption = "Number of files and min/max date (as char) with given date column names by inferred date format")
 ```
 
 Results to note:
@@ -186,9 +190,11 @@ To help with data cleaning the following table lists files that have ambiguous d
 
 ```{r listAmbigFiles}
 # list ambigious files
-aList <- fListCompleteDT[dateFormat == "ambiguous", .(file, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateFormat == "ambiguous", 
+                         .(file, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("All ", nrow(aList), " files with an ambiguous dateFormat")
+cap <- paste0("All ", nrow(aList), 
+              " files with an ambiguous dateFormat")
 
 knitr::kable(caption = cap, aList)
 
@@ -198,7 +204,8 @@ Check against file names to see what is reasonable and then fix them.
 
 ```{r setAmbiguous}
 # Setting to dmy seems OK
-fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", dateFormat := "dmy - inferred"]
+fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", 
+                                   dateFormat := "dmy - inferred"]
 
 paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
 ```
@@ -208,9 +215,11 @@ The following table lists up to 10 of the 'date NZ' files which are set by defau
 
 ```{r listDefaultDateFilesNZT}
 # list default files
-aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", 
+                         .(file, fSize, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date NZ' and default dateFormat")
+cap <- paste0("First 10 (max) of ", nrow(aList), 
+              " files with dateColName = 'date NZ' and default dateFormat")
 
 knitr::kable(caption = cap, head(aList))
 
@@ -222,9 +231,11 @@ The following table lists up to 10 of the 'date UTC' files which are set by defa
 
 ```{r listDefaultDateFilesUTC}
 # list default files
-aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", .(file, fSize, dateColName, dateExample, dateFormat)]
+aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", 
+                         .(file, fSize, dateColName, dateExample, dateFormat)]
 
-cap <- paste0("First 10 (max) of ", nrow(aList), " files with dateColName = 'date UTC' and default dateFormat")
+cap <- paste0("First 10 (max) of ", nrow(aList), 
+              " files with dateColName = 'date UTC' and default dateFormat")
 
 knitr::kable(caption = cap, head(aList, 10))
 
@@ -236,9 +247,11 @@ Check final date formats:
 ```{r finalDateFormatTable}
 t <- fListCompleteDT[, .(nFiles = .N, 
                          minDate = min(dateExample), # may not make much sense
-                         maxDate = max(dateExample)), keyby = .(dateColName, dateFormat)]
+                         maxDate = max(dateExample)), 
+                     keyby = .(dateColName, dateFormat)]
 
-knitr::kable(caption = "Number of files & min/max dates (as char) with given date column names by final imputed date format", t)
+knitr::kable(t,
+             caption = "Number of files & min/max dates (as char) with given date column names by final imputed date format")
 ```
 
 ## Data file quality checks
@@ -253,11 +266,13 @@ plotDT <- fListCompleteDT[, .(nFiles = .N,
                               meanfSize = mean(fSize)), 
                           keyby = .(hhID, date = as.Date(fMDate))]
 
-ggplot2::ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
+ggplot2::ggplot(plotDT, aes( x = date, y = hhID, 
+                             fill = log(meanfSize))) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "black") + 
   scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Mean file size of all grid spy data files received per day",
        caption = paste0(myCaption, 
                         "\nLog file size used as some files are full year data")
@@ -347,20 +362,23 @@ Some or all of these may be true at any given time!
 Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.
 
 ```{r plotCircuitLabelIssuesAsTile, fig.height=8}
-t <- fListCompleteDT[!is.na(circuitLabels), .(nFiles = .N,
-                                              minObsDate = min(obsStartDate), # helps locate issues in data
-                                              maxObsDate = max(obsEndDate),
-                                              minFileDate = min(fMDate), # helps locate issues in files
-                                              maxFileDate = max(fMDate),
-                                              nObs = sum(nObs)),
+dt <- fListCompleteDT[!is.na(circuitLabels), 
+                     .(nFiles = .N,
+                       minObsDate = min(obsStartDate), # helps locate issues in data
+                       maxObsDate = max(obsEndDate),
+                       minFileDate = min(fMDate), # helps locate issues in files
+                       maxFileDate = max(fMDate),
+                       nObs = sum(nObs)),
                      keyby = .(circuitLabels, hhID)] # ignore NA - it is files not loaded due to size thresholds
 
-ggplot2::ggplot(t, aes(y = hhID, x = circuitLabels, fill = nObs)) +
+ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels, 
+                       fill = nObs)) +
   geom_tile() +
   #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Circuit label counts for all loaded grid spy data",
        caption = paste0(myCaption,
-                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+                        "\nOnly files of size > ", 
+                        dataThreshold, " bytes loaded")
        
   )
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileCircuitLabelsPlot.png"))
@@ -374,7 +392,8 @@ The following table provides more detail to aid error checking. Check for:
 If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
 
 ```{r circuitLabelMetaDataCheck}
-knitr::kable(caption = "Circuit labels by household with addiitonal meta-data", t)
+knitr::kable(dt, 
+             caption = "Circuit labels by household with addiitonal meta-data")
 ```
 
 Things to note:
@@ -398,26 +417,34 @@ If present both of the latter may have been implied by the table above and would
 # hhStatDT <- as.data.table(read_csv(ofile)) # parses dates
 
 # tile plot ----
-ggplot2::ggplot(hhStatDT, aes( x = date, y = hhID, fill = nObs)) +
+ggplot2::ggplot(hhStatDT, aes( x = date, y = hhID, 
+                               fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   vjust = 0.5,
+                                   hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
        caption = paste0(myCaption,
-                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+                        "\nOnly files of size > ", 
+                        dataThreshold, " bytes loaded")
        
   )
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 
 # point plot ----
-ggplot2::ggplot(hhStatDT, aes( x = date, y = nObs, colour = hhID)) +
+ggplot2::ggplot(hhStatDT, aes( x = date, 
+                               y = nObs, 
+                               colour = hhID)) +
   geom_point() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, 
+                                   hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
        caption = paste0(myCaption,
-                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+                        "\nOnly files of size > ", 
+                        dataThreshold, " bytes loaded")
        
   )
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
@@ -455,10 +482,13 @@ plotDT <- hhStatDT[, .(nHH = uniqueN(hhID)), keyby = .(date)]
 ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
   geom_point() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   vjust = 0.5, 
+                                   hjust = 0.5)) + 
   labs(title = "N live households per day for all loaded grid spy data",
        caption = paste0(myCaption,
-                        "\nOnly files of size > ", dataThreshold, " bytes loaded")
+                        "\nOnly files of size > ", 
+                        dataThreshold, " bytes loaded")
        
   )
 ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
@@ -468,7 +498,7 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
 # Runtime
 
 
-```{r check runtime}
+```{r check runtime, echo=FALSE}
 t <- proc.time() - startTime
 
 elapsed <- t[[3]]
@@ -486,11 +516,14 @@ R packages used:
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
  * dplyr - for select and contains [@dplyr]
- * knitr - to create this document [@knitr]
  * progress - for progress bars [@progress]
+ * knitr - to create this document & neat tables [@knitr]
+ * kableExtra - for extra neat tables [@kableExtra]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
- 
-```{r sessionInfo}
+
+Session info:
+
+```{r sessionInfo, echo=FALSE}
 sessionInfo()
 ```
 
