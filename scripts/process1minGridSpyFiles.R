@@ -104,7 +104,7 @@ print(paste0("Found ", tidyNum(nFiles), " files"))
 
 if(nrow(fListCompleteDT) == 0){
   # Then no files were found - should have been caught previously but...
-  stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
+  stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, "). If using /hum-csafe/ are you connected to it?!"))
 } else {
   print(paste0("Processing file list and getting file meta-data (please be patient)"))
   fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := data.table::tstrsplit(fList, "/")]
