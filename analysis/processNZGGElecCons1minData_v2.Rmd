@@ -71,6 +71,17 @@ nzGREENGrid::loadLibraries(rmdLibs)
 
 \newpage
 
+# Status
+
+```{r reportStatus, echo = FALSE}
+if(baTest){
+  print(paste0("Test data run using data from ", fpath))
+} else {
+  print(paste0("Full data run using data from ", fpath))
+}
+```
+
+
 # Citation
 
 If you wish to use any of the material from this report please cite as:
