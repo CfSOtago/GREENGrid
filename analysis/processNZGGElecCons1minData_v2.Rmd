@@ -58,7 +58,7 @@ fListFinal <- "fListCompleteDT_final.csv" # place to store the final complete fi
 dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
 # Load greenGrid package ----
-library(greenGridr) # local utilities
+library(nzGREEnGrid) # local utilities
 
 # Other packages ----
 reqLibs <- c("data.table", # for data munching
@@ -70,7 +70,7 @@ reqLibs <- c("data.table", # for data munching
              "knitr" # for kable
 )
 
-greenGridr::loadLibraries(reqLibs)
+nzGREEnGrid::loadLibraries(reqLibs)
 
 # Local functions ----
 # move to package?

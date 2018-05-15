@@ -40,14 +40,13 @@ getGridSpyFileList <- function(fpath, pattern) {
 #'
 #' @return Retruns dt but with new columns for the meta-data
 #'
-#' @importFrom data.table
-#' @importFrom lubridate
-#' @importFrom dplyr
+#' @importFrom data.table tstrsplit
+#' @importFrom lubridate ymd_hms
+#' @importFrom dplyr select contains
 #'
 #' @author Ben Anderson, \email{b.anderson@@soton.ac.uk}
 #' @export
 #'
-
 process1minGridSpyFileList <- function(dt){
   # dt = the file list as a data.table
   print(paste0("Processing file list and getting file meta-data (please be patient)"))

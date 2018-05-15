@@ -1,4 +1,4 @@
-Package: nzGREEnGrid
+Package: nzGREENGrid
 Type: Package
 Title: Collection of functions, scripts and RMarkdown for NZ GREEN Grid project data processing and analysis
 Version: 0.1.0
@@ -12,3 +12,4 @@ Description: Code here includes functions to:
 License: Apache License, Version 2.0, January 2004
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.0.1

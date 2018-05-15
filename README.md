@@ -7,6 +7,15 @@ Repo supporting analysis of the [NZ GREEN Grid](https://www.otago.ac.nz/centre-s
 
 _None_ of the code here will work unless you also have access to the data. While we have plans to deposit anonymised versions of the data with a suitable data archive (any offers?!), access is currently controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid data (via github readme)).
 
+## Repo structure
+
+This repo follows the structure of an [R package](https://github.com/ropensci/rrrpkg) and can be built & run as such. You can do this in various ways:
+
+ * clone/fork the repo and then build & install locally (see http://r-pkgs.had.co.nz/git.html for tips)
+ * install_url("https://github.com/hadley/stringr/archive/master.zip")
+ * (untested) install.packages("devtools") and then:
+     * devtools::install_github("ba1e12/nzGREENGrid", host = "https://git.soton.ac.uk") - NB 'host' matters as otherwise it will look on github...
+
 ## Funding support
 
 GREEN Grid is funded by the NZ [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
