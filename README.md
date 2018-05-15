@@ -12,7 +12,6 @@ _None_ of the code here will work unless you also have access to the data. While
 This repo follows the structure of an [R package](https://github.com/ropensci/rrrpkg) and can be built & run as such. You can do this in various ways:
 
  * clone/fork the repo and then build & install locally (see http://r-pkgs.had.co.nz/git.html for tips)
- * install_url("https://github.com/hadley/stringr/archive/master.zip")
  * (untested) install.packages("devtools") and then:
      * devtools::install_github("ba1e12/nzGREENGrid", host = "https://git.soton.ac.uk") - NB 'host' matters as otherwise it will look on github...
 
