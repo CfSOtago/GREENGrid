@@ -125,7 +125,7 @@ electricity power data}
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-05-15 18:33:59}
+  \date{Last run at: 2018-05-15 19:27:04}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -153,9 +153,8 @@ electricity power data}
 
 \section{Status}\label{status}
 
-\begin{verbatim}
-## [1] "Test data run using data from ~/Data/NZGreenGrid/gridspy/1min_orig/"
-\end{verbatim}
+Test run using reduced data from
+\textasciitilde{}/Data/NZGreenGrid/gridspy/1min\_orig/
 
 \section{Citation}\label{citation}
 
@@ -277,12 +276,6 @@ In this run we are using data from:
 
 If these do not match then this may be a test run.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{source}\NormalTok{(}\StringTok{"../scripts/process1minGridSpyFiles.R"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## Loading required package: data.table
 \end{verbatim}
@@ -367,23 +360,9 @@ If these do not match then this may be a test run.
 ## [1] "Done"
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{print}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"Overall we have "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(fListCompleteDT), }\StringTok{" files from "}\NormalTok{, }\KeywordTok{uniqueN}\NormalTok{(fListCompleteDT}\OperatorTok{$}\NormalTok{hhID), }\StringTok{" households."}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{verbatim}
 ## [1] "Overall we have 958 files from 2 households."
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# for use below}
-\NormalTok{nFiles <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(fListCompleteDT)}
-\NormalTok{nFilesNotLoaded <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(fListCompleteDT[dateColName }\OperatorTok{%like%}\StringTok{ "unknown"}\NormalTok{])}
-\end{Highlighting}
-\end{Shaded}
 
 Overall we have 958 files from 2 households. Of the 958, 544 (56.78\%)
 were \emph{not} loaded/checked as their file sizes indicated that they
@@ -394,48 +373,30 @@ contained no data.
 We now need to check how many of the loaded files have an ambiguous or
 default date - these could introduce errors.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# short cut if interim file list already saved ----}
-\CommentTok{#ifile <- paste0(outPath, fListInterim)}
-\CommentTok{#print(paste0("Loading 1 minute data files interim metadata to ", ifile))}
-\CommentTok{#fListCompleteDT <- fread(ifile)}
-  
-  
-\NormalTok{t <-}\StringTok{ }\NormalTok{fListCompleteDT[, .(}\DataTypeTok{nFiles =}\NormalTok{ .N, }
-                         \DataTypeTok{minDate =} \KeywordTok{min}\NormalTok{(dateExample), }\CommentTok{# may not make much sense}
-                         \DataTypeTok{maxDate =} \KeywordTok{max}\NormalTok{(dateExample)), keyby =}\StringTok{ }\NormalTok{.(dateColName, dateFormat)]}
-
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(t, }
-             \DataTypeTok{caption =} \StringTok{"Number of files and min/max date (as char) with given date column names by inferred date format"}\NormalTok{, }
-             \DataTypeTok{format =} \StringTok{"latex"}\NormalTok{, }
-             \DataTypeTok{booktabs =}\NormalTok{ T) }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{kable_styling}\NormalTok{(}\DataTypeTok{font_size =} \DecValTok{8}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{table}
-
-\caption{\label{tab:initialDateFormatTable}Number of files and min/max date (as char) with given date column names by inferred date format}
-\centering
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{llrll}
+\begin{longtable}[]{@{}llrll@{}}
+\caption{Number of files and min/max date (as char) with given date
+column names by inferred date format}\tabularnewline
 \toprule
-dateColName & dateFormat & nFiles & minDate & maxDate\\
+dateColName & dateFormat & nFiles & minDate & maxDate\tabularnewline
 \midrule
-date NZ & dmy - definite & 1 & 27/03/2015 & 27/03/2015\\
-date NZ & mdy - definite & 1 & 5/26/2016 & 5/26/2016\\
-date NZ & ymd - default (but day/month value <= 12) & 1 & 2014-01-06 & 2014-01-06\\
-date NZ & ymd - definite & 2 & 2014-05-24 & 2015-05-25\\
-date UTC & ambiguous & 1 & 11-10-16 & 11-10-16\\
-\addlinespace
-date UTC & ymd - default (but day/month value <= 12) & 161 & 2017-01-08 & 2018-02-12\\
-date UTC & ymd - definite & 247 & 2015-05-24 & 2018-02-19\\
-unknown - do not load (fsize = 2751) & NA & 302 & NA & NA\\
-unknown - do not load (fsize = 43) & NA & 242 & NA & NA\\
+\endfirsthead
+\toprule
+dateColName & dateFormat & nFiles & minDate & maxDate\tabularnewline
+\midrule
+\endhead
+date NZ & dmy - definite & 1 & 27/03/2015 & 27/03/2015\tabularnewline
+date NZ & mdy - definite & 1 & 5/26/2016 & 5/26/2016\tabularnewline
+date NZ & ymd - default (but day/month value \textless{}= 12) & 1 &
+2014-01-06 & 2014-01-06\tabularnewline
+date NZ & ymd - definite & 2 & 2014-05-24 & 2015-05-25\tabularnewline
+date UTC & ambiguous & 1 & 11-10-16 & 11-10-16\tabularnewline
+date UTC & ymd - default (but day/month value \textless{}= 12) & 161 &
+2017-01-08 & 2018-02-12\tabularnewline
+date UTC & ymd - definite & 247 & 2015-05-24 & 2018-02-19\tabularnewline
+unknown - do not load (fsize = 2751) & NA & 302 & NA & NA\tabularnewline
+unknown - do not load (fsize = 43) & NA & 242 & NA & NA\tabularnewline
 \bottomrule
-\end{tabular}
-\end{table}
+\end{longtable}
 
 Results to note:
 
@@ -456,9 +417,11 @@ ambiguous dates.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# list ambigious files}
-\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateFormat }\OperatorTok{==}\StringTok{ "ambiguous"}\NormalTok{, .(file, dateColName, dateExample, dateFormat)]}
+\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateFormat }\OperatorTok{==}\StringTok{ "ambiguous"}\NormalTok{, }
+\NormalTok{                         .(file, dateColName, dateExample, dateFormat)]}
 
-\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"All "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }\StringTok{" files with an ambiguous dateFormat"}\NormalTok{)}
+\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"All "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }
+              \StringTok{" files with an ambiguous dateFormat"}\NormalTok{)}
 
 \NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =}\NormalTok{ cap, aList)}
 \end{Highlighting}
@@ -484,7 +447,8 @@ Check against file names to see what is reasonable and then fix them.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# Setting to dmy seems OK}
-\NormalTok{fListCompleteDT <-}\StringTok{ }\NormalTok{fListCompleteDT[dateFormat }\OperatorTok{==}\StringTok{ "ambiguous"}\NormalTok{, dateFormat }\OperatorTok{:}\ErrorTok{=}\StringTok{ "dmy - inferred"}\NormalTok{]}
+\NormalTok{fListCompleteDT <-}\StringTok{ }\NormalTok{fListCompleteDT[dateFormat }\OperatorTok{==}\StringTok{ "ambiguous"}\NormalTok{, }
+\NormalTok{                                   dateFormat }\OperatorTok{:}\ErrorTok{=}\StringTok{ "dmy - inferred"}\NormalTok{]}
 
 \KeywordTok{paste0}\NormalTok{(}\StringTok{"Fixed "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }\StringTok{" files with an ambiguous dateFormat"}\NormalTok{)}
 \end{Highlighting}
@@ -500,10 +464,12 @@ the file names with the dateExample\ldots{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# list default files}
-\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateColName }\OperatorTok{==}\StringTok{ "date NZ"} \OperatorTok{&}\StringTok{ }\NormalTok{dateFormat }\OperatorTok{%like%}\StringTok{ "default"}\NormalTok{, .(file, fSize, dateColName, dateExample, dateFormat)]}
+\CommentTok{# list default files with NZ time}
+\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateColName }\OperatorTok{==}\StringTok{ "date NZ"} \OperatorTok{&}\StringTok{ }\NormalTok{dateFormat }\OperatorTok{%like%}\StringTok{ "default"}\NormalTok{, }
+\NormalTok{                         .(file, fSize, dateColName, dateExample, dateFormat)]}
 
-\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"First 10 (max) of "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }\StringTok{" files with dateColName = 'date NZ' and default dateFormat"}\NormalTok{)}
+\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"First 10 (max) of "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }
+              \StringTok{" files with dateColName = 'date NZ' and default dateFormat"}\NormalTok{)}
 
 \NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =}\NormalTok{ cap, }\KeywordTok{head}\NormalTok{(aList))}
 \end{Highlighting}
@@ -531,10 +497,12 @@ the file names with the dateExample\ldots{}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# list default files}
-\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateColName }\OperatorTok{==}\StringTok{ "date UTC"} \OperatorTok{&}\StringTok{ }\NormalTok{dateFormat }\OperatorTok{%like%}\StringTok{ "default"}\NormalTok{, .(file, fSize, dateColName, dateExample, dateFormat)]}
+\CommentTok{# list default files with UTC time}
+\NormalTok{aList <-}\StringTok{ }\NormalTok{fListCompleteDT[dateColName }\OperatorTok{==}\StringTok{ "date UTC"} \OperatorTok{&}\StringTok{ }\NormalTok{dateFormat }\OperatorTok{%like%}\StringTok{ "default"}\NormalTok{, }
+\NormalTok{                         .(file, fSize, dateColName, dateExample, dateFormat)]}
 
-\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"First 10 (max) of "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }\StringTok{" files with dateColName = 'date UTC' and default dateFormat"}\NormalTok{)}
+\NormalTok{cap <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"First 10 (max) of "}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(aList), }
+              \StringTok{" files with dateColName = 'date UTC' and default dateFormat"}\NormalTok{)}
 
 \NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =}\NormalTok{ cap, }\KeywordTok{head}\NormalTok{(aList, }\DecValTok{10}\NormalTok{))}
 \end{Highlighting}
@@ -576,16 +544,6 @@ rf\_46/10Mar2017-11Mar2017at1.csv & 290244 & date UTC & 2017-03-09 & ymd
 
 Check final date formats:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{t <-}\StringTok{ }\NormalTok{fListCompleteDT[, .(}\DataTypeTok{nFiles =}\NormalTok{ .N, }
-                         \DataTypeTok{minDate =} \KeywordTok{min}\NormalTok{(dateExample), }\CommentTok{# may not make much sense}
-                         \DataTypeTok{maxDate =} \KeywordTok{max}\NormalTok{(dateExample)), keyby =}\StringTok{ }\NormalTok{.(dateColName, dateFormat)]}
-
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Number of files & min/max dates (as char) with given date column names by final imputed date format"}\NormalTok{, t)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{longtable}[]{@{}llrll@{}}
 \caption{Number of files \& min/max dates (as char) with given date
 column names by final imputed date format}\tabularnewline
@@ -617,35 +575,7 @@ The following chart shows the distribution of these files over time
 using their sizes. Note that white indicates the presence of small files
 which may not contain observations.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{myCaption <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"Data source: "}\NormalTok{, fpath,}
-                    \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Using data received up to "}\NormalTok{, }\KeywordTok{Sys.Date}\NormalTok{())}
-
-\NormalTok{plotDT <-}\StringTok{ }\NormalTok{fListCompleteDT[, .(}\DataTypeTok{nFiles =}\NormalTok{ .N,}
-                              \DataTypeTok{meanfSize =} \KeywordTok{mean}\NormalTok{(fSize)), }
-\NormalTok{                          keyby =}\StringTok{ }\NormalTok{.(hhID, }\DataTypeTok{date =} \KeywordTok{as.Date}\NormalTok{(fMDate))]}
-
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(plotDT, }\KeywordTok{aes}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ hhID, }\DataTypeTok{fill =} \KeywordTok{log}\NormalTok{(meanfSize))) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_tile}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_fill_gradient}\NormalTok{(}\DataTypeTok{low =} \StringTok{"white"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"black"}\NormalTok{) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{scale_x_date}\NormalTok{(}\DataTypeTok{date_labels =} \StringTok{"%Y %b"}\NormalTok{, }\DataTypeTok{date_breaks =} \StringTok{"1 month"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{90}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Mean file size of all grid spy data files received per day"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption, }
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Log file size used as some files are full year data"}\NormalTok{)}
-    
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/allFileSizesPlot-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyAllFileListSizeTilePlot.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
@@ -654,36 +584,7 @@ which may not contain observations.
 The following chart shows the same chart but only for files which we
 think contain data.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{myCaption <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"Data source: "}\NormalTok{, fpath,}
-                    \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Using data received up to "}\NormalTok{, }\KeywordTok{Sys.Date}\NormalTok{())}
-
-\NormalTok{plotDT <-}\StringTok{ }\NormalTok{fListCompleteDT[}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(dateFormat), .(}\DataTypeTok{nFiles =}\NormalTok{ .N,}
-                              \DataTypeTok{meanfSize =} \KeywordTok{mean}\NormalTok{(fSize)), }
-\NormalTok{                          keyby =}\StringTok{ }\NormalTok{.(hhID, }\DataTypeTok{date =} \KeywordTok{as.Date}\NormalTok{(fMDate))]}
-
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(plotDT, }\KeywordTok{aes}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ hhID, }\DataTypeTok{fill =} \KeywordTok{log}\NormalTok{(meanfSize))) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_tile}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_fill_gradient}\NormalTok{(}\DataTypeTok{low =} \StringTok{"white"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"black"}\NormalTok{) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{scale_x_date}\NormalTok{(}\DataTypeTok{date_labels =} \StringTok{"%Y %b"}\NormalTok{, }\DataTypeTok{date_breaks =} \StringTok{"1 month"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{90}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Mean file size of loaded grid spy data files received per day"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption, }
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Log file size used as some files are full year data"}\NormalTok{,}
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Files loaded if fsize > "}\NormalTok{, dataThreshold, }\StringTok{" bytes"}\NormalTok{)}
-    
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/loadedFileSizesPlot-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyLoadedFileListSizeTilePlot.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
@@ -722,6 +623,7 @@ willl load.
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{# check files to load}
 \NormalTok{t <-}\StringTok{ }\NormalTok{fListCompleteDT[dateColName }\OperatorTok{%like%}\StringTok{ "do not load"}\NormalTok{, .(}\DataTypeTok{nFiles =}\NormalTok{ .N,}
                        \DataTypeTok{meanSize =} \KeywordTok{mean}\NormalTok{(fSize),}
                        \DataTypeTok{minFileDate =} \KeywordTok{min}\NormalTok{(fMDate),}
@@ -748,7 +650,7 @@ rf\_46 & 69 & 43.000 & 2018-02-22 & 2018-05-01\tabularnewline
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{#load data here}
+\CommentTok{# load data using external R script}
 \KeywordTok{source}\NormalTok{(}\StringTok{"../scripts/process1minGridSpyData.R"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -778,40 +680,24 @@ The following table shows the number of data files with different
 circuit labels by household. In theory there should only be one unique
 list per household and it should be present in every data file.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# short cut if exists already}
-\CommentTok{#ifile <- paste0(outPath, fListFinal)}
-\CommentTok{#fListCompleteDT <- fread(ifile)}
-\NormalTok{t <-}\StringTok{ }\KeywordTok{table}\NormalTok{(fListCompleteDT}\OperatorTok{$}\NormalTok{hhID,fListCompleteDT}\OperatorTok{$}\NormalTok{circuitLabels)}
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Circuit labels list by household"}\NormalTok{, t)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{longtable}[]{@{}lrr@{}}
 \caption{Circuit labels list by household}\tabularnewline
 \toprule
-& Heat Pumps (2x) \& Power\$4232, Heat Pumps (2x) \& Power\$4399, Hot
-Water - Controlled\$4231, Hot Water - Controlled\$4400, Incomer -
-Uncontrolled\$4230, Incomer - Uncontrolled\$4401, Incomer Voltage\$4405,
-Kitchen \& Bedrooms\$4229, Kitchen \& Bedrooms\$4402, Laundry \&
-Bedrooms\$4228, Laundry \& Bedrooms\$4403, Lighting\$4233,
-Lighting\$4404 & Heating\$1633, Hot water\$1636, Kitchen power\$1632,
-Lights\$1635, Mains\$1634, Range\$1637\tabularnewline
+& rf\_01 & rf\_46\tabularnewline
 \midrule
 \endfirsthead
 \toprule
-& Heat Pumps (2x) \& Power\$4232, Heat Pumps (2x) \& Power\$4399, Hot
+& rf\_01 & rf\_46\tabularnewline
+\midrule
+\endhead
+Heat Pumps (2x) \& Power\$4232, Heat Pumps (2x) \& Power\$4399, Hot
 Water - Controlled\$4231, Hot Water - Controlled\$4400, Incomer -
 Uncontrolled\$4230, Incomer - Uncontrolled\$4401, Incomer Voltage\$4405,
 Kitchen \& Bedrooms\$4229, Kitchen \& Bedrooms\$4402, Laundry \&
 Bedrooms\$4228, Laundry \& Bedrooms\$4403, Lighting\$4233,
-Lighting\$4404 & Heating\$1633, Hot water\$1636, Kitchen power\$1632,
-Lights\$1635, Mains\$1634, Range\$1637\tabularnewline
-\midrule
-\endhead
-rf\_01 & 0 & 3\tabularnewline
-rf\_46 & 411 & 0\tabularnewline
+Lighting\$4404 & 0 & 411\tabularnewline
+Heating\$1633, Hot water\$1636, Kitchen power\$1632, Lights\$1635,
+Mains\$1634, Range\$1637 & 3 & 0\tabularnewline
 \bottomrule
 \end{longtable}
 
@@ -839,34 +725,7 @@ Some or all of these may be true at any given time!
 Errors are easy to spot in the following plot where a hhID spans 2 or
 more circuit labels.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{t <-}\StringTok{ }\NormalTok{fListCompleteDT[}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(circuitLabels), .(}\DataTypeTok{nFiles =}\NormalTok{ .N,}
-                                              \DataTypeTok{minObsDate =} \KeywordTok{min}\NormalTok{(obsStartDate), }\CommentTok{# helps locate issues in data}
-                                              \DataTypeTok{maxObsDate =} \KeywordTok{max}\NormalTok{(obsEndDate),}
-                                              \DataTypeTok{minFileDate =} \KeywordTok{min}\NormalTok{(fMDate), }\CommentTok{# helps locate issues in files}
-                                              \DataTypeTok{maxFileDate =} \KeywordTok{max}\NormalTok{(fMDate),}
-                                              \DataTypeTok{nObs =} \KeywordTok{sum}\NormalTok{(nObs)),}
-\NormalTok{                     keyby =}\StringTok{ }\NormalTok{.(circuitLabels, hhID)] }\CommentTok{# ignore NA - it is files not loaded due to size thresholds}
-
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(t, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ hhID, }\DataTypeTok{x =}\NormalTok{ circuitLabels, }\DataTypeTok{fill =}\NormalTok{ nObs)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_tile}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\CommentTok{#theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Circuit label counts for all loaded grid spy data"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption,}
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Only files of size > "}\NormalTok{, dataThreshold, }\StringTok{" bytes loaded"}\NormalTok{)}
-       
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/plotCircuitLabelIssuesAsTile-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyLoadedFileCircuitLabelsPlot.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 8 in image
@@ -889,12 +748,6 @@ for:
 
 If the above plot and this table flag a lot of errors then some
 re-naming of the circuit labels (column names) may be necessary.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Circuit labels by household with addiitonal meta-data"}\NormalTok{, t)}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{longtable}[]{@{}llrllllr@{}}
 \caption{Circuit labels by household with addiitonal
@@ -965,59 +818,13 @@ and would have evaded the de-duplication filter which simply checks each
 complete row against all others within it's consolidated household
 dataset (a \emph{within household absolute duplicate} check).
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# short cut if already generated}
-\CommentTok{# hhStatDT <- as.data.table(read_csv(ofile)) # parses dates}
-
-\CommentTok{# tile plot ----}
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(hhStatDT, }\KeywordTok{aes}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ hhID, }\DataTypeTok{fill =}\NormalTok{ nObs)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_tile}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_fill_gradient}\NormalTok{(}\DataTypeTok{low =} \StringTok{"red"}\NormalTok{, }\DataTypeTok{high =} \StringTok{"green"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_x_date}\NormalTok{(}\DataTypeTok{date_labels =} \StringTok{"%Y %b"}\NormalTok{, }\DataTypeTok{date_breaks =} \StringTok{"6 months"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{90}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"N observations per household per day for all loaded grid spy data"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption,}
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Only files of size > "}\NormalTok{, dataThreshold, }\StringTok{" bytes loaded"}\NormalTok{)}
-       
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/loadedFilesObsPlots-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyLoadedFileNobsTilePlot.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# point plot ----}
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(hhStatDT, }\KeywordTok{aes}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ nObs, }\DataTypeTok{colour =}\NormalTok{ hhID)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_x_date}\NormalTok{(}\DataTypeTok{date_labels =} \StringTok{"%Y %b"}\NormalTok{, }\DataTypeTok{date_breaks =} \StringTok{"6 months"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{90}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"N observations per household per day for all loaded grid spy data"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption,}
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Only files of size > "}\NormalTok{, dataThreshold, }\StringTok{" bytes loaded"}\NormalTok{)}
-       
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/loadedFilesObsPlots-2.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyLoadedFileNobsPointPlot.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
@@ -1042,20 +849,6 @@ We should also not see NA in any row (indicates date conversion errors).
 
 If we do see any of these then we still have data cleaning work to do!
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# Stats table (so we can pick out the dateTime errors)}
-\NormalTok{t <-}\StringTok{ }\NormalTok{hhStatDT[, .(}\DataTypeTok{minObs =} \KeywordTok{min}\NormalTok{(nObs),}
-             \DataTypeTok{maxObs =} \KeywordTok{max}\NormalTok{(nObs), }\CommentTok{# should not be more than 1440, if so suggests duplicates}
-             \DataTypeTok{meanNDataColumns =}\KeywordTok{mean}\NormalTok{(nDataColumns), }\CommentTok{#i.e. n circuits}
-             \DataTypeTok{minDate =} \KeywordTok{min}\NormalTok{(date),}
-             \DataTypeTok{maxDate =} \KeywordTok{max}\NormalTok{(date)),}
-\NormalTok{         keyby =}\StringTok{ }\NormalTok{.(hhID)]}
-
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Summary observation stats by hhID"}\NormalTok{, t)}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{longtable}[]{@{}lrrrll@{}}
 \caption{Summary observation stats by hhID}\tabularnewline
 \toprule
@@ -1076,30 +869,7 @@ rf\_46 & 305 & 1500 & 13 & 2015-03-26 & 2018-02-19\tabularnewline
 Finally we show the total number of households which we think are still
 sending data.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{plotDT <-}\StringTok{ }\NormalTok{hhStatDT[, .(}\DataTypeTok{nHH =} \KeywordTok{uniqueN}\NormalTok{(hhID)), keyby =}\StringTok{ }\NormalTok{.(date)]}
-
-\CommentTok{# point plot ----}
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(plotDT, }\KeywordTok{aes}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ nHH)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_x_date}\NormalTok{(}\DataTypeTok{date_labels =} \StringTok{"%Y %b"}\NormalTok{, }\DataTypeTok{date_breaks =} \StringTok{"6 months"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{90}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"N live households per day for all loaded grid spy data"}\NormalTok{,}
-       \DataTypeTok{caption =} \KeywordTok{paste0}\NormalTok{(myCaption,}
-                        \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{Only files of size > "}\NormalTok{, dataThreshold, }\StringTok{" bytes loaded"}\NormalTok{)}
-       
-\NormalTok{  )}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{processNZGGElecCons1minData_v2_files/figure-latex/liveDataHouseholds-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggsave}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(outPath, }\StringTok{"gridSpyLiveHouseholdsToDate.png"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
@@ -1107,15 +877,7 @@ sending data.
 
 \section{Runtime}\label{runtime}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{t <-}\StringTok{ }\KeywordTok{proc.time}\NormalTok{() }\OperatorTok{-}\StringTok{ }\NormalTok{startTime}
-
-\NormalTok{elapsed <-}\StringTok{ }\NormalTok{t[[}\DecValTok{3}\NormalTok{]]}
-\end{Highlighting}
-\end{Shaded}
-
-Analysis completed in 356.022 seconds ( 5.93 minutes) using
+Analysis completed in 262.452 seconds ( 4.37 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.4.4 (2018-03-15)
 running on x86\_64-apple-darwin15.6.0.
@@ -1148,11 +910,7 @@ R packages used:
   nzGREENGrid - for local NZ GREEN Grid project utilities
 \end{itemize}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{sessionInfo}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
+Session info:
 
 \begin{verbatim}
 ## R version 3.4.4 (2018-03-15)

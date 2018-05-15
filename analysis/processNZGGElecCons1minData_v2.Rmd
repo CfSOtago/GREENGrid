@@ -23,7 +23,7 @@ bibliography: ../bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 ```
 
 ```{r codeSetup, include=FALSE}
@@ -74,14 +74,15 @@ nzGREENGrid::loadLibraries(rmdLibs)
 
 # Status
 
-```{r reportStatus, echo = FALSE}
+```{r reportStatus, include = FALSE}
 if(baTest){
-  print(paste0("Test data run using data from ", fpath))
+  msg <- paste0("Test run using reduced data from ", fpath)
 } else {
-  print(paste0("Full data run using data from ", fpath))
+  msg <- paste0("Full run using all data from ", fpath)
 }
 ```
 
+`r msg`
 
 # Citation
 
@@ -145,6 +146,7 @@ In this run we are using data from:
 If these do not match then this may be a test run.
 
 ```{r getCompleteFileList}
+# get file list via R script
 
 source("../scripts/process1minGridSpyFiles.R")
 
@@ -162,7 +164,7 @@ Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteD
 
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
-```{r initialDateFormatTable, echo=FALSE}
+```{r initialDateFormatTable}
 
 # short cut if interim file list already saved ----
 #ifile <- paste0(outPath, fListInterim)
@@ -188,7 +190,7 @@ We now inspect the ambiguous and (some of) the default files.
 
 To help with data cleaning the following table lists files that have ambiguous dates.
 
-```{r listAmbigFiles}
+```{r listAmbigFiles, echo=TRUE}
 # list ambigious files
 aList <- fListCompleteDT[dateFormat == "ambiguous", 
                          .(file, dateColName, dateExample, dateFormat)]
@@ -202,7 +204,7 @@ knitr::kable(caption = cap, aList)
 
 Check against file names to see what is reasonable and then fix them.
 
-```{r setAmbiguous}
+```{r setAmbiguous, echo=TRUE}
 # Setting to dmy seems OK
 fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", 
                                    dateFormat := "dmy - inferred"]
@@ -213,8 +215,8 @@ paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
 
 The following table lists up to 10 of the 'date NZ' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
-```{r listDefaultDateFilesNZT}
-# list default files
+```{r listDefaultDateFilesNZT, echo=TRUE}
+# list default files with NZ time
 aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", 
                          .(file, fSize, dateColName, dateExample, dateFormat)]
 
@@ -222,15 +224,12 @@ cap <- paste0("First 10 (max) of ", nrow(aList),
               " files with dateColName = 'date NZ' and default dateFormat")
 
 knitr::kable(caption = cap, head(aList))
-
 ```
-
-
 
 The following table lists up to 10 of the 'date UTC' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
 
-```{r listDefaultDateFilesUTC}
-# list default files
+```{r listDefaultDateFilesUTC, echo=TRUE}
+# list default files with UTC time
 aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", 
                          .(file, fSize, dateColName, dateExample, dateFormat)]
 
@@ -238,13 +237,12 @@ cap <- paste0("First 10 (max) of ", nrow(aList),
               " files with dateColName = 'date UTC' and default dateFormat")
 
 knitr::kable(caption = cap, head(aList, 10))
-
-
 ```
 
 Check final date formats:
 
 ```{r finalDateFormatTable}
+# See what the date formats look like now
 t <- fListCompleteDT[, .(nFiles = .N, 
                          minDate = min(dateExample), # may not make much sense
                          maxDate = max(dateExample)), 
@@ -318,7 +316,8 @@ In this section we load the data files that have a file size > `r dataThreshold`
  
 The following table shows the number of files per household that we willl load.
 
-```{r filesToLoadTable}
+```{r filesToLoadTable, echo=TRUE}
+# check files to load
 t <- fListCompleteDT[dateColName %like% "do not load", .(nFiles = .N,
                        meanSize = mean(fSize),
                        minFileDate = min(fMDate),
@@ -328,8 +327,8 @@ knitr::kable(caption = "Summary of household files to load", t)
 ```
 
 
-```{r loadValidFiles}
-#load data here
+```{r loadValidFiles, echo=TRUE}
+# load data using external R script
 source("../scripts/process1minGridSpyData.R")
 
 ```
@@ -346,7 +345,7 @@ The following table shows the number of data files with different circuit labels
 # short cut if exists already
 #ifile <- paste0(outPath, fListFinal)
 #fListCompleteDT <- fread(ifile)
-t <- table(fListCompleteDT$hhID,fListCompleteDT$circuitLabels)
+t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
 knitr::kable(caption = "Circuit labels list by household", t)
 
 ```
@@ -498,7 +497,7 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
 # Runtime
 
 
-```{r check runtime, echo=FALSE}
+```{r check runtime, include=FALSE}
 t <- proc.time() - startTime
 
 elapsed <- t[[3]]
