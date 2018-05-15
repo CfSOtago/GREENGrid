@@ -13,8 +13,8 @@ This repo follows the structure of an [R package](https://github.com/ropensci/rr
 
  * clone/fork the repo and then build & install locally (see http://r-pkgs.had.co.nz/git.html for tips)
  * we think this ought to work but it doesn't:
-     * install.packages("devtools") and then:
-     * devtools::install_github("ba1e12/nzGREENGrid", host = "https://git.soton.ac.uk") - NB 'host' matters, otherwise it will look on github...
+     * `install.packages("devtools")` and then:
+     * `devtools::install_github("ba1e12/nzGREENGrid", host = "https://git.soton.ac.uk")` - NB 'host' matters, otherwise it will look on github...
 
 ## Funding support
 
