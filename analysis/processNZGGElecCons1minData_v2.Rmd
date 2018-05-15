@@ -4,6 +4,12 @@ title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electrici
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
   html_document:
     code_folding: hide
     fig_caption: true
@@ -12,12 +18,6 @@ output:
     self_contained: no
     toc: true
     toc_float: true
-    toc_depth: 2
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
     toc_depth: 2
 bibliography: bibliography.bib
 ---
@@ -58,7 +58,7 @@ fListFinal <- "fListCompleteDT_final.csv" # place to store the final complete fi
 dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
 # Load greenGrid package ----
-library(nzGREEnGrid) # local utilities
+library(nzGREENGrid) # local utilities
 
 # Other packages ----
 reqLibs <- c("data.table", # for data munching
@@ -70,7 +70,7 @@ reqLibs <- c("data.table", # for data munching
              "knitr" # for kable
 )
 
-nzGREEnGrid::loadLibraries(reqLibs)
+nzGREENGrid::loadLibraries(reqLibs)
 
 # Local functions ----
 # move to package?
@@ -135,79 +135,6 @@ gs_checkDates <- function(dt) {
   return(dt)
 }
 
-gs_process1minGridSpyFileList <- function(dt){
-  # dt = the file list as a data.table
-  print(paste0("Processing file list and getting file meta-data (please be patient)"))
-  print(data.table::is.data.table(dt))
-  dt <- dt[, c("hhID","fileName") := data.table::tstrsplit(V1, "/")]
-  dt <- dt[, fullPath := paste0(fpath, hhID,"/",fileName)]
-  loopCount <- 1
-  # now loop over the files and collect metadata
-  for(f in dt[,fullPath]){
-    rf <- path.expand(f) # just in case of ~ etc
-    fsize <- file.size(rf)
-    fmtime <- lubridate::ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
-    dt <- dt[fullPath == f, fSize := fsize]
-    dt <- dt[fullPath == f, fMTime := fmtime]
-    dt <- dt[fullPath == f, fMDate := as.Date(fmtime)]
-    dt <- dt[fullPath == f, dateColName := paste0("unknown - file not loaded (fsize = ", fsize, ")")]
-    # only try to read files where we think there might be data
-    loadThis <- ifelse(fsize > dataThreshold, "Loading (fsize > threshold)", "Skipping (fsize < threshold)")
-    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
-                            " (", round(100*(loopCount/nFiles),2), "% checked): ", loadThis))}
-    if(fsize > dataThreshold){
-      if(fullFb){print(paste0("fSize (", fsize, ") > threshold (", dataThreshold, ") -> loading ", f))}
-      row1DT <- fread(f, nrows = 1)
-      # what is the date column called?
-      dt <- dt[fullPath == f, dateColName := "unknown - can't tell"]
-      if(nrow(dplyr::select(row1DT, dplyr::contains("NZ"))) > 0){ # requires dplyr
-        setnames(row1DT, 'date NZ', "dateTime_char")
-        row1DT <- row1DT[, dateColName := "date NZ"]
-        dt <- dt[fullPath == f, dateColName := "date NZ"]
-      }
-      if(nrow(dplyr::select(row1DT, dplyr::contains("UTC"))) > 0){ # requires dplyr
-        setnames(row1DT, 'date UTC', "dateTime_char")
-        row1DT <- row1DT[, dateColName := "date UTC"]
-        dt <- dt[fullPath == f, dateColName := "date UTC"]
-      }
-      # split dateTime
-      row1DT <- row1DT[, c("date_char", "time_char") := data.table::tstrsplit(dateTime_char, " ")]
-      # add example of date to metadata - presumably they are the same in each file?!
-      dt <- dt[fullPath == f, dateExample := row1DT[1, date_char]]
-
-      if(fullFb){print(paste0("Checking date formats in ", f))}
-      dt <- checkDates(row1DT)
-      dt <- dt[fullPath == f, dateFormat := dt[1, dateFormat]]
-      dt <- dt[fullPath == f, dateFormat := dt[1, dateFormat]]
-      if(fullFb){print(paste0("Done ", f))}
-    }
-    loopCount <- loopCount + 1
-  }
-  print("All files checked")
-
-  # any date formats are still ambiguous - need a deeper inspection using the full file - could be slow
-  fAmbig <- dt[dateFormat == "ambiguous", fullPath]
-
-  for(fa in fAmbig){
-    if(baTest | fullFb){print(paste0("Checking ambiguous date formats in ", fa))}
-    ambDT <- fread(fa)
-    if(nrow(dplyr::select(ambDT, dplyr::contains("NZ"))) > 0){ # requires dplyr
-      setnames(ambDT, 'date NZ', "dateTime_char")
-    }
-    if(nrow(dplyr::select(ambDT, dplyr::contains("UTC"))) > 0){ # requires dplyr
-      setnames(ambDT, 'date UTC', "dateTime_char")
-    }
-    ambDT <- ambDT[, c("date_char", "time_char") := data.table::tstrsplit(dateTime_char, " ")]
-    ambDT <- gs_checkDates(ambDT) # use check dates function
-    # set what we now know (or guess!)
-    dt <- dt[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
-  }
-  if(nrow(fAmbig) > 0){
-    print("Finished deeper checking of files with ambiguous date formats")
-  }
-  dt <- setnames(dt, "V1", "file")
-  return(dt)
-}
 ```
 
 \newpage
@@ -284,11 +211,80 @@ print(paste0("Found ", tidyNum(nFiles), " files"))
 ```
 
 ```{r processCompleteFileList}
-fListCompleteDT <- gs_process1minGridSpyFileList(fListCompleteDT)  
-ofile <- paste0(outPath, fListInterim)
-print(paste0("Saving 1 minute data files interim metadata to ", ofile))
-write.csv(fListCompleteDT, ofile)
-print("Done")
+if(nrow(fListCompleteDT) == 0){
+  stop(paste0("No matching data files found, please check your path (", fpath, ") or your search pattern (", pattern1Min, ")"))
+} else {
+  print(paste0("Processing file list and getting file meta-data (please be patient)"))
+  fListCompleteDT <- fListCompleteDT[, c("hhID","fileName") := data.table::tstrsplit(V1, "/")]
+  fListCompleteDT <- fListCompleteDT[, fullPath := paste0(fpath, hhID,"/",fileName)]
+  loopCount <- 1
+  # now loop over the files and collect metadata
+  for(f in fListCompleteDT[,fullPath]){
+    rf <- path.expand(f) # just in case of ~ etc
+    fsize <- file.size(rf)
+    fmtime <- lubridate::ymd_hms(file.mtime(rf), tz = "Pacific/Auckland") # requires lubridate
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fSize := fsize]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fMTime := fmtime]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, fMDate := as.Date(fmtime)]
+    fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := paste0("unknown - file not loaded (fsize = ", fsize, ")")]
+    # only try to read files where we think there might be data
+    loadThis <- ifelse(fsize > dataThreshold, "Loading (fsize > threshold)", "Skipping (fsize < threshold)")
+    if(fullFb){print(paste0("Checking file ", loopCount, " of ", nFiles ,
+                            " (", round(100*(loopCount/nFiles),2), "% checked): ", loadThis))}
+    if(fsize > dataThreshold){
+      if(fullFb){print(paste0("fSize (", fsize, ") > threshold (", dataThreshold, ") -> loading ", f))}
+      row1DT <- fread(f, nrows = 1)
+      # what is the date column called?
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "unknown - can't tell"]
+      if(nrow(dplyr::select(row1DT, dplyr::contains("NZ"))) > 0){ # requires dplyr
+        setnames(row1DT, 'date NZ', "dateTime_char")
+        row1DT <- row1DT[, dateColName := "date NZ"]
+        fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "date NZ"]
+      } 
+      if(nrow(dplyr::select(row1DT, dplyr::contains("UTC"))) > 0){ # requires dplyr
+        setnames(row1DT, 'date UTC', "dateTime_char")
+        row1DT <- row1DT[, dateColName := "date UTC"]
+        fListCompleteDT <- fListCompleteDT[fullPath == f, dateColName := "date UTC"]
+      }
+      # split dateTime
+      row1DT <- row1DT[, c("date_char", "time_char") := data.table::tstrsplit(dateTime_char, " ")]
+      # add example of date to metadata - presumably they are the same in each file?!
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateExample := row1DT[1, date_char]]
+      
+      if(fullFb){print(paste0("Checking date formats in ", f))}
+      dt <- gs_checkDates(row1DT)
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
+      fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
+      if(fullFb){print(paste0("Done ", f))}
+    }
+    loopCount <- loopCount + 1
+  }
+  print("All files checked")
+  
+  # any date formats are still ambiguous need a deeper inspection using the full file - could be slow
+  fAmbig <- fListCompleteDT[dateFormat == "ambiguous", fullPath]
+  
+  for(fa in fAmbig){
+    if(baTest | fullFb){print(paste0("Checking ambiguous date formats in ", fa))}
+    ambDT <- fread(fa)
+    if(nrow(dplyr::select(ambDT, dplyr::contains("NZ"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date NZ', "dateTime_char")
+    } 
+    if(nrow(dplyr::select(ambDT, dplyr::contains("UTC"))) > 0){ # requires dplyr
+      setnames(ambDT, 'date UTC', "dateTime_char")
+    }
+    ambDT <- ambDT[, c("date_char", "time_char") := data.table::tstrsplit(dateTime_char, " ")]
+    ambDT <- gs_checkDates(ambDT)
+    # set what we now know (or guess!)
+    fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
+  }
+  fListCompleteDT <- setnames(fListCompleteDT, "V1", "file")
+  
+  ofile <- paste0(outPath, fListInterim)
+  print(paste0("Saving 1 minute data files interim metadata to ", ofile))
+  write.csv(fListCompleteDT, ofile)
+  print("Done")
+}
 
 print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", uniqueN(fListCompleteDT$hhID), " households."))
 
