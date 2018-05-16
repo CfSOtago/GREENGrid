@@ -327,7 +327,8 @@ knitr::kable(caption = "Summary of household files to load", t)
 ```
 
 
-```{r loadValidFiles, echo=TRUE}
+```{r loadValidFiles, echo=TRUE, include=FALSE}
+# do not include outputs as it breaks the pdf render (why?)
 # load data using external R script
 source("../scripts/process1minGridSpyData.R")
 
@@ -503,7 +504,7 @@ t <- proc.time() - startTime
 elapsed <- t[[3]]
 ```
 
-Analysis completed in `r elapsed` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+Analysis completed in `r round(elapsed,2)` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
 
 # R environment
 
