@@ -342,7 +342,7 @@ Now produce some data quality plots & tables.
 
 The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. 
 
-> NB: This table is only legible in the html version of this report. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
+> NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
 
 ```{r circuitLabelCheck}
 # short cut if exists already
@@ -395,7 +395,7 @@ The following table provides more detail to aid error checking. Check for:
  
 If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
 
-> NB: As before, the table is only legible in the html version of this report. A version is saved in `r paste0(outPath, "circuitLabelMetaDataCheckTable.csv")` for viewing in e.g. xl.
+> NB: As before, the table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelMetaDataCheckTable.csv")` for viewing in e.g. xl.
 
 ```{r circuitLabelMetaDataCheck}
 knitr::kable(dt, 
