@@ -57,7 +57,7 @@ dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or 
 # Load nzGREENGrid package ----
 library(nzGREENGrid) # local utilities
 
-# Packages needed in thie .Rmd file ----
+# Packages needed in this .Rmd file ----
 rmdLibs <- c("ggplot2", # for fancy graphs
              "knitr", # for kable
              "kableExtra" # for extra kable
