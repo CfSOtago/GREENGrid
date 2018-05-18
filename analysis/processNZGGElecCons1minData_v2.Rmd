@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -342,6 +342,8 @@ Now produce some data quality plots & tables.
 
 The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. 
 
+> NB: This table is only legible in the html version of this report. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
+
 ```{r circuitLabelCheck}
 # short cut if exists already
 #ifile <- paste0(outPath, fListFinal)
@@ -349,6 +351,8 @@ The following table shows the number of data files with different circuit labels
 t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
 knitr::kable(caption = "Circuit labels list by household", t)
 
+ofile <- paste0(outPath, "circuitLabelCheckTable.csv")
+write.csv(t, ofile)
 ```
 
 If this is not the case then this implies that:
@@ -391,9 +395,14 @@ The following table provides more detail to aid error checking. Check for:
  
 If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
 
+> NB: As before, the table is only legible in the html version of this report. A version is saved in `r paste0(outPath, "circuitLabelMetaDataCheckTable.csv")` for viewing in e.g. xl.
+
 ```{r circuitLabelMetaDataCheck}
 knitr::kable(dt, 
              caption = "Circuit labels by household with addiitonal meta-data")
+
+ofile <- paste0(outPath, "circuitLabelMetaDataCheckTable.csv")
+write.csv(t, ofile)
 ```
 
 Things to note:
