@@ -27,68 +27,6 @@ nzGREENGrid::loadLibraries(localLibs)
 
 #> Script functions ----
 
-gs_checkDates <- function(dt) {
-  # move to package?
-  # Check the date format as it could be y-m-d or d/m/y or m/d/y :-(
-  dt <- dt[, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "/")]
-  # if this split failed then tstrsplit puts the dateVar in each one so we can check
-  # this assumes we never have 9-9-9 10-10-10 or 11-11-11 or 12-12-12 !
-  # would be better if data.table::tstrsplit returned an error if the split failed? We could then check for NA?
-  dt <- dt[, splitFailed := ifelse(date_char1 == date_char2 & date_char1 == date_char3, TRUE, FALSE)]
-  # and then split on / instead
-  dt <- dt[splitFailed == TRUE, c("date_char1","date_char2", "date_char3") := data.table::tstrsplit(date_char, "-")] # requires data.table
-
-  dt$dateFormat <- "ambiguous" # default
-  # Days: 1-31
-  # Months: 1 - 12
-  # Years: could be 2 digit 15 - 18 or 4 digit 2015 - 2018 (+)
-  max1 <- max(as.integer(dt$date_char1))
-  #print(paste0("max1 = " , max1))
-  max2 <- max(as.integer(dt$date_char2))
-  #print(paste0("max2 = " , max2))
-  max3 <- max(as.integer(dt$date_char3))
-  #print(paste0("max3 = " , max3))
-
-  if(max1 > 31){
-    # char 1 = year so default is ymd
-    dt$dateFormat <- "ymd - default (but day/month value <= 12)"
-    if(max2 > 12){
-      # char 2 = day - very unlikely
-      dt$dateFormat <- "ydm"
-    }
-    if(max3 > 12){
-      # char 3 = day
-      dt$dateFormat <- "ymd - definite"
-    }
-  }
-  if(max2 > 31){
-    # char 2 is year - this is very unlikely
-    if(max1 > 12){
-      # char 1 = day
-      dt$dateFormat <- "dym"
-    }
-    if(max3 > 12){
-      # char 3 = day
-      dt$dateFormat <- "myd"
-    }
-  }
-  if(max3 > 31){
-    # char 3 is year so default is dmy
-    dt$dateFormat <- "dmy - default (but day/month value <= 12)"
-    if(max1 > 12){
-      # char 1 = day so char 2 = month
-      dt$dateFormat <- "dmy - definite"
-    }
-    if(max2 > 12){
-      # char 2 = day so char 1 = month
-      dt$dateFormat <- "mdy - definite"
-    }
-  }
-
-
-  return(dt)
-}
-
 # Code ----
 
 #> Check for 1 minute files using function ----
@@ -146,7 +84,7 @@ if(nrow(fListCompleteDT) == 0){
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateExample := row1DT[1, date_char]]
 
       if(fullFb){print(paste0("Checking date formats in ", f))}
-      dt <- gs_checkDates(row1DT)
+      dt <- nzGREENGrid::checkDates(row1DT)
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       fListCompleteDT <- fListCompleteDT[fullPath == f, dateFormat := dt[1, dateFormat]]
       if(fullFb){print(paste0("Done ", f))}
@@ -169,7 +107,7 @@ if(nrow(fListCompleteDT) == 0){
       setnames(ambDT, 'date UTC', "dateTime_char")
     }
     ambDT <- ambDT[, c("date_char", "time_char") := data.table::tstrsplit(dateTime_char, " ")]
-    ambDT <- gs_checkDates(ambDT)
+    ambDT <- nzGREENGrid::checkDates(ambDT)
     # set what we now know (or guess!)
     fListCompleteDT <- fListCompleteDT[fullPath == fa, dateFormat := ambDT[1,dateFormat]]
   }
