@@ -4,6 +4,12 @@ title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electrici
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
   html_document:
     code_folding: hide
     fig_caption: true
@@ -12,12 +18,6 @@ output:
     self_contained: no
     toc: true
     toc_float: true
-    toc_depth: 2
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
     toc_depth: 2
 bibliography: ../bibliography.bib
 ---
@@ -340,7 +340,13 @@ Now produce some data quality plots & tables.
 
 ## Circuit label checks
 
-The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. 
+The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:
+
+ * some of the circuit labels for these households may have been changed during the data collection process;
+ * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
+ * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering). This will be visible in the table if two households appear to share _exactly_ the same list of circuit labels.
+
+Some or all of these may be true at any given time!
 
 > NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
 
@@ -354,14 +360,6 @@ knitr::kable(caption = "Circuit labels list by household", t)
 ofile <- paste0(outPath, "circuitLabelCheckTable.csv")
 write.csv(t, ofile)
 ```
-
-If this is not the case then this implies that:
-
- * some of the circuit labels for these households may have been changed during the data collection process;
- * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
- * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering). This will be visible in the table if two households appear to share _exactly_ the same list of circuit labels.
-
-Some or all of these may be true at any given time!
 
 Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.
 
@@ -407,7 +405,7 @@ write.csv(dt, ofile)
 
 Things to note:
 
- * rf_25 has an aditional unexpected "Incomer 1 - Uncontrolled$2757" circuit in some files but it's value is always NA
+ * rf_25 has an aditional unexpected "Incomer 1 - Uncontrolled$2757" circuit in some files but it's value is always NA so we have not 'corrected' this.
  
 ## Observations
 
