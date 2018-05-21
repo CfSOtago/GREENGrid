@@ -18,11 +18,11 @@ output:
     toc: true
     toc_float: true
     toc_depth: 2
-bibliography: bibliography.bib
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE) # do not echo code by default
 ```
 
 ```{r codeSetup, include=FALSE}
@@ -44,7 +44,7 @@ unisonPath <- paste0(diaryPath, "Unison/Unison Raw Data/Raw data with paper diar
 linkLUT <- paste0(dPath, "_RAW DATA/TUD_2_GridSpyLookup.xlsx")
 
 # Load greenGrid package ----
-library(greenGridr) # local utilities
+library(nzGREENGrid) # local utilities
 
 # Other packages ----
 reqLibs <- c("data.table", # for data munching
@@ -57,7 +57,7 @@ reqLibs <- c("data.table", # for data munching
              "knitr" # for kable
 )
 
-greenGridr::loadLibraries(reqLibs)
+nzGREENGrid::loadLibraries(reqLibs)
 
 # Local functions ----
 
@@ -116,11 +116,7 @@ This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southa
 
 We do not 'support' the code but if you have a problem check the [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues) on our [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid) and if it doesn't already exist, open one. We might be able to fix it :-)
 
-# Load files
-
-In this section we load and test the two time-use survey datasets.
-
-## PowerCo
+# PowerCo
 
 This consists of 1 file found in `r powerCoPath`:
 
@@ -130,6 +126,8 @@ This is a version of TUD (Merged data).csv with:
 
  * small edits to correct dates
  * redundant rows removed from file header
+
+## Load & process
 
 ```{r getTUDPowerco}
 
@@ -173,6 +171,8 @@ write.csv(tudPowerCoDT, ofile)
 print("Done")
 ```
 
+## Tests
+
 Should all be in August 2014...
 
 ```{r powerCoDiaryPlot}
@@ -195,7 +195,7 @@ ggplot2::ggsave(paste0(outPath, "powerCoTUDdates.png"))
 
 In total we have `r nrow(tudPowerCoDT)` diaries from `r uniqueN(tudPowerCoDT$hhID)` PowerCo households.
 
-## Unison
+# Unison
 
 This consists of 5 files found in `r unisonPath`:
 
@@ -206,6 +206,8 @@ This consists of 5 files found in `r unisonPath`:
  * TUDTeenagerorChild-Unison_forSAS_BA.xlsx
  
 As before these are copies of the original versions with slight editing to correct dates and for ease of processing. The relationship between them is currently unclear!
+
+## Load & process
 
 ```{r getTUDUnison`}
 
@@ -228,9 +230,9 @@ nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nr
 print(paste0("Found ", tidyNum(nRows), " rows in total"))
 ```
 
-Now process the Unison data.
 
-```{r processUnison}
+
+```{r process Unison}
 
 processUnison <- function(dt){
   # Fix names of variables ----
@@ -254,53 +256,37 @@ tudUnisonAdultDT <- processUnison(tudUnisonAdultDT)
 tudUnisonTeenChDT <- processUnison(tudUnisonTeenChDT)
 
 
-# join them together ----
-# column name explosion
+# Join the various Unison files them together ----
+# produces column name explosion
 l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUnisonTeenChDT)
 tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
+```
 
+```{r clean unison data}
+# Remove identifying data ----
+tudUnisonAllDT <- tudUnisonAllDT[, c("Name","EmailAddress","IPAddress") := NULL]
+```
+
+```{r check Unison dates}
 # Check for non-parsed diary dates
-t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(r_diaryDate, tudCode)])
+t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(ResponseID,r_diaryDate, tudCode, StartDate, EndDate)])
 knitr::kable(caption = "Test diaryDates that did not parse", t)
+```
 
+
+```{r report edited dates}
 # report edited diary dates (done in .xlsx)
 t <- tudUnisonAllDT[!is.na(dateNote),.(r_diaryDate, tudCode, dateNote, sourceFile)]
 knitr::kable(caption = "Report diaries with edited diary dates (done in .xlsx before loading)", t)
+```
 
+```{r unison diaries summary table}
 # Summary table ----
 t <- tudUnisonAllDT[, .(nDiaries = .N,
                       minDiaryDate = min(r_diaryDate),
                       maxDiaryDate = max(r_diaryDate)), keyby = .(tudCode)]
 
 knitr::kable(caption = "Summary of Unison diaries by household", t)
-```
-
-All of the diaries should be in July/August 2015...
-
-```{r unisonDiaryPLot}
-myCaption <- paste0("Data source: ", unisonPath)
-
-plotDT <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(r_diaryDate)]
-ggplot2::ggplot(plotDT, aes(x = as.Date(r_diaryDate), y = nDiaries)) +
-  geom_point() +
-    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Number of Unison diaries per day",
-       caption = paste0(myCaption),
-       x = "Date",
-       y = "Total number of diaries"
-    
-  )
-ggplot2::ggsave(paste0(outPath, "unisonTUDdates.png"))
-
-```
-
-If any of them are earlier than July 2015 they are flagged below for ease of fixing.
-
-```{r listPossibleDateErrors}
-t <- tudUnisonAllDT[r_diaryDate < "2015-07-01", .(nDiaries = .N), keyby = .(r_diaryDate, tudCode, sourceFile)]
-cap <- paste0("Households with potential diary date errors")
-knitr::kable(caption = cap, t)
 ```
 
 The tudCodes are _not_ the gridSpy ids, we need to create these from the unison sheet in `r linkLUT`.
@@ -335,6 +321,39 @@ write.csv(tudUnisonAllDT, ofile)
 print("Done")
 ```
 
+## Tests
+
+All of the diaries should be in July/August 2015...
+
+```{r unisonDiaryPLot}
+myCaption <- paste0("Data source: ", unisonPath)
+
+plotDT <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(r_diaryDate)]
+ggplot2::ggplot(plotDT, aes(x = as.Date(r_diaryDate), y = nDiaries)) +
+  geom_point() +
+    scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  labs(title = "Number of Unison diaries per day",
+       caption = paste0(myCaption),
+       x = "Date",
+       y = "Total number of diaries"
+    
+  )
+ggplot2::ggsave(paste0(outPath, "unisonTUDdates.png"))
+
+```
+
+If any of them are earlier than July 2015 they are flagged below for ease of fixing.
+
+```{r listPossibleDateErrors}
+t <- tudUnisonAllDT[r_diaryDate < "2015-07-01", .(nDiaries = .N), keyby = .(r_diaryDate, tudCode, sourceFile)]
+cap <- paste0("Households with potential diary date errors")
+knitr::kable(caption = cap, t)
+```
+
+# Summary
+
+
 # Runtime
 
 
@@ -357,8 +376,10 @@ R packages used: `r reqLibs`
  * readr - for csv reading/writing [@readr]
  * dplyr - for select and contains [@dplyr]
  * knitr - to create this document [@knitr]
- * greenGridr - for local NZ GREEN Grid utilities
+ * nzGREENGrid - for local NZ GREEN Grid utilities
  
 ```{r sessionInfo}
 sessionInfo()
 ```
+
+# References
