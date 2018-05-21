@@ -85,7 +85,7 @@ data}
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-05-22 09:46:35}
+  \date{Last run at: 2018-05-22 10:08:59}
 
 
 \begin{document}
@@ -223,6 +223,33 @@ This is a version of TUD (Merged data).csv with:
 ## [1] "Found 352 rows of data"
 \end{verbatim}
 
+\begin{verbatim}
+## [1] "Removing unsafe vars: RowNum"      
+## [2] "Removing unsafe vars: Name"        
+## [3] "Removing unsafe vars: EmailAddress"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Fixing variable names"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Fixing dates"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Fixing hhID"
+\end{verbatim}
+
+The following table summarises the PowerCo cleaned diary data. In theory
+we should have 1 diary per day per person - so a 1 person household
+should have produced 7 diaries\ldots{} A 3 person household would
+produce 14 if there were two adults and 1 child (for example).
+
+\begin{quote}
+What was the age cut off for diary completion?
+\end{quote}
+
 \begin{longtable}[]{@{}lrrll@{}}
 \caption{Summary of PowerCo diaries by household}\tabularnewline
 \toprule
@@ -310,6 +337,23 @@ them is currently unclear!
 ## [1] "Found 352 rows in total"
 \end{verbatim}
 
+\begin{verbatim}
+## [1] "Removing unsafe vars: Name"        
+## [2] "Removing unsafe vars: EmailAddress"
+## [3] "Removing unsafe vars: IPAddress"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Fixing variable names"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Fixing hhID"
+\end{verbatim}
+
+The following table lists rows where the diary date did not parse (for
+error checking).
+
 \begin{longtable}[]{@{}lllll@{}}
 \caption{Test diaryDates that did not parse}\tabularnewline
 \toprule
@@ -325,6 +369,9 @@ NA & NA & NA & NA & NA\tabularnewline
 NA & NA & NA & 2015-07-21 21:12:46 & 2015-07-21 21:13:00\tabularnewline
 \bottomrule
 \end{longtable}
+
+The following table reports any diaries where the dates were manually
+edited before loading.
 
 \begin{longtable}[]{@{}llll@{}}
 \caption{Report diaries with edited diary dates (done in .xlsx before
@@ -378,6 +425,8 @@ TUDTeenagerorChild-Unison\_forSAS\_BA.xlsx\tabularnewline
 \bottomrule
 \end{longtable}
 
+The following table summarises the Unison diary data.
+
 \begin{longtable}[]{@{}lrll@{}}
 \caption{Summary of Unison diaries by household}\tabularnewline
 \toprule
@@ -412,12 +461,13 @@ NA & 3 & NA & NA\tabularnewline
 \bottomrule
 \end{longtable}
 
-The tudCodes are \emph{not} the gridSpy ids, we need to create these
-from the unison sheet in /Volumes/hum-csafe/Research Projects/GREEN
-Grid/\_RAW DATA/TUD\_2\_GridSpyLookup.xlsx.
+Note thaty the tudCodes found in the .csv files are \emph{not} the
+gridSpy household ids, we need to create these from the unison sheet in
+/Volumes/hum-csafe/Research Projects/GREEN Grid/\_RAW
+DATA/TUD\_2\_GridSpyLookup.xlsx.
 
 \begin{longtable}[]{@{}rll@{}}
-\caption{Linking table}\tabularnewline
+\caption{Unison linking table}\tabularnewline
 \toprule
 CODE & tag\_gridSpy\_Hhid & source\tabularnewline
 \midrule
@@ -451,7 +501,7 @@ CODE & tag\_gridSpy\_Hhid & source\tabularnewline
 \end{longtable}
 
 \begin{longtable}[]{@{}llr@{}}
-\caption{Check linkage: there should be 1 or 2 diaries for each
+\caption{Check linkage: there should be n * 7 diaries for each
 combination}\tabularnewline
 \toprule
 linkCode & hhID & nDiaries\tabularnewline
@@ -514,9 +564,21 @@ r\_diaryDate tudCode sourceFile nDiaries ------------ --------
 
 \section{Summary}\label{summary}
 
+Total responses:
+
+\begin{itemize}
+\tightlist
+\item
+  PowerCo - 352 diaries from 22 households for the period 2014-08-23 to
+  2014-09-01.
+\item
+  Unison - 363 diaries from 20 households for the period 2015-07-20 to
+  2015-08-09.
+\end{itemize}
+
 \section{Runtime}\label{runtime}
 
-Analysis completed in 13.31 seconds ( 0.22 minutes) using
+Analysis completed in 16.42 seconds ( 0.27 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.4.4 (2018-03-15)
 running on x86\_64-apple-darwin15.6.0.

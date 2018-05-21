@@ -139,23 +139,34 @@ print(paste0("Found ", tidyNum(nRows), " rows of data"))
 
 ```{r processPowerCo}
 # Remove identifying data ----
-tudPowerCoDT <- tudPowerCoDT[, c("RowNum", "Name","EmailAddress") := NULL]
+unsafe <- c("RowNum", "Name","EmailAddress")
+print(paste0("Removing unsafe vars: ", unsafe))
+tudPowerCoDT <- tudPowerCoDT[, eval(unsafe) := NULL]
 
 # Fix names of variables ----
+print(paste0("Fixing variable names"))
 tudPowerCoDT <- data.table::setnames(tudPowerCoDT, 
                                     c("Family size", "Choose the date of your diary / entry:"), 
                                     c("ba_nPeople", "diaryDate")
 )
 
 # Fix dates ----
+print(paste0("Fixing dates"))
 tudPowerCoDT <- tudPowerCoDT[, r_diaryDate := lubridate::mdy(diaryDate)]
 
 # Fix the hhid
+print(paste0("Fixing hhID"))
 tudPowerCoDT <- tudPowerCoDT[, hhID := paste0("rf_", HHCODE)]
 tudPowerCoDT <- tudPowerCoDT[, hhID := ifelse(as.integer(HHCODE) < 10, 
                                               paste0("rf_0", HHCODE), # single digit so needs '0'
                                                      hhID)]
+```
 
+The following table summarises the PowerCo cleaned diary data. In theory we should have 1 diary per day per person - so a 1 person household should have produced 7 diaries... A 3 person household would produce 14 if there were two adults and 1 child (for example).
+
+> What was the age cut off for diary completion?
+
+```{r powerco summary table}
 # Summary table ----
 t <- tudPowerCoDT[, .(nDiaries = .N,
                       familySize = mean(ba_nPeople, na.rm = TRUE),
@@ -226,46 +237,36 @@ tudUnisonAdultDT$sourceFile <- "TUDAdult-Unison-forSAS_BA.xlsx"
 tudUnisonTeenChDT <- data.table::as.data.table(read_xlsx(paste0(unisonPath, "TUDTeenagerorChild-Unison_forSAS_BA.xlsx")))
 tudUnisonTeenChDT$sourceFile <- "TUDTeenagerorChild-Unison_forSAS_BA.xlsx"
 
-nRows <- nrow(tudUnison1chDT) + nrow(tudUnison2chDT) + nrow(tudUnison3chDT) + nrow(tudUnisonAdultDT) + nrow(tudUnisonTeenChDT)
-print(paste0("Found ", tidyNum(nRows), " rows in total"))
-```
-
-
-
-```{r process Unison}
-
-processUnison <- function(dt){
-  # Fix names of variables ----
-  # do not rename as it's then hard to trace errors
-  dt <- dt[, r_diaryDate := `Choose the date of your diary / entry:`]
-  dt <- dt[, code := `Please enter your designated / CODE`]
-
-  # Fix dates ----
-  #dt <- dt[, r_diaryDate := lubridate::dmy(diaryDate)] # not needed as read_xls gets it right :-)
-  #dt <- dt[, r_surveyStart := lubridate::dmy_hms(StartDate)]
-  #dt <- dt[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
-  
-  # Fix hhID ----
-  dt <- dt[, tudCode := substr(code, 0, 2)] # extracts char 1
-}
-
-tudUnison1chDT <- processUnison(tudUnison1chDT)
-tudUnison2chDT <- processUnison(tudUnison2chDT)
-tudUnison3chDT <- processUnison(tudUnison3chDT)
-tudUnisonAdultDT <- processUnison(tudUnisonAdultDT)
-tudUnisonTeenChDT <- processUnison(tudUnisonTeenChDT)
-
-
 # Join the various Unison files them together ----
 # produces column name explosion
 l <- list(tudUnison1chDT,tudUnison2chDT,tudUnison3chDT,tudUnisonAdultDT,tudUnisonTeenChDT)
 tudUnisonAllDT <- data.table::rbindlist(l, fill = TRUE)
+
+print(paste0("Found ", tidyNum(nrow(tudUnisonAllDT)), " rows in total"))
 ```
 
 ```{r clean unison data}
 # Remove identifying data ----
-tudUnisonAllDT <- tudUnisonAllDT[, c("Name","EmailAddress","IPAddress") := NULL]
+unsafe <- c("Name","EmailAddress","IPAddress")
+print(paste0("Removing unsafe vars: ", unsafe))
+tudUnisonAllDT <- tudUnisonAllDT[, eval(unsafe) := NULL]
+
+# do not rename as it's then hard to trace errors
+print(paste0("Fixing variable names"))
+tudUnisonAllDT <- tudUnisonAllDT[, r_diaryDate := `Choose the date of your diary / entry:`]
+tudUnisonAllDT <- tudUnisonAllDT[, code := `Please enter your designated / CODE`]
+
+# Fix dates ----
+#dt <- dt[, r_diaryDate := lubridate::dmy(diaryDate)] # not needed as read_xls gets it right :-)
+#dt <- dt[, r_surveyStart := lubridate::dmy_hms(StartDate)]
+#dt <- dt[, r_surveyEnd := lubridate::dmy_hms(EndDate)]
+
+# Fix hhID ----
+print(paste0("Fixing hhID"))
+tudUnisonAllDT <- tudUnisonAllDT[, tudCode := substr(code, 0, 2)] # extracts char 1
 ```
+
+The following table lists rows where the diary date did not parse (for error checking).
 
 ```{r check Unison dates}
 # Check for non-parsed diary dates
@@ -273,12 +274,15 @@ t <- head(tudUnisonAllDT[is.na(r_diaryDate),.(ResponseID,r_diaryDate, tudCode, S
 knitr::kable(caption = "Test diaryDates that did not parse", t)
 ```
 
+The following table reports any diaries where the dates were manually edited before loading.
 
 ```{r report edited dates}
 # report edited diary dates (done in .xlsx)
 t <- tudUnisonAllDT[!is.na(dateNote),.(r_diaryDate, tudCode, dateNote, sourceFile)]
 knitr::kable(caption = "Report diaries with edited diary dates (done in .xlsx before loading)", t)
 ```
+
+The following table summarises the Unison diary data.
 
 ```{r unison diaries summary table}
 # Summary table ----
@@ -289,12 +293,12 @@ t <- tudUnisonAllDT[, .(nDiaries = .N,
 knitr::kable(caption = "Summary of Unison diaries by household", t)
 ```
 
-The tudCodes are _not_ the gridSpy ids, we need to create these from the unison sheet in `r linkLUT`.
+Note thaty the tudCodes found in the .csv files are _not_ the gridSpy household ids, we need to create these from the unison sheet in `r linkLUT`.
 
 ```{r fixLinkIDs}
 unisonLinkLUTDT <- data.table::as.data.table(read_xlsx(paste0(linkLUT), sheet = "unison"))
 
-knitr::kable(caption = "Linking table", unisonLinkLUTDT)
+knitr::kable(caption = "Unison linking table", unisonLinkLUTDT)
 
 tudUnisonAllDT <- tudUnisonAllDT[, linkCode := as.character(tudCode)]
 setkey(tudUnisonAllDT, linkCode)
@@ -308,7 +312,7 @@ tudUnisonAllDT <- tudUnisonAllDT[, hhID := tag_gridSpy_Hhid]
 # check
 
 t <- tudUnisonAllDT[, .(nDiaries = .N), keyby = .(linkCode, hhID)]
-knitr::kable(caption = "Check linkage: there should be 1 or 2 diaries for each combination", t)
+knitr::kable(caption = "Check linkage: there should be n * 7 diaries for each combination", t)
 ```
 
 In total we have `r nrow(tudUnisonAllDT)` diaries from `r uniqueN(tudUnisonAllDT$hhID)` Unison households.
@@ -334,7 +338,7 @@ ggplot2::ggplot(plotDT, aes(x = as.Date(r_diaryDate), y = nDiaries)) +
     scale_x_date(date_labels = "%a %d %b %Y", date_breaks = "1 day") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Number of Unison diaries per day",
-       caption = paste0(myCaption),
+       caption = myCaption,
        x = "Date",
        y = "Total number of diaries"
     
@@ -353,6 +357,10 @@ knitr::kable(caption = cap, t)
 
 # Summary
 
+Total responses:
+
+ * PowerCo - `r nrow(tudPowerCoDT)` diaries from `r uniqueN(tudPowerCoDT$hhID)` households for the period `r min(tudPowerCoDT$r_diaryDate)` to `r max(tudPowerCoDT$r_diaryDate)`.
+ * Unison - `r nrow(tudUnisonAllDT)` diaries from `r uniqueN(tudUnisonAllDT$hhID)` households for the period `r min(tudUnisonAllDT$r_diaryDate)` to `r max(tudUnisonAllDT$r_diaryDate)`.
 
 # Runtime
 
