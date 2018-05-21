@@ -19,7 +19,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 2
-bibliography: ../bibliography.bib
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
