@@ -467,7 +467,7 @@ setkey(hhStatDT, hhID)
 setkey(metaDT, hhID)
 hhStatMergedDT <- hhStatDT[metaDT]
 
-# tile plot ----
+# nObs tile plot ----
 myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
   geom_tile() +
@@ -487,7 +487,7 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 ```
 
 ```{r plot n obs per hh id as dots}
-# point plot ----
+# nObs per day point plot ----
 myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), 
                                y = nObs, 
                                colour = hhID)) +
@@ -536,7 +536,10 @@ Finally we show the total number of households which we think are still sending 
 ```{r liveDataHouseholds}
 plotDT <- hhStatMergedDT[, .(nHH = uniqueN(hhID)), keyby = .(date, sample)]
 
-# point plot ----
+plotDT <- plotDT[sample == "Unison", sample := "Sample 1: Unison" ]
+plotDT <- plotDT[sample == "Powerco", sample := "Sample 2: PowerCo" ]
+
+# live households col plot ----
 myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample)) +
   geom_col() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
