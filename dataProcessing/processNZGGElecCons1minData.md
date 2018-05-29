@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-29 12:07:30'
+date: 'Last run at: 2018-05-29 12:29:52'
 output:
   html_document:
     code_folding: hide
@@ -167,7 +167,7 @@ If these do not match then this may be a test run.
 ## [1] "Looking for 1 minute data using pattern = *at1.csv$ in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
 ## [1] "Looking for data using pattern = *at1.csv$ in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
 ## [1] "Found 2,477 files"
-## [1] "Processing file list and getting file meta-data (please be patient)"
+## [1] "Processing file list and getting file meta-data. Please be patient)"
 ## [1] "All files checked"
 ## [1] "Checking ambiguous date formats in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
 ## [1] "Saving 1 minute data files interim metadata to /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT_interim.csv"
@@ -1694,7 +1694,7 @@ Finally we show the total number of households which we think are still sending 
 
 
 
-Analysis completed in 456.77 seconds ( 7.61 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 392.99 seconds ( 6.55 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
