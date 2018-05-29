@@ -43,7 +43,7 @@ gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management
 
 if(baTest == 1){
   # Local test
-  dPath <- path.expand("~/Data/NZGreenGrid/gridspy/") # BA laptop test set
+  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
   fpath <- paste0(dPath,"1min_orig/") # location of data
   outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
 } else {
@@ -57,7 +57,9 @@ if(baTest == 1){
 library(nzGREENGrid) # local utilities
 
 # Packages needed in this .Rmd file ----
-rmdLibs <- c("ggplot2", # for fancy graphs
+rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
+             "ggplot2", # for fancy graphs
              "knitr", # for kable
              "kableExtra" # for extra kable
 )
@@ -152,6 +154,16 @@ head(powercoDT)
 
 # remove NA on rbind
 metaDT <- rbind(unisonDT, powercoDT[!is.na(hhID)])
+# breaks due to coding of Children
+# metaDT <- metaDT[, kasKids := "2+ children"]
+# metaDT <- metaDT[, kasKids := ifelse(Children == 0, "No kids", kasKids)]
+# metaDT <- metaDT[, kasKids := ifelse(Children %like% 1, "1 child", kasKids)]
+
+metaDT <- metaDT[, nAdults := "1"]
+metaDT <- metaDT[, nAdults := ifelse(Adults %like% 2, "2", nAdults)]
+metaDT <- metaDT[, nAdults := ifelse(Children %like% 3, "3", nAdults)]
+
+
 setkey(metaDT, hhID)
 
 kable(caption = "Meta data for sample", metaDT)
@@ -161,141 +173,49 @@ kable(caption = "Meta data for sample", metaDT)
 
 In this section we load the cleaned data files from `r paste0(outPath,"data/")`.
  
-The following table shows the number of files per household that we willl load.
+The following table summarises the data.
 
 ```{r loadFiles}
 # check files to load
 fpath <- paste0(outPath,"data/")
 pattern <- "*.gz"
-fListCompleteDT <- nzGREENGrid::getFileList(fpath, pattern)
+fListDT <- nzGREENGrid::getFileList(fpath, pattern)
 
-nFiles <- nrow(fListCompleteDT)
+nFiles <- nrow(fListDT)
 print(paste0("Found ", tidyNum(nFiles), " files"))
 
-filesToLoad <- 
-  
-t <- fListCompleteDT[dateColName %like% "do not load", .(nFiles = .N,
-                       meanSize = mean(fSize),
-                       minFileDate = min(fMDate),
-                       maxFileDate = max(fMDate)), keyby = .(hhID)]
+fListDT <- fListDT[, fullPath := paste0(fpath, fList)] # add in full path as it doesn't return in the function (maybe it should)
+pattern <- "Heat Pump"
+gs1MinDT <- getCleanGridSpyData(fListDT[, fullPath]) # beware, loads all data
 
-knitr::kable(caption = "Summary of household files to load", t)
+# remove NAs
+gs1MinDT <- gs1MinDT[!is.na(powerW)]
+
+t <- gs1MinDT[, .(nObs = .N,
+                  nHouseholds = uniqueN(hhID),
+                  nCircuits = uniqueN(circuit),
+                  meanPower = mean(powerW),
+                  minDate = min(as.Date(r_dateTime)),
+                  maxDate = max(as.Date(r_dateTime))), keyby = .(hhID)]
+
+knitr::kable(caption = "Summary of household grid spy files loaded", t)
 ```
 
-
-```{r loadValidFiles, echo=TRUE, include=FALSE}
-# do not include outputs as it breaks the pdf render (why?)
-# load and save data using external R script
-source("../scripts/process1minGridSpyData.R")
-
-# add metadata
-setkey(fListCompleteDT, hhID)
-setkey(metaDT, hhID)
-fListCompleteDT <- metaDT[fListCompleteDT]
-```
+This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations driven by the number of different circuit labels. We exttract the 'Heat' related ones below.
 
 # Data quality analysis
 
-Now produce some data quality plots & tables.
-
-## Circuit label checks
-
-The following table shows the number of data files with different circuit labels by household. In theory there should only be one unique list per household and it should be present in every data file. If this is not the case then this implies that:
-
- * some of the circuit labels for these households may have been changed during the data collection process;
- * some of the circuit labels may have character conversion errors which have changed the labels during the data collection process;
- * at least one file from one household has been saved to a folder containing data from a different household (unfortunately the raw data files do _not_ contain household IDs in the data or the file names which would enable checking/preventative filtering). This will be visible in the table if two households appear to share _exactly_ the same list of circuit labels.
-
-Some or all of these may be true at any given time!
-
-> NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
-
-```{r circuitLabelCheck}
-# short cut if exists already
-#ifile <- paste0(outPath, fListFinal)
-#fListCompleteDT <- fread(ifile)
-
-
-
-# table
-t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
-knitr::kable(caption = "Circuit labels list by household", t)
-
-ofile <- paste0(outPath, "circuitLabelCheckTable.csv")
-write.csv(t, ofile)
-```
-
-Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.
-
-```{r plotCircuitLabelIssuesAsTile, fig.height=8}
-dt <- fListCompleteDT[!is.na(circuitLabels), 
-                     .(nFiles = .N,
-                       minObsDate = min(obsStartDate), # helps locate issues in data
-                       maxObsDate = max(obsEndDate),
-                       minFileDate = min(fMDate), # helps locate issues in files
-                       maxFileDate = max(fMDate),
-                       nObs = sum(nObs)),
-                     keyby = .(circuitLabels, hhID, sample)] # ignore NA - it is files not loaded due to size thresholds
-
-ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels, 
-                       fill = nObs)) +
-  geom_tile() +
-  facet_grid(sample ~ .) +
-  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Circuit label counts for all loaded grid spy data",
-       caption = paste0(myCaption,
-                        "\nOnly files of size > ", 
-                        dataThreshold, " bytes loaded")
-       
-  )
-ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileCircuitLabelsPlot.png"))
-```
-
-The following table provides more detail to aid error checking. Check for:
-
- * 2+ adjacent rows which have exactly the same circuit labels but different hh_ids. This implies some data from one household has been saved in the wrong folder;
- * 2+ adjacent rows which have different circuit labels but identical hh_ids. This could imply the same thing but is more likely to be errors/changes to the circuit labelling. 
- 
-If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
-
-> NB: As before, the table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelMetaDataCheckTable.csv")` for viewing in e.g. xl.
-
-```{r circuitLabelMetaDataCheck}
-knitr::kable(dt, 
-             caption = "Circuit labels by household with addiitonal meta-data")
-
-ofile <- paste0(outPath, "circuitLabelMetaDataCheckTable.csv")
-write.csv(dt, ofile)
-```
-
-Things to note:
-
- * rf_25 has an aditional unexpected "Incomer 1 - Uncontrolled$2757" circuit in some files but it's value is always NA so we have not 'corrected' this.
- 
-## Observations
-
-The following plots show the number of observations per day per household. In theory we should not see:
-
- * dates before 2014 or in to the future. These may indicate:
-    * date conversion errors;
- * more than 1440 observations per day. These may indicate:
-    * duplicate time stamps - i.e. they have the same time stamps but different power (W) values or different circuit labels;
-    * observations from files that are in the 'wrong' rf_XX folder and so are included in the 'wrong' household as 'duplicate' time stamps.
-
-If present both of the latter may have been implied by the table above and would have evaded the de-duplication filter which simply checks each complete row against all others within it's consolidated household dataset (a _within household absolute duplicate_ check).
+Loaded data observation plots. Should match the plot in 
 
 ```{r loadedFilesObsPlots}
-# short cut if already generated
-# hhStatDT <- as.data.table(read_csv(ofile)) # parses dates
-# hhStatDT <- fread("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/hhDailyObservationsStats.csv")
 
-# add metadata
-setkey(hhStatDT, hhID)
-setkey(metaDT, hhID)
-hhStatMergedDT <- hhStatDT[metaDT]
-
+plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(hhID, date = as.Date(r_dateTime))]
+setkey(plotDT, hhID)
 # tile plot ----
-myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), y = hhID, 
+myCaption <- paste0("Data source: ", outPath,
+                    "\nUsing data received up to ", max(gs1MinDT$r_dateTime))
+
+myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -304,18 +224,18 @@ myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), y = hhID,
                                    vjust = 0.5,
                                    hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
-       caption = paste0(myCaption,
-                        "\nOnly files of size > ", 
-                        dataThreshold, " bytes loaded")
-       
+       caption = myCaption
   )
-myPlot #+ facet_grid(. ~ sample)
-ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
+
+myPlot + 
+  facet_grid(sample ~ .) +
+  annotate("rect")
+
 ```
 
 ```{r plot n obs per hh id as dots}
 # point plot ----
-myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), 
+myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), 
                                y = nObs, 
                                colour = hhID)) +
   geom_point() +
@@ -324,13 +244,9 @@ myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date),
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, 
                                    hjust = 0.5)) + 
   labs(title = "N observations per household per day for all loaded grid spy data",
-       caption = paste0(myCaption,
-                        "\nOnly files of size > ", 
-                        dataThreshold, " bytes loaded")
-       
+       caption = myCaption
   )
 myPlot + facet_grid(sample ~ .)
-ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
 ```
 
 The following table shows the min/max observations per day and min/max dates for each household. As above, we should not see:
@@ -345,23 +261,24 @@ The following table shows the min/max observations per day and min/max dates for
 
 ```{r summaryTable}
 # Stats table (so we can pick out the dateTime errors)
-dt <- hhStatMergedDT[, .(minObs = min(nObs),
-             maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
-             meanNDataColumns =mean(nDataColumns), #i.e. n circuits
-             minDate = min(date),
-             maxDate = max(date)),
+setkey(gs1MinDT, hhID)
+mergedDT <- gs1MinDT[metaDT]
+dt <- mergedDT[, .(nObs = .N,
+             minDate = min(r_dateTime),
+             maxDate = max(r_dateTime)),
          keyby = .(hhID, sample)]
 
 knitr::kable(caption = "Summary observation stats by hhID (sorted by date last heard from)", dt[order(maxDate)])
-ofile <- paste0(outPath, "householdLiveCheckTable.csv")
-write.csv(dt[order(maxDate)], ofile)
 ```
 
 
 Finally we show the total number of households which we think are still sending data.
 
 ```{r liveDataHouseholds}
-plotDT <- hhStatMergedDT[, .(nHH = uniqueN(hhID)), keyby = .(date, sample)]
+plotDT <- mergedDT[, .(nHH = uniqueN(hhID)), keyby = .(date = as.Date(r_dateTime), sample)]
+
+plotDT <- plotDT[sample == "Unison", sample := "Sample 1: Unison" ]
+plotDT <- plotDT[sample == "Powerco", sample := "Sample 2: PowerCo" ]
 
 # point plot ----
 myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample)) +
@@ -371,15 +288,73 @@ myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample
                                    vjust = 0.5, 
                                    hjust = 0.5)) + 
   labs(title = "N live households per day for all loaded grid spy data",
-       caption = paste0(myCaption,
-                        "\nOnly files of size > ", 
-                        dataThreshold, " bytes loaded")
-       
+       caption = myCaption
   )
 myPlot
-ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
 
 ```
+
+# Get Heat Pump data
+
+First we need to select the circuits (columns) which are Heat Pumps. We do this using the string 'Heat Pump' in the column names and selecting the 'best year' from chart above = April 2015 - March 2016.
+
+```{r extract heat pump cols, echo = TRUE}
+pattern <- "Heat Pump"
+dateFrom <- "2015-04-01"
+dateTo <- "2016-03-31"
+
+heatPumpDT <- gs1MinDT[circuit %like% pattern &
+                         as.Date(r_dateTime) >= dateFrom &
+                         as.Date(r_dateTime) <= dateTo]
+
+t <- summary(heatPumpDT)
+kable(caption = "Summary of heat pump circuits", t)
+```
+
+```{r heat pump histo}
+myCaption <- paste0("Data source: ", outPath,
+                    "\nUsing data from ",  min(heatPumpDT$r_dateTime), " to ", max(heatPumpDT$r_dateTime))
+
+ggplot(heatPumpDT, aes(x = powerW)) +
+  geom_histogram() +
+  labs(title = "Distribution of 'Heat Pump' power",
+       caption = myCaption)
+```
+
+Why are there negatve values?
+
+Test charts: one for each HH but averaged over year. Keep at 1 minute intervals
+
+```{r select best data and plot mean Heat Pump power}
+# add season
+heatPumpDT <- heatPumpDT[, month := lubridate::month(r_dateTime, label = TRUE)]
+heatPumpDT <- heatPumpDT[, season := "Summer"]
+heatPumpDT <- heatPumpDT[, season := ifelse(month == "Mar" |
+                                              month == "Apr" |
+                                              month == "May", "Autumn", season)]
+heatPumpDT <- heatPumpDT[, season := ifelse(month == "Jun" |
+                                              month == "Jul" |
+                                              month == "Aug", "Winter", season)]
+heatPumpDT <- heatPumpDT[, season := ifelse(month == "Sep" |
+                                              month == "Oct" |
+                                              month == "Nov", "Spring", season)]
+
+plotDT <- heatPumpDT[!is.na(season), 
+                     .(meanW = mean(powerW)), keyby = .(hhID, obsHourMin, season)]
+setkey(plotDT, hhID)
+
+myPlot <- ggplot(plotDT[metaDT], aes(y = meanW, x = obsHourMin, colour = hhID)) +
+  geom_point()
+
+myPlot + facet_grid(season ~ nAdults) +
+  labs(title = "Mean 'Heat Pump' power (1 minute intervals)",
+       caption = myCaption)
+
+```
+
+
+Why do we have NA in seasons?
+
 
 # Runtime
 
