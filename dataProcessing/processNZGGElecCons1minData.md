@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-29 12:29:52'
+date: 'Last run at: 2018-05-29 19:24:09'
 output:
   html_document:
     code_folding: hide
@@ -1694,7 +1694,7 @@ Finally we show the total number of households which we think are still sending 
 
 
 
-Analysis completed in 392.99 seconds ( 6.55 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 540.53 seconds ( 9.01 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -1730,26 +1730,26 @@ Session info:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] progress_1.1.2    dplyr_0.7.5       readr_1.1.1       lubridate_1.7.4  
-## [5] data.table_1.11.2 kableExtra_0.9.0  knitr_1.20        ggplot2_2.2.1    
-## [9] nzGREENGrid_0.1.0
+##  [1] reshape2_1.4.3    progress_1.1.2    dplyr_0.7.5      
+##  [4] readr_1.1.1       lubridate_1.7.4   data.table_1.11.2
+##  [7] kableExtra_0.9.0  knitr_1.20        ggplot2_2.2.1    
+## [10] nzGREENGrid_0.1.0
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.17      cellranger_1.1.0  highr_0.6        
-##  [4] bindr_0.1.1       pillar_1.2.2      compiler_3.5.0   
-##  [7] plyr_1.8.4        prettyunits_1.0.2 tools_3.5.0      
-## [10] digest_0.6.15     evaluate_0.10.1   tibble_1.4.2     
-## [13] gtable_0.2.0      viridisLite_0.3.0 pkgconfig_2.0.1  
+##  [4] pillar_1.2.2      compiler_3.5.0    plyr_1.8.4       
+##  [7] bindr_0.1.1       prettyunits_1.0.2 tools_3.5.0      
+## [10] digest_0.6.15     viridisLite_0.3.0 evaluate_0.10.1  
+## [13] tibble_1.4.2      gtable_0.2.0      pkgconfig_2.0.1  
 ## [16] rlang_0.2.0       rstudioapi_0.7    yaml_2.1.19      
-## [19] bindrcpp_0.2.2    stringr_1.3.1     httr_1.3.1       
-## [22] xml2_1.2.0        hms_0.4.2         tidyselect_0.2.4 
-## [25] rprojroot_1.3-2   grid_3.5.0        glue_1.2.0       
+## [19] bindrcpp_0.2.2    xml2_1.2.0        stringr_1.3.1    
+## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
+## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
 ## [28] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
-## [31] reshape2_1.4.3    purrr_0.2.4       magrittr_1.5     
-## [34] backports_1.1.2   scales_0.5.0      htmltools_0.3.6  
-## [37] assertthat_0.2.0  rvest_0.3.2       colorspace_1.3-2 
-## [40] labeling_0.3      stringi_1.2.2     lazyeval_0.2.1   
-## [43] munsell_0.4.3
+## [31] purrr_0.2.4       magrittr_1.5      backports_1.1.2  
+## [34] scales_0.5.0      htmltools_0.3.6   assertthat_0.2.0 
+## [37] rvest_0.3.2       colorspace_1.3-2  labeling_0.3     
+## [40] stringi_1.2.2     lazyeval_0.2.1    munsell_0.4.3
 ```
 
 # References
