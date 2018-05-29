@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">GREEN Grid Heat Pump Profiles</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-29 16:29:50</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-29 23:50:05</em></h4>
 
 </div>
 
@@ -243,7 +243,7 @@ div.tocify {
 
 <div id="status" class="section level1">
 <h1><span class="header-section-number">1</span> Status</h1>
-<p>Test run using reduced data from /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/</p>
+<p>Test run using reduced data from ~/Data/NZGreenGrid/gridspy/1min_orig/</p>
 </div>
 <div id="citation" class="section level1">
 <h1><span class="header-section-number">2</span> Citation</h1>
@@ -1383,90 +1383,17 @@ NA
 </div>
 <div id="grid-spy-data" class="section level2">
 <h2><span class="header-section-number">4.2</span> Grid Spy data</h2>
-<p>In this section we load the cleaned data files from /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/data/.</p>
+<p>In this section we load the cleaned data files from ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/.</p>
 <p>The following table summarises the data.</p>
-<pre><code>## [1] &quot;Looking for data using pattern = *.gz in /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/data/ - could take a while...&quot;</code></pre>
+<pre><code>## [1] &quot;Looking for data using pattern = *.gz in ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/ - could take a while...&quot;</code></pre>
 <pre><code>## [1] &quot;Found 5 files&quot;</code></pre>
-<pre><code>## [1] &quot;# Loading 5 files...&quot;</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   `Kitchen power$1632` = col_double(),
-##   `Heating$1633` = col_double(),
-##   `Mains$1634` = col_double(),
-##   `Lights$1635` = col_double(),
-##   `Hot water$1636` = col_integer(),
-##   `Range$1637` = col_integer(),
-##   r_dateTime = col_datetime(format = &quot;&quot;),
-##   hhID = col_character()
-## )</code></pre>
-<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
-## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 134804 parsing failures.
-## row # A tibble: 5 x 5 col     row col            expected               actual file                  expected   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                 actual 1  1942 Range$1637     no trailing characters .95    &#39;/Users/ben/Data/NZG… file 2  2018 Hot water$1636 no trailing characters .31    &#39;/Users/ben/Data/NZG… row 3  2018 Range$1637     no trailing characters .86    &#39;/Users/ben/Data/NZG… col 4  2019 Hot water$1636 no trailing characters .63    &#39;/Users/ben/Data/NZG… expected 5  2019 Range$1637     no trailing characters .38    &#39;/Users/ben/Data/NZG…
-## ... ................. ... .......................................................................... ........ .......................................................................... ...... .......................................................................... .... .......................................................................... ... .......................................................................... ... .......................................................................... ........ ..........................................................................
-## See problems(...) for more details.</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   `Incomer 2 - Uncontrolled$2625` = col_double(),
-##   `Incomer 1 - Hot Water - Cont$2626` = col_double(),
-##   `Incomer 3 - Uncontrolled$2627` = col_double(),
-##   `Laundry, Fridge &amp; Microwave$2628` = col_double(),
-##   `Oven$2629` = col_double(),
-##   `Kitchen Appliances &amp; Lounge$2630` = col_double(),
-##   r_dateTime = col_datetime(format = &quot;&quot;),
-##   hhID = col_character()
-## )</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   `Incomer - All$4193` = col_character(),
-##   `Laundry$4194` = col_character(),
-##   `Kitchen Appliances$4195` = col_character(),
-##   `Heat Pump$4196` = col_character(),
-##   `Lighting$4197` = col_character(),
-##   `Hot Water - Controlled$4198` = col_character(),
-##   r_dateTime = col_datetime(format = &quot;&quot;),
-##   hhID = col_character()
-## )</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   `Incomer - Uncontrolled$4157` = col_double(),
-##   `Hot Water - Controlled$4158` = col_double(),
-##   `Lighting$4159` = col_double(),
-##   `Heat Pump$4160` = col_integer(),
-##   `Kitchen Appliances$4161` = col_double(),
-##   `Laundry &amp; Garage Fridge$4162` = col_double(),
-##   r_dateTime = col_datetime(format = &quot;&quot;),
-##   hhID = col_character()
-## )</code></pre>
-<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
-## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 116217 parsing failures.
-## row # A tibble: 5 x 5 col     row col            expected               actual file                  expected   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                 actual 1  2761 Heat Pump$4160 no trailing characters .66    &#39;/Users/ben/Data/NZG… file 2  2763 Heat Pump$4160 no trailing characters .66    &#39;/Users/ben/Data/NZG… row 3  2764 Heat Pump$4160 no trailing characters .66    &#39;/Users/ben/Data/NZG… col 4  2765 Heat Pump$4160 no trailing characters .66    &#39;/Users/ben/Data/NZG… expected 5  2766 Heat Pump$4160 no trailing characters .66    &#39;/Users/ben/Data/NZG…
-## ... ................. ... .......................................................................... ........ .......................................................................... ...... .......................................................................... .... .......................................................................... ... .......................................................................... ... .......................................................................... ........ ..........................................................................
-## See problems(...) for more details.</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   `Laundry &amp; Bedrooms$4228` = col_double(),
-##   `Kitchen &amp; Bedrooms$4229` = col_double(),
-##   `Incomer - Uncontrolled$4230` = col_double(),
-##   `Hot Water - Controlled$4231` = col_double(),
-##   `Heat Pumps (2x) &amp; Power$4232` = col_double(),
-##   `Lighting$4233` = col_double(),
-##   `Heat Pumps (2x) &amp; Power$4399` = col_double(),
-##   `Hot Water - Controlled$4400` = col_double(),
-##   `Incomer - Uncontrolled$4401` = col_double(),
-##   `Kitchen &amp; Bedrooms$4402` = col_double(),
-##   `Laundry &amp; Bedrooms$4403` = col_double(),
-##   `Lighting$4404` = col_double(),
-##   `Incomer Voltage$4405` = col_double(),
-##   r_dateTime = col_datetime(format = &quot;&quot;),
-##   hhID = col_character()
-## )</code></pre>
-<pre><code>## [1] &quot;Files loaded&quot;
-## [1] &quot;Loaded 4,120,565 rows of data&quot;</code></pre>
+<pre><code>## [1] &quot;# Loading 5 files...&quot;
+## [1] &quot;# &gt; Setting useful dates &amp; times&quot;
+## [1] &quot;# Files loaded&quot;
+## [1] &quot;# Loaded 35,168,475 rows of data&quot;</code></pre>
 <table>
 <caption>
-Summary of household files loaded
+Summary of household grid spy files loaded
 </caption>
 <thead>
 <tr>
@@ -1478,6 +1405,12 @@ nObs
 </th>
 <th style="text-align:right;">
 nHouseholds
+</th>
+<th style="text-align:right;">
+nCircuits
+</th>
+<th style="text-align:right;">
+meanPower
 </th>
 <th style="text-align:left;">
 minDate
@@ -1493,16 +1426,22 @@ maxDate
 rf_01
 </td>
 <td style="text-align:right;">
-854396
+5111712
 </td>
 <td style="text-align:right;">
 1
 </td>
-<td style="text-align:left;">
-2014-01-05 11:00:00
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+533.3412
 </td>
 <td style="text-align:left;">
-2015-10-20 02:50:00
+2014-01-06
+</td>
+<td style="text-align:left;">
+2015-10-20
 </td>
 </tr>
 <tr>
@@ -1510,16 +1449,22 @@ rf_01
 rf_12
 </td>
 <td style="text-align:right;">
-410063
+2389524
 </td>
 <td style="text-align:right;">
 1
 </td>
-<td style="text-align:left;">
-2014-07-08 12:00:00
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+180.6278
 </td>
 <td style="text-align:left;">
-2015-06-02 20:07:00
+2014-07-09
+</td>
+<td style="text-align:left;">
+2015-06-02
 </td>
 </tr>
 <tr>
@@ -1527,16 +1472,22 @@ rf_12
 rf_32
 </td>
 <td style="text-align:right;">
-542484
+3247374
 </td>
 <td style="text-align:right;">
 1
 </td>
-<td style="text-align:left;">
-2015-03-25 11:00:00
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+195.1058
 </td>
 <td style="text-align:left;">
-2016-04-05 05:24:00
+2015-03-26
+</td>
+<td style="text-align:left;">
+2016-04-05
 </td>
 </tr>
 <tr>
@@ -1544,16 +1495,22 @@ rf_32
 rf_45
 </td>
 <td style="text-align:right;">
-821467
+4918656
 </td>
 <td style="text-align:right;">
 1
 </td>
-<td style="text-align:left;">
-2015-03-24 11:00:00
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+179.7230
 </td>
 <td style="text-align:left;">
-2016-10-15 01:08:00
+2015-03-24
+</td>
+<td style="text-align:left;">
+2016-10-15
 </td>
 </tr>
 <tr>
@@ -1561,21 +1518,27 @@ rf_45
 rf_46
 </td>
 <td style="text-align:right;">
-1492155
+19103861
 </td>
 <td style="text-align:right;">
 1
 </td>
-<td style="text-align:left;">
-2015-03-26 11:00:00
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+233.0592
 </td>
 <td style="text-align:left;">
-2018-02-19 22:08:00
+2015-03-27
+</td>
+<td style="text-align:left;">
+2018-02-19
 </td>
 </tr>
 </tbody>
 </table>
-<p>This table will have a large number (40) of columns due to non-matching circuit labels. We process the ‘Heat’ related ones below.</p>
+<p>This table will have a large number (34,771,127) of obserations driven by the number of different circuit labels. We exttract the ‘Heat’ related ones below.</p>
 </div>
 </div>
 <div id="data-quality-analysis" class="section level1">
@@ -1625,10 +1588,10 @@ rf_12
 Powerco
 </td>
 <td style="text-align:right;">
-410063
+2389524
 </td>
 <td style="text-align:left;">
-2014-07-08 12:00:00
+2014-07-09 04:07:00
 </td>
 <td style="text-align:left;">
 2015-06-02 20:07:00
@@ -1642,10 +1605,10 @@ rf_32
 Unison
 </td>
 <td style="text-align:right;">
-542484
+3247374
 </td>
 <td style="text-align:left;">
-2015-03-25 11:00:00
+2015-03-26 03:40:00
 </td>
 <td style="text-align:left;">
 2016-04-05 05:24:00
@@ -1659,10 +1622,10 @@ rf_45
 Unison
 </td>
 <td style="text-align:right;">
-821467
+4918656
 </td>
 <td style="text-align:left;">
-2015-03-24 11:00:00
+2015-03-24 21:45:00
 </td>
 <td style="text-align:left;">
 2016-10-15 01:08:00
@@ -1676,10 +1639,10 @@ rf_46
 Unison
 </td>
 <td style="text-align:right;">
-1492155
+19103861
 </td>
 <td style="text-align:left;">
-2015-03-26 11:00:00
+2015-03-27 02:21:00
 </td>
 <td style="text-align:left;">
 2018-02-19 22:08:00
@@ -2373,9 +2336,14 @@ NA
 </div>
 <div id="get-heat-pump-data" class="section level1">
 <h1><span class="header-section-number">6</span> Get Heat Pump data</h1>
-<p>First we need to select the circuits (columns) which are Heat Pumps. We do this using the string ‘Heat Pump’ in the column names.</p>
+<p>First we need to select the circuits (columns) which are Heat Pumps. We do this using the string ‘Heat Pump’ in the column names and selecting the ‘best year’ from chart above = April 2015 - March 2016.</p>
 <pre class="r"><code>pattern &lt;- &quot;Heat Pump&quot;
-heatPumpDT &lt;- getCircuits(gs1MinDT,pattern)
+dateFrom &lt;- &quot;2015-04-01&quot;
+dateTo &lt;- &quot;2016-03-31&quot;
+
+heatPumpDT &lt;- gs1MinDT[circuit %like% pattern &amp;
+                         as.Date(r_dateTime) &gt;= dateFrom &amp;
+                         as.Date(r_dateTime) &lt;= dateTo]
 
 t &lt;- summary(heatPumpDT)
 kable(caption = &quot;Summary of heat pump circuits&quot;, t)</code></pre>
@@ -2388,22 +2356,15 @@ Summary of heat pump circuits
 <th style="text-align:left;">
 </th>
 <th style="text-align:left;">
-Heat Pump$4196
-</th>
-<th style="text-align:left;">
-Heat Pump$4160
-</th>
-<th style="text-align:left;">
-Heat Pumps (2x) &amp; Power$4232
-</th>
-<th style="text-align:left;">
-Heat Pumps (2x) &amp; Power$4399
-</th>
-<th style="text-align:left;">
 <pre><code> hhID &lt;/th&gt;</code></pre>
 <th style="text-align:left;">
 r_dateTime
 </th>
+<th style="text-align:left;">
+circuit
+</th>
+<th style="text-align:left;">
+<pre><code> powerW &lt;/th&gt;</code></pre>
 <th style="text-align:left;">
 obsHourMin
 </th>
@@ -2414,25 +2375,19 @@ obsHourMin
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-Length:4120565
+Length:2003871
 </td>
 <td style="text-align:left;">
-Min. : 0
+Min. :2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-Min. : 0.0
+Length:2003871
 </td>
 <td style="text-align:left;">
-Min. :-292.8
+Min. :-261.65
 </td>
 <td style="text-align:left;">
-Length:4120565
-</td>
-<td style="text-align:left;">
-Min. :2014-01-05 11:00:00
-</td>
-<td style="text-align:left;">
-Length:4120565
+Length:2003871
 </td>
 </tr>
 <tr>
@@ -2442,19 +2397,13 @@ Length:4120565
 Class :character
 </td>
 <td style="text-align:left;">
-1st Qu.: 0
-</td>
-<td style="text-align:left;">
-1st Qu.: 60.2
-</td>
-<td style="text-align:left;">
-1st Qu.:-112.1
+1st Qu.:2015-07-10 08:14:00
 </td>
 <td style="text-align:left;">
 Class :character
 </td>
 <td style="text-align:left;">
-1st Qu.:2015-04-16 10:07:00
+1st Qu.: 0.00
 </td>
 <td style="text-align:left;">
 Class1:hms
@@ -2467,19 +2416,13 @@ Class1:hms
 Mode :character
 </td>
 <td style="text-align:left;">
-Median : 0
-</td>
-<td style="text-align:left;">
-Median : 133.1
-</td>
-<td style="text-align:left;">
-Median : -80.8
+Median :2015-10-05 09:38:00
 </td>
 <td style="text-align:left;">
 Mode :character
 </td>
 <td style="text-align:left;">
-Median :2015-10-05 22:34:00
+Median : 0.00
 </td>
 <td style="text-align:left;">
 Class2:difftime
@@ -2492,19 +2435,13 @@ Class2:difftime
 NA
 </td>
 <td style="text-align:left;">
-Mean : 1
-</td>
-<td style="text-align:left;">
-Mean : 244.5
-</td>
-<td style="text-align:left;">
-Mean : -60.6
+Mean :2015-10-06 01:02:59
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-Mean :2015-11-30 05:00:18
+Mean : 83.83
 </td>
 <td style="text-align:left;">
 Mode :numeric
@@ -2517,19 +2454,13 @@ Mode :numeric
 NA
 </td>
 <td style="text-align:left;">
-3rd Qu.: 0
-</td>
-<td style="text-align:left;">
-3rd Qu.: 292.7
-</td>
-<td style="text-align:left;">
-3rd Qu.: -26.8
+3rd Qu.:2016-01-04 22:40:30
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-3rd Qu.:2016-06-25 18:27:00
+3rd Qu.: 65.46
 </td>
 <td style="text-align:left;">
 NA
@@ -2542,44 +2473,13 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Max. :2638
-</td>
-<td style="text-align:left;">
-Max. :4082.8
-</td>
-<td style="text-align:left;">
-Max. : 519.5
+Max. :2016-03-31 23:59:00
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-Max. :2018-02-19 22:08:00
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA’s :3417006
-</td>
-<td style="text-align:left;">
-NA’s :2634858
-</td>
-<td style="text-align:left;">
-NA’s :2664905
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
+Max. :3247.12
 </td>
 <td style="text-align:left;">
 NA
@@ -2587,237 +2487,15 @@ NA
 </tr>
 </tbody>
 </table>
-<p>We seem to have some non-numeric columns we should fix.</p>
-<table>
-<caption>
-Summary of heat pump circuits (re check)
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:left;">
-Heat Pump$4196
-</th>
-<th style="text-align:left;">
-Heat Pump$4160
-</th>
-<th style="text-align:left;">
-Heat Pumps (2x) &amp; Power$4232
-</th>
-<th style="text-align:left;">
-Heat Pumps (2x) &amp; Power$4399
-</th>
-<th style="text-align:left;">
-<pre><code> hhID &lt;/th&gt;</code></pre>
-<th style="text-align:left;">
-r_dateTime
-</th>
-<th style="text-align:left;">
-obsHourMin
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-Min. : 0
-</td>
-<td style="text-align:left;">
-Min. : 0
-</td>
-<td style="text-align:left;">
-Min. : 0.0
-</td>
-<td style="text-align:left;">
-Min. :-292.8
-</td>
-<td style="text-align:left;">
-Length:4120565
-</td>
-<td style="text-align:left;">
-Min. :2014-01-05 11:00:00
-</td>
-<td style="text-align:left;">
-Length:4120565
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-1st Qu.: 0
-</td>
-<td style="text-align:left;">
-1st Qu.: 0
-</td>
-<td style="text-align:left;">
-1st Qu.: 60.2
-</td>
-<td style="text-align:left;">
-1st Qu.:-112.1
-</td>
-<td style="text-align:left;">
-Class :character
-</td>
-<td style="text-align:left;">
-1st Qu.:2015-04-16 10:07:00
-</td>
-<td style="text-align:left;">
-Class1:hms
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-Median : 0
-</td>
-<td style="text-align:left;">
-Median : 0
-</td>
-<td style="text-align:left;">
-Median : 133.1
-</td>
-<td style="text-align:left;">
-Median : -80.8
-</td>
-<td style="text-align:left;">
-Mode :character
-</td>
-<td style="text-align:left;">
-Median :2015-10-05 22:34:00
-</td>
-<td style="text-align:left;">
-Class2:difftime
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-Mean : 68
-</td>
-<td style="text-align:left;">
-Mean : 1
-</td>
-<td style="text-align:left;">
-Mean : 244.5
-</td>
-<td style="text-align:left;">
-Mean : -60.6
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-Mean :2015-11-30 05:00:18
-</td>
-<td style="text-align:left;">
-Mode :numeric
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-3rd Qu.: 0
-</td>
-<td style="text-align:left;">
-3rd Qu.: 0
-</td>
-<td style="text-align:left;">
-3rd Qu.: 292.7
-</td>
-<td style="text-align:left;">
-3rd Qu.: -26.8
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-3rd Qu.:2016-06-25 18:27:00
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-Max. :3036
-</td>
-<td style="text-align:left;">
-Max. :2638
-</td>
-<td style="text-align:left;">
-Max. :4082.8
-</td>
-<td style="text-align:left;">
-Max. : 519.5
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-Max. :2018-02-19 22:08:00
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:left;">
-NA’s :3579336
-</td>
-<td style="text-align:left;">
-NA’s :3417006
-</td>
-<td style="text-align:left;">
-NA’s :2634858
-</td>
-<td style="text-align:left;">
-NA’s :2664905
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-</tbody>
-</table>
-<pre><code>## Warning in `[.data.table`(heatPumpDT, , `:=`(heatPumpW, rowSums(.SD, ,
-## na.rm = TRUE)), : Invalid .internal.selfref detected and fixed by taking
-## a (shallow) copy of the data.table so that := can add this new column by
-## reference. At an earlier point, this data.table has been copied by R (or
-## been created manually using structure() or similar). Avoid key&lt;-, names&lt;-
-## and attr&lt;- which in R currently (and oddly) may copy the whole data.table.
-## Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr.
-## Also, in R&lt;=v3.0.2, list(DT1,DT2) copied the entire DT1 and DT2 (R&#39;s list()
-## used to copy named objects); please upgrade to R&gt;v3.0.2 if that is biting.
-## If this message doesn&#39;t help, please report to data.table issue tracker so
-## the root cause can be fixed.</code></pre>
-<p>Test charts: one for each HH but averaged over year and select the ‘best year’ from chart above = April 2015 - March 2016. Keep at 1 minute intervals</p>
-<pre><code>## Warning: Removed 41 rows containing missing values (geom_point).</code></pre>
-<p><img src="ggHeatPumpProfiles_files/figure-html/select%20best%20data%20and%20plot%20mean%20Heat%20Pump%20power-1.png" /><!-- --></p>
-<pre><code>## Warning: Removed 41 rows containing missing values (geom_point).</code></pre>
-<p><img src="ggHeatPumpProfiles_files/figure-html/select%20best%20data%20and%20plot%20mean%20Heat%20Pump%20power-2.png" /><!-- --></p>
-<pre><code>## Warning: Removed 41 rows containing missing values (geom_point).</code></pre>
-<p><img src="ggHeatPumpProfiles_files/figure-html/select%20best%20data%20and%20plot%20mean%20Heat%20Pump%20power-3.png" /><!-- --></p>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="ggHeatPumpProfiles_files/figure-html/heat%20pump%20histo-1.png" /><!-- --></p>
+<p>Why are there negatve values?</p>
+<p>Test charts: one for each HH but averaged over year. Keep at 1 minute intervals</p>
+<p><img src="ggHeatPumpProfiles_files/figure-html/profiles%20per%20household%20by%20season-1.png" /><!-- --></p>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">7</span> Runtime</h1>
-<p>Analysis completed in 159.73 seconds ( 2.66 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 883.67 seconds ( 14.73 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">8</span> R environment</h1>
@@ -2857,9 +2535,9 @@ NA
 ##  [1] Rcpp_0.12.17      highr_0.6         cellranger_1.1.0 
 ##  [4] pillar_1.2.2      compiler_3.5.0    plyr_1.8.4       
 ##  [7] bindr_0.1.1       tools_3.5.0       digest_0.6.15    
-## [10] viridisLite_0.3.0 evaluate_0.10.1   tibble_1.4.2     
-## [13] gtable_0.2.0      pkgconfig_2.0.1   rlang_0.2.0      
-## [16] cli_1.0.0         rstudioapi_0.7    yaml_2.1.19      
+## [10] lubridate_1.7.4   viridisLite_0.3.0 evaluate_0.10.1  
+## [13] tibble_1.4.2      gtable_0.2.0      pkgconfig_2.0.1  
+## [16] rlang_0.2.0       rstudioapi_0.7    yaml_2.1.19      
 ## [19] bindrcpp_0.2.2    xml2_1.2.0        stringr_1.3.1    
 ## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
 ## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
@@ -2867,9 +2545,8 @@ NA
 ## [31] reshape2_1.4.3    purrr_0.2.4       readr_1.1.1      
 ## [34] magrittr_1.5      backports_1.1.2   scales_0.5.0     
 ## [37] htmltools_0.3.6   assertthat_0.2.0  rvest_0.3.2      
-## [40] colorspace_1.3-2  labeling_0.3      utf8_1.1.3       
-## [43] stringi_1.2.2     lazyeval_0.2.1    munsell_0.4.3    
-## [46] crayon_1.3.4</code></pre>
+## [40] colorspace_1.3-2  labeling_0.3      stringi_1.2.2    
+## [43] lazyeval_0.2.1    munsell_0.4.3</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>

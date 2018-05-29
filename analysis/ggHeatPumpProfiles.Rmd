@@ -325,7 +325,7 @@ Why are there negatve values?
 
 Test charts: one for each HH but averaged over year. Keep at 1 minute intervals
 
-```{r select best data and plot mean Heat Pump power}
+```{r add season}
 # add season
 heatPumpDT <- heatPumpDT[, month := lubridate::month(r_dateTime, label = TRUE)]
 heatPumpDT <- heatPumpDT[, season := "Summer"]
@@ -338,22 +338,24 @@ heatPumpDT <- heatPumpDT[, season := ifelse(month == "Jun" |
 heatPumpDT <- heatPumpDT[, season := ifelse(month == "Sep" |
                                               month == "Oct" |
                                               month == "Nov", "Spring", season)]
+```
 
+
+
+```{r profiles per household by season}
 plotDT <- heatPumpDT[!is.na(season), 
                      .(meanW = mean(powerW)), keyby = .(hhID, obsHourMin, season)]
 setkey(plotDT, hhID)
 
-myPlot <- ggplot(plotDT[metaDT], aes(y = meanW, x = obsHourMin, colour = hhID)) +
+myPlot <- ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID)) +
   geom_point()
 
-myPlot + facet_grid(season ~ nAdults) +
+myPlot + facet_grid(season ~ .) +
   labs(title = "Mean 'Heat Pump' power (1 minute intervals)",
        caption = myCaption)
 
 ```
 
-
-Why do we have NA in seasons?
 
 
 # Runtime
