@@ -18,6 +18,7 @@ localLibs <- c("data.table", # for data munching
              "lubridate", # for date/time munching
              "readr", # for read/write_csv
              "dplyr", # for select columns
+             "reshape2", # for making wide data long
              "progress" # for a nice progress bar
 
 )
@@ -163,15 +164,21 @@ for(hh in hhIDs){ #> start of household loop ----
   hhStatTempDT <- hhStatTempDT[, hhID := hh]
 
   hhStatDT <- rbind(hhStatDT,hhStatTempDT) # add to the collector
-
-  # > Save hh file ----
+  # > add vars & switch to long form ----
   # add hhid for ease of future loading etc
   tempHhDT <- tempHhDT[, hhID := hh]
+  # switch to long format for easy future loading
+  tempHhLongDT <- reshape2::melt(tempHhDT, id=c("hhID","r_dateTime"))
+  data.table::setnames(tempHhLongDT, "value", "powerW")
+  data.table::setnames(tempHhLongDT, "variable", "circuit")
+  # force numeeric
+  tempHhLongDT <- tempHhLongDT[, powerW := as.numeric(powerW)]
+  # > Save hh file ----
   ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
   if(fullFb | baTest){
     print(paste0("Saving ", ofile, "..."))
     }
-  write_csv(tempHhDT, ofile)
+  write_csv(tempHhLongDT, ofile)
   if(fullFb | baTest){
     print(paste0("Saved ", ofile, ", gzipping..."))
     }
@@ -182,9 +189,9 @@ for(hh in hhIDs){ #> start of household loop ----
     }
   if(fullFb){
     print("Col names: ")
-    print(names(tempHhDT))
+    print(names(tempHhLongDT))
   }
-
+  tempHhLongDT <- NULL # just in case
   tempHhDT <- NULL # just in case
 }
 
