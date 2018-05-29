@@ -39,6 +39,8 @@ baTest <- 1 # test (1) or full (0) run?
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
 
+gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management Folder/Gridspy/Master list of Gridspy units.xlsx")
+
 if(baTest == 1){
   # Local test
   dPath <- path.expand("~/Data/NZGreenGrid/gridspy/") # BA laptop test set
@@ -106,7 +108,7 @@ This report is intended to:
 
 ## Requirements:
 
- * cleaned and safe grid spy 1 minute data processed via 
+ * cleaned and safe grid spy 1 minute data processed via https://git.soton.ac.uk/ba1e12/nzGREENGrid/blob/master/dataProcessing/processNZGGElecCons1minData.Rmd
 
 ## History
 
@@ -127,176 +129,6 @@ This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southa
 
 We do not 'support' the code but if you have a problem check the [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues) on our [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid) and if it doesn't already exist, open one. We might be able to fix it :-)
 
-# Obtain listing of files
-
-In this section we generate a listing of all 1 minute data files that we have received. If we are running over the complete dataset then we will be using data from:
-
- * /hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
- 
-In this run we are using data from:
-
- * `r fpath`
-
-If these do not match then this may be a test run.
-
-```{r getCompleteFileList}
-# get file list via R script
-
-source("../scripts/process1minGridSpyFiles.R")
-
-print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", 
-             uniqueN(fListCompleteDT$hhID), " households."))
-
-# for use below
-nFiles <- nrow(fListCompleteDT)
-nFilesNotLoaded <- nrow(fListCompleteDT[dateColName %like% "unknown"])
-```
-
-Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteDT$hhID))` households. Of the `r tidyNum(nFiles)`,  `r tidyNum(nFilesNotLoaded)` (`r round(100*(nFilesNotLoaded/nFiles),2)`%) were _not_ loaded/checked as their file sizes indicated that they contained no data.
-
-## Date format checks
-
-We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
-
-```{r initialDateFormatTable}
-
-# short cut if interim file list already saved ----
-#ifile <- paste0(outPath, fListInterim)
-#print(paste0("Loading 1 minute data files interim metadata to ", ifile))
-#fListCompleteDT <- fread(ifile)
-  
-  
-t <- fListCompleteDT[, .(nFiles = .N, 
-                         minDate = min(dateExample), # may not make much sense
-                         maxDate = max(dateExample)), 
-                     keyby = .(dateColName, dateFormat)]
-
-knitr::kable(t, 
-             caption = "Number of files and min/max date (as char) with given date column names by inferred date format")
-```
-
-Results to note:
-
- * There are `r nrow(fListCompleteDT[dateFormat == "ambiguous"])` ambiguous files
- * The non-loaded files only have 2 distinct file sizes, confirming that they are unlikely to contain useful data. 
- 
-We now inspect the ambiguous and (some of) the default files.
-
-To help with data cleaning the following table lists files that have ambiguous dates.
-
-```{r listAmbigFiles, echo=TRUE}
-# list ambigious files
-aList <- fListCompleteDT[dateFormat == "ambiguous", 
-                         .(file, dateColName, dateExample, dateFormat)]
-
-cap <- paste0("All ", nrow(aList), 
-              " files with an ambiguous dateFormat")
-
-knitr::kable(caption = cap, aList)
-
-```
-
-Check against file names to see what is reasonable and then fix them.
-
-```{r setAmbiguous, echo=TRUE}
-# Setting to dmy seems OK
-fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", 
-                                   dateFormat := "dmy - inferred"]
-
-paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
-```
-
-
-The following table lists up to 10 of the 'date NZ' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
-
-```{r listDefaultDateFilesNZT, echo=TRUE}
-# list default files with NZ time
-aList <- fListCompleteDT[dateColName == "date NZ" & dateFormat %like% "default", 
-                         .(file, fSize, dateColName, dateExample, dateFormat)]
-
-cap <- paste0("First 10 (max) of ", nrow(aList), 
-              " files with dateColName = 'date NZ' and default dateFormat")
-
-knitr::kable(caption = cap, head(aList))
-```
-
-The following table lists up to 10 of the 'date UTC' files which are set by default - do they look OK to assume the default dateFormat? Compare the file names with the dateExample...
-
-```{r listDefaultDateFilesUTC, echo=TRUE}
-# list default files with UTC time
-aList <- fListCompleteDT[dateColName == "date UTC" & dateFormat %like% "default", 
-                         .(file, fSize, dateColName, dateExample, dateFormat)]
-
-cap <- paste0("First 10 (max) of ", nrow(aList), 
-              " files with dateColName = 'date UTC' and default dateFormat")
-
-knitr::kable(caption = cap, head(aList, 10))
-```
-
-Check final date formats:
-
-```{r finalDateFormatTable}
-# See what the date formats look like now
-t <- fListCompleteDT[, .(nFiles = .N, 
-                         minDate = min(dateExample), # may not make much sense
-                         maxDate = max(dateExample)), 
-                     keyby = .(dateColName, dateFormat)]
-
-knitr::kable(t,
-             caption = "Number of files & min/max dates (as char) with given date column names by final imputed date format")
-```
-
-## Data file quality checks
-
-The following chart shows the distribution of these files over time using their sizes. Note that white indicates the presence of small files which may not contain observations.
-
-```{r allFileSizesPlot}
-myCaption <- paste0("Data source: ", fpath,
-                    "\nUsing data received up to ", Sys.Date())
-
-plotDT <- fListCompleteDT[, .(nFiles = .N,
-                              meanfSize = mean(fSize)), 
-                          keyby = .(hhID, date = as.Date(fMDate))]
-
-ggplot2::ggplot(plotDT, aes( x = date, y = hhID, 
-                             fill = log(meanfSize))) +
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "black") + 
-  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 90, 
-                                   vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Mean file size of all grid spy data files received per day",
-       caption = paste0(myCaption, 
-                        "\nLog file size used as some files are full year data")
-    
-  )
-ggplot2::ggsave(paste0(outPath, "gridSpyAllFileListSizeTilePlot.png"))
-```
-
-
-The following chart shows the same chart but only for files which we think contain data.
-
-```{r loadedFileSizesPlot}
-myCaption <- paste0("Data source: ", fpath,
-                    "\nUsing data received up to ", Sys.Date())
-
-plotDT <- fListCompleteDT[!is.na(dateFormat), .(nFiles = .N,
-                              meanfSize = mean(fSize)), 
-                          keyby = .(hhID, date = as.Date(fMDate))]
-
-ggplot2::ggplot(plotDT, aes( x = date, y = hhID, fill = log(meanfSize))) +
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "black") + 
-  scale_x_date(date_labels = "%Y %b", date_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
-  labs(title = "Mean file size of loaded grid spy data files received per day",
-       caption = paste0(myCaption, 
-                        "\nLog file size used as some files are full year data",
-                        "\nFiles loaded if fsize > ", dataThreshold, " bytes")
-    
-  )
-ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
-```
 
 # Load data files
 
@@ -327,18 +159,21 @@ kable(caption = "Meta data for sample", metaDT)
 
 ## Grid Spy data
 
-In this section we load the data files that have a file size > `r dataThreshold` bytes. Things to note:
-
- * We assume that any files smaller than this value have no observations. This is based on:
-     * Manual inspection of several small files
-     * The identical (small) file sizes involved
-     * _But_ we should probably test the first few lines to double check...
- * We have to deal with quite a lot of duplication some of which has caused the different date formats. See our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
+In this section we load the cleaned data files from `r paste0(outPath,"data/")`.
  
 The following table shows the number of files per household that we willl load.
 
-```{r filesToLoadTable, echo=TRUE}
+```{r loadFiles}
 # check files to load
+fpath <- paste0(outPath,"data/")
+pattern <- "*.gz"
+fListCompleteDT <- nzGREENGrid::getFileList(fpath, pattern)
+
+nFiles <- nrow(fListCompleteDT)
+print(paste0("Found ", tidyNum(nFiles), " files"))
+
+filesToLoad <- 
+  
 t <- fListCompleteDT[dateColName %like% "do not load", .(nFiles = .N,
                        meanSize = mean(fSize),
                        minFileDate = min(fMDate),
