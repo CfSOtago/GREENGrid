@@ -1,15 +1,8 @@
 ---
-title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
-  power data'
+title: 'GREEN Grid Heat Pump Profiles'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
   html_document:
     code_folding: hide
     fig_caption: true
@@ -18,6 +11,12 @@ output:
     self_contained: no
     toc: true
     toc_float: true
+    toc_depth: 2
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
     toc_depth: 2
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
@@ -35,14 +34,14 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
 
 if(baTest == 1){
   # Local test
-  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
+  dPath <- path.expand("~/Data/NZGreenGrid/gridspy/") # BA laptop test set
   fpath <- paste0(dPath,"1min_orig/") # location of data
   outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
 } else {
@@ -51,8 +50,6 @@ if(baTest == 1){
   fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
   outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them 
 }
-
-dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
 
 # Load nzGREENGrid package ----
 library(nzGREENGrid) # local utilities
@@ -88,7 +85,7 @@ if(baTest){
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity power data, University of Otago: Dunedin, NZ.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) GREEN Grid Heat Pump Profiles, University of Otago: Dunedin, NZ.
 
 \newpage
 
@@ -103,16 +100,13 @@ Report circulation:
 This report is intended to: 
 
  * load and clean the project electricity power data (Grid Spy)
- * save the cleaned data out as a single file per household
- * produce summary data quality statistics
+ * select the Heat Pump circuits (via their labels)
+ * build exploratory demand profiles
 
-The resulting cleaned data has _no_ identifying information such as names, addresses, email addresses, telephone numbers and is therefore safe to share across all partners.
-
-The data contains a unique household id which can be used to link it to the NZ GREEN Grid time use diaries and dwelling/appliance surveys. With some additional non-disclosure checks it should also be safe to archive all of these linkable datasets for re-use via the UK [reshare](http://reshare.ukdataservice.ac.uk/) service.
 
 ## Requirements:
 
- * grid spy 1 minute data downloads
+ * cleaned and safe grid spy 1 minute data processed via 
 
 ## History
 
@@ -306,6 +300,33 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
 
 # Load data files
 
+## Grid Spy metadata
+
+In this section we load metadata from `r gsMasterFile` to link to the power data.
+
+```{r load dmetadata}
+
+unisonDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Unison"))
+
+# keep safe data only
+unisonDT <- unisonDT[, .(sample = `Power company`, hhID = `Tag`, 
+                         Adults,Teenagers,Children,removed )]
+head(unisonDT)
+
+powercoDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Powerco"))
+powercoDT <- powercoDT[, .(sample = `Power Co`, hhID = `Building Tag`, 
+                           Adults = `Adult`,Teenagers,Children, removed = `date disconnected` )]
+head(powercoDT)
+
+# remove NA on rbind
+metaDT <- rbind(unisonDT, powercoDT[!is.na(hhID)])
+setkey(metaDT, hhID)
+
+kable(caption = "Meta data for sample", metaDT)
+```
+
+## Grid Spy data
+
 In this section we load the data files that have a file size > `r dataThreshold` bytes. Things to note:
 
  * We assume that any files smaller than this value have no observations. This is based on:
@@ -329,9 +350,13 @@ knitr::kable(caption = "Summary of household files to load", t)
 
 ```{r loadValidFiles, echo=TRUE, include=FALSE}
 # do not include outputs as it breaks the pdf render (why?)
-# load data using external R script
+# load and save data using external R script
 source("../scripts/process1minGridSpyData.R")
 
+# add metadata
+setkey(fListCompleteDT, hhID)
+setkey(metaDT, hhID)
+fListCompleteDT <- metaDT[fListCompleteDT]
 ```
 
 # Data quality analysis
@@ -354,6 +379,10 @@ Some or all of these may be true at any given time!
 # short cut if exists already
 #ifile <- paste0(outPath, fListFinal)
 #fListCompleteDT <- fread(ifile)
+
+
+
+# table
 t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
 knitr::kable(caption = "Circuit labels list by household", t)
 
@@ -371,11 +400,12 @@ dt <- fListCompleteDT[!is.na(circuitLabels),
                        minFileDate = min(fMDate), # helps locate issues in files
                        maxFileDate = max(fMDate),
                        nObs = sum(nObs)),
-                     keyby = .(circuitLabels, hhID)] # ignore NA - it is files not loaded due to size thresholds
+                     keyby = .(circuitLabels, hhID, sample)] # ignore NA - it is files not loaded due to size thresholds
 
 ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels, 
                        fill = nObs)) +
   geom_tile() +
+  facet_grid(sample ~ .) +
   #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = "Circuit label counts for all loaded grid spy data",
        caption = paste0(myCaption,
@@ -422,9 +452,15 @@ If present both of the latter may have been implied by the table above and would
 ```{r loadedFilesObsPlots}
 # short cut if already generated
 # hhStatDT <- as.data.table(read_csv(ofile)) # parses dates
+# hhStatDT <- fread("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/hhDailyObservationsStats.csv")
+
+# add metadata
+setkey(hhStatDT, hhID)
+setkey(metaDT, hhID)
+hhStatMergedDT <- hhStatDT[metaDT]
 
 # tile plot ----
-ggplot2::ggplot(hhStatDT, aes( x = date, y = hhID, 
+myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -438,13 +474,17 @@ ggplot2::ggplot(hhStatDT, aes( x = date, y = hhID,
                         dataThreshold, " bytes loaded")
        
   )
+myPlot #+ facet_grid(. ~ sample)
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
+```
 
+```{r plot n obs per hh id as dots}
 # point plot ----
-ggplot2::ggplot(hhStatDT, aes( x = date, 
+myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), 
                                y = nObs, 
                                colour = hhID)) +
   geom_point() +
+  #facet_wrap(sample ~ .) +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, 
                                    hjust = 0.5)) + 
@@ -454,6 +494,7 @@ ggplot2::ggplot(hhStatDT, aes( x = date,
                         dataThreshold, " bytes loaded")
        
   )
+myPlot + facet_grid(sample ~ .)
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsPointPlot.png"))
 ```
 
@@ -469,25 +510,27 @@ The following table shows the min/max observations per day and min/max dates for
 
 ```{r summaryTable}
 # Stats table (so we can pick out the dateTime errors)
-t <- hhStatDT[, .(minObs = min(nObs),
+dt <- hhStatMergedDT[, .(minObs = min(nObs),
              maxObs = max(nObs), # should not be more than 1440, if so suggests duplicates
              meanNDataColumns =mean(nDataColumns), #i.e. n circuits
              minDate = min(date),
              maxDate = max(date)),
-         keyby = .(hhID)]
+         keyby = .(hhID, sample)]
 
-knitr::kable(caption = "Summary observation stats by hhID", t)
+knitr::kable(caption = "Summary observation stats by hhID (sorted by date last heard from)", dt[order(maxDate)])
+ofile <- paste0(outPath, "householdLiveCheckTable.csv")
+write.csv(dt[order(maxDate)], ofile)
 ```
 
 
 Finally we show the total number of households which we think are still sending data.
 
 ```{r liveDataHouseholds}
-plotDT <- hhStatDT[, .(nHH = uniqueN(hhID)), keyby = .(date)]
+plotDT <- hhStatMergedDT[, .(nHH = uniqueN(hhID)), keyby = .(date, sample)]
 
 # point plot ----
-ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
-  geom_point() +
+myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample)) +
+  geom_col() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
   theme(axis.text.x = element_text(angle = 90, 
                                    vjust = 0.5, 
@@ -498,6 +541,7 @@ ggplot2::ggplot(plotDT, aes( x = date, y = nHH)) +
                         dataThreshold, " bytes loaded")
        
   )
+myPlot
 ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
 
 ```
