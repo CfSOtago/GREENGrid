@@ -104,10 +104,3 @@ checkDates <- function(dt) {
   }
   return(dt)
 }
-
-# dt <- data.table::as.data.table(c("2018-05-01", "2018-05-02", "2018-05-03"))
-# dt <- data.table::setnames(dt, "V1", "date_char")
-#
-# dtn <- checkDates(dt)
-#
-# head(dtn)
