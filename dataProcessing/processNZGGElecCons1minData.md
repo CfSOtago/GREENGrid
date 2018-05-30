@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-30 12:23:16'
+date: 'Last run at: 2018-05-30 16:26:16'
 output:
   html_document:
     code_folding: hide
@@ -1036,7 +1036,8 @@ knitr::kable(caption = "Summary of household files to load", t)
 </tbody>
 </table>
 
-Now load the data and give feedback where appropriate.
+
+Now load and save the data and give feedback where appropriate.
 
 
 ```r
@@ -1098,11 +1099,11 @@ setkey(fListCompleteDT, hhID)
 setkey(metaDT, hhID)
 fListCompleteDT <- metaDT[fListCompleteDT]
 
-print(paste0("# -> Loaded ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
+print(paste0("# -> Loaded and saved ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
 ```
 
 ```
-## [1] "# -> Loaded 5 households (from 422 files)"
+## [1] "# -> Loaded and saved 5 households (from 422 files)"
 ```
 
 # Data quality analysis
@@ -1755,12 +1756,77 @@ Finally we show the total number of households which we think are still sending 
 ## Warning: Removed 2 rows containing missing values (position_stack).
 ```
 
+# Summary
+
+The cleaned data has been saved as gzipped .csv files to ~/Data/NZGreenGrid/gridspy/consolidated/1min/ in 'long' form so that each file only has 4 columns:
+
+ * hhID: household id
+ * r_dateTime: time of observation
+ * circuit: the circuit label
+ * powerW: power observation (Watts)
+
+Each file has data for one household and there should be one file per household.
+
+As an example, here are the first few rows of one of the files:
+
+<table>
+<caption>First 6 rows of example data for 1 household</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> hhID </th>
+   <th style="text-align:left;"> r_dateTime </th>
+   <th style="text-align:left;"> circuit </th>
+   <th style="text-align:right;"> powerW </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:00:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 679.54 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:01:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 680.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:02:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 680.50 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:03:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 680.50 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:04:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 682.86 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_46 </td>
+   <td style="text-align:left;"> 2017-04-10 00:05:00 </td>
+   <td style="text-align:left;"> Laundry &amp; Bedrooms$4228 </td>
+   <td style="text-align:right;"> 682.39 </td>
+  </tr>
+</tbody>
+</table>
+
+This format makes it much easier to do future data extraction in R as we can select by date and circuit label as we load. It also means we can load a lot of data in memory without breaking R's memory limits as R likes 'long' rather than wide data.
+
 # Runtime
 
 
 
 
-Analysis completed in 587.04 seconds ( 9.78 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 884.83 seconds ( 14.75 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -1803,14 +1869,14 @@ Session info:
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.17      cellranger_1.1.0  highr_0.6        
-##  [4] pillar_1.2.2      compiler_3.5.0    plyr_1.8.4       
-##  [7] bindr_0.1.1       prettyunits_1.0.2 tools_3.5.0      
-## [10] digest_0.6.15     viridisLite_0.3.0 evaluate_0.10.1  
-## [13] tibble_1.4.2      gtable_0.2.0      pkgconfig_2.0.1  
+##  [4] bindr_0.1.1       pillar_1.2.2      compiler_3.5.0   
+##  [7] plyr_1.8.4        prettyunits_1.0.2 tools_3.5.0      
+## [10] digest_0.6.15     evaluate_0.10.1   tibble_1.4.2     
+## [13] gtable_0.2.0      viridisLite_0.3.0 pkgconfig_2.0.1  
 ## [16] rlang_0.2.0       rstudioapi_0.7    yaml_2.1.19      
-## [19] bindrcpp_0.2.2    xml2_1.2.0        stringr_1.3.1    
-## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
-## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
+## [19] bindrcpp_0.2.2    stringr_1.3.1     httr_1.3.1       
+## [22] xml2_1.2.0        hms_0.4.2         tidyselect_0.2.4 
+## [25] rprojroot_1.3-2   grid_3.5.0        glue_1.2.0       
 ## [28] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
 ## [31] purrr_0.2.4       magrittr_1.5      backports_1.1.2  
 ## [34] scales_0.5.0      htmltools_0.3.6   assertthat_0.2.0 

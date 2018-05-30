@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity power data</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-30 12:23:16</em></h4>
+<h4 class="date"><em>Last run at: 2018-05-30 16:26:16</em></h4>
 
 </div>
 
@@ -2131,7 +2131,7 @@ rf_46
 </tr>
 </tbody>
 </table>
-<p>Now load the data and give feedback where appropriate.</p>
+<p>Now load and save the data and give feedback where appropriate.</p>
 <pre class="r"><code># if kniting to pdf do not include outputs as it breaks the pdf render (why?)
 # load and save data using external R script
 source(&quot;../scripts/process1minGridSpyData.R&quot;)</code></pre>
@@ -2175,8 +2175,8 @@ setkey(fListCompleteDT, hhID)
 setkey(metaDT, hhID)
 fListCompleteDT &lt;- metaDT[fListCompleteDT]
 
-print(paste0(&quot;# -&gt; Loaded &quot;, uniqueN(hhStatDT$hhID), &quot; households (from &quot;, nrow(filesToLoadDT), &quot; files)&quot; ))</code></pre>
-<pre><code>## [1] &quot;# -&gt; Loaded 5 households (from 422 files)&quot;</code></pre>
+print(paste0(&quot;# -&gt; Loaded and saved &quot;, uniqueN(hhStatDT$hhID), &quot; households (from &quot;, nrow(filesToLoadDT), &quot; files)&quot; ))</code></pre>
+<pre><code>## [1] &quot;# -&gt; Loaded and saved 5 households (from 422 files)&quot;</code></pre>
 </div>
 </div>
 <div id="data-quality-analysis" class="section level1">
@@ -3604,12 +3604,132 @@ NA
 <pre><code>## Warning: Removed 2 rows containing missing values (position_stack).</code></pre>
 </div>
 </div>
+<div id="summary" class="section level1">
+<h1><span class="header-section-number">7</span> Summary</h1>
+<p>The cleaned data has been saved as gzipped .csv files to ~/Data/NZGreenGrid/gridspy/consolidated/1min/ in ‘long’ form so that each file only has 4 columns:</p>
+<ul>
+<li>hhID: household id</li>
+<li>r_dateTime: time of observation</li>
+<li>circuit: the circuit label</li>
+<li>powerW: power observation (Watts)</li>
+</ul>
+<p>Each file has data for one household and there should be one file per household.</p>
+<p>As an example, here are the first few rows of one of the files:</p>
+<table>
+<caption>
+First 6 rows of example data for 1 household
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+hhID
+</th>
+<th style="text-align:left;">
+r_dateTime
+</th>
+<th style="text-align:left;">
+circuit
+</th>
+<th style="text-align:right;">
+powerW
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:00:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+679.54
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:01:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+680.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:02:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+680.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:03:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+680.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:04:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+682.86
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+2017-04-10 00:05:00
+</td>
+<td style="text-align:left;">
+Laundry &amp; Bedrooms$4228
+</td>
+<td style="text-align:right;">
+682.39
+</td>
+</tr>
+</tbody>
+</table>
+<p>This format makes it much easier to do future data extraction in R as we can select by date and circuit label as we load. It also means we can load a lot of data in memory without breaking R’s memory limits as R likes ‘long’ rather than wide data.</p>
+</div>
 <div id="runtime" class="section level1">
-<h1><span class="header-section-number">7</span> Runtime</h1>
-<p>Analysis completed in 587.04 seconds ( 9.78 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+<h1><span class="header-section-number">8</span> Runtime</h1>
+<p>Analysis completed in 884.83 seconds ( 14.75 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
-<h1><span class="header-section-number">8</span> R environment</h1>
+<h1><span class="header-section-number">9</span> R environment</h1>
 <p>R packages used:</p>
 <ul>
 <li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>
@@ -3646,14 +3766,14 @@ NA
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.17      cellranger_1.1.0  highr_0.6        
-##  [4] pillar_1.2.2      compiler_3.5.0    plyr_1.8.4       
-##  [7] bindr_0.1.1       prettyunits_1.0.2 tools_3.5.0      
-## [10] digest_0.6.15     viridisLite_0.3.0 evaluate_0.10.1  
-## [13] tibble_1.4.2      gtable_0.2.0      pkgconfig_2.0.1  
+##  [4] bindr_0.1.1       pillar_1.2.2      compiler_3.5.0   
+##  [7] plyr_1.8.4        prettyunits_1.0.2 tools_3.5.0      
+## [10] digest_0.6.15     evaluate_0.10.1   tibble_1.4.2     
+## [13] gtable_0.2.0      viridisLite_0.3.0 pkgconfig_2.0.1  
 ## [16] rlang_0.2.0       rstudioapi_0.7    yaml_2.1.19      
-## [19] bindrcpp_0.2.2    xml2_1.2.0        stringr_1.3.1    
-## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
-## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
+## [19] bindrcpp_0.2.2    stringr_1.3.1     httr_1.3.1       
+## [22] xml2_1.2.0        hms_0.4.2         tidyselect_0.2.4 
+## [25] rprojroot_1.3-2   grid_3.5.0        glue_1.2.0       
 ## [28] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
 ## [31] purrr_0.2.4       magrittr_1.5      backports_1.1.2  
 ## [34] scales_0.5.0      htmltools_0.3.6   assertthat_0.2.0 
