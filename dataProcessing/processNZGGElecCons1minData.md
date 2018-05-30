@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-30 11:13:41'
+date: 'Last run at: 2018-05-30 12:23:16'
 output:
   html_document:
     code_folding: hide
@@ -973,7 +973,7 @@ In this section we load the data files that have a file size > 3000 bytes. Thing
      * _But_ we should probably test the first few lines to double check...
  * We have to deal with quite a lot of duplication some of which has caused the different date formats. See our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
  
-The following table shows the number of files per household that we willl load.
+The following table shows the number of files per household that we will load.
 
 
 ```r
@@ -1036,8 +1036,74 @@ knitr::kable(caption = "Summary of household files to load", t)
 </tbody>
 </table>
 
+Now load the data and give feedback where appropriate.
 
 
+```r
+# if kniting to pdf do not include outputs as it breaks the pdf render (why?)
+# load and save data using external R script
+source("../scripts/process1minGridSpyData.R")
+```
+
+```
+## Loading required package: reshape2
+```
+
+```
+## 
+## Attaching package: 'reshape2'
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     dcast, melt
+```
+
+```
+## [1] "Loading: rf_01"
+## [1] "Removed 14664 (0.29% of observations) where powerW = NA"
+## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv..."
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv"
+## [1] "Loading: rf_12"
+## [1] "Removed 70854 (2.88% of observations) where powerW = NA"
+## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_12_all_1min_data.csv..."
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_12_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_12_all_1min_data.csv"
+## [1] "Loading: rf_32"
+## [1] "Removed 7530 (0.23% of observations) where powerW = NA"
+## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_32_all_1min_data.csv..."
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_32_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_32_all_1min_data.csv"
+## [1] "Loading: rf_45"
+## [1] "Removed 10146 (0.21% of observations) where powerW = NA"
+## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_45_all_1min_data.csv..."
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_45_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_45_all_1min_data.csv"
+## [1] "Loading: rf_46"
+## [1] "Removed 294154 (1.52% of observations) where powerW = NA"
+## [1] "Saving ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv..."
+## [1] "Saved ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv, gzipping..."
+## [1] "Gzipped ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv"
+## [1] "Saving daily observations stats by hhid to ~/Data/NZGreenGrid/gridspy/consolidated/1min/hhDailyObservationsStats.csv"
+## [1] "Done"
+## [1] "Saving 1 minute data files final metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT_final.csv"
+## [1] "Done"
+```
+
+```r
+# add metadata
+setkey(fListCompleteDT, hhID)
+setkey(metaDT, hhID)
+fListCompleteDT <- metaDT[fListCompleteDT]
+
+print(paste0("# -> Loaded ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
+```
+
+```
+## [1] "# -> Loaded 5 households (from 422 files)"
+```
 
 # Data quality analysis
 
@@ -1694,7 +1760,7 @@ Finally we show the total number of households which we think are still sending 
 
 
 
-Analysis completed in 666.71 seconds ( 11.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 587.04 seconds ( 9.78 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
