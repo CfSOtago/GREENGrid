@@ -2,7 +2,7 @@
 title: 'Processing, cleaning and saving NZ GREEN Grid project 1 minute electricity
   power data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-29 19:24:09'
+date: 'Last run at: 2018-05-30 11:13:41'
 output:
   html_document:
     code_folding: hide
@@ -32,7 +32,7 @@ bibliography: '/Users/ben/bibliography.bib'
 
 
 
-Test run using reduced data from /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/
+Test run using reduced data from ~/Data/NZGreenGrid/gridspy/1min_orig/
 
 # Citation
 
@@ -91,7 +91,7 @@ In this section we generate a listing of all 1 minute data files that we have re
  
 In this run we are using data from:
 
- * /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/
+ * ~/Data/NZGreenGrid/gridspy/1min_orig/
 
 If these do not match then this may be a test run.
 
@@ -164,13 +164,13 @@ If these do not match then this may be a test run.
 ```
 
 ```
-## [1] "Looking for 1 minute data using pattern = *at1.csv$ in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
-## [1] "Looking for data using pattern = *at1.csv$ in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
+## [1] "Looking for 1 minute data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
+## [1] "Looking for data using pattern = *at1.csv$ in ~/Data/NZGreenGrid/gridspy/1min_orig/ - could take a while..."
 ## [1] "Found 2,477 files"
 ## [1] "Processing file list and getting file meta-data. Please be patient)"
 ## [1] "All files checked"
-## [1] "Checking ambiguous date formats in /Users/ben/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
-## [1] "Saving 1 minute data files interim metadata to /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT_interim.csv"
+## [1] "Checking ambiguous date formats in ~/Data/NZGreenGrid/gridspy/1min_orig/rf_46/12Oct2016-20Nov2017at1.csv"
+## [1] "Saving 1 minute data files interim metadata to ~/Data/NZGreenGrid/gridspy/consolidated/1min/fListCompleteDT_interim.csv"
 ## [1] "Done"
 ```
 
@@ -1053,7 +1053,7 @@ The following table shows the number of data files with different circuit labels
 
 Some or all of these may be true at any given time!
 
-> NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/circuitLabelCheck.csv for viewing in e.g. xl.
+> NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in ~/Data/NZGreenGrid/gridspy/consolidated/1min/circuitLabelCheck.csv for viewing in e.g. xl.
 
 <table>
 <caption>Circuit labels list by household</caption>
@@ -1126,7 +1126,7 @@ The following table provides more detail to aid error checking. Check for:
  
 If the above plot and this table flag a lot of errors then some re-naming of the circuit labels (column names) may be necessary. 
 
-> NB: As before, the table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in /Users/ben/Data/NZGreenGrid/gridspy/consolidated/1min/circuitLabelMetaDataCheckTable.csv for viewing in e.g. xl.
+> NB: As before, the table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in ~/Data/NZGreenGrid/gridspy/consolidated/1min/circuitLabelMetaDataCheckTable.csv for viewing in e.g. xl.
 
 <table>
 <caption>Circuit labels by household with addiitonal meta-data</caption>
@@ -1694,7 +1694,7 @@ Finally we show the total number of households which we think are still sending 
 
 
 
-Analysis completed in 540.53 seconds ( 9.01 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 666.71 seconds ( 11.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
