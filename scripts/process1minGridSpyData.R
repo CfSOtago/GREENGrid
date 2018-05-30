@@ -203,7 +203,7 @@ for(hh in hhIDs){ #> start of household loop ----
     print("Col names: ")
     print(names(tempHhLongDT))
   }
-  tempHhLongDT <- NULL # just in case
+  tempHhLongDT
   tempHhDT <- NULL # just in case
 }
 
