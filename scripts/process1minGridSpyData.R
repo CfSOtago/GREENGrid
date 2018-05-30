@@ -168,11 +168,23 @@ for(hh in hhIDs){ #> start of household loop ----
   # add hhid for ease of future loading etc
   tempHhDT <- tempHhDT[, hhID := hh]
   # switch to long format for easy future loading
+  # this turns each circuit label (column) into a label within 'variable' and
+  # sets value to be the power measurement
+  # we then relabel them for clarity
   tempHhLongDT <- reshape2::melt(tempHhDT, id=c("hhID","r_dateTime"))
-  data.table::setnames(tempHhLongDT, "value", "powerW")
+  data.table::setnames(tempHhLongDT, "value", "power")
   data.table::setnames(tempHhLongDT, "variable", "circuit")
-  # force numeeric
-  tempHhLongDT <- tempHhLongDT[, powerW := as.numeric(powerW)]
+  # force numeric
+  tempHhLongDT <- tempHhLongDT[, powerW := as.numeric(power)]
+
+  # remove NA if present
+  oldN <- nrow(tempHhLongDT)
+  tempHhLongDT <- tempHhLongDT[!is.na(powerW)]
+  tempHhLongDT$power <- NULL # remove to save space/memory
+  newN <- nrow(tempHhLongDT)
+  pcNA <- ((oldN - newN)/oldN)*100
+  print(paste0("Removed ", oldN - newN, " (", round(pcNA, 2) , "% of observations) where powerW = NA"))
+
   # > Save hh file ----
   ofile <- paste0(outPath, "data/", hh,"_all_1min_data.csv")
   if(fullFb | baTest){
