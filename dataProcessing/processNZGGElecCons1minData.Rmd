@@ -35,7 +35,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
+baTest <- 0 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -355,7 +355,8 @@ t <- fListCompleteDT[dateColName %like% "do not load", .(nFiles = .N,
 knitr::kable(caption = "Summary of household files to load", t)
 ```
 
-Now load the data and give feedback where appropriate.
+
+Now load and save the data and give feedback where appropriate.
 
 ```{r loadValidFiles, echo=TRUE, include=TRUE}
 # if kniting to pdf do not include outputs as it breaks the pdf render (why?)
@@ -367,8 +368,24 @@ setkey(fListCompleteDT, hhID)
 setkey(metaDT, hhID)
 fListCompleteDT <- metaDT[fListCompleteDT]
 
-print(paste0("# -> Loaded ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
+print(paste0("# -> Loaded and saved ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
 ```
+
+The data has been saved in 'long' form so that each file only has 4 columns:
+
+ * hhID: household id
+ * r_dateTime: time of observation
+ * circuit: the circuit label
+ * powerW: power observation
+ 
+As an example, here are the first few rows of one of the files:
+
+```{r data header}
+t <- head(tempHhLongDT)
+kable(caption = "First 6 rows of example data for 1 household", t)
+```
+
+This format makes it much easier to do future data extraction in R as we can select by date and circuit label as we load. It also means we can load a lot of data in memory without breaking R's memory limits as R likes 'long' rather than wide data.
 
 # Data quality analysis
 
@@ -559,6 +576,26 @@ myPlot
 ggplot2::ggsave(paste0(outPath, "gridSpyLiveHouseholdsToDate.png"))
 
 ```
+
+# Summary
+
+The cleaned data has been saved as gzipped .csv files to `r outPath` in 'long' form so that each file only has 4 columns:
+
+ * hhID: household id
+ * r_dateTime: time of observation
+ * circuit: the circuit label
+ * powerW: power observation (Watts)
+
+Each file has data for one household and there should be one file per household.
+
+As an example, here are the first few rows of one of the files:
+
+```{r data header}
+t <- head(tempHhLongDT)
+kable(caption = "First 6 rows of example data for 1 household", t)
+```
+
+This format makes it much easier to do future data extraction in R as we can select by date and circuit label as we load. It also means we can load a lot of data in memory without breaking R's memory limits as R likes 'long' rather than wide data.
 
 # Runtime
 
