@@ -171,11 +171,15 @@ kable(caption = "Meta data for sample", metaDT)
 
 ## Grid Spy data
 
-In this section we load the cleaned data files from `r paste0(outPath,"data/")`.
- 
-The following table summarises the data.
+In this section we load the cleaned data files from `r paste0(outPath,"data/")`. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load.
 
-```{r loadFiles}
+```{r set filters, echo=TRUE}
+circuitPattern <- "Heat Pump"
+dateFrom <- "2015-04-01"
+dateTo <- "2016-03-31"
+```
+
+```{r load gs data}
 # check files to load
 fpath <- paste0(outPath,"data/")
 pattern <- "*.gz"
@@ -185,11 +189,29 @@ nFiles <- nrow(fListDT)
 print(paste0("Found ", tidyNum(nFiles), " files"))
 
 fListDT <- fListDT[, fullPath := paste0(fpath, fList)] # add in full path as it doesn't return in the function (maybe it should)
-pattern <- "Heat Pump"
-gs1MinDT <- getCleanGridSpyData(fListDT[, fullPath]) # beware, loads all data
 
-# remove NAs
+gs1MinDT <- data.table() # data collector
+filesToLoad <- fListDT[, fullPath]
+
+print(paste0("# Filtering on: ", circuitPattern))
+print(paste0("# Date range: ", dateFrom, " - ", dateTo))
+
+gs1MinDT <- getCleanGridSpyData(filesToLoad, circuitPattern, dateFrom, dateTo)
+
+# remove NAs if present
 gs1MinDT <- gs1MinDT[!is.na(powerW)]
+
+print("# > Setting useful dates & times")
+gs1MinDT <- gs1MinDT[, timeAsChar := format(r_dateTime, format = "%H:%M:%S")]
+gs1MinDT <- gs1MinDT[, obsHourMin := hms::as.hms(timeAsChar)] # makes graphs easier
+gs1MinDT$timeAsChar <- NULL # drop
+
+print(paste0("# Found ", tidyNum(nrow(gs1MinDT)), " observations matching -> ", circuitPattern, " <- in ", uniqueN(gs1MinDT$hhID), " households between ", dateFrom, " and ", dateTo))
+```
+
+The following table summarises the data.
+
+```{r loadFiles}
 
 t <- gs1MinDT[, .(nObs = .N,
                   nHouseholds = uniqueN(hhID),
@@ -299,10 +321,6 @@ myPlot
 First we need to select the circuits (columns) which are Heat Pumps. We do this using the string 'Heat Pump' in the column names and selecting the 'best year' from chart above = April 2015 - March 2016.
 
 ```{r extract heat pump cols, echo = TRUE}
-pattern <- "Heat Pump"
-dateFrom <- "2015-04-01"
-dateTo <- "2016-03-31"
-
 heatPumpDT <- gs1MinDT[circuit %like% pattern &
                          as.Date(r_dateTime) >= dateFrom &
                          as.Date(r_dateTime) <= dateTo]
