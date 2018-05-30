@@ -1,7 +1,7 @@
 ---
 title: 'GREEN Grid Heat Pump Profiles'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-05-29 23:50:05'
+date: 'Last run at: 2018-05-30 15:55:57'
 output:
   html_document:
     code_folding: hide
@@ -54,7 +54,6 @@ This report is intended to:
  * load and clean the project electricity power data (Grid Spy)
  * select the Heat Pump circuits (via their labels)
  * build exploratory demand profiles
-
 
 ## Requirements:
 
@@ -531,9 +530,16 @@ In this section we load metadata from /Users/ben/Syncplicity Folders/Green Grid 
 
 ## Grid Spy data
 
-In this section we load the cleaned data files from ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/.
- 
-The following table summarises the data.
+In this section we load the cleaned data files from ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load. Set the filters here:
+
+
+```r
+circuitPattern <- "Heat Pump"
+dateFrom <- "2015-04-01"
+dateTo <- "2016-03-31"
+```
+
+So we are looking for Heat Pump circuits between 2015-04-01 and 2016-03-31.
 
 
 ```
@@ -545,14 +551,38 @@ The following table summarises the data.
 ```
 
 ```
-## [1] "# Loading 5 files..."
-## [1] "# > Setting useful dates & times"
-## [1] "# Files loaded"
-## [1] "# Loaded 35,168,475 rows of data"
+## [1] "# Looking for circuits matching: Heat Pump"
 ```
 
+```
+## [1] "# Filtering on date range: 2015-04-01 - 2016-03-31"
+```
+
+```
+## [1] "# Loading 5 files..."
+## [1] "# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv.gz"
+## [1] "# Found: 0 that match -> Heat Pump <- between 2015-04-01 and 2016-03-31 out of 5,111,712"
+## [1] "# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_12_all_1min_data.csv.gz"
+## [1] "# Found: 0 that match -> Heat Pump <- between 2015-04-01 and 2016-03-31 out of 2,389,524"
+## [1] "# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_32_all_1min_data.csv.gz"
+## [1] "# Found: 526,785 that match -> Heat Pump <- between 2015-04-01 and 2016-03-31 out of 3,247,374"
+## [1] "# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_45_all_1min_data.csv.gz"
+## [1] "# Found: 526,110 that match -> Heat Pump <- between 2015-04-01 and 2016-03-31 out of 4,918,656"
+## [1] "# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv.gz"
+## [1] "# Found: 950,976 that match -> Heat Pump <- between 2015-04-01 and 2016-03-31 out of 19,103,861"
+## [1] "# > Setting useful dates & times"
+## [1] "# Files loaded"
+## [1] "# Loaded 2,003,871 rows of data"
+```
+
+```
+## [1] "# Found 2,003,871 observations matching -> Heat Pump <- in 3 households between 2015-04-01 and 2016-03-31"
+```
+
+The following table summarises the Heat Pump data we have found.
+
 <table>
-<caption>Summary of household grid spy files loaded</caption>
+<caption>Summary of household grid spy data for: Heat Pump</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> hhID </th>
@@ -566,70 +596,87 @@ The following table summarises the data.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> rf_01 </td>
-   <td style="text-align:right;"> 5111712 </td>
-   <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 533.3412 </td>
-   <td style="text-align:left;"> 2014-01-06 </td>
-   <td style="text-align:left;"> 2015-10-20 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> rf_12 </td>
-   <td style="text-align:right;"> 2389524 </td>
-   <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 180.6278 </td>
-   <td style="text-align:left;"> 2014-07-09 </td>
-   <td style="text-align:left;"> 2015-06-02 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> rf_32 </td>
-   <td style="text-align:right;"> 3247374 </td>
+   <td style="text-align:right;"> 526785 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 195.1058 </td>
-   <td style="text-align:left;"> 2015-03-26 </td>
-   <td style="text-align:left;"> 2016-04-05 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 69.66461 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rf_45 </td>
-   <td style="text-align:right;"> 4918656 </td>
+   <td style="text-align:right;"> 526110 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 179.7230 </td>
-   <td style="text-align:left;"> 2015-03-24 </td>
-   <td style="text-align:left;"> 2016-10-15 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 85.44295 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rf_46 </td>
-   <td style="text-align:right;"> 19103861 </td>
+   <td style="text-align:right;"> 950976 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 13 </td>
-   <td style="text-align:right;"> 233.0592 </td>
-   <td style="text-align:left;"> 2015-03-27 </td>
-   <td style="text-align:left;"> 2018-02-19 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 90.78617 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 </td>
   </tr>
 </tbody>
 </table>
 
-This table will have a large number (34,771,127) of obserations driven by the number of different circuit labels. We exttract the 'Heat' related ones below.
+This table will have a large number (2,003,871) of obserations caused by the number of different circuit labels as shown by the following table.
 
-# Data quality analysis
+<table>
+<caption>Counts of Heat Pump observations by label & household</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> rf_32 </th>
+   <th style="text-align:right;"> rf_45 </th>
+   <th style="text-align:right;"> rf_46 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Heat Pump$4160 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 526110 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Heat Pump$4196 </td>
+   <td style="text-align:right;"> 526785 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Heat Pumps (2x) &amp; Power$4232 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 486982 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Heat Pumps (2x) &amp; Power$4399 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 463994 </td>
+  </tr>
+</tbody>
+</table>
 
-Loaded data observation plots. Should match the plot in 
+Note that some households may have more than one Heat Pump circuit.
+
+## Test Heat Pump data
+
+Loaded data observation plots - just to confirm what Heat Pump data we have. 
 
 
 ```
-## Warning: Removed 41 rows containing missing values (geom_tile).
+## Warning: Removed 42 rows containing missing values (geom_tile).
 ```
 
 ![](ggHeatPumpProfiles_files/figure-html/loadedFilesObsPlots-1.png)<!-- -->
-
-
-```
-## Warning: Removed 41 rows containing missing values (geom_point).
-```
 
 ![](ggHeatPumpProfiles_files/figure-html/plot n obs per hh id as dots-1.png)<!-- -->
 
@@ -644,7 +691,7 @@ The following table shows the min/max observations per day and min/max dates for
  If we do see any of these then we still have data cleaning work to do!
 
 <table>
-<caption>Summary observation stats by hhID (sorted by date last heard from)</caption>
+<caption>Summary observation stats by hhID (sorted by date last heard from) for: Heat Pump</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> hhID </th>
@@ -656,32 +703,25 @@ The following table shows the min/max observations per day and min/max dates for
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> rf_12 </td>
-   <td style="text-align:left;"> Powerco </td>
-   <td style="text-align:right;"> 2389524 </td>
-   <td style="text-align:left;"> 2014-07-09 04:07:00 </td>
-   <td style="text-align:left;"> 2015-06-02 20:07:00 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> rf_32 </td>
    <td style="text-align:left;"> Unison </td>
-   <td style="text-align:right;"> 3247374 </td>
-   <td style="text-align:left;"> 2015-03-26 03:40:00 </td>
-   <td style="text-align:left;"> 2016-04-05 05:24:00 </td>
+   <td style="text-align:right;"> 526785 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 23:59:00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rf_45 </td>
    <td style="text-align:left;"> Unison </td>
-   <td style="text-align:right;"> 4918656 </td>
-   <td style="text-align:left;"> 2015-03-24 21:45:00 </td>
-   <td style="text-align:left;"> 2016-10-15 01:08:00 </td>
+   <td style="text-align:right;"> 526110 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 23:59:00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rf_46 </td>
    <td style="text-align:left;"> Unison </td>
-   <td style="text-align:right;"> 19103861 </td>
-   <td style="text-align:left;"> 2015-03-27 02:21:00 </td>
-   <td style="text-align:left;"> 2018-02-19 22:08:00 </td>
+   <td style="text-align:right;"> 950976 </td>
+   <td style="text-align:left;"> 2015-04-01 </td>
+   <td style="text-align:left;"> 2016-03-31 23:59:00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rf_06 </td>
@@ -720,6 +760,13 @@ The following table shows the min/max observations per day and min/max dates for
   </tr>
   <tr>
    <td style="text-align:left;"> rf_11 </td>
+   <td style="text-align:left;"> Powerco </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rf_12 </td>
    <td style="text-align:left;"> Powerco </td>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:left;"> NA </td>
@@ -967,7 +1014,7 @@ The following table shows the min/max observations per day and min/max dates for
 </table>
 
 
-Finally we show the total number of households which we think are still sending data.
+Finally we show the total number of households which we think we have Heat Pump data for.
 
 
 ```
@@ -976,26 +1023,16 @@ Finally we show the total number of households which we think are still sending 
 
 ![](ggHeatPumpProfiles_files/figure-html/liveDataHouseholds-1.png)<!-- -->
 
-# Get Heat Pump data
-
-First we need to select the circuits (columns) which are Heat Pumps. We do this using the string 'Heat Pump' in the column names and selecting the 'best year' from chart above = April 2015 - March 2016.
+The following table summarises the Heat Pump data. Any surprises?
 
 
 ```r
-pattern <- "Heat Pump"
-dateFrom <- "2015-04-01"
-dateTo <- "2016-03-31"
-
-heatPumpDT <- gs1MinDT[circuit %like% pattern &
-                         as.Date(r_dateTime) >= dateFrom &
-                         as.Date(r_dateTime) <= dateTo]
-
-t <- summary(heatPumpDT)
-kable(caption = "Summary of heat pump circuits", t)
+t <- summary(gs1MinDT)
+kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
 ```
 
 <table>
-<caption>Summary of heat pump circuits</caption>
+<caption>Summary of Heat Pump circuits</caption>
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
@@ -1058,22 +1095,44 @@ kable(caption = "Summary of heat pump circuits", t)
 </tbody>
 </table>
 
+Nasty surprises often lurk in hisograms...
+
 
 ```
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![](ggHeatPumpProfiles_files/figure-html/heat pump histo-1.png)<!-- -->
+![](ggHeatPumpProfiles_files/figure-html/histo-1.png)<!-- -->
 
-Why are there negatve values?
+> Why are there negative values?
 
-Test charts: one for each HH but averaged over year. Keep at 1 minute intervals
+# Heat Pump profiles
+
+Test charts: one for each HH but averaged over each season. Keep at 1 minute intervals. Note definition of season...
 
 
+```r
+# add season
+gs1MinDT <- gs1MinDT[, month := lubridate::month(r_dateTime, label = TRUE)]
+gs1MinDT <- gs1MinDT[, season := "Summer"]
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Mar" |
+                                              month == "Apr" |
+                                              month == "May", "Autumn", season)]
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Jun" |
+                                              month == "Jul" |
+                                              month == "Aug", "Winter", season)]
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Sep" |
+                                              month == "Oct" |
+                                              month == "Nov", "Spring", season)]
+```
 
-
+Charts:
 
 ![](ggHeatPumpProfiles_files/figure-html/profiles per household by season-1.png)<!-- -->
+
+```
+## [1] "Saving profile data used to build this plot to: Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv..."
+```
 
 
 
@@ -1082,7 +1141,7 @@ Test charts: one for each HH but averaged over year. Keep at 1 minute intervals
 
 
 
-Analysis completed in 883.67 seconds ( 14.73 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 168.83 seconds ( 2.81 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -1118,8 +1177,8 @@ Session info:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] kableExtra_0.9.0  knitr_1.20        ggplot2_2.2.1     dplyr_0.7.5      
-## [5] data.table_1.11.2 nzGREENGrid_0.1.0
+## [1] kableExtra_0.9.0  knitr_1.20        readr_1.1.1       ggplot2_2.2.1    
+## [5] dplyr_0.7.5       data.table_1.11.2 nzGREENGrid_0.1.0
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.17      highr_0.6         cellranger_1.1.0 
@@ -1132,11 +1191,11 @@ Session info:
 ## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
 ## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
 ## [28] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
-## [31] reshape2_1.4.3    purrr_0.2.4       readr_1.1.1      
-## [34] magrittr_1.5      backports_1.1.2   scales_0.5.0     
-## [37] htmltools_0.3.6   assertthat_0.2.0  rvest_0.3.2      
-## [40] colorspace_1.3-2  labeling_0.3      stringi_1.2.2    
-## [43] lazyeval_0.2.1    munsell_0.4.3
+## [31] reshape2_1.4.3    purrr_0.2.4       magrittr_1.5     
+## [34] backports_1.1.2   scales_0.5.0      htmltools_0.3.6  
+## [37] assertthat_0.2.0  rvest_0.3.2       colorspace_1.3-2 
+## [40] labeling_0.3      stringi_1.2.2     lazyeval_0.2.1   
+## [43] munsell_0.4.3
 ```
 
 # References

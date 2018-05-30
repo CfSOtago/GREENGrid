@@ -60,6 +60,7 @@ library(nzGREENGrid) # local utilities
 rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
              "ggplot2", # for fancy graphs
+             "readr", # writing to files
              "knitr", # for kable
              "kableExtra" # for extra kable
 )
@@ -106,7 +107,6 @@ This report is intended to:
  * load and clean the project electricity power data (Grid Spy)
  * select the Heat Pump circuits (via their labels)
  * build exploratory demand profiles
-
 
 ## Requirements:
 
@@ -171,13 +171,15 @@ kable(caption = "Meta data for sample", metaDT)
 
 ## Grid Spy data
 
-In this section we load the cleaned data files from `r paste0(outPath,"data/")`. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load.
+In this section we load the cleaned data files from `r paste0(outPath,"data/")`. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load. Set the filters here:
 
 ```{r set filters, echo=TRUE}
 circuitPattern <- "Heat Pump"
 dateFrom <- "2015-04-01"
 dateTo <- "2016-03-31"
 ```
+
+So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`.
 
 ```{r load gs data}
 # check files to load
@@ -193,25 +195,20 @@ fListDT <- fListDT[, fullPath := paste0(fpath, fList)] # add in full path as it 
 gs1MinDT <- data.table() # data collector
 filesToLoad <- fListDT[, fullPath]
 
-print(paste0("# Filtering on: ", circuitPattern))
-print(paste0("# Date range: ", dateFrom, " - ", dateTo))
+print(paste0("# Looking for circuits matching: ", circuitPattern))
+print(paste0("# Filtering on date range: ", dateFrom, " - ", dateTo))
 
 gs1MinDT <- getCleanGridSpyData(filesToLoad, circuitPattern, dateFrom, dateTo)
 
 # remove NAs if present
 gs1MinDT <- gs1MinDT[!is.na(powerW)]
 
-print("# > Setting useful dates & times")
-gs1MinDT <- gs1MinDT[, timeAsChar := format(r_dateTime, format = "%H:%M:%S")]
-gs1MinDT <- gs1MinDT[, obsHourMin := hms::as.hms(timeAsChar)] # makes graphs easier
-gs1MinDT$timeAsChar <- NULL # drop
-
 print(paste0("# Found ", tidyNum(nrow(gs1MinDT)), " observations matching -> ", circuitPattern, " <- in ", uniqueN(gs1MinDT$hhID), " households between ", dateFrom, " and ", dateTo))
 ```
 
-The following table summarises the data.
+The following table summarises the `r circuitPattern` data we have found.
 
-```{r loadFiles}
+```{r sumamrise loaded data}
 
 t <- gs1MinDT[, .(nObs = .N,
                   nHouseholds = uniqueN(hhID),
@@ -220,14 +217,22 @@ t <- gs1MinDT[, .(nObs = .N,
                   minDate = min(as.Date(r_dateTime)),
                   maxDate = max(as.Date(r_dateTime))), keyby = .(hhID)]
 
-knitr::kable(caption = "Summary of household grid spy files loaded", t)
+knitr::kable(caption = paste0("Summary of household grid spy data for: ", circuitPattern), t)
 ```
 
-This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations driven by the number of different circuit labels. We exttract the 'Heat' related ones below.
+This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations caused by the number of different circuit labels as shown by the following table.
 
-# Data quality analysis
+```{r test circuit labels}
+t <- table(gs1MinDT$circuit,gs1MinDT$hhID)
 
-Loaded data observation plots. Should match the plot in 
+kable(caption = paste0("Counts of ", circuitPattern, " observations by label & household"), t)
+```
+
+Note that some households may have more than one `r circuitPattern` circuit.
+
+## Test `r circuitPattern` data
+
+Loaded data observation plots - just to confirm what `r circuitPattern` data we have. 
 
 ```{r loadedFilesObsPlots}
 
@@ -241,11 +246,11 @@ myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID,
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
   theme(axis.text.x = element_text(angle = 90, 
                                    vjust = 0.5,
                                    hjust = 0.5)) + 
-  labs(title = "N observations per household per day for all loaded grid spy data",
+  labs(title = paste0("N observations per household per day for: ", circuitPattern),
        caption = myCaption
   )
 
@@ -257,16 +262,18 @@ myPlot +
 
 ```{r plot n obs per hh id as dots}
 # point plot ----
-myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), 
+dt <- plotDT[metaDT]
+myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = as.Date(date), 
                                y = nObs, 
                                colour = hhID)) +
   geom_point() +
   #facet_wrap(sample ~ .) +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, 
                                    hjust = 0.5)) + 
-  labs(title = "N observations per household per day for all loaded grid spy data",
-       caption = myCaption
+  labs(title = paste0("N observations per household per day for: ", circuitPattern),
+       caption = myCaption,
+       x = "Date"
   )
 myPlot + facet_grid(sample ~ .)
 ```
@@ -290,11 +297,11 @@ dt <- mergedDT[, .(nObs = .N,
              maxDate = max(r_dateTime)),
          keyby = .(hhID, sample)]
 
-knitr::kable(caption = "Summary observation stats by hhID (sorted by date last heard from)", dt[order(maxDate)])
+knitr::kable(caption = paste0("Summary observation stats by hhID (sorted by date last heard from) for: ", circuitPattern), dt[order(maxDate)])
 ```
 
 
-Finally we show the total number of households which we think are still sending data.
+Finally we show the total number of households which we think we have `r circuitPattern` data for.
 
 ```{r liveDataHouseholds}
 plotDT <- mergedDT[, .(nHH = uniqueN(hhID)), keyby = .(date = as.Date(r_dateTime), sample)]
@@ -305,73 +312,75 @@ plotDT <- plotDT[sample == "Powerco", sample := "Sample 2: PowerCo" ]
 # point plot ----
 myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample)) +
   geom_col() +
-  scale_x_date(date_labels = "%Y %b", date_breaks = "6 months") +
+  scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
   theme(axis.text.x = element_text(angle = 90, 
                                    vjust = 0.5, 
                                    hjust = 0.5)) + 
-  labs(title = "N live households per day for all loaded grid spy data",
+  labs(title = paste0("N households per day for: ", circuitPattern),
        caption = myCaption
   )
 myPlot
 
 ```
 
-# Get Heat Pump data
+The following table summarises the `r circuitPattern` data. Any surprises?
 
-First we need to select the circuits (columns) which are Heat Pumps. We do this using the string 'Heat Pump' in the column names and selecting the 'best year' from chart above = April 2015 - March 2016.
+```{r summary of cols, echo = TRUE}
+t <- summary(gs1MinDT)
+kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
 
-```{r extract heat pump cols, echo = TRUE}
-heatPumpDT <- gs1MinDT[circuit %like% pattern &
-                         as.Date(r_dateTime) >= dateFrom &
-                         as.Date(r_dateTime) <= dateTo]
-
-t <- summary(heatPumpDT)
-kable(caption = "Summary of heat pump circuits", t)
 ```
 
-```{r heat pump histo}
-myCaption <- paste0("Data source: ", outPath,
-                    "\nUsing data from ",  min(heatPumpDT$r_dateTime), " to ", max(heatPumpDT$r_dateTime))
+Nasty surprises often lurk in hisograms...
 
-ggplot(heatPumpDT, aes(x = powerW)) +
+```{r histo}
+myCaption <- paste0("Data source: ", outPath,
+                    "\nUsing data from ",  min(gs1MinDT$r_dateTime), " to ", max(gs1MinDT$r_dateTime))
+
+ggplot2::ggplot(gs1MinDT, aes(x = powerW)) +
   geom_histogram() +
-  labs(title = "Distribution of 'Heat Pump' power",
+  labs(title = paste0("Distribution of ", circuitPattern, " power values"),
        caption = myCaption)
 ```
 
-Why are there negatve values?
+> Why are there negative values?
 
-Test charts: one for each HH but averaged over year. Keep at 1 minute intervals
+# `r circuitPattern` profiles
 
-```{r add season}
+Test charts: one for each HH but averaged over each season. Keep at 1 minute intervals. Note definition of season...
+
+```{r add season, echo = TRUE}
 # add season
-heatPumpDT <- heatPumpDT[, month := lubridate::month(r_dateTime, label = TRUE)]
-heatPumpDT <- heatPumpDT[, season := "Summer"]
-heatPumpDT <- heatPumpDT[, season := ifelse(month == "Mar" |
+gs1MinDT <- gs1MinDT[, month := lubridate::month(r_dateTime, label = TRUE)]
+gs1MinDT <- gs1MinDT[, season := "Summer"]
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Mar" |
                                               month == "Apr" |
                                               month == "May", "Autumn", season)]
-heatPumpDT <- heatPumpDT[, season := ifelse(month == "Jun" |
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Jun" |
                                               month == "Jul" |
                                               month == "Aug", "Winter", season)]
-heatPumpDT <- heatPumpDT[, season := ifelse(month == "Sep" |
+gs1MinDT <- gs1MinDT[, season := ifelse(month == "Sep" |
                                               month == "Oct" |
                                               month == "Nov", "Spring", season)]
 ```
 
-
+Charts:
 
 ```{r profiles per household by season}
-plotDT <- heatPumpDT[!is.na(season), 
+plotDT <- gs1MinDT[!is.na(season), 
                      .(meanW = mean(powerW)), keyby = .(hhID, obsHourMin, season)]
 setkey(plotDT, hhID)
 
-myPlot <- ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID)) +
-  geom_point()
-
-myPlot + facet_grid(season ~ .) +
-  labs(title = "Mean 'Heat Pump' power (1 minute intervals)",
+myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID)) +
+  geom_point() +
+  facet_grid(season ~ .) +
+  labs(title = paste0("Mean power profiles for: ", circuitPattern, " circuits"),
        caption = myCaption)
+myPlot
 
+ofile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
+print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
+readr::write_csv(plotDT, ofile)
 ```
 
 
