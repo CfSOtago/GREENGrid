@@ -35,14 +35,14 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
 
 if(baTest == 1){
   # Local test
-  dPath <- path.expand("~/Data/NZGreenGrid/gridspy/") # BA laptop test set
+  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
   fpath <- paste0(dPath,"1min_orig/") # location of data
   outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
 } else {
@@ -312,7 +312,7 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
 
 In this section we load metadata from `r gsMasterFile` to link to the power data.
 
-```{r load dmetadata}
+```{r load metadata}
 
 unisonDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Unison"))
 
@@ -343,7 +343,7 @@ In this section we load the data files that have a file size > `r dataThreshold`
      * _But_ we should probably test the first few lines to double check...
  * We have to deal with quite a lot of duplication some of which has caused the different date formats. See our [repo issues list](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all).
  
-The following table shows the number of files per household that we willl load.
+The following table shows the number of files per household that we will load.
 
 ```{r filesToLoadTable, echo=TRUE}
 # check files to load
@@ -355,9 +355,10 @@ t <- fListCompleteDT[dateColName %like% "do not load", .(nFiles = .N,
 knitr::kable(caption = "Summary of household files to load", t)
 ```
 
+Now load the data and give feedback where appropriate.
 
-```{r loadValidFiles, echo=TRUE, include=FALSE}
-# do not include outputs as it breaks the pdf render (why?)
+```{r loadValidFiles, echo=TRUE, include=TRUE}
+# if kniting to pdf do not include outputs as it breaks the pdf render (why?)
 # load and save data using external R script
 source("../scripts/process1minGridSpyData.R")
 
@@ -365,6 +366,8 @@ source("../scripts/process1minGridSpyData.R")
 setkey(fListCompleteDT, hhID)
 setkey(metaDT, hhID)
 fListCompleteDT <- metaDT[fListCompleteDT]
+
+print(paste0("# -> Loaded ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
 ```
 
 # Data quality analysis
