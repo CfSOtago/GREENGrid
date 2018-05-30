@@ -2,20 +2,31 @@
 % Please edit documentation in R/loadGridSpyData.R
 \name{getCleanGridSpyData}
 \alias{getCleanGridSpyData}
-\title{Loads cleaned grid spy data into a data.table}
+\title{Loads cleaned grid spy power data for a given circuit between two dates into a data.table}
 \usage{
-getCleanGridSpyData(files)
+getCleanGridSpyData(files, circuitPattern, dateFrom, dateTo)
 }
 \arguments{
-\item{files}{the files to load (so you can pass a sunset if you wish)}
+\item{files}{the files to load (so you can pass a subset if you wish)}
 
-\item{pattern}{the circuit pattern to match}
+\item{circuitPattern}{the circuit pattern to match}
+
+\item{dateFrom}{date to start extract (inclusive)}
+
+\item{dateTo}{date to end extract (inclusive)}
 }
 \description{
-\code{getCleanGridSpyData} loops over a file list and uses `readr::read_csv` to load and `rbind` them.
+\code{getCleanGridSpyData} loops over a file list and loads each in turn using \code{readr::read_csv}. It filters each file to
+extract data for particular circuits between two dates and creates some derived time/date variables before
+using \code{rbind} to create a single data.table which is returned.
 }
 \details{
-Use of read_csv enables .gz files to be autoloaded and proper parsing of dateTimes.
+Function matches \code{circuitPattern} to extract specific circuits and selects observations between
+ \code{dateFrom} and \code{dateTo}. Use this to extract any circuit you want between any given dates.
+
+\code{circuitPattern} is passed to the \code{data.table} operator \code{\%like\%} so wild cards & stuff may work. YMMV
+
+Use of \code{readr::read_csv} enables .gz files to be autoloaded and proper parsing of dateTimes.
 }
 \author{
 Ben Anderson, \email{b.anderson@soton.ac.uk}
