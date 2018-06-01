@@ -5,6 +5,8 @@ Repo supporting analysis of the [NZ GREEN Grid](https://www.otago.ac.nz/centre-s
  * Dwelling & appliance surveys
  * Occupant time-use diaries (focused on energy use)
 
+More info and the data processing code is in the [dataProcessing](dataProcessing) folder. 
+
 _None_ of the code here will work unless you also have access to the data. While we have plans to deposit anonymised versions of the data with a suitable data archive (any offers?!), access is currently controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid data (via github readme)).
 
 ## Repo structure
