@@ -47,15 +47,15 @@ The .R code to do most of this can be found in the repo's [scripts](../scripts) 
  
 ## Time Use Diaries
 
-Two time-use diaries were conucted, one for each of the two samples (Unison & PowerCo). The code in the [tud](tud) folder:
+Two time-use diaries were conducted, one for each of the two samples (Unison & PowerCo). The code in the [tud](tud) folder:
 
  * Loads and checks each diary
- * Removes any idnrtifying (potentially disclosive) variables
- * Save out 1 file per sample to /hum-csafe/ResearchProjects/GREENGrid/Clean_data/safe/TUD/
+ * Removes any identifying (potentially disclosive) variables
+ * Saves out 1 file per sample to /hum-csafe/ResearchProjects/GREENGrid/Clean_data/safe/TUD/
  
 Each file has multiple rows per household representing different people's diaries and mulitple columns of recorded activities and locations. No further derived variables have been created (yet).
 
-See html/pdf for latest run but check creation date to ensure moast recent.
+See html/pdf for latest run but check creation date to ensure most recent.
 
 The .R code to do most of this can be found in the .Rmd file in [tud](tud) which runs the processing and produces a report on the data processing.
 
