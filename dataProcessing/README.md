@@ -39,11 +39,11 @@ First 6 rows of example data for 1 household:
 |rf_46 |	2017-04-10 00:04:00 |	Laundry & Bedrooms$4228 |	682.86|
 |rf_46 |	2017-04-10 00:05:00 |	Laundry & Bedrooms$4228 |	682.39 |
 
-See html/pdf for latest run but check creation date to ensure moast recent.
+See html/pdf for latest run but check creation date to ensure most recent.
 
-The .R code to do most of this can be found in the repo's [scripts](../scripts) folder. The .R script found here runs the code. The .Rmd file found here runs the code and produces a report on the data processing.
+The .R code to do most of this can be found in the repo's [scripts](../scripts) folder. The .R script found in [gridSpy](gridSpy) runs the code. The .Rmd file found in [gridSpy](gridSpy) runs the code and produces a report on the data processing.
  
- Track outstanding [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?label_name%5B%5D=gridSpy).
+>Track outstanding [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?label_name%5B%5D=gridSpy).
  
 ## Time Use Diaries
 
@@ -59,6 +59,8 @@ See html/pdf for latest run but check creation date to ensure moast recent.
 
 The .R code to do most of this can be found in the .Rmd file in [tud](tud) which runs the processing and produces a report on the data processing.
 
-Track outstanding [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?label_name%5B%5D=TUD).
+>Track outstanding [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?label_name%5B%5D=TUD).
  
 ## Dwelling and appliance surveys
+
+To do
