@@ -22,53 +22,24 @@ output:
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
-```{r setup, include=FALSE}
+```{r knitrSetup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 ```
 
 ```{r codeSetup, include=FALSE}
-# Housekeeping ----
-rm(list=ls(all=TRUE)) # remove all objects from workspace
+# set up packages & parameters
+source("./setup.R")
 
-# Set start time ----
-startTime <- proc.time()
+# additional parameters ----
 
-# Local parameters ----
-fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
 
-b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
-b2Mb <- 1048576
-
-if(baTest == 1){
-  # Local test
-  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
-  fpath <- paste0(dPath,"1min_orig/") # location of data
-  outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
-} else {
-  # full monty
-  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
-  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them 
-}
-
-gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management Folder/Gridspy/Master list of Gridspy units.xlsx")
-
-dataThreshold <- 3000 # assume any files smaller than this (bytes) = no data or some mangled xml/html. Really, we should check the contents of each file.
-
-# Load nzGREENGrid package ----
-library(nzGREENGrid) # local utilities
-
-# Packages needed in this .Rmd file ----
-rmdLibs <- c("ggplot2", # for fancy graphs
-             "knitr", # for kable
-             "kableExtra" # for extra kable
+# additional packages needed for .Rmd ----
+rmdLibs <- c("ggplot2", # graphs
+             "readr", # loading gzipped csv
+             "knitr" # kable
 )
 # load them
 nzGREENGrid::loadLibraries(rmdLibs)
-
-# Local functions ----
-
 
 ```
 
@@ -78,13 +49,23 @@ nzGREENGrid::loadLibraries(rmdLibs)
 
 ```{r reportStatus, include = FALSE}
 if(baTest){
-  msg <- paste0("Test run using reduced data from ", fpath)
+  msg1 <- paste0("Test run using reduced data from ", fpath)
 } else {
-  msg <- paste0("Full run using all data from ", fpath)
+  msg1 <- paste0("Full run using all data from ", fpath)
+}
+
+
+
+if(refreshData){
+  msg2 <- paste0("\nrefreshData = ", refreshData, " so rebuilding entire fileset. Be patient.")
+} else {
+  msg2 <- paste0("\nrefreshData = ", refreshData, " so re-using previous output. Should be relatively quick.")
 }
 ```
 
-`r msg`
+`r msg1`
+
+`r msg2`
 
 # Citation
 
@@ -148,10 +129,14 @@ In this run we are using data from:
 If these do not match then this may be a test run.
 
 ```{r getCompleteFileList}
-# get file list via R script
-
-source("../scripts/process1minGridSpyFiles.R")
-
+# get file list 
+if(refreshData){
+  print("Rebuilding filelist")
+  fListCompleteDT <- nzGREENGrid::getGridSpyFileList(fpath, pattern, fListInterim)
+} else {
+  print("Re-using filelist")
+  fListCompleteDT <- fread(paste0(outPath,fListInterim))
+}
 print(paste0("Overall we have ", nrow(fListCompleteDT), " files from ", 
              uniqueN(fListCompleteDT$hhID), " households."))
 
@@ -167,13 +152,6 @@ Overall we have `r tidyNum(nFiles)` files from `r tidyNum(uniqueN(fListCompleteD
 We now need to check how many of the loaded files have an ambiguous or default date - these could introduce errors.
 
 ```{r initialDateFormatTable}
-
-# short cut if interim file list already saved ----
-#ifile <- paste0(outPath, fListInterim)
-#print(paste0("Loading 1 minute data files interim metadata to ", ifile))
-#fListCompleteDT <- fread(ifile)
-  
-  
 t <- fListCompleteDT[, .(nFiles = .N, 
                          minDate = min(dateExample), # may not make much sense
                          maxDate = max(dateExample)), 
@@ -207,11 +185,8 @@ knitr::kable(caption = cap, aList)
 Check against file names to see what is reasonable and then fix them.
 
 ```{r setAmbiguous, echo=TRUE}
-# Setting to dmy seems OK
-fListCompleteDT <- fListCompleteDT[dateFormat == "ambiguous", 
-                                   dateFormat := "dmy - inferred"]
+fListCompleteDT <- nzGREENGrid::fixAmbiguousDates(fListCompleteDT)
 
-paste0("Fixed ", nrow(aList), " files with an ambiguous dateFormat")
 ```
 
 
@@ -313,22 +288,7 @@ ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileListSizeTilePlot.png"))
 In this section we load metadata from `r gsMasterFile` to link to the power data.
 
 ```{r load metadata}
-
-unisonDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Unison"))
-
-# keep safe data only
-unisonDT <- unisonDT[, .(sample = `Power company`, hhID = `Tag`, 
-                         Adults,Teenagers,Children,removed )]
-head(unisonDT)
-
-powercoDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Powerco"))
-powercoDT <- powercoDT[, .(sample = `Power Co`, hhID = `Building Tag`, 
-                           Adults = `Adult`,Teenagers,Children, removed = `date disconnected` )]
-head(powercoDT)
-
-# remove NA on rbind
-metaDT <- rbind(unisonDT, powercoDT[!is.na(hhID)])
-setkey(metaDT, hhID)
+metaDT <- nzGREENGrid::getMetaData(gsMasterFile)
 
 kable(caption = "Meta data for sample", metaDT)
 ```
@@ -356,19 +316,44 @@ knitr::kable(caption = "Summary of household files to load", t)
 ```
 
 
-Now load and save the data and give feedback where appropriate.
+Now load, clean and save the valid data giving feedback where appropriate.
 
 ```{r loadValidFiles, echo=TRUE, include=TRUE}
-# if kniting to pdf do not include outputs as it breaks the pdf render (why?)
-# load and save data using external R script
-source("../scripts/process1minGridSpyData.R")
+# process the data & update the fListCompleteDT
+# get a few rows of data as an example
+# refresh the data depending on refreshData (set in ./setup.R)
 
+if(refreshData){
+  print(paste0("'refreshData' = ", refreshData, " so re-building filelist"))
+  # returns the updated file list into fListCompleteDT
+  # creates hhStatDT (used below)
+  # puts top 6 rows of last file into lastOfHeadDT
+  fListCompleteDT <- nzGREENGrid::processGridSpyDataFiles(fListCompleteDT, fListFinal)
+} else {
+  print(paste0("'refreshData' = ", refreshData, " so re-using filelist"))
+  fListCompleteDT <- fread(paste0(outPath,fListFinal))
+  
+  # need to create hhStatDT
+  ofile <- paste0(outPath, "hhDailyObservationsStats.csv")
+  hhStatDT <- fread(ofile)
+  
+  # need to get lastOfHeadDT
+  # do this by getting the first in the processed list
+  dPath <- paste0(outPath,"data/")
+  fList <- list.files(path = dPath, pattern = "csv.gz")
+  print(paste0("Re-using saved data file..."))
+  lastOfHeadDT <- head(read_csv(paste0(dPath, fList[1])))
+}
+
+# test
+kable(caption = "Example data rows", lastOfHeadDT)
+```
+
+```{r add meta data to file list}
 # add metadata
 setkey(fListCompleteDT, hhID)
 setkey(metaDT, hhID)
-fListCompleteDT <- metaDT[fListCompleteDT]
-
-print(paste0("# -> Loaded and saved ", uniqueN(hhStatDT$hhID), " households (from ", nrow(filesToLoadDT), " files)" ))
+fListCompleteDT <- fListCompleteDT[metaDT]
 ```
 
 # Data quality analysis
@@ -388,12 +373,6 @@ Some or all of these may be true at any given time!
 > NB: This table is only legible in the html version of this report because latex does a very bad job of wrapping table cell text. A version is saved in `r paste0(outPath, "circuitLabelCheck.csv")` for viewing in e.g. xl.
 
 ```{r circuitLabelCheck}
-# short cut if exists already
-#ifile <- paste0(outPath, fListFinal)
-#fListCompleteDT <- fread(ifile)
-
-
-
 # table
 t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
 knitr::kable(caption = "Circuit labels list by household", t)
@@ -414,7 +393,7 @@ dt <- fListCompleteDT[!is.na(circuitLabels),
                        nObs = sum(nObs)),
                      keyby = .(circuitLabels, hhID, sample)] # ignore NA - it is files not loaded due to size thresholds
 
-ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels, 
+myPlot <- ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels, 
                        fill = nObs)) +
   geom_tile() +
   facet_grid(sample ~ .) +
@@ -425,6 +404,7 @@ ggplot2::ggplot(dt, aes(y = hhID, x = circuitLabels,
                         dataThreshold, " bytes loaded")
        
   )
+myPlot
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileCircuitLabelsPlot.png"))
 ```
 
@@ -462,10 +442,6 @@ The following plots show the number of observations per day per household. In th
 If present both of the latter may have been implied by the table above and would have evaded the de-duplication filter which simply checks each complete row against all others within it's consolidated household dataset (a _within household absolute duplicate_ check).
 
 ```{r loadedFilesObsPlots}
-# short cut if already generated
-# hhStatDT <- as.data.table(read_csv(ofile)) # parses dates
-# hhStatDT <- fread("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/hhDailyObservationsStats.csv")
-
 # add metadata
 setkey(hhStatDT, hhID)
 setkey(metaDT, hhID)
@@ -486,7 +462,7 @@ myPlot <- ggplot2::ggplot(hhStatMergedDT, aes( x = as.Date(date), y = hhID,
                         dataThreshold, " bytes loaded")
        
   )
-myPlot + facet_grid(. ~ sample)
+myPlot + facet_grid(. ~ sample, drop = TRUE)
 ggplot2::ggsave(paste0(outPath, "gridSpyLoadedFileNobsTilePlot.png"))
 ```
 
@@ -575,8 +551,7 @@ Each file has data for one household and there should be one file per household.
 As an example, here are the first few rows of one of the files:
 
 ```{r data header}
-t <- head(tempHhLongDT)
-kable(caption = "First 6 rows of example data for 1 household", t)
+kable(caption = "Example data rows", lastOfHeadDT)
 ```
 
 This format makes it much easier to do future data extraction in R as we can select by date and circuit label as we load. It also means we can load a lot of data in memory without breaking R's memory limits as R likes 'long' rather than wide data.
@@ -591,6 +566,12 @@ elapsed <- t[[3]]
 ```
 
 Analysis completed in `r round(elapsed,2)` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+The time taken will have depended on:
+
+>`r msg1`
+
+>`r msg2`
 
 # R environment
 
