@@ -14,7 +14,7 @@ Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initia
  * input data location: /hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
  * output data location: /hum-csafe/ResearchProjects/GREENGrid/Clean_data/safe/gridSpy/1min/
 
-See the [gridSpy Readme](gridSpy/Readme.md) for more information.
+See the [gridSpy Readme](gridSpy/) for more information.
  
 ## Time Use Diaries
 
@@ -23,8 +23,8 @@ Two time-use diaries were conducted, one for each of the two samples (Unison & P
  * input data location: /hum-csafe/Research Projects/GREEN Grid/ -> various
  * output data location: /hum-csafe/ResearchProjects/GREENGrid/Clean_data/safe/TUD/
  
-See the [TUD Readme](tud/Readme.md) for more information.
+See the [TUD Readme](tud/) for more information.
  
 ## Dwelling and appliance surveys
 
-See the [surveys Readme](surveys/Readme.md) for more information.
+See the [surveys Readme](surveys/) for more information.
