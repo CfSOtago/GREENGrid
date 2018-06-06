@@ -3,6 +3,12 @@ title: 'GREEN Grid Heat Pump Profiles'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
   html_document:
     code_folding: hide
     fig_caption: true
@@ -11,12 +17,6 @@ output:
     self_contained: no
     toc: true
     toc_float: true
-    toc_depth: 2
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
     toc_depth: 2
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
@@ -43,9 +43,9 @@ gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management
 
 if(baTest == 1){
   # Local test
-  dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
-  fpath <- paste0(dPath,"1min_orig/") # location of data
-  outPath <- paste0(dPath, "consolidated/1min/") # place to save them 
+  dPath <- "~/Data/NZGreenGrid/" # BA laptop test set
+  fpath <- paste0(dPath,"gridspy/1min_orig/") # location of original data
+  outPath <- paste0(dPath, "safe/gridSpy/1min/") # place to save them / load from
 } else {
   # full monty
   dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
@@ -138,7 +138,7 @@ We do not 'support' the code but if you have a problem check the [issues](https:
 
 In this section we load metadata from `r gsMasterFile` to link to the power data.
 
-```{r load dmetadata}
+```{r load metadata}
 
 unisonDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Unison"))
 
@@ -177,33 +177,24 @@ In this section we load the cleaned data files from `r paste0(outPath,"data/")`.
 circuitPattern <- "Heat Pump"
 dateFrom <- "2015-04-01"
 dateTo <- "2016-03-31"
+
+plotCaption <- paste0("Source: ", fpath,
+                      "\nCircuits: ", circuitPattern, " from ", dateFrom, " to ", dateTo)
 ```
 
-So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`.
+So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.
+
+```{r setFile}
+fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv.gz"))
+iFile <- paste0(outPath, "dataExtracts/", fName)
+```
+
+The file we are looking for is: `r fName`
 
 ```{r load gs data}
-# check files to load
-fpath <- paste0(outPath,"data/")
-pattern <- "*.gz"
-fListDT <- nzGREENGrid::getFileList(fpath, pattern)
-
-nFiles <- nrow(fListDT)
-print(paste0("Found ", tidyNum(nFiles), " files"))
-
-fListDT <- fListDT[, fullPath := paste0(fpath, fList)] # add in full path as it doesn't return in the function (maybe it should)
-
-gs1MinDT <- data.table() # data collector
-filesToLoad <- fListDT[, fullPath]
-
-print(paste0("# Looking for circuits matching: ", circuitPattern))
-print(paste0("# Filtering on date range: ", dateFrom, " - ", dateTo))
-
-gs1MinDT <- getCleanGridSpyData(filesToLoad, circuitPattern, dateFrom, dateTo)
-
-# remove NAs if present
-gs1MinDT <- gs1MinDT[!is.na(powerW)]
-
-print(paste0("# Found ", tidyNum(nrow(gs1MinDT)), " observations matching -> ", circuitPattern, " <- in ", uniqueN(gs1MinDT$hhID), " households between ", dateFrom, " and ", dateTo))
+# checks if input file exists, if not creates it from files in fPath
+fPath <- paste0(outPath, "data/")
+gs1MinDT <- nzGREENGrid::getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
 ```
 
 The following table summarises the `r circuitPattern` data we have found.
@@ -232,15 +223,14 @@ Note that some households may have more than one `r circuitPattern` circuit.
 
 ## Test `r circuitPattern` data
 
-Loaded data observation plots - just to confirm what `r circuitPattern` data we have. 
+This section tests the availability of `r circuitPattern` data by replicating the standard data quality checks used for the whole [gridSpy dataset](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy).
 
-```{r loadedFilesObsPlots}
+The following plot shows loaded data observation plots - just to confirm what `r circuitPattern` data we have. 
+
+```{r loadedFilesObs Tile Plot}
 
 plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(hhID, date = as.Date(r_dateTime))]
 setkey(plotDT, hhID)
-# tile plot ----
-myCaption <- paste0("Data source: ", outPath,
-                    "\nUsing data received up to ", max(gs1MinDT$r_dateTime))
 
 myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
@@ -250,8 +240,8 @@ myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID,
   theme(axis.text.x = element_text(angle = 90, 
                                    vjust = 0.5,
                                    hjust = 0.5)) + 
-  labs(title = paste0("N observations per household per day for: ", circuitPattern),
-       caption = myCaption
+  labs(caption = plotCaption,
+       x = "Date"
   )
 
 myPlot + 
@@ -260,7 +250,9 @@ myPlot +
 
 ```
 
-```{r plot n obs per hh id as dots}
+The next plot shows the same data but as a dot plot to highlight those households and dates where we did not receive 60 * 24 = 1440 observations per day.
+
+```{r loadedFilesObs point plot}
 # point plot ----
 dt <- plotDT[metaDT]
 myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = as.Date(date), 
@@ -271,8 +263,7 @@ myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = as.Date(date),
   scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, 
                                    hjust = 0.5)) + 
-  labs(title = paste0("N observations per household per day for: ", circuitPattern),
-       caption = myCaption,
+  labs(caption = plotCaption,
        x = "Date"
   )
 myPlot + facet_grid(sample ~ .)
@@ -293,13 +284,12 @@ The following table shows the min/max observations per day and min/max dates for
 setkey(gs1MinDT, hhID)
 mergedDT <- gs1MinDT[metaDT]
 dt <- mergedDT[, .(nObs = .N,
-             minDate = min(r_dateTime),
-             maxDate = max(r_dateTime)),
+             minDate = min(r_dateTime, na.rm = TRUE),
+             maxDate = max(r_dateTime, na.rm = TRUE)),
          keyby = .(hhID, sample)]
 
 knitr::kable(caption = paste0("Summary observation stats by hhID (sorted by date last heard from) for: ", circuitPattern), dt[order(maxDate)])
 ```
-
 
 Finally we show the total number of households which we think we have `r circuitPattern` data for.
 
@@ -316,8 +306,8 @@ myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample
   theme(axis.text.x = element_text(angle = 90, 
                                    vjust = 0.5, 
                                    hjust = 0.5)) + 
-  labs(title = paste0("N households per day for: ", circuitPattern),
-       caption = myCaption
+  labs(caption = plotCaption,
+       x = "Date"
   )
 myPlot
 
@@ -331,23 +321,45 @@ kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
 
 ```
 
-Nasty surprises often lurk in hisograms...
+We seem to have some negative powerW values and at least one very large power value.
 
-```{r histo}
-myCaption <- paste0("Data source: ", outPath,
-                    "\nUsing data from ",  min(gs1MinDT$r_dateTime), " to ", max(gs1MinDT$r_dateTime))
+Nasty surprises often lurk in histograms... The following histogram shows all observations.
 
+```{r histo full}
 ggplot2::ggplot(gs1MinDT, aes(x = powerW)) +
-  geom_histogram() +
-  labs(title = paste0("Distribution of ", circuitPattern, " power values"),
-       caption = myCaption)
+  geom_histogram(binwidth = 10) +
+  labs(caption = plotCaption)
 ```
 
-> Why are there negative values?
+The next shows the histogram for powerW < 1000W...
+
+```{r histo power under 1000}
+ggplot2::ggplot(gs1MinDT[powerW < 1000], aes(x = powerW)) +
+  geom_histogram(binwidth = 10) +
+  labs(caption = plotCaption)
+```
+
+> There are a lot of zeros (as we'd expect) but why are there negative values?
+
+Finally we plot the empirical cumulative distribution function ([ECDF](http://ggplot2.tidyverse.org/reference/stat_ecdf.html)) to understand the shape.
+
+```{r cum sum}
+subSample <- floor(nrow(gs1MinDT)/10)
+
+testDT <- gs1MinDT[sample(nrow(gs1MinDT), subSample), ]
+
+testDT <- testDT[order(powerW)]
+testDT <- testDT[, powerWcumSum := cumsum(powerW)]
+
+plot(testDT$powerWcumSum)
+
+ggplot2::ggplot(testDT, aes(x=powerW)) + stat_ecdf(geom = "step") +
+  labs(caption = plotCaption) # http://ggplot2.tidyverse.org/reference/stat_ecdf.html
+```
 
 # `r circuitPattern` profiles
 
-Test charts: one for each HH but averaged over each season. Keep at 1 minute intervals. Note definition of season...
+This section produces the profiles as one for each HH but averaged over each season. Data is kept at 1 minute intervals. Note definition of season below...
 
 ```{r add season, echo = TRUE}
 # add season
@@ -364,9 +376,10 @@ gs1MinDT <- gs1MinDT[, season := ifelse(month == "Sep" |
                                               month == "Nov", "Spring", season)]
 ```
 
-Charts:
+Profile plots:
 
 ```{r profiles per household by season}
+# create plot table
 plotDT <- gs1MinDT[!is.na(season), 
                      .(meanW = mean(powerW)), keyby = .(hhID, obsHourMin, season)]
 setkey(plotDT, hhID)
@@ -374,16 +387,27 @@ setkey(plotDT, hhID)
 myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID)) +
   geom_point() +
   facet_grid(season ~ .) +
-  labs(title = paste0("Mean power profiles for: ", circuitPattern, " circuits"),
-       caption = myCaption)
+  labs(caption = plotCaption,
+       x = "Time of Day")
 myPlot
 
+# save the plot at high def
+ggplot2::ggsave(paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_profilePlot.png"),
+                height = 10, width = 8, dpi = 400)
+
+# save the profiles for future use ----
 ofile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
 readr::write_csv(plotDT, ofile)
+
+cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
+try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
+print(paste0("Gzipped ", ofile))
 ```
 
+Note that the code saves a high definition version of the chart (to the repo) and the average profiles out to a .csv file (in `r outPath`) for future re-use.
 
+The plots could be repeats or re-facted e.g. by household size.
 
 # Runtime
 
