@@ -44,7 +44,7 @@ See html/pdf for results of latest run but check creation date to ensure most re
 
 ### Running the code
 
- * install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
+ * clone or install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
  * make sure you have access to the original or a copy of the original gridSpy data folders
  * edit setup.R local parameters:
     * fullFb = 0 or 1 - setting to 1 will generate a _lot_ of feedback
