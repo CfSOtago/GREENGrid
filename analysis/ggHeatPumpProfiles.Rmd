@@ -32,27 +32,6 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 # Set start time ----
 startTime <- proc.time()
 
-# Local parameters ----
-fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
-
-b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
-b2Mb <- 1048576
-
-gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management Folder/Gridspy/Master list of Gridspy units.xlsx")
-
-if(baTest == 1){
-  # Local test
-  dPath <- "~/Data/NZGreenGrid/" # BA laptop test set
-  fpath <- paste0(dPath,"gridspy/1min_orig/") # location of original data
-  outPath <- paste0(dPath, "safe/gridSpy/1min/") # place to save them / load from
-} else {
-  # full monty
-  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
-  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them 
-}
-
 # Load nzGREENGrid package ----
 library(nzGREENGrid) # local utilities
 
@@ -67,8 +46,30 @@ rmdLibs <- c("data.table", # data munching
 # load them
 nzGREENGrid::loadLibraries(rmdLibs)
 
+# Local parameters ----
+fullFb <- 0 # switch on (1) or off (0) full feedback
+baTest <- 1 # test (1) or full (0) run?
+
+b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
+b2Mb <- 1048576
+
+projLoc <- findParentDirectory("nzGREENGrid")
+
+gsMasterFile <- path.expand("~/Syncplicity Folders/Green Grid Project Management Folder/Gridspy/Master list of Gridspy units.xlsx")
+
 # Local functions ----
 
+if(baTest == 1){
+  # Local test
+  dPath <- "~/Data/NZGreenGrid/" # BA laptop test set
+  fpath <- paste0(dPath,"gridspy/1min_orig/") # location of original data
+  outPath <- paste0(dPath, "safe/gridSpy/1min/") # place to save them / load from
+} else {
+  # full monty
+  dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
+  fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
+  outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them 
+}
 
 ```
 
@@ -232,7 +233,9 @@ The following plot shows loaded data observation plots - just to confirm what `r
 plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(hhID, date = as.Date(r_dateTime))]
 setkey(plotDT, hhID)
 
-myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID, 
+dt <- merge(plotDT, metaDT, allow.cartesian=TRUE) # not sure why we need to do this - shouldn't be duplicate hhIDs?
+
+myPlot <- ggplot2::ggplot(dt, aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -254,8 +257,7 @@ The next plot shows the same data but as a dot plot to highlight those household
 
 ```{r loadedFilesObs point plot}
 # point plot ----
-dt <- plotDT[metaDT]
-myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = as.Date(date), 
+myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = date, 
                                y = nObs, 
                                colour = hhID)) +
   geom_point() +
@@ -282,7 +284,8 @@ The following table shows the min/max observations per day and min/max dates for
 ```{r summaryTable}
 # Stats table (so we can pick out the dateTime errors)
 setkey(gs1MinDT, hhID)
-mergedDT <- gs1MinDT[metaDT]
+mergedDT <- merge(gs1MinDT, metaDT,  allow.cartesian=TRUE)
+
 dt <- mergedDT[, .(nObs = .N,
              minDate = min(r_dateTime, na.rm = TRUE),
              maxDate = max(r_dateTime, na.rm = TRUE)),
@@ -300,7 +303,7 @@ plotDT <- plotDT[sample == "Unison", sample := "Sample 1: Unison" ]
 plotDT <- plotDT[sample == "Powerco", sample := "Sample 2: PowerCo" ]
 
 # point plot ----
-myPlot <- ggplot2::ggplot(plotDT, aes( x = as.Date(date), y = nHH, fill = sample)) +
+myPlot <- ggplot2::ggplot(plotDT, aes( x = date, y = nHH, fill = sample)) +
   geom_col() +
   scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
   theme(axis.text.x = element_text(angle = 90, 
@@ -380,19 +383,24 @@ ggplot2::ggsave(paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_profilePlot
                 height = 10, width = 8, dpi = 400)
 
 # save the profiles for future use ----
-ofile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
+ofile <- paste0(projLoc, "/data/", circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
-readr::write_csv(plotDT, ofile)
+data.table::fwrite(plotDT, ofile)
 
 cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
 try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
 print(paste0("Gzipped ", ofile))
 ```
 
-Note that the code saves a high definition version of the chart (to the repo) and the average profiles out to a .csv file (in `r outPath`) for future re-use.
+The plots could be repeated or re-facted e.g. by household size.
 
-The plots could be repeats or re-facted e.g. by household size.
+Note that the code saves a high definition version of the chart and the average profiles out to the repo (in `r ofile`.gz) for future re-use.
 
+The .csv.gz file can be loaded using the following code:
+
+ * `df <- readr::read_csv("`r paste0(ofile)`.gz")` or 
+ * `dt <- data.table::as.data.table(readr::read_csv("`r paste0(ofile)`.gz"))` if you prefer [data.table]()
+ 
 # Runtime
 
 
