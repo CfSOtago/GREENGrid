@@ -16,8 +16,6 @@ checkDates(dt)
 Expects `date_char` to have the format x-x-x or x/x/x
 
 Puts the results into 3 new columns () and returns the dt.
-
-Seems to break :-(
 }
 \author{
 Ben Anderson, \email{b.anderson@soton.ac.uk}
