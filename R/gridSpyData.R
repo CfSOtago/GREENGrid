@@ -6,8 +6,6 @@
 #'
 #' Puts the results into 3 new columns () and returns the dt.
 #'
-#' Seems to break :-(
-#'
 #' @param dt the data.table
 #'
 #' @importFrom data.table tstrsplit
@@ -453,7 +451,7 @@ getCleanGridSpyData <- function(iFile, fPath, circuitPattern, dateFrom, dateTo) 
   # check file exists
   if(file.exists(iFile)){
     print(paste0(iFile, " exists so re-loading..."))
-    dataDT <- data.table::as.data.table(readr::read_csv(iFile))
+    dataDT <- data.table::fread(iFile, showProgress = FALSE)
   } else {
     # we need to create it
     print(paste0(iFile, " does not exist so creating..."))
@@ -495,32 +493,40 @@ getCleanGridSpyData <- function(iFile, fPath, circuitPattern, dateFrom, dateTo) 
       print(paste0("# Found: ", tidyNum(nrow(filteredDT)), " that match -> ", circuitPattern,
                    " <- between ", dateFrom, " and ", dateTo,
                    " out of ", tidyNum(nrow(dt))))
-      dataDT <- rbind(dataDT, filteredDT)
+
+      if(nrow(filteredDT) > 0){# if any matches...
+        print("Summary of extracted rows:")
+        print(summary(filteredDT))
+        dataDT <- rbind(dataDT, filteredDT)
+      }
     }
-    print("# Files loaded")
+    print("# Finished extraction")
+    if(nrow(dataDT) > 0){
+      # we got a match
+      # derived variables ----
+      print("# > Setting useful dates & times (slow)")
+      dataDT <- dataDT[, timeAsChar := format(r_dateTime, format = "%H:%M:%S")] # creates a char
+      dataDT <- dataDT[, obsHourMin := hms::as.hms(timeAsChar)] # creates an hms time, makes graphs easier
+      dataDT$timeAsChar <- NULL # drop to save space
 
-    # derived variables ----
-    print("# > Setting useful dates & times (slow)")
-    dataDT <- dataDT[, timeAsChar := format(r_dateTime, format = "%H:%M:%S")] # creates a char
-    dataDT <- dataDT[, obsHourMin := hms::as.hms(timeAsChar)] # creates an hms time, makes graphs easier
-    dataDT$timeAsChar <- NULL # drop to save space
+      print(paste0("# Found ", tidyNum(nrow(dataDT)),
+                   " observations matching -> ", circuitPattern, " <- in ",
+                   uniqueN(dataDT$hhID), " households between ", dateFrom, " and ", dateTo))
 
-    #> Clean the data if needed ----
-    # remove NAs if present
-    dataDT <- dataDT[!is.na(powerW)]
+      print("Summary of all extracted rows:")
+      print(summary(dataDT))
 
-    print(paste0("# Found ", tidyNum(nrow(dataDT)),
-                 " observations matching -> ", circuitPattern, " <- in ",
-                 uniqueN(dataDT$hhID), " households between ", dateFrom, " and ", dateTo))
-
-    #> Save the data out for future re-use ----
-    fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv")
-    ofile <- paste0(outPath, "dataExtracts/", fName)
-    readr::write_csv(dataDT, ofile)
-    # compress it
-    cmd <- paste0("gzip -f ", "'", path.expand(ofile), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
-    try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
-    print(paste0("Gzipped ", ofile))
+      #> Save the data out for future re-use ----
+      fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv")
+      ofile <- paste0(outPath, "dataExtracts/", fName)
+      print(paste0("Saving ", ofile))
+      readr::write_csv(dataDT, ofile)
+      # do not compress so can use fread to load back in
+    } else {
+     # no matches -> fail
+     stop(paste0("No matching data found, please check your search pattern (", circuitPattern,
+                 ") or your dates..."))
+    }
   }
 
   print(paste0("# Loaded ", tidyNum(nrow(dataDT)), " rows of data"))
