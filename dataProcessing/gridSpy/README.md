@@ -18,9 +18,9 @@ Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initia
    + Remove duplicates
    + Concatentate data from each household into one data table per household
    + Convert from wide (bad) to [long](http://garrettgman.github.io/tidying/) (good) form - see below
-   + Save out 1 file per household to a clean, long form .csv.gz file to: /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
- * processGridSpy1minData.Rmd - does the same as processGridSpy1minData.R but generates an html/pdf report with data quality analysis & plots
- * extractGridSpy1minData.R - extracts observations from the cleaned data which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/
+   + Save out 1 file per household to a clean, long form .csv.gz file in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
+ * processGridSpy1minData.Rmd - does the same as processGridSpy1minData.R but generates an html/pdf report with data quality analysis & plots (see files listed)
+ * extractGridSpy1minData.R - extracts observations from the cleaned data which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files.
 
 The saved clean data files have 4 columns:
 
