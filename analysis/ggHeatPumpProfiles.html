@@ -235,7 +235,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">GREEN Grid Heat Pump Profiles</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-05-30 15:55:57</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-06 14:46:33</em></h4>
 
 </div>
 
@@ -1383,30 +1383,31 @@ NA
 </div>
 <div id="grid-spy-data" class="section level2">
 <h2><span class="header-section-number">4.2</span> Grid Spy data</h2>
-<p>In this section we load the cleaned data files from ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load. Set the filters here:</p>
+<p>In this section we load the cleaned data files from ~/Data/NZGreenGrid/safe/gridSpy/1min/data/. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load. Set the filters here:</p>
 <pre class="r"><code>circuitPattern &lt;- &quot;Heat Pump&quot;
 dateFrom &lt;- &quot;2015-04-01&quot;
-dateTo &lt;- &quot;2016-03-31&quot;</code></pre>
-<p>So we are looking for Heat Pump circuits between 2015-04-01 and 2016-03-31.</p>
-<pre><code>## [1] &quot;Looking for data using pattern = *.gz in ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/ - could take a while...&quot;</code></pre>
-<pre><code>## [1] &quot;Found 5 files&quot;</code></pre>
-<pre><code>## [1] &quot;# Looking for circuits matching: Heat Pump&quot;</code></pre>
-<pre><code>## [1] &quot;# Filtering on date range: 2015-04-01 - 2016-03-31&quot;</code></pre>
-<pre><code>## [1] &quot;# Loading 5 files...&quot;
-## [1] &quot;# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_01_all_1min_data.csv.gz&quot;
-## [1] &quot;# Found: 0 that match -&gt; Heat Pump &lt;- between 2015-04-01 and 2016-03-31 out of 5,111,712&quot;
-## [1] &quot;# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_12_all_1min_data.csv.gz&quot;
-## [1] &quot;# Found: 0 that match -&gt; Heat Pump &lt;- between 2015-04-01 and 2016-03-31 out of 2,389,524&quot;
-## [1] &quot;# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_32_all_1min_data.csv.gz&quot;
-## [1] &quot;# Found: 526,785 that match -&gt; Heat Pump &lt;- between 2015-04-01 and 2016-03-31 out of 3,247,374&quot;
-## [1] &quot;# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_45_all_1min_data.csv.gz&quot;
-## [1] &quot;# Found: 526,110 that match -&gt; Heat Pump &lt;- between 2015-04-01 and 2016-03-31 out of 4,918,656&quot;
-## [1] &quot;# Loading ~/Data/NZGreenGrid/gridspy/consolidated/1min/data/rf_46_all_1min_data.csv.gz&quot;
-## [1] &quot;# Found: 950,976 that match -&gt; Heat Pump &lt;- between 2015-04-01 and 2016-03-31 out of 19,103,861&quot;
-## [1] &quot;# &gt; Setting useful dates &amp; times&quot;
-## [1] &quot;# Files loaded&quot;
-## [1] &quot;# Loaded 2,003,871 rows of data&quot;</code></pre>
-<pre><code>## [1] &quot;# Found 2,003,871 observations matching -&gt; Heat Pump &lt;- in 3 households between 2015-04-01 and 2016-03-31&quot;</code></pre>
+dateTo &lt;- &quot;2016-03-31&quot;
+
+plotCaption &lt;- paste0(&quot;Source: &quot;, fpath,
+                      &quot;\nCircuits: &quot;, circuitPattern, &quot; from &quot;, dateFrom, &quot; to &quot;, dateTo)</code></pre>
+<p>So we are looking for Heat Pump circuits between 2015-04-01 and 2016-03-31. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.</p>
+<p>The file we are looking for is: Heat Pump_2015-04-01_2016-03-31_observations.csv.gz</p>
+<pre><code>## [1] &quot;~/Data/NZGreenGrid/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz exists so re-loading...&quot;</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   hhID = col_character(),
+##   r_dateTime = col_datetime(format = &quot;&quot;),
+##   circuit = col_character(),
+##   powerW = col_integer(),
+##   obsHourMin = col_time(format = &quot;&quot;)
+## )</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 6377480 parsing failures.
+## row # A tibble: 5 x 5 col     row col    expected               actual file                          expected   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                         actual 1 16106 powerW no trailing characters .01    &#39;~/Data/NZGreenGrid/safe/gri… file 2 16107 powerW no trailing characters .34    &#39;~/Data/NZGreenGrid/safe/gri… row 3 16108 powerW no trailing characters .51    &#39;~/Data/NZGreenGrid/safe/gri… col 4 16109 powerW no trailing characters .34    &#39;~/Data/NZGreenGrid/safe/gri… expected 5 16110 powerW no trailing characters .7     &#39;~/Data/NZGreenGrid/safe/gri…
+## ... ................. ... .......................................................................... ........ .......................................................................... ...... .......................................................................... .... .......................................................................... ... .......................................................................... ... .......................................................................... ........ ..........................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## [1] &quot;# Loaded 14,252,439 rows of data&quot;</code></pre>
 <p>The following table summarises the Heat Pump data we have found.</p>
 <table>
 <caption>
@@ -1440,6 +1441,328 @@ maxDate
 <tbody>
 <tr>
 <td style="text-align:left;">
+rf_08
+</td>
+<td style="text-align:right;">
+521843
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_09
+</td>
+<td style="text-align:right;">
+152669
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-07-16
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_10
+</td>
+<td style="text-align:right;">
+526797
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_11
+</td>
+<td style="text-align:right;">
+519185
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_13
+</td>
+<td style="text-align:right;">
+1053858
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_17
+</td>
+<td style="text-align:right;">
+520028
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_19
+</td>
+<td style="text-align:right;">
+1053136
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_20
+</td>
+<td style="text-align:right;">
+102188
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-06-11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_21
+</td>
+<td style="text-align:right;">
+505042
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_25
+</td>
+<td style="text-align:right;">
+443936
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-05-24
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_27
+</td>
+<td style="text-align:right;">
+497806
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_28
+</td>
+<td style="text-align:right;">
+79085
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-05-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_29
+</td>
+<td style="text-align:right;">
+526780
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_31
+</td>
+<td style="text-align:right;">
+526878
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 rf_32
 </td>
 <td style="text-align:right;">
@@ -1452,7 +1775,260 @@ rf_32
 1
 </td>
 <td style="text-align:right;">
-69.66461
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_33
+</td>
+<td style="text-align:right;">
+526863
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_34
+</td>
+<td style="text-align:right;">
+526677
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_35
+</td>
+<td style="text-align:right;">
+327974
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-11-14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_36
+</td>
+<td style="text-align:right;">
+516242
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_37
+</td>
+<td style="text-align:right;">
+526771
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_38
+</td>
+<td style="text-align:right;">
+373722
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-12-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_40
+</td>
+<td style="text-align:right;">
+338289
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-11-22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_41
+</td>
+<td style="text-align:right;">
+223824
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-11-12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_42
+</td>
+<td style="text-align:right;">
+518179
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_43
+</td>
+<td style="text-align:right;">
+288838
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2015-10-18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_44
+</td>
+<td style="text-align:right;">
+526850
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
 </td>
 <td style="text-align:left;">
 2015-04-01
@@ -1475,7 +2051,7 @@ rf_45
 1
 </td>
 <td style="text-align:right;">
-85.44295
+NA
 </td>
 <td style="text-align:left;">
 2015-04-01
@@ -1498,7 +2074,30 @@ rf_46
 2
 </td>
 <td style="text-align:right;">
-90.78617
+NA
+</td>
+<td style="text-align:left;">
+2015-04-01
+</td>
+<td style="text-align:left;">
+2016-03-31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_47
+</td>
+<td style="text-align:right;">
+525108
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+NA
 </td>
 <td style="text-align:left;">
 2015-04-01
@@ -1509,7 +2108,7 @@ rf_46
 </tr>
 </tbody>
 </table>
-<p>This table will have a large number (2,003,871) of obserations caused by the number of different circuit labels as shown by the following table.</p>
+<p>This table will have a large number (14,252,439) of obserations caused by the number of different circuit labels as shown by the following table.</p>
 <table>
 <caption>
 Counts of Heat Pump observations by label &amp; household
@@ -1519,7 +2118,82 @@ Counts of Heat Pump observations by label &amp; household
 <th style="text-align:left;">
 </th>
 <th style="text-align:right;">
+rf_08
+</th>
+<th style="text-align:right;">
+rf_09
+</th>
+<th style="text-align:right;">
+rf_10
+</th>
+<th style="text-align:right;">
+rf_11
+</th>
+<th style="text-align:right;">
+rf_13
+</th>
+<th style="text-align:right;">
+rf_17
+</th>
+<th style="text-align:right;">
+rf_19
+</th>
+<th style="text-align:right;">
+rf_20
+</th>
+<th style="text-align:right;">
+rf_21
+</th>
+<th style="text-align:right;">
+rf_25
+</th>
+<th style="text-align:right;">
+rf_27
+</th>
+<th style="text-align:right;">
+rf_28
+</th>
+<th style="text-align:right;">
+rf_29
+</th>
+<th style="text-align:right;">
+rf_31
+</th>
+<th style="text-align:right;">
 rf_32
+</th>
+<th style="text-align:right;">
+rf_33
+</th>
+<th style="text-align:right;">
+rf_34
+</th>
+<th style="text-align:right;">
+rf_35
+</th>
+<th style="text-align:right;">
+rf_36
+</th>
+<th style="text-align:right;">
+rf_37
+</th>
+<th style="text-align:right;">
+rf_38
+</th>
+<th style="text-align:right;">
+rf_40
+</th>
+<th style="text-align:right;">
+rf_41
+</th>
+<th style="text-align:right;">
+rf_42
+</th>
+<th style="text-align:right;">
+rf_43
+</th>
+<th style="text-align:right;">
+rf_44
 </th>
 <th style="text-align:right;">
 rf_45
@@ -1527,12 +2201,1838 @@ rf_45
 <th style="text-align:right;">
 rf_46
 </th>
+<th style="text-align:right;">
+rf_47
+</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
+Bedroom &amp; Lounge Heat Pumps$2741
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526568
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Downstairs (inc 1 Heat Pump)$2212
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526929
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump (x2) &amp; Lounge Power$4166
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+338289
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; 2 x Bathroom Heat$4171
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+525108
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; Bedroom 2$2731
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+152669
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; Kitchen Appliances$4186
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526780
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; Lounge$2590
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+519185
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; Misc$2107
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+102188
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump &amp; Washing Machine$2750
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+505042
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$2092
+</td>
+<td style="text-align:right;">
+521843
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$2148
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+520028
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$2598
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526797
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$2758
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+443936
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$2826
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+497806
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4124
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+327974
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4130
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+518179
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4134
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526771
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4150
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+516242
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4154
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526850
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Heat Pump$4160
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
 </td>
 <td style="text-align:right;">
 0
@@ -1543,13 +4043,646 @@ Heat Pump$4160
 <td style="text-align:right;">
 0
 </td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4175
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+373722
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4190
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+223824
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Heat Pump$4196
 </td>
 <td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
 526785
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4204
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526878
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4211
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+288838
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4219
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+79085
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heat Pump$4223
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526677
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
 </td>
 <td style="text-align:right;">
 0
@@ -1569,7 +4702,85 @@ Heat Pumps (2x) &amp; Power$4232
 0
 </td>
 <td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
 486982
+</td>
+<td style="text-align:right;">
+0
 </td>
 </tr>
 <tr>
@@ -1583,7 +4794,361 @@ Heat Pumps (2x) &amp; Power$4399
 0
 </td>
 <td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
 463994
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kitchen Appliances &amp; Heat Pump$4140
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526863
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Theatre Heat Pump$2740
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526568
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Upstairs Heat Pumps$2211
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+526929
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
 </td>
 </tr>
 </tbody>
@@ -1592,10 +5157,12 @@ Heat Pumps (2x) &amp; Power$4399
 </div>
 <div id="test-heat-pump-data" class="section level2">
 <h2><span class="header-section-number">4.3</span> Test Heat Pump data</h2>
-<p>Loaded data observation plots - just to confirm what Heat Pump data we have.</p>
-<pre><code>## Warning: Removed 42 rows containing missing values (geom_tile).</code></pre>
-<p><img src="ggHeatPumpProfiles_files/figure-html/loadedFilesObsPlots-1.png" /><!-- --></p>
-<p><img src="ggHeatPumpProfiles_files/figure-html/plot%20n%20obs%20per%20hh%20id%20as%20dots-1.png" /><!-- --></p>
+<p>This section tests the availability of Heat Pump data by replicating the standard data quality checks used for the whole <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy">gridSpy dataset</a>.</p>
+<p>The following plot shows loaded data observation plots - just to confirm what Heat Pump data we have.</p>
+<pre><code>## Warning: Removed 16 rows containing missing values (geom_tile).</code></pre>
+<p><img src="ggHeatPumpProfiles_files/figure-html/loadedFilesObs%20Tile%20Plot-1.png" /><!-- --></p>
+<p>The next plot shows the same data but as a dot plot to highlight those households and dates where we did not receive 60 * 24 = 1440 observations per day.</p>
+<p><img src="ggHeatPumpProfiles_files/figure-html/loadedFilesObs%20point%20plot-1.png" /><!-- --></p>
 <p>The following table shows the min/max observations per day and min/max dates for each household. As above, we should not see:</p>
 <ul>
 <li>dates before 2014 or in to the future (indicates date conversion errors)</li>
@@ -1604,6 +5171,12 @@ Heat Pumps (2x) &amp; Power$4399
 </ul>
 <p>We should also not see NA in any row (indicates date conversion errors).</p>
 <p>If we do see any of these then we still have data cleaning work to do!</p>
+<pre><code>## Warning in gmin(r_dateTime, na.rm = TRUE): No non-missing values found in
+## at least one group. Returning &#39;Inf&#39; for such groups to be consistent with
+## base</code></pre>
+<pre><code>## Warning in gmax(r_dateTime, na.rm = TRUE): No non-missing values found in
+## at least one group. Returning &#39;-Inf&#39; for such groups to be consistent with
+## base</code></pre>
 <table>
 <caption>
 Summary observation stats by hhID (sorted by date last heard from) for: Heat Pump
@@ -1628,57 +5201,6 @@ maxDate
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-rf_32
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-526785
-</td>
-<td style="text-align:left;">
-2015-04-01
-</td>
-<td style="text-align:left;">
-2016-03-31 23:59:00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_45
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-526110
-</td>
-<td style="text-align:left;">
-2015-04-01
-</td>
-<td style="text-align:left;">
-2016-03-31 23:59:00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_46
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-950976
-</td>
-<td style="text-align:left;">
-2015-04-01
-</td>
-<td style="text-align:left;">
-2016-03-31 23:59:00
-</td>
-</tr>
 <tr>
 <td style="text-align:left;">
 rf_06
@@ -1715,92 +5237,7 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_08
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_09
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_10
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_11
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 rf_12
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_13
 </td>
 <td style="text-align:left;">
 Powerco
@@ -1936,57 +5373,6 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_19
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_20
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_21
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 rf_22
 </td>
 <td style="text-align:left;">
@@ -2038,78 +5424,10 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_25
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 rf_26
 </td>
 <td style="text-align:left;">
 Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_27
-</td>
-<td style="text-align:left;">
-Powerco
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_28
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_29
-</td>
-<td style="text-align:left;">
-Unison
 </td>
 <td style="text-align:right;">
 1
@@ -2140,125 +5458,6 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_31
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_33
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_34
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_35
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_36
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_37
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-rf_38
-</td>
-<td style="text-align:left;">
-Unison
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 rf_39
 </td>
 <td style="text-align:left;">
@@ -2276,53 +5475,53 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_40
+rf_28
 </td>
 <td style="text-align:left;">
 Unison
 </td>
 <td style="text-align:right;">
-1
+79085
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2015-05-26 04:56:00
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_41
+rf_20
 </td>
 <td style="text-align:left;">
-Unison
+Powerco
 </td>
 <td style="text-align:right;">
-1
+102188
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2015-06-11 01:37:00
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-rf_42
+rf_09
 </td>
 <td style="text-align:left;">
-Unison
+Powerco
 </td>
 <td style="text-align:right;">
-1
+152669
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2015-07-16 02:42:00
 </td>
 </tr>
 <tr>
@@ -2333,13 +5532,353 @@ rf_43
 Unison
 </td>
 <td style="text-align:right;">
-1
+288838
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2015-10-18 17:29:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_41
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+223824
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2015-11-12 22:24:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_35
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+327974
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2015-11-14 21:00:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_40
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+338289
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2015-11-22 04:27:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_38
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+747444
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2015-12-26 08:55:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_08
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+521843
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_10
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+526797
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_11
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+519185
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_13
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+1053858
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_19
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+1053136
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_21
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+505042
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_25
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+443936
+</td>
+<td style="text-align:left;">
+2015-05-24 12:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_27
+</td>
+<td style="text-align:left;">
+Powerco
+</td>
+<td style="text-align:right;">
+497806
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_29
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526780
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_31
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526878
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_32
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526785
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_33
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526863
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_34
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526677
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_36
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+516242
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_37
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526771
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_42
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+518179
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
 </td>
 </tr>
 <tr>
@@ -2350,13 +5889,47 @@ rf_44
 Unison
 </td>
 <td style="text-align:right;">
-1
+526850
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_45
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+526110
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rf_46
+</td>
+<td style="text-align:left;">
+Unison
+</td>
+<td style="text-align:right;">
+950976
+</td>
+<td style="text-align:left;">
+2015-04-01 00:00:00
+</td>
+<td style="text-align:left;">
+2016-03-31 23:59:00
 </td>
 </tr>
 <tr>
@@ -2367,13 +5940,13 @@ rf_47
 Unison
 </td>
 <td style="text-align:right;">
-1
+525108
 </td>
 <td style="text-align:left;">
-NA
+2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-NA
+2016-03-31 23:59:00
 </td>
 </tr>
 </tbody>
@@ -2412,19 +5985,19 @@ obsHourMin
 <td style="text-align:left;">
 </td>
 <td style="text-align:left;">
-Length:2003871
+Length:14252439
 </td>
 <td style="text-align:left;">
 Min. :2015-04-01 00:00:00
 </td>
 <td style="text-align:left;">
-Length:2003871
+Length:14252439
 </td>
 <td style="text-align:left;">
-Min. :-261.65
+Min. : -655
 </td>
 <td style="text-align:left;">
-Length:2003871
+Length:14252439
 </td>
 </tr>
 <tr>
@@ -2434,13 +6007,13 @@ Length:2003871
 Class :character
 </td>
 <td style="text-align:left;">
-1st Qu.:2015-07-10 08:14:00
+1st Qu.:2015-06-22 12:21:00
 </td>
 <td style="text-align:left;">
 Class :character
 </td>
 <td style="text-align:left;">
-1st Qu.: 0.00
+1st Qu.: 0
 </td>
 <td style="text-align:left;">
 Class1:hms
@@ -2453,13 +6026,13 @@ Class1:hms
 Mode :character
 </td>
 <td style="text-align:left;">
-Median :2015-10-05 09:38:00
+Median :2015-09-16 13:12:00
 </td>
 <td style="text-align:left;">
 Mode :character
 </td>
 <td style="text-align:left;">
-Median : 0.00
+Median : 0
 </td>
 <td style="text-align:left;">
 Class2:difftime
@@ -2472,13 +6045,13 @@ Class2:difftime
 NA
 </td>
 <td style="text-align:left;">
-Mean :2015-10-06 01:02:59
+Mean :2015-09-21 07:42:44
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-Mean : 83.83
+Mean : 3
 </td>
 <td style="text-align:left;">
 Mode :numeric
@@ -2491,13 +6064,13 @@ Mode :numeric
 NA
 </td>
 <td style="text-align:left;">
-3rd Qu.:2016-01-04 22:40:30
+3rd Qu.:2015-12-17 17:30:00
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-3rd Qu.: 65.46
+3rd Qu.: 0
 </td>
 <td style="text-align:left;">
 NA
@@ -2516,7 +6089,26 @@ Max. :2016-03-31 23:59:00
 NA
 </td>
 <td style="text-align:left;">
-Max. :3247.12
+Max. :27759
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA’s :6377480
 </td>
 <td style="text-align:left;">
 NA
@@ -2524,17 +6116,24 @@ NA
 </tr>
 </tbody>
 </table>
-<p>Nasty surprises often lurk in hisograms…</p>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="ggHeatPumpProfiles_files/figure-html/histo-1.png" /><!-- --></p>
+<p>We seem to have some negative powerW values and at least one very large power value.</p>
+<p>Nasty surprises often lurk in histograms… The following histogram shows all observations.</p>
+<pre><code>## Warning: Removed 6377480 rows containing non-finite values (stat_bin).</code></pre>
+<p><img src="ggHeatPumpProfiles_files/figure-html/histo%20full-1.png" /><!-- --></p>
+<p>The next shows the histogram for powerW &lt; 1000W…</p>
+<p><img src="ggHeatPumpProfiles_files/figure-html/histo%20power%20under%201000-1.png" /><!-- --></p>
 <blockquote>
-<p>Why are there negative values?</p>
+<p>There are a lot of zeros (as we’d expect) but why are there negative values?</p>
 </blockquote>
+<p>Finally we plot the empirical cumulative distribution function (<a href="http://ggplot2.tidyverse.org/reference/stat_ecdf.html">ECDF</a>) to understand the shape.</p>
+<p><img src="ggHeatPumpProfiles_files/figure-html/cum%20sum-1.png" /><!-- --></p>
+<pre><code>## Warning: Removed 637430 rows containing non-finite values (stat_ecdf).</code></pre>
+<p><img src="ggHeatPumpProfiles_files/figure-html/cum%20sum-2.png" /><!-- --></p>
 </div>
 </div>
 <div id="heat-pump-profiles" class="section level1">
 <h1><span class="header-section-number">5</span> Heat Pump profiles</h1>
-<p>Test charts: one for each HH but averaged over each season. Keep at 1 minute intervals. Note definition of season…</p>
+<p>This section produces the profiles as one for each HH but averaged over each season. Data is kept at 1 minute intervals. Note definition of season below…</p>
 <pre class="r"><code># add season
 gs1MinDT &lt;- gs1MinDT[, month := lubridate::month(r_dateTime, label = TRUE)]
 gs1MinDT &lt;- gs1MinDT[, season := &quot;Summer&quot;]
@@ -2547,13 +6146,18 @@ gs1MinDT &lt;- gs1MinDT[, season := ifelse(month == &quot;Jun&quot; |
 gs1MinDT &lt;- gs1MinDT[, season := ifelse(month == &quot;Sep&quot; |
                                               month == &quot;Oct&quot; |
                                               month == &quot;Nov&quot;, &quot;Spring&quot;, season)]</code></pre>
-<p>Charts:</p>
+<p>Profile plots:</p>
+<pre><code>## Warning: Removed 133973 rows containing missing values (geom_point).</code></pre>
 <p><img src="ggHeatPumpProfiles_files/figure-html/profiles%20per%20household%20by%20season-1.png" /><!-- --></p>
+<pre><code>## Warning: Removed 133973 rows containing missing values (geom_point).</code></pre>
 <pre><code>## [1] &quot;Saving profile data used to build this plot to: Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv...&quot;</code></pre>
+<pre><code>## [1] &quot;Gzipped Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv&quot;</code></pre>
+<p>Note that the code saves a high definition version of the chart (to the repo) and the average profiles out to a .csv file (in ~/Data/NZGreenGrid/safe/gridSpy/1min/) for future re-use.</p>
+<p>The plots could be repeats or re-facted e.g. by household size.</p>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">6</span> Runtime</h1>
-<p>Analysis completed in 168.83 seconds ( 2.81 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 103.2 seconds ( 1.72 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">7</span> R environment</h1>
@@ -2573,7 +6177,7 @@ gs1MinDT &lt;- gs1MinDT[, season := ifelse(month == &quot;Sep&quot; |
 <p>Session info:</p>
 <pre><code>## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.4
+## Running under: macOS High Sierra 10.13.5
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -2592,19 +6196,20 @@ gs1MinDT &lt;- gs1MinDT[, season := ifelse(month == &quot;Sep&quot; |
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.17      highr_0.6         cellranger_1.1.0 
 ##  [4] pillar_1.2.2      compiler_3.5.0    plyr_1.8.4       
-##  [7] bindr_0.1.1       tools_3.5.0       digest_0.6.15    
-## [10] lubridate_1.7.4   viridisLite_0.3.0 evaluate_0.10.1  
-## [13] tibble_1.4.2      gtable_0.2.0      pkgconfig_2.0.1  
-## [16] rlang_0.2.0       rstudioapi_0.7    yaml_2.1.19      
-## [19] bindrcpp_0.2.2    xml2_1.2.0        stringr_1.3.1    
-## [22] httr_1.3.1        hms_0.4.2         rprojroot_1.3-2  
-## [25] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
-## [28] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
-## [31] reshape2_1.4.3    purrr_0.2.4       magrittr_1.5     
-## [34] backports_1.1.2   scales_0.5.0      htmltools_0.3.6  
-## [37] assertthat_0.2.0  rvest_0.3.2       colorspace_1.3-2 
-## [40] labeling_0.3      stringi_1.2.2     lazyeval_0.2.1   
-## [43] munsell_0.4.3</code></pre>
+##  [7] bindr_0.1.1       prettyunits_1.0.2 tools_3.5.0      
+## [10] progress_1.1.2    digest_0.6.15     viridisLite_0.3.0
+## [13] lubridate_1.7.4   evaluate_0.10.1   tibble_1.4.2     
+## [16] gtable_0.2.0      pkgconfig_2.0.1   rlang_0.2.0      
+## [19] cli_1.0.0         rstudioapi_0.7    yaml_2.1.19      
+## [22] bindrcpp_0.2.2    xml2_1.2.0        httr_1.3.1       
+## [25] stringr_1.3.1     hms_0.4.2         rprojroot_1.3-2  
+## [28] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
+## [31] R6_2.2.2          readxl_1.1.0      rmarkdown_1.9    
+## [34] purrr_0.2.4       reshape2_1.4.3    magrittr_1.5     
+## [37] backports_1.1.2   scales_0.5.0      htmltools_0.3.6  
+## [40] rvest_0.3.2       assertthat_0.2.0  colorspace_1.3-2 
+## [43] labeling_0.3      utf8_1.1.3        stringi_1.2.2    
+## [46] lazyeval_0.2.1    munsell_0.4.3     crayon_1.3.4</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>

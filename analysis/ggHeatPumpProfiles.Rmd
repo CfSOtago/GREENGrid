@@ -185,13 +185,13 @@ plotCaption <- paste0("Source: ", fpath,
 So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.
 
 ```{r setFile}
-fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv.gz"))
+fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv"))
 iFile <- paste0(outPath, "dataExtracts/", fName)
 ```
 
 The file we are looking for is: `r fName`
 
-```{r load gs data}
+```{r load gridSpy data}
 # checks if input file exists, if not creates it from files in fPath
 fPath <- paste0(outPath, "data/")
 gs1MinDT <- nzGREENGrid::getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
@@ -216,7 +216,7 @@ This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations
 ```{r test circuit labels}
 t <- table(gs1MinDT$circuit,gs1MinDT$hhID)
 
-kable(caption = paste0("Counts of ", circuitPattern, " observations by label & household"), t)
+kable(caption = paste0("Counts of ", circuitPattern, " observations by label and household"), t)
 ```
 
 Note that some households may have more than one `r circuitPattern` circuit.
@@ -341,12 +341,20 @@ ggplot2::ggplot(gs1MinDT[powerW < 1000], aes(x = powerW)) +
 
 > There are a lot of zeros (as we'd expect) but why are there negative values?
 
-Finally we plot the empirical cumulative distribution function ([ECDF](http://ggplot2.tidyverse.org/reference/stat_ecdf.html)) to understand the shape.
+Finally we take a random 10% sub-sample of the observations and plot:
+
+ * the cumultaive sum and
+ * the empirical cumulative distribution function ([ECDF](http://ggplot2.tidyverse.org/reference/stat_ecdf.html)) to understand the shape.
 
 ```{r cum sum}
+
+
 subSample <- floor(nrow(gs1MinDT)/10)
 
-testDT <- gs1MinDT[sample(nrow(gs1MinDT), subSample), ]
+testDT <- gs1MinDT[sample(nrow(gs1MinDT), subSample)]
+
+t <- summary(testDT)
+kable(caption = paste0("Summary of ", circuitPattern, " circuits (10% sample)"), t)
 
 testDT <- testDT[order(powerW)]
 testDT <- testDT[, powerWcumSum := cumsum(powerW)]
