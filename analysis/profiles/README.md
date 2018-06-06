@@ -16,7 +16,6 @@ The .Rmd files in this folder all have the same form, format and general output.
  * extracting observations from each household file which match `circitPattern` (a string) and lie between `dateFrom` abnd `dateTo` (two dates);
  * calculating the seasonal mean 1 minute power demand profiles for each household
  * saving out:
-    + a report that includes plots of the profiles
-    + a large scale plot of the profiles
-    + the profiles as a .csv.gz file in the repo [data]() folder
- 
+   + a report that includes plots of the profiles
+   + a large scale plot of the profiles
+   + the profiles as a .csv.gz file in the repo [data](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/data) folder
