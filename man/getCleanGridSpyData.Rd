@@ -4,10 +4,10 @@
 \alias{getCleanGridSpyData}
 \title{Loads cleaned grid spy power data for a given circuit between two dates into a data.table}
 \usage{
-getCleanGridSpyData(files, circuitPattern, dateFrom, dateTo)
+getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
 }
 \arguments{
-\item{files}{the files to load (so you can pass a subset if you wish)}
+\item{fPath}{location of files to load}
 
 \item{circuitPattern}{the circuit pattern to match}
 
@@ -16,9 +16,9 @@ getCleanGridSpyData(files, circuitPattern, dateFrom, dateTo)
 \item{dateTo}{date to end extract (inclusive)}
 }
 \description{
-\code{getCleanGridSpyData} loops over a file list and loads each in turn using \code{readr::read_csv}. It filters each file to
+\code{getCleanGridSpyData} checks to see if the extract file already exists. If not it loops over a file list and loads each in turn using \code{readr::read_csv}. It filters each file to
 extract data for particular circuits between two dates and creates some derived time/date variables before
-using \code{rbind} to create a single data.table which is returned.
+using \code{rbind} to create a single data.table which is saved and returned.
 }
 \details{
 Function matches \code{circuitPattern} to extract specific circuits and selects observations between
