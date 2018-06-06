@@ -185,7 +185,7 @@ plotCaption <- paste0("Source: ", fpath,
 So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.
 
 ```{r setFile}
-fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv.gz"))
+fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv"))
 iFile <- paste0(outPath, "dataExtracts/", fName)
 ```
 
