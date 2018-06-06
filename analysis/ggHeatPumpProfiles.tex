@@ -123,7 +123,7 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-06-06 15:58:27}
+  \date{Last run at: 2018-06-06 23:06:14}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -563,10 +563,6 @@ dataset}.
 The following plot shows loaded data observation plots - just to confirm
 what Heat Pump data we have.
 
-\begin{verbatim}
-## Warning: Removed 16 rows containing missing values (geom_tile).
-\end{verbatim}
-
 \includegraphics{ggHeatPumpProfiles_files/figure-latex/loadedFilesObs Tile Plot-1.pdf}
 
 The next plot shows the same data but as a dot plot to highlight those
@@ -593,18 +589,6 @@ dates for each household. As above, we should not see:
 We should also not see NA in any row (indicates date conversion errors).
 
 If we do see any of these then we still have data cleaning work to do!
-
-\begin{verbatim}
-## Warning in gmin(r_dateTime, na.rm = TRUE): No non-missing values found in
-## at least one group. Returning 'NA' for such groups to be consistent with
-## base
-\end{verbatim}
-
-\begin{verbatim}
-## Warning in gmax(r_dateTime, na.rm = TRUE): No non-missing values found in
-## at least one group. Returning 'NA' for such groups to be consistent with
-## base
-\end{verbatim}
 
 \begin{table}
 
@@ -670,47 +654,11 @@ rf\_46 & Unison & 950976 & 2015-04-01T00:00:00Z & 2016-03-31T23:59:00Z\\
 \hline
 rf\_47 & Unison & 525108 & 2015-04-01T00:00:00Z & 2016-03-31T23:59:00Z\\
 \hline
-rf\_06 & Powerco & 1 & NA & NA\\
-\hline
-rf\_07 & Powerco & 1 & NA & NA\\
-\hline
-rf\_12 & Powerco & 1 & NA & NA\\
-\hline
-rf\_14 & Powerco & 1 & NA & NA\\
-\hline
-rf\_15 & Powerco & 1 & NA & NA\\
-\hline
-rf\_15\_old & Powerco & 1 & NA & NA\\
-\hline
-rf\_16 & Powerco & 1 & NA & NA\\
-\hline
-rf\_17 sn\_662 & Powerco & 1 & NA & NA\\
-\hline
-rf\_17\_oldNo reused & Powerco & 1 & NA & NA\\
-\hline
-rf\_18 & Powerco & 1 & NA & NA\\
-\hline
-rf\_22 & Powerco & 1 & NA & NA\\
-\hline
-rf\_23 & Powerco & 1 & NA & NA\\
-\hline
-rf\_24 & Powerco & 1 & NA & NA\\
-\hline
-rf\_26 & Powerco & 1 & NA & NA\\
-\hline
-rf\_30 & Unison & 1 & NA & NA\\
-\hline
-rf\_39 & Unison & 1 & NA & NA\\
-\hline
 \end{tabular}
 \end{table}
 
 Finally we show the total number of households which we think we have
 Heat Pump data for.
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing missing values (position_stack).
-\end{verbatim}
 
 \includegraphics{ggHeatPumpProfiles_files/figure-latex/liveDataHouseholds-1.pdf}
 
@@ -763,46 +711,6 @@ There are a lot of zeros (as we'd expect) but why are there negative
 values?
 \end{quote}
 
-Finally we take a random 10\% sub-sample of the observations and plot:
-
-\begin{itemize}
-\tightlist
-\item
-  the cumultaive sum and
-\item
-  the empirical cumulative distribution function
-  (\href{http://ggplot2.tidyverse.org/reference/stat_ecdf.html}{ECDF})
-  to understand the shape.
-\end{itemize}
-
-\textbackslash{}begin\{table\}
-
-\textbackslash{}caption\{\label{tab:cum sum}Summary of Heat Pump
-circuits (10\% sample)\} \centering
-
-\begin{tabular}[t]{l|l|l|l|l|l}
-\hline
-  &     hhID &  r\_dateTime &   circuit &     powerW &  obsHourMin\\
-\hline
- & Length:1425243 & Length:1425243 & Length:1425243 & Min.   :-250.64 & Length:1425243\\
-\hline
- & Class :character & Class :character & Class :character & 1st Qu.:   0.00 & Class :character\\
-\hline
- & Mode  :character & Mode  :character & Mode  :character & Median :   0.00 & Mode  :character\\
-\hline
- & NA & NA & NA & Mean   : 148.12 & NA\\
-\hline
- & NA & NA & NA & 3rd Qu.:  61.45 & NA\\
-\hline
- & NA & NA & NA & Max.   :7322.82 & NA\\
-\hline
-\end{tabular}
-
-\textbackslash{}end\{table\}
-
-\includegraphics{ggHeatPumpProfiles_files/figure-latex/cum sum-1.pdf}
-\includegraphics{ggHeatPumpProfiles_files/figure-latex/cum sum-2.pdf}
-
 \section{Heat Pump profiles}\label{heat-pump-profiles}
 
 This section produces the profiles as one for each HH but averaged over
@@ -831,23 +739,36 @@ Profile plots:
 \includegraphics{ggHeatPumpProfiles_files/figure-latex/profiles per household by season-1.pdf}
 
 \begin{verbatim}
-## [1] "Saving profile data used to build this plot to: Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv..."
+## [1] "Saving profile data used to build this plot to: /Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv..."
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "Gzipped Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv"
+## [1] "Gzipped /Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv"
 \end{verbatim}
 
-Note that the code saves a high definition version of the chart (to the
-repo) and the average profiles out to a .csv file (in
-\textasciitilde{}/Data/NZGreenGrid/safe/gridSpy/1min/) for future
-re-use.
+The plots could be repeated or re-facted e.g.~by household size.
 
-The plots could be repeats or re-facted e.g.~by household size.
+Note that the code saves a high definition version of the chart and the
+average profiles out to the repo (in
+/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat
+Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz)
+for future re-use.
+
+The .csv.gz file can be loaded using the following code:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{df\ \textless{}-\ readr::read\_csv("/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz")}
+  or
+\item
+  \texttt{dt\ \textless{}-\ data.table::as.data.table(readr::read\_csv("/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz"))}
+  if you prefer \href{}{data.table}
+\end{itemize}
 
 \section{Runtime}\label{runtime}
 
-Analysis completed in 459.57 seconds ( 7.66 minutes) using
+Analysis completed in 395.46 seconds ( 6.59 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.5.0 (2018-04-23)
 running on x86\_64-apple-darwin15.6.0.

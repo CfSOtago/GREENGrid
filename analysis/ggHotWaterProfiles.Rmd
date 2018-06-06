@@ -379,11 +379,11 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID))
 myPlot
 
 # save the plot at high def
-ggplot2::ggsave(paste0(projLoc, "/data/", circuitPattern, "_", dateFrom, "_", dateTo, "_profilePlot.png"),
+ggplot2::ggsave(paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_profilePlot.png"),
                 height = 10, width = 8, dpi = 400)
 
 # save the profiles for future use ----
-ofile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
+ofile <- paste0(projLoc, "/data/", circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
 data.table::fwrite(plotDT, ofile)
 
@@ -394,7 +394,7 @@ print(paste0("Gzipped ", ofile))
 
 The plots could be repeated or re-facted e.g. by household size.
 
-Note that the code saves a high definition version of the chart and the average profiles out to the repo (in `r ofile`) for future re-use.
+Note that the code saves a high definition version of the chart and the average profiles out to the repo (in `r ofile`.gz) for future re-use.
 
 The .csv.gz file can be loaded using the following code:
 
