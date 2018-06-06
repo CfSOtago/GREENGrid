@@ -22,7 +22,7 @@ The .Rmd files in this folder all have the same form, format and general output.
    
 The .csv.gz files can be loaded using the following code:
 
- * `df <- readr::read_csv("`r paste0(ofile)`.gz")` or 
- * `dt <- data.table::as.data.table(readr::read_csv("`r paste0(ofile)`.gz"))` if you prefer `data.table`
+ * `df <- readr::read_csv("/path/to/file.csv.gz")` or 
+ * `dt <- data.table::as.data.table(readr::read_csv("/path/to/file.csv.gz"))` if you prefer [data.table](https://github.com/Rdatatable/data.table/wiki)
 
 
