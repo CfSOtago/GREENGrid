@@ -17,7 +17,7 @@ Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initia
    + Check & fix errors - especially in mis-matching date formats
    + Remove duplicates
    + Concatentate data from each household into one data table per household
-   + Convert from wide (bad) to [long](http://garrettgman.github.io/tidying/) (good) form
+   + Convert from wide (bad) to [long](http://garrettgman.github.io/tidying/) (good) form - see below
    + Save out 1 file per household to a clean, long form .csv.gz file to: /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
  * processGridSpy1minData.Rmd - does the same as processGridSpy1minData.R but generates an html/pdf report with data quality analysis & plots
  * extractGridSpy1minData.R - extracts observations from the cleaned data which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/
@@ -44,7 +44,7 @@ See html/pdf for results of latest run but check creation date to ensure most re
 
 ### Running the code
 
- * install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
+ * clone or install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
  * make sure you have access to the original or a copy of the original gridSpy data folders
  * edit setup.R local parameters:
     * fullFb = 0 or 1 - setting to 1 will generate a _lot_ of feedback
