@@ -9,7 +9,25 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 #> Set start time ----
 startTime <- proc.time()
 
+#> Load nzGREENGrid package ----
+library(nzGREENGrid) # local utilities
+
+#> Packages needed in this .Rmd file ----
+rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
+             "readr"
+)
+# load them
+nzGREENGrid::loadLibraries(rmdLibs)
+
 #> Local parameters ----
+circuitPattern <- "Hot Water"
+dateFrom <- "2015-04-01"
+dateTo <- "2016-03-31"
+
+plotCaption <- paste0("Source: ", outPath,
+                      "\nCircuits: ", circuitPattern, " from ", dateFrom, " to ", dateTo)
+
 fullFb <- 0 # switch on (1) or off (0) full feedback
 baTest <- 1 # test (1) or full (0) run?
 
@@ -30,25 +48,6 @@ if(baTest == 1){
   fPath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
   outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them
 }
-
-#> Load nzGREENGrid package ----
-library(nzGREENGrid) # local utilities
-
-#> Packages needed in this .Rmd file ----
-rmdLibs <- c("data.table", # data munching
-             "dplyr", # data munching
-             "readr"
-)
-# load them
-nzGREENGrid::loadLibraries(rmdLibs)
-
-#> Data extraxt parameters ----
-circuitPattern <- "Hot Water"
-dateFrom <- "2015-04-01"
-dateTo <- "2016-03-31"
-
-plotCaption <- paste0("Source: ", outPath,
-                      "\nCircuits: ", circuitPattern, " from ", dateFrom, " to ", dateTo)
 
 # Code ----
 
