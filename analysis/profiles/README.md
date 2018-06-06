@@ -19,3 +19,10 @@ The .Rmd files in this folder all have the same form, format and general output.
    + a report that includes plots of the profiles
    + a large scale plot of the profiles
    + the profiles as a .csv.gz file in the repo [data](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/data) folder
+   
+The .csv.gz files can be loaded using the following code:
+
+ * `df <- readr::read_csv("`r paste0(ofile)`.gz")` or 
+ * `dt <- data.table::as.data.table(readr::read_csv("`r paste0(ofile)`.gz"))` if you prefer `data.table`
+
+

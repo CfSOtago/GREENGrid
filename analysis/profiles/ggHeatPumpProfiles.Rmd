@@ -399,7 +399,7 @@ Note that the code saves a high definition version of the chart and the average 
 The .csv.gz file can be loaded using the following code:
 
  * `df <- readr::read_csv("`r paste0(ofile)`.gz")` or 
- * `dt <- data.table::as.data.table(readr::read_csv("`r paste0(ofile)`.gz"))` if you prefer [data.table]()
+ * `dt <- data.table::as.data.table(readr::read_csv("`r paste0(ofile)`.gz"))` if you prefer `data.table`
  
 # Runtime
 
