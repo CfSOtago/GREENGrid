@@ -27,7 +27,7 @@ The saved clean data files have 4 columns:
  * hhID: household id
  * r_dateTime: time of observation
  * circuit: the circuit label
- * powerW: power observation (Watts)
+ * powerW: 1 minute power observation (Watts)
 
 Each file has data for one household and there should be one file per household. As an example, these are the first 6 rows of example data for 1 household:
 
