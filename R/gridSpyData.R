@@ -205,7 +205,7 @@ getGridSpyFileList <- function(fpath, pattern, mf){
 
     ofile <- paste0(outPath, mf) # outPath set in global
     print(paste0("Saving 1 minute data files interim metadata to ", ofile))
-    write.csv(dt, ofile)
+    data.table::fwrite(dt, ofile)
     print("Done")
   }
   return(dt)
@@ -389,7 +389,7 @@ processGridSpyDataFiles <- function(dt, mf){
     if(fullFb | baTest){
       print(paste0("Saving ", ofile, "..."))
     }
-    write_csv(tempHhLongDT, ofile)
+    data.table::fwrite(tempHhLongDT, ofile)
     if(fullFb | baTest){
       print(paste0("Saved ", ofile, ", gzipping..."))
     }
@@ -408,12 +408,12 @@ processGridSpyDataFiles <- function(dt, mf){
   #> Save observed data stats for all files loaded ----
   ofile <- paste0(outPath, "hhDailyObservationsStats.csv")
   print(paste0("Saving daily observations stats by hhid to ", ofile)) # write out version with file stats
-  write.csv(hhStatDT, ofile)
+  data.table::fwrite(hhStatDT, ofile)
   print("Done")
 
   ofile <- paste0(outPath, mf)
   print(paste0("Saving 1 minute data files final metadata to ", ofile))
-  write.csv(dt, ofile)
+  data.table::fwrite(dt, ofile)
   print("Done")
   lastOfHeadDT <<- head(tempHhLongDT) # for reporting
   hhStatDT <<- hhStatDT # for reporting
@@ -520,7 +520,7 @@ getCleanGridSpyData <- function(iFile, fPath, circuitPattern, dateFrom, dateTo) 
       fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv")
       ofile <- paste0(outPath, "dataExtracts/", fName)
       print(paste0("Saving ", ofile))
-      readr::write_csv(dataDT, ofile)
+      data.table::fwrite(dataDT, ofile)
       # do not compress so can use fread to load back in
     } else {
      # no matches -> fail
