@@ -13,7 +13,7 @@ _None_ of the code here will work unless you also have access to the data. While
 
 The .Rmd files in this folder all have the same form, format and general output. They use the cleaned gridSpy data to produce seasonal mean 1 minute power demand profiles per household for a number of circuit types. They do this by:
 
- * extracting observations from each household file which match `circitPattern` (a string) and lie between `dateFrom` abnd `dateTo` (two dates);
+ * extracting observations from each household file which match `circuitPattern` (a string) and lie between `dateFrom` and `dateTo` (two dates);
  * calculating the seasonal mean 1 minute power demand profiles for each household
  * saving out:
    + a report that includes plots of the profiles
