@@ -232,7 +232,7 @@ The following plot shows loaded data observation plots - just to confirm what `r
 plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(hhID, date = as.Date(r_dateTime))]
 setkey(plotDT, hhID)
 
-myPlot <- ggplot2::ggplot(plotDT[metaDT], aes( x = as.Date(date), y = hhID, 
+myPlot <- ggplot2::ggplot(metaDT[plotDT], aes( x = as.Date(date), y = hhID, 
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -340,22 +340,6 @@ ggplot2::ggplot(gs1MinDT[powerW < 1000], aes(x = powerW)) +
 ```
 
 > There are a lot of zeros (as we'd expect) but why are there negative values?
-
-Finally we plot the empirical cumulative distribution function ([ECDF](http://ggplot2.tidyverse.org/reference/stat_ecdf.html)) to understand the shape.
-
-```{r cum sum}
-subSample <- floor(nrow(gs1MinDT)/10)
-
-testDT <- gs1MinDT[sample(nrow(gs1MinDT), subSample), ]
-
-testDT <- testDT[order(powerW)]
-testDT <- testDT[, powerWcumSum := cumsum(powerW)]
-
-plot(testDT$powerWcumSum)
-
-ggplot2::ggplot(testDT, aes(x=powerW)) + stat_ecdf(geom = "step") +
-  labs(caption = plotCaption) # http://ggplot2.tidyverse.org/reference/stat_ecdf.html
-```
 
 # `r circuitPattern` profiles
 

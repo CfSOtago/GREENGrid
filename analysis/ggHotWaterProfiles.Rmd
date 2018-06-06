@@ -341,30 +341,6 @@ ggplot2::ggplot(gs1MinDT[powerW < 1000], aes(x = powerW)) +
 
 > There are a lot of zeros (as we'd expect) but why are there negative values?
 
-Finally we take a random 10% sub-sample of the observations and plot:
-
- * the cumultaive sum and
- * the empirical cumulative distribution function ([ECDF](http://ggplot2.tidyverse.org/reference/stat_ecdf.html)) to understand the shape.
-
-```{r cum sum}
-
-
-subSample <- floor(nrow(gs1MinDT)/10)
-
-testDT <- gs1MinDT[sample(nrow(gs1MinDT), subSample)]
-
-t <- summary(testDT)
-kable(caption = paste0("Summary of ", circuitPattern, " circuits (10% sample)"), t)
-
-testDT <- testDT[order(powerW)]
-testDT <- testDT[, powerWcumSum := cumsum(powerW)]
-
-plot(testDT$powerWcumSum)
-
-ggplot2::ggplot(testDT, aes(x=powerW)) + stat_ecdf(geom = "step") +
-  labs(caption = plotCaption) # http://ggplot2.tidyverse.org/reference/stat_ecdf.html
-```
-
 # `r circuitPattern` profiles
 
 This section produces the profiles as one for each HH but averaged over each season. Data is kept at 1 minute intervals. Note definition of season below...
