@@ -123,7 +123,7 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-06-06 23:06:14}
+  \date{Last run at: 2018-06-07 17:40:37}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -739,18 +739,18 @@ Profile plots:
 \includegraphics{ggHeatPumpProfiles_files/figure-latex/profiles per household by season-1.pdf}
 
 \begin{verbatim}
-## [1] "Saving profile data used to build this plot to: /Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv..."
+## [1] "Saving profile data used to build this plot to: ~/Data/NZGreenGrid/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv..."
 \end{verbatim}
 
 \begin{verbatim}
-## [1] "Gzipped /Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv"
+## [1] "Gzipped ~/Data/NZGreenGrid/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_meanW_hhID_profiles_by_season.csv"
 \end{verbatim}
 
 The plots could be repeated or re-facted e.g.~by household size.
 
 Note that the code saves a high definition version of the chart and the
 average profiles out to the repo (in
-/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat
+\textasciitilde{}/Data/NZGreenGrid/safe/gridSpy/1min/profiles/Heat
 Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz)
 for future re-use.
 
@@ -759,16 +759,16 @@ The .csv.gz file can be loaded using the following code:
 \begin{itemize}
 \tightlist
 \item
-  \texttt{df\ \textless{}-\ readr::read\_csv("/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz")}
+  \texttt{df\ \textless{}-\ readr::read\_csv("\textasciitilde{}/Data/NZGreenGrid/safe/gridSpy/1min/profiles/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz")}
   or
 \item
-  \texttt{dt\ \textless{}-\ data.table::as.data.table(readr::read\_csv("/Users/ben/git.soton/ba1e12/nzGREENGrid/data/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz"))}
-  if you prefer \href{}{data.table}
+  \texttt{dt\ \textless{}-\ data.table::as.data.table(readr::read\_csv("\textasciitilde{}/Data/NZGreenGrid/safe/gridSpy/1min/profiles/Heat\ Pump\_2015-04-01\_2016-03-31\_meanW\_hhID\_profiles\_by\_season.csv.gz"))}
+  if you prefer \texttt{data.table}
 \end{itemize}
 
 \section{Runtime}\label{runtime}
 
-Analysis completed in 395.46 seconds ( 6.59 minutes) using
+Analysis completed in 462.52 seconds ( 7.71 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.5.0 (2018-04-23)
 running on x86\_64-apple-darwin15.6.0.
