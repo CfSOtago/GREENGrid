@@ -9,18 +9,18 @@ _None_ of the code here will work unless you also have access to the data. While
 
 ## 1 min electricity power data
 
-Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initially as large file dumps for each household but more recently as daily downloads from each household. The data is currently stored on the University of Otago's High Performance Storage filestore. There are three different R files here:
+Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initially as large file dumps for each household but more recently as daily downloads from each household. The data is currently stored on the University of Otago's High Performance Storage filestore. There are four different R files here:
 
- * setup.R - sets basic parameters and is required (`source`d) by all other scripts
+ * setup.R - sets basic parameters and is required (`source`'d) by all other scripts
  * processGridSpy1minData.R - uses package functions to:
-   + Load data from /hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/
-   + Check & fix errors - especially in mis-matching date formats
+   + Load data from /hum-csafe/Research Projects/GREEN Grid/_RAW DATA/GridSpyData/ (read-only original files)
+   + Check & fix [errors](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues?scope=all&utf8=%E2%9C%93&state=all&label_name[]=gridSpy) - especially in mis-matching date formats
    + Remove duplicates
    + Concatentate data from each household into one data table per household
    + Convert from wide (bad) to [long](http://garrettgman.github.io/tidying/) (good) form - see below
    + Save out 1 file per household to a clean, long form .csv.gz file in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
  * processGridSpy1minData.Rmd - does the same as processGridSpy1minData.R but generates an html/pdf report with data quality analysis & plots (see files listed)
- * extractGridSpy1minData.R - extracts observations from the cleaned data which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files.
+ * extractGridSpy1minData.R - extracts observations from the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/ which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files.
 
 The saved clean data files have 4 columns:
 
@@ -29,7 +29,7 @@ The saved clean data files have 4 columns:
  * circuit: the circuit label
  * powerW: 1 minute power observation (Watts)
 
-Each file has data for one household and there should be one file per household. As an example, these are the first 6 rows of example data for 1 household:
+Each file has data for one household and there should be one file per household with the exception of the dataExtracts which have _all_ matching observations in one output file. As an example, these are the first 6 rows of example data for 1 household:
 
 |hhID |	r_dateTime |	circuit |	powerW|
 |------:|------:|------:|------:|
@@ -44,7 +44,7 @@ See html/pdf for results of latest run but check creation date to ensure most re
 
 ### Running the code
 
- * clone or install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
+ * [clone](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN) and install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
  * make sure you have access to the original or a copy of the original gridSpy data folders
  * edit setup.R local parameters:
     * fullFb = 0 or 1 - setting to 1 will generate a _lot_ of feedback

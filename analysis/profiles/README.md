@@ -27,4 +27,14 @@ The .csv.gz files can be loaded using the following code:
  * `df <- readr::read_csv("/path/to/file.csv.gz")` or 
  * `dt <- data.table::as.data.table(readr::read_csv("/path/to/file.csv.gz"))` if you prefer [data.table](https://github.com/Rdatatable/data.table/wiki)
 
+## Running the code
+To do this you will need access to the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
 
+Then:
+
+ * [clone](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN) and install the [entire nzGREENGrid repo/package](https://git.soton.ac.uk/ba1e12/nzGREENGrid)
+ * edit setup.R local parameters:
+    * fullFb = 0 or 1 - setting to 1 will generate a _lot_ of feedback
+    * baTest = 0 or 1 - use this to set whether you are using a test or the full dataset on the HPS
+    * also check that the data paths set are correct for input & output
+ * you can now run any of the .Rmd files
