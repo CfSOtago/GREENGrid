@@ -20,7 +20,7 @@ The .Rmd files in this folder all have the same form, format and general output.
    + a large scale plot of the profiles;
    + the profiles as a .csv.gz file in the repo [data](/ba1e12/nzGREENGrid/tree/master/data) folder.
    
-Note that this uses exactly the same functions as extractGridSpy1minData.R to be found in the [dataProcessing](/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy) directory.
+Note that this uses exactly the same functions as extractGridSpy1minData.R to be found in the [dataProcessing](/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy) directory. If the data extraction function detects a previous extract that exactly matches (in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/) it will use this instead to save time.
 
 The .csv.gz files can be loaded using the following code:
 
