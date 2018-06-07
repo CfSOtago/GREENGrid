@@ -18,7 +18,7 @@ The .Rmd files in this folder all have the same form, format and general output.
  * saving out:
    + a report that includes plots of the profiles;
    + a large scale plot of the profiles;
-   + the profiles as a .csv.gz file in the repo [data](/ba1e12/nzGREENGrid/tree/master/data) folder.
+   + the profiles as a .csv.gz file in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/.
    
 Note that this uses exactly the same functions as extractGridSpy1minData.R to be found in the [dataProcessing](/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy) directory. If the data extraction function detects a previous extract that exactly matches (in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/) it will use this instead to save time.
 
@@ -28,7 +28,8 @@ The saved .csv.gz files can then be loaded using the following code:
  * `dt <- data.table::as.data.table(readr::read_csv("/path/to/file.csv.gz"))` if you prefer [data.table](https://github.com/Rdatatable/data.table/wiki)
 
 ## Running the code
-To do this you will need access to the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
+
+Ideally the code in this folder can be used (and improved!) by others as a template for other data extractions and analyses. To do this you will need access to the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
 
 Then:
 
@@ -37,4 +38,4 @@ Then:
     * fullFb = 0 or 1 - setting to 1 will generate a _lot_ of feedback
     * baTest = 0 or 1 - use this to set whether you are using a test or the full dataset on the HPS
     * also check that the data paths set are correct for input & output
- * you can now run any of the .Rmd files
+ * you can now run any of the .Rmd files or create new ones (please!) using them as a template

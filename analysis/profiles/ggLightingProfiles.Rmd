@@ -381,7 +381,7 @@ ggplot2::ggsave(paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_profilePlot
                 height = 10, width = 8, dpi = 400)
 
 # save the profiles for future use ----
-ofile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
+ofile <- paste0(outPath, "profiles/",circuitPattern, "_", dateFrom, "_", dateTo, "_meanW_hhID_profiles_by_season.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
 readr::write_csv(plotDT, ofile)
 
