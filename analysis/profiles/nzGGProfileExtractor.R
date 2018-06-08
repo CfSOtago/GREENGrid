@@ -36,4 +36,4 @@ if(localTest == 1){
 rmarkdown::render(input = "analysis/profiles/nzGGProfileExtractorTemplate.Rmd",
                   output_format = "pdf_document",
                   params = list(circuitPattern = circuitPattern, dateFrom = dateFrom, dateTo = dateTo),
-                  output_file = paste0("ggProfile_", circuitPattern, "_", dateFrom, "_", dateTo, ".pdf"))
+                  output_file = paste0("nzGGHouseholdPowerDemandProfile_", circuitPattern, "_", dateFrom, "_", dateTo, ".pdf"))
