@@ -21,9 +21,10 @@ Depending on the parameters you set, the template will use the cleaned gridSpy d
  * extracting observations from each household file which match `circuitPattern` and fall between the two dates `dateFrom` and `dateTo`;
  * calculating the seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.);
  * saving out:
-   + a report that includes plots of the profiles;
-   + a large scale plot of the profiles;
-   + the profiles as .csv.gz files in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/.
+   + the extracted observations to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/
+   + a report that includes plots of the profiles to https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/profiles;
+   + profile plots into /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/;
+   + the aggregated profile data as .csv.gz files to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/.
    
 Note that the template uses exactly the same functions as extractGridSpy1minData.R to be found in the [dataProcessing](/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy) directory. If the data extraction function detects a previous extract that exactly matches (in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/) it will use this instead to save time.
 

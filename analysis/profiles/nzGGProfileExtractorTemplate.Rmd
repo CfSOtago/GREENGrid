@@ -28,6 +28,7 @@ bibliography: '`r path.expand("~/bibliography.bib")`'
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
 ```
 
 ```{r codeSetup, include=FALSE}
@@ -119,12 +120,10 @@ unisonDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "U
 # keep safe data only
 unisonDT <- unisonDT[, .(sample = `Power company`, hhID = `Tag`, 
                          Adults,Teenagers,Children,removed )]
-head(unisonDT)
 
 powercoDT <- data.table::as.data.table(readxl::read_xlsx(gsMasterFile, sheet = "Powerco"))
 powercoDT <- powercoDT[, .(sample = `Power Co`, hhID = `Building Tag`, 
                            Adults = `Adult`,Teenagers,Children, removed = `date disconnected` )]
-head(powercoDT)
 
 # remove NA on rbind
 metaDT <- rbind(unisonDT, powercoDT[!is.na(hhID)])
@@ -140,7 +139,7 @@ metaDT <- metaDT[, nAdults := ifelse(Children %like% 3, "3", nAdults)]
 
 setkey(metaDT, hhID)
 
-kable(caption = "Meta data for sample", metaDT)
+knitr::kable(caption = "Example meta data for sample", head(metaDT))
 ```
 
 ## Grid Spy data
@@ -175,12 +174,7 @@ The following table summarises the `r circuitPattern` data we have found.
 
 ```{r summarise loaded data}
 
-t <- gs1MinDT[, .(nObs = .N,
-                  nHouseholds = uniqueN(hhID),
-                  nCircuits = uniqueN(circuit),
-                  meanPower = mean(powerW),
-                  minDate = min(as.Date(r_dateTime)),
-                  maxDate = max(as.Date(r_dateTime))), keyby = .(hhID)]
+t <- summary(gs1MinDT)
 
 knitr::kable(caption = paste0("Summary of household grid spy data for: ", circuitPattern), t)
 ```
@@ -188,9 +182,9 @@ knitr::kable(caption = paste0("Summary of household grid spy data for: ", circui
 This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations caused by the number of different circuit labels as shown by the following table.
 
 ```{r test circuit labels}
-t <- table(gs1MinDT$circuit,gs1MinDT$hhID)
+t <- table(gs1MinDT$circuit)
 
-kable(caption = paste0("Counts of ", circuitPattern, " observations by label and household"), t)
+knitr::kable(caption = paste0("Counts of ", circuitPattern, " observations by label and household"), t)
 ```
 
 Note that some households may have more than one `r circuitPattern` circuit.
@@ -293,7 +287,7 @@ The following table summarises the `r circuitPattern` data. Any surprises?
 
 ```{r summary of cols, echo = TRUE}
 t <- summary(gs1MinDT)
-kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
+knitr::kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
 
 ```
 
@@ -354,7 +348,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID))
 myPlot
 
 # save the plot at high def
-plotFile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_byHouseholdSeasonalProfilePlot.png")
+plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_byHouseholdSeasonalProfilePlot.pdf")
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
@@ -407,7 +401,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = season
 myPlot
 
 # save the plot at high def
-plotFile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanSeasonalProfilePlot.png")
+plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanSeasonalProfilePlot.pdf")
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
@@ -421,7 +415,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = medianW, x = obsHourMin, colour = seas
 myPlot
 
 # save the plot at high def
-plotFile <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_overallMedianSeasonalProfilePlot.png")
+plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMedianSeasonalProfilePlot.pdf")
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
@@ -470,7 +464,6 @@ R packages used:
  * dplyr - for select and contains [@dplyr]
  * progress - for progress bars [@progress]
  * knitr - to create this document & neat tables [@knitr]
- * kableExtra - for extra neat tables [@kableExtra]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:
