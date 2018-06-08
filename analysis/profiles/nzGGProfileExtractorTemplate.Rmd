@@ -173,7 +173,7 @@ gs1MinDT <- nzGREENGrid::getCleanGridSpyData(iFile, fPath, circuitPattern, dateF
 
 The following table summarises the `r circuitPattern` data we have found.
 
-```{r sumamrise loaded data}
+```{r summarise loaded data}
 
 t <- gs1MinDT[, .(nObs = .N,
                   nHouseholds = uniqueN(hhID),
