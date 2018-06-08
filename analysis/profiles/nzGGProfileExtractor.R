@@ -1,5 +1,5 @@
 # Code to run the parameterised profile extractor
-circuitPattern <- "Hot Water"
+circuitPattern <- "Lighting"
 dateFrom <- "2015-04-01"
 dateTo <- "2016-03-31"
 
