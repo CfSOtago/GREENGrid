@@ -9,17 +9,17 @@ More info and the data processing code is in the [dataProcessing](dataProcessing
 
 _None_ of the code here will work unless you also have access to the data. While we have plans to deposit anonymised versions of the data with a suitable data archive (any offers?!), access is currently controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid data (via github readme)).
 
-## Power demand profiles
+## Extracting power demand profiles
 
 There are two .R files in this folder:
 
- * nzGGProfileExtractorTemplate.Rmd - an RMarkdown template for loading the data, producing the plots and saving the extract. You should not need to edit the template;
+ * nzGGProfileExtractorTemplate.Rmd - an RMarkdown template for loading the data, calculating the demand profiles, producing the plots and saving the extract. You should not need to edit the template;
  * nzGGProfileExtractor.R - the script that calls the template. Use the parameters in this script to set the `circuitPattern` (a string) and the two dates `dateFrom` and `dateTo` which define the timeframe to search in.
  
-Depending on the parameters you set, the template will use the cleaned gridSpy data to produce seasonal mean 1 minute power demand profiles by:
+Depending on the parameters you set, the template will use the cleaned gridSpy data to produce seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.) by:
 
  * extracting observations from each household file which match `circuitPattern` and fall between the two dates `dateFrom` and `dateTo`;
- * calculating the seasonal mean 1 minute power demand profiles;
+ * calculating the seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.);
  * saving out:
    + a report that includes plots of the profiles;
    + a large scale plot of the profiles;
