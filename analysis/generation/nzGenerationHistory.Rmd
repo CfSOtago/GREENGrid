@@ -1,0 +1,211 @@
+---
+title: "NZ Generation History"
+author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
+date: 'Last run at: `r Sys.time()`'
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    self_contained: no
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r knitrSetup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
+```
+
+
+```{r codeSetup, include=FALSE}
+# Set start time ----
+startTime <- proc.time()
+
+# Packages needed in this .Rmd file ----
+rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
+             "ggplot2", # for fancy graphs
+             "readr", # writing to files
+             "skimr", # for skim
+             "knitr" # for kable
+)
+# load them
+nzGREENGrid::loadLibraries(rmdLibs)
+
+# run gg set up
+ggParams <- nzGREENGrid::setup()
+
+# Local paramaters
+ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/data/")
+
+ggParams$figCaption <- paste0("Source: June & December 1998 and June & December 2017 wholesale generation data",
+                              "\nhttps://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/")
+
+```
+
+If you wish to use any of the material from this report please cite as:
+
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) _NZ Generation History_, `r ggParams$pubLoc`
+
+This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
+
+\newpage
+
+# About
+
+Report circulation:
+
+ * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
+
+## Purpose
+
+This report is intended to: 
+
+ * load and test NZ electricity generation data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/ from 1998 to 2017.
+
+## Requirements:
+
+ * pre-downloaded NZ wholesale generation datasets for
+   + June 1998
+   + December 1998
+   + June 2017
+   + December 2017
+
+## History
+
+```{r child=ggParams$historyGenericRmd}
+```
+ 
+## Support
+
+```{r child=ggParams$supportGenericRmd}
+```
+ 
+
+# Introduction
+
+To build on Kahn et al's 2018 CO2 [intensity of peak demand](https://www.sciencedirect.com/science/article/pii/S0959652618306474?via%3Dihub) paper - how have thngs changed over time?
+
+Uses https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/ from 1998 to 2017.
+
+Data is kWh - so energy not power.
+
+# Load data
+
+Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates...
+
+```{r load the generation data over the net}
+genDec2017DTorig <- fread(paste0(ggParams$dataLoc, "201712_Generation_MD.csv"))
+genJun2017DTorig <- fread(paste0(ggParams$dataLoc, "201706_Generation_MD.csv"))
+
+genDec1998DTorig <- fread(paste0(ggParams$dataLoc, "199812_Generation_MD.csv"))
+genJun1998DTorig <- fread(paste0(ggParams$dataLoc, "199806_Generation_MD.csv"))
+
+reshapeDT <- function(dt){
+  # reshape the data as it comes in a rather unhelpful form
+reshapedDT <- melt(dt, 
+                     id.vars=c("Site_Code","POC_Code","Nwk_Code", "Gen_Code", "Fuel_Code", "Tech_Code","Trading_date"),
+                     variable.name = "Time_Period", # converts TP1-48
+                     value.name = "kWh" # kiloWatts
+)
+return(reshapedDT)
+}
+
+dt1 <- reshapeDT(genDec2017DTorig)
+dt2 <- reshapeDT(genJun2017DTorig)
+dt3 <- reshapeDT(genDec1998DTorig)
+dt4 <- reshapeDT(genJun1998DTorig)
+
+genDT <- rbind(dt1, dt2, dt3, dt4)
+
+genDT <- genDT[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
+genDT <- genDT[, r_month := lubridate::month(rDate, label = TRUE)]
+genDT <- genDT[, r_year := lubridate::year(rDate)]
+```
+
+The following table sumamrises the data.
+
+```{r summarise final data table}
+t <- skimr::skim(genDT)
+# note the chunk names needs to be unique
+skimr::kable(t, caption = "Summary table")
+```
+
+Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50 being missing:
+
+> "The data is presented by trading period, TP1, TP2, ... TP48. Trading period 1 starts at midnight, trading period 2 starts at 12:30am, trading period 3 starts at 1:00am, etc. Users of this data should be aware of daylight saving in New Zealand. On the day daylight saving commences there are only 46 trading periods and on the day it ends, there are 50." (https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/)
+
+Daylight saving begins/ends in October and March so we carefully avoid this problem by using June and December. However these TP are still present as NA in the data as the following plot of NA observations (only) by Fuel Type and month shows.
+
+```{r explore NA, fig.cap="Plot showing presence of NA observations by time period and Fuel Type"}
+genDT <- genDT[, kWhisNA := ifelse(is.na(kWh), "NA", "Not NA")] # label NAs
+
+naPlotDT <- genDT[, .(nObs = .N), keyby = .(r_year, r_month, Time_Period, Fuel_Code, kWhisNA)] # table them for plot
+
+# plot the NAs by Time_Period to look for patterns
+ggplot(naPlotDT[kWhisNA == "NA"], aes(x = r_month, y = Time_Period, fill = nObs)) + 
+  geom_tile() +
+  facet_grid(r_year  ~ Fuel_Code) +
+      labs(x = "Month",
+         caption = ggParams$figCaption
+    )
+```
+
+We therefore remove TP49 & TP50 from the data for the rest of the analysis.
+
+```{r remove TP49-50}
+cleanDT <- genDT[!is.na(kWh)]
+cleanDT <- droplevels(cleanDT)
+```
+
+
+# Analysis: Generation profiles
+
+## Half hourly profiles by month
+
+This plot replicates one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time.
+
+```{r profile plot by month }
+# See how we turned off printing the code into the report
+
+# create an aggregated tabe summing generation by fuel, date and time period. This is what data.table is really good at
+plotDT <- cleanDT[, 
+                       .(totalkWh = sum(kWh),
+                         nObs = .N),
+                       keyby = .(Time_Period, r_month, r_year, Fuel_Code)]
+
+# > Use the new data to draw a chart of all generation in the data ----
+ggplot(plotDT, 
+       aes(x = Time_Period, y = totalkWh/1000000, fill = Fuel_Code)) +
+  geom_col() +
+  facet_grid(r_month ~ r_year) +
+  labs(caption = ggParams$figCaption, y = "GWh", x = "Half hour") +
+  theme(legend.title=element_blank())
+
+```
+
+
+## Half hourly profiles by day of the month
+
+This plot shows the profiles for each day of each month joined end to end.
+
+> requires creation of true dateTime...
+
+```{r profile plot by day of month }
+# to do
+
+```
+
+
+
+
+# Discuss your results
+here
+
+# Conclusions
+go here
+
+# References

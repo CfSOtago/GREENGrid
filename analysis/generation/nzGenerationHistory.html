@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Ben Anderson (b.anderson@soton.ac.uk @dataknut)" />
+
+
+<title>NZ Generation History</title>
+
+<script src="nzGenerationHistory_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="nzGenerationHistory_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="nzGenerationHistory_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="nzGenerationHistory_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="nzGenerationHistory_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="nzGenerationHistory_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="nzGenerationHistory_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="nzGenerationHistory_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="nzGenerationHistory_files/navigation-1.1/tabsets.js"></script>
+<link href="nzGenerationHistory_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="nzGenerationHistory_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">NZ Generation History</h1>
+<h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a> <code>@dataknut</code>)</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-12 23:02:23</em></h4>
+
+</div>
+
+
+<p>If you wish to use any of the material from this report please cite as:</p>
+<ul>
+<li>Anderson, B. (2018) <em>NZ Generation History</em>, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin.</li>
+</ul>
+<p>This work is (c) 2018 the University of Southampton.</p>
+
+<div id="about" class="section level1">
+<h1><span class="header-section-number">1</span> About</h1>
+<p>Report circulation:</p>
+<ul>
+<li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project partners and contractors.</li>
+</ul>
+<div id="purpose" class="section level2">
+<h2><span class="header-section-number">1.1</span> Purpose</h2>
+<p>This report is intended to:</p>
+<ul>
+<li>load and test NZ electricity generation data from <a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a> from 1998 to 2017.</li>
+</ul>
+</div>
+<div id="requirements" class="section level2">
+<h2><span class="header-section-number">1.2</span> Requirements:</h2>
+<ul>
+<li>pre-downloaded NZ wholesale generation datasets for</li>
+<li>June 1998</li>
+<li>December 1998</li>
+<li>June 2017</li>
+<li>December 2017</li>
+</ul>
+</div>
+<div id="history" class="section level2">
+<h2><span class="header-section-number">1.3</span> History</h2>
+<p>Generally tracked via our git.soton <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a>:</p>
+<ul>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master">history</a></li>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a></li>
+</ul>
+</div>
+<div id="support" class="section level2">
+<h2><span class="header-section-number">1.4</span> Support</h2>
+<p>This work was supported by:</p>
+<ul>
+<li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
+<li>The <a href="https://www.southampton.ac.uk/">University of Southampton</a>;</li>
+<li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a> through the <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project;</li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-202).</li>
+</ul>
+<p>We do not ‘support’ the code but if you have a problem check the <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a> on our <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a> and if it doesn’t already exist, open one. We might be able to fix it :-)</p>
+</div>
+</div>
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">2</span> Introduction</h1>
+<p>To build on Kahn et al’s 2018 CO2 <a href="https://www.sciencedirect.com/science/article/pii/S0959652618306474?via%3Dihub">intensity of peak demand</a> paper - how have thngs changed over time?</p>
+<p>Uses <a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a> from 1998 to 2017.</p>
+<p>Data is kWh - so energy not power.</p>
+</div>
+<div id="load-data" class="section level1">
+<h1><span class="header-section-number">3</span>  Load data</h1>
+<p>Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates…</p>
+<pre><code>## Warning in melt.data.table(dt, id.vars = c(&quot;Site_Code&quot;, &quot;POC_Code&quot;,
+## &quot;Nwk_Code&quot;, : &#39;measure.vars&#39; [TP1, TP2, TP3, TP4, ...] are not all of the
+## same type. By order of hierarchy, the molten data value column will be of
+## type &#39;double&#39;. All measure variables not of type &#39;double&#39; will be coerced
+## too. Check DETAILS in ?melt.data.table for more on coercion.
+
+## Warning in melt.data.table(dt, id.vars = c(&quot;Site_Code&quot;, &quot;POC_Code&quot;,
+## &quot;Nwk_Code&quot;, : &#39;measure.vars&#39; [TP1, TP2, TP3, TP4, ...] are not all of the
+## same type. By order of hierarchy, the molten data value column will be of
+## type &#39;double&#39;. All measure variables not of type &#39;double&#39; will be coerced
+## too. Check DETAILS in ?melt.data.table for more on coercion.</code></pre>
+<pre><code>## Warning in melt.data.table(dt, id.vars = c(&quot;Site_Code&quot;, &quot;POC_Code&quot;,
+## &quot;Nwk_Code&quot;, : &#39;measure.vars&#39; [TP1, TP2, TP3, TP4, ...] are not all of the
+## same type. By order of hierarchy, the molten data value column will be of
+## type &#39;integer&#39;. All measure variables not of type &#39;integer&#39; will be coerced
+## too. Check DETAILS in ?melt.data.table for more on coercion.
+
+## Warning in melt.data.table(dt, id.vars = c(&quot;Site_Code&quot;, &quot;POC_Code&quot;,
+## &quot;Nwk_Code&quot;, : &#39;measure.vars&#39; [TP1, TP2, TP3, TP4, ...] are not all of the
+## same type. By order of hierarchy, the molten data value column will be of
+## type &#39;integer&#39;. All measure variables not of type &#39;integer&#39; will be coerced
+## too. Check DETAILS in ?melt.data.table for more on coercion.</code></pre>
+<p>The following table sumamrises the data.</p>
+<pre><code>## Skim summary statistics  
+##  n obs: 352250    
+##  n variables: 12    
+## 
+## Variable type: character
+## 
+## |   variable   | missing | complete |   n    | min | max | empty | n_unique |
+## |--------------|---------|----------|--------|-----|-----|-------|----------|
+## |  Fuel_Code   |    0    |  352250  | 352250 |  3  |  7  |   0   |    8     |
+## |   Gen_Code   |    0    |  352250  | 352250 |  3  | 15  |   0   |    68    |
+## |   Nwk_Code   |    0    |  352250  | 352250 |  4  |  4  |   0   |    27    |
+## |   POC_Code   |    0    |  352250  | 352250 |  7  |  7  |   0   |    68    |
+## |  Site_Code   |    0    |  352250  | 352250 |  3  |  3  |   0   |    69    |
+## |  Tech_Code   |    0    |  352250  | 352250 |  3  |  5  |   0   |    5     |
+## | Trading_date |    0    |  352250  | 352250 | 10  | 10  |   0   |   122    |
+## 
+## Variable type: Date
+## 
+## | variable | missing | complete |   n    |    min     |    max     |   median   | n_unique |
+## |----------|---------|----------|--------|------------|------------|------------|----------|
+## |  rDate   |    0    |  352250  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   122    |
+## 
+## Variable type: factor
+## 
+## |  variable   | missing | complete |   n    | n_unique |                 top_counts                 | ordered |
+## |-------------|---------|----------|--------|----------|--------------------------------------------|---------|
+## |   r_month   |    0    |  352250  | 352250 |    2     |  Dec: 181250, Jun: 171000, Jan: 0, Feb: 0  |  TRUE   |
+## | Time_Period |    0    |  352250  | 352250 |    50    | TP1: 7045, TP2: 7045, TP3: 7045, TP4: 7045 |  FALSE  |
+## 
+## Variable type: numeric
+## 
+## | variable | missing | complete |   n    |   mean   |    sd    |  p0  |   p25   |   p50    |  p75  |  p100  |   hist   |
+## |----------|---------|----------|--------|----------|----------|------|---------|----------|-------|--------|----------|
+## |   kWh    |  14090  |  338160  | 352250 | 37186.12 | 50545.37 |  0   | 6562.75 | 19714.76 | 48640 | 493020 | ▇▁▁▁▁▁▁▁ |
+## |  r_year  |    0    |  352250  | 352250 | 2009.51  |   9.28   | 1998 |  1998   |   2017   | 2017  |  2017  | ▅▁▁▁▁▁▁▇ |</code></pre>
+<p>Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50 being missing:</p>
+<blockquote>
+<p>“The data is presented by trading period, TP1, TP2, … TP48. Trading period 1 starts at midnight, trading period 2 starts at 12:30am, trading period 3 starts at 1:00am, etc. Users of this data should be aware of daylight saving in New Zealand. On the day daylight saving commences there are only 46 trading periods and on the day it ends, there are 50.” (<a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a>)</p>
+</blockquote>
+<p>Daylight saving begins/ends in October and March so we carefully avoid this problem by using June and December. However these TP are still present as NA in the data as the following plot of NA observations (only) by Fuel Type and month shows.</p>
+<div class="figure">
+<img src="nzGenerationHistory_files/figure-html/explore%20NA-1.png" alt="Plot showing presence of NA observations by time period and Fuel Type" />
+<p class="caption">Plot showing presence of NA observations by time period and Fuel Type</p>
+</div>
+<p>We therefore remove TP49 &amp; TP50 from the data for the rest of the analysis.</p>
+</div>
+<div id="analysis-generation-profiles" class="section level1">
+<h1><span class="header-section-number">4</span> Analysis: Generation profiles</h1>
+<div id="half-hourly-profiles-by-month" class="section level2">
+<h2><span class="header-section-number">4.1</span> Half hourly profiles by month</h2>
+<p>This plot replicates one of those found in <a href="https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025">Staffel, 2018</a> for the UK to show how the different components of generation have changed over time.</p>
+<p><img src="nzGenerationHistory_files/figure-html/profile%20plot%20by%20month-1.png" /><!-- --></p>
+</div>
+<div id="half-hourly-profiles-by-day-of-the-month" class="section level2">
+<h2><span class="header-section-number">4.2</span> Half hourly profiles by day of the month</h2>
+<p>This plot shows the profiles for each day of each month joined end to end.</p>
+<blockquote>
+<p>requires creation of true dateTime…</p>
+</blockquote>
+</div>
+</div>
+<div id="discuss-your-results" class="section level1">
+<h1><span class="header-section-number">5</span> Discuss your results</h1>
+<p>here</p>
+</div>
+<div id="conclusions" class="section level1">
+<h1><span class="header-section-number">6</span> Conclusions</h1>
+<p>go here</p>
+</div>
+<div id="references" class="section level1">
+<h1><span class="header-section-number">7</span> References</h1>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
