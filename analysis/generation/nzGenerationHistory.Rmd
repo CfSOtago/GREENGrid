@@ -1,5 +1,5 @@
 ---
-title: "NZ Generation History"
+title: "NZ Electricity Generation History"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
@@ -21,8 +21,12 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 
 
 ```{r codeSetup, include=FALSE}
+rm(list=ls(all=TRUE)) # remove all objects from workspace
+
 # Set start time ----
 startTime <- proc.time()
+
+library(nzGREENGrid)
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
@@ -36,10 +40,10 @@ rmdLibs <- c("data.table", # data munching
 nzGREENGrid::loadLibraries(rmdLibs)
 
 # run gg set up
-ggParams <- nzGREENGrid::setup()
+nzGREENGrid::setup()
 
 # Local paramaters
-ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/data/")
+ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/data/") # held in repo as public
 
 ggParams$figCaption <- paste0("Source: June & December 1998 and June & December 2017 wholesale generation data",
                               "\nhttps://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/")
@@ -56,10 +60,11 @@ This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southa
 
 # About
 
-Report circulation:
+## Circulation
 
- * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
-
+```{r generic circulation, child=ggParams$circulationGenericRmd}
+```
+ 
 ## Purpose
 
 This report is intended to: 
@@ -69,19 +74,22 @@ This report is intended to:
 ## Requirements:
 
  * pre-downloaded NZ wholesale generation datasets for
-   + June 1998
-   + December 1998
-   + June 2017
-   + December 2017
+    + June 1998
+    + December 1998
+    + June 2017
+    + December 2017
 
 ## History
 
-```{r child=ggParams$historyGenericRmd}
+```{r generic history, child=ggParams$historyGenericRmd}
 ```
  
+Specific history of this code: 
+ * https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd
+
 ## Support
 
-```{r child=ggParams$supportGenericRmd}
+```{r genric support, child=ggParams$supportGenericRmd}
 ```
  
 
