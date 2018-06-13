@@ -26,6 +26,24 @@ years <- seq(1997, 2018, 1)
 months <- seq(1,12,1)
 
 # Local functions ----
+cleanEA <- function(df){
+  # takes a df, cleans & returns a dt
+  dt <- data.table::as.data.table(df) # make dt
+  dt <- nzGREENGrid::reshapeEAGenDT(dt) # make long
+  dt <- nzGREENGrid::setEAGenTimePeriod(dt) # set time periods to something intelligible as rTime
+  dt <- dt[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
+  dt <- dt[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
+  return(dt)
+}
+
+getMeta <- function(dt){
+  testDT <- dt[, .(nObs = .N,
+                      sumkWh = sum(as.numeric(kWh)),
+                      nFuels = uniqueN(Fuel_Code),
+                      nDays = uniqueN(rDate)), keyby = .(month = lubridate::month(rDate), year = lubridate::year(rDate))]
+  testDT <- dt[, source := lfName]
+  return(testDT)
+}
 
 # Code ----
 # Set start time ----
@@ -51,43 +69,26 @@ for(y in years){
       # Already got it & we don't want to refresh so skip
       print(paste0("Already got ", fName, ", loading from local..."))
       # Load so we can update meta
-      readr::write_csv(df, paste0(lDataLoc, fName))
-      dt <- data.table::as.data.table(df) # make dt
-      genDT <- nzGREENGrid::reshapeEAGenDT(dt) # make long
-      genDT <- nzGREENGrid::setEAGenTimePeriod(genDT) # set time periods to something intelligible as rTime
-      genDT <- genDT[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
-      genDT <- genDT[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
-      lfName <- paste0(y,m,"_Generation_MD_long.csv")
-      testDT <- genDT[, .(nObs = .N,
-                          sumkWh = sum(as.numeric(kWh)),
-                          nFuels = uniqueN(Fuel_Code),
-                          nDays = uniqueN(rDate)), keyby = .(lubridate::month(rDate), lubridate::year(rDate))]
-      testDT <- testDT[, source := lfName]
+      df <- readr::read_csv(paste0(lDataLoc, fName))
+      genDT <- cleanEA(df) # clean up to a dt
+      testDT <- getMeta(genDT) # get metaData
       metaDT <- rbind(metaDT, testDT)
     } else {
       # Get it
       fullName <- paste0(rDataLoc,fName)
-      print(paste0("Attempting to download ", fullName))
+      print(paste0("We don't have or need to refresh ", fName))
       # use curl function to catch errors
+      print(paste0("Trying to download ", fullName))
       req <- curl::curl_fetch_disk(fullName, "temp.csv")
       if(req$status_code != 404){
-        print("File downloaded successfully, saving it")
         df <- readr::read_csv(req$content)
-        readr::write_csv(df, paste0(lDataLoc, fName))
-        dt <- data.table::as.data.table(df) # make dt
-        genDT <- nzGREENGrid::reshapeEAGenDT(dt) # make long
-        genDT <- nzGREENGrid::setEAGenTimePeriod(genDT) # set time periods to something intelligible as rTime
-        genDT <- genDT[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
-        genDT <- genDT[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
-        lfName <- paste0(y,m,"_Generation_MD_long.csv")
+        print("File downloaded successfully, saving it")
+        data.table::fwrite(df, paste0(lDataLoc, fName))
+        genDT <- cleanEA(df) # clean up to a dt
+        testDT <- getMeta(genDT) # get metaData
+        metaDT <- rbind(metaDT, testDT)
         print("Converted to long form, saving it")
         data.table::fwrite(genDT, paste0(lDataLoc, lfName))
-        testDT <- genDT[, .(nObs = .N,
-                            sumkWh = sum(as.numeric(kWh)),
-                            nFuels = uniqueN(Fuel_Code),
-                            nDays = uniqueN(rDate)), keyby = .(lubridate::month(rDate), lubridate::year(rDate))]
-        testDT <- testDT[, source := lfName]
-        metaDT <- rbind(metaDT, testDT)
         cmd <- paste0("gzip -f ", "'", path.expand(paste0(lDataLoc, lfName)), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
         try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
         print("Compressed it")
@@ -98,12 +99,17 @@ for(y in years){
   }
 }
 
-figCaption <- ""
+figCaption <- paste0("EA Wholesale Generation data ", min(metaDT$month), " - ", max(metaDT$month))
 
 ggplot(metaDT, aes(x = rYear, y = rMonth, fill = nDays)) +
   geom_tile() +
+  labs(x = Year, y = Month,
+       caption = figCaption)
 
 ggsave("nDaysPlot.pdf")
+
+# write out the meta data ----
+data.table::fwrite(metaDT, paste0(lDataLoc, "metaDT.csv"))
 
 # remove the temp file
 file.remove("temp.csv")
