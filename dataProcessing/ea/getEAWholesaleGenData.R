@@ -10,8 +10,18 @@ library(readr)
 library(curl)
 
 # Parameters ----
+
+
+local <- 0 # set to 1 for local file storage
+refresh <- 0 # set to 1 to try to download all files even if we have them
+
+if(local){
+  lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
+} else {
+  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
+}
+
 rDataLoc <- "https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/"
-lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
 years <- seq(1997, 2018, 1)
 months <- seq(1,12,1)
 
@@ -35,8 +45,8 @@ for(y in years){
     fName <- paste0(y,m,"_Generation_MD.csv")
     print(paste0("Checking ", fName))
     test <- filesToDateDT[V1 %like% fName] # should catch .csv.gz too
-    if(nrow(test) > 0){
-      # Already got it so skip
+    if(nrow(test) > 0 & refresh == 0){
+      # Already got it & we don't want to refresh so skip
       print(paste0("Already got ", fName, " skipping"))
     } else {
       # Get it
