@@ -23,7 +23,7 @@ nzGREENGrid::loadLibraries(reqLibs)
 # Parameters ----
 
 local <- 0 # set to 1 for local file storage (see below)
-refresh <- 1 # set to 1 to try to download all files even if we have them
+refresh <- 0 # set to 1 to try to download all files even if we have them
 
 if(local){ # set data storage location
   lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
@@ -76,38 +76,39 @@ for(y in years){
     } else {
       m <- month
     }
-    fName <- paste0(y,m,"_Generation_MD.csv")
-    print(paste0("Checking ", fName))
-    test <- filesToDateDT[V1 %like% fName] # should catch .csv.gz too
+    lfName <- paste0(y,"_", m,"_Generation_MD.csv") # for ease of future file filtering
+    rfName <- paste0(y, m,"_Generation_MD.csv")
+    print(paste0("Checking ", lfName))
+    test <- filesToDateDT[V1 %like% lfName] # should catch .csv.gz too
     if(nrow(test) > 0 & refresh == 0){
       # Already got it & we don't want to refresh so skip
-      print(paste0("Already got ", fName, ", loading from local..."))
+      print(paste0("Already have ", lfName, ", loading from local..."))
       # Load so we can update meta
-      df <- readr::read_csv(paste0(lDataLoc, fName))
+      df <- readr::read_csv(paste0(lDataLoc, lfName))
       dt <- cleanEA(df) # clean up to a dt
       print(summary(dt))
       testDT <- getMeta(dt) # get metaData
       print(head(testDT))
-      testDT <- testDT[, source := fName]
+      testDT <- testDT[, source := lfName]
       metaDT <- rbind(metaDT, testDT)
       testDT <- NULL
     } else {
       # Get it
-      rFile <- paste0(rDataLoc,fName)
-      print(paste0("We don't have or need to refresh ", fName))
+      rFile <- paste0(rDataLoc,rfName)
+      print(paste0("We don't have or need to refresh ", lfName))
       # use curl function to catch errors
       print(paste0("Trying to download ", rFile))
       req <- curl::curl_fetch_disk(rFile, "temp.csv") # https://cran.r-project.org/web/packages/curl/vignettes/intro.html
       if(req$status_code != 404){ #https://cran.r-project.org/web/packages/curl/vignettes/intro.html#exception_handling
         df <- readr::read_csv(req$content)
         print("File downloaded successfully, saving it")
-        data.table::fwrite(df, paste0(lDataLoc, fName))
+        data.table::fwrite(df, paste0(lDataLoc, lfName))
         dt <- cleanEA(df) # clean up to a dt
         testDT <- getMeta(dt) # get metaData
-        testDT <- testDT[, source := fName]
+        testDT <- testDT[, source := rfName]
         metaDT <- rbind(metaDT, testDT)
         print("Converted to long form, saving it")
-        lfName <- paste0(y,m,"_Generation_MD_long.csv")
+        lfName <- paste0(y,"_",m,"_Generation_MD_long.csv")
         data.table::fwrite(dt, paste0(lDataLoc, lfName))
         cmd <- paste0("gzip -f ", "'", path.expand(paste0(lDataLoc, lfName)), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
         try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
