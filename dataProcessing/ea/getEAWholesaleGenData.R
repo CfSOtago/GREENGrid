@@ -1,6 +1,7 @@
 # Get NZ EA Wholesale Generation data ----
 # Not a function
 # Gets or refreshes the EA wholesale generation data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/
+# Saves them as-is and also processes to long form & saves as .csv.gz
 
 # Load libraries ----
 library(nzGREENGrid)
