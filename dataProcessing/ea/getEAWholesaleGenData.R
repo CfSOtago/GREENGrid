@@ -33,6 +33,8 @@ startTime <- proc.time()
 
 filesToDateDT <- data.table::as.data.table(list.files(lDataLoc)) # get list of files already downloaded
 
+metaDT <- data.table::data.table() # stats collector
+
 for(y in years){
   for(month in months){
     # construct the filename
@@ -47,7 +49,21 @@ for(y in years){
     test <- filesToDateDT[V1 %like% fName] # should catch .csv.gz too
     if(nrow(test) > 0 & refresh == 0){
       # Already got it & we don't want to refresh so skip
-      print(paste0("Already got ", fName, " skipping"))
+      print(paste0("Already got ", fName, ", loading from local..."))
+      # Load so we can update meta
+      readr::write_csv(df, paste0(lDataLoc, fName))
+      dt <- data.table::as.data.table(df) # make dt
+      genDT <- nzGREENGrid::reshapeEAGenDT(dt) # make long
+      genDT <- nzGREENGrid::setEAGenTimePeriod(genDT) # set time periods to something intelligible as rTime
+      genDT <- genDT[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
+      genDT <- genDT[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
+      lfName <- paste0(y,m,"_Generation_MD_long.csv")
+      testDT <- genDT[, .(nObs = .N,
+                          sumkWh = sum(as.numeric(kWh)),
+                          nFuels = uniqueN(Fuel_Code),
+                          nDays = uniqueN(rDate)), keyby = .(lubridate::month(rDate), lubridate::year(rDate))]
+      testDT <- testDT[, source := lfName]
+      metaDT <- rbind(metaDT, testDT)
     } else {
       # Get it
       fullName <- paste0(rDataLoc,fName)
@@ -66,6 +82,12 @@ for(y in years){
         lfName <- paste0(y,m,"_Generation_MD_long.csv")
         print("Converted to long form, saving it")
         data.table::fwrite(genDT, paste0(lDataLoc, lfName))
+        testDT <- genDT[, .(nObs = .N,
+                            sumkWh = sum(as.numeric(kWh)),
+                            nFuels = uniqueN(Fuel_Code),
+                            nDays = uniqueN(rDate)), keyby = .(lubridate::month(rDate), lubridate::year(rDate))]
+        testDT <- testDT[, source := lfName]
+        metaDT <- rbind(metaDT, testDT)
         cmd <- paste0("gzip -f ", "'", path.expand(paste0(lDataLoc, lfName)), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
         try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
         print("Compressed it")
@@ -76,11 +98,21 @@ for(y in years){
   }
 }
 
+figCaption <- ""
+
+ggplot(metaDT, aes(x = rYear, y = rMonth, fill = nDays)) +
+  geom_tile() +
+
+ggsave("nDaysPlot.pdf")
+
 # remove the temp file
 file.remove("temp.csv")
-t <- proc.time() - startTime
+
+# Finish off ----
+
+t <- proc.time() - startTime # how long did it take?
 elapsed <- t[[3]]
 
 print("Done")
-print(paste0("Completed in ", round(elapsed/60,2), "minutes",
-             "using", R.version.string, "running on ", R.version$platform))
+print(paste0("Completed in ", round(elapsed/60,2), " minutes using ",
+             R.version.string, " running on ", R.version$platform))
