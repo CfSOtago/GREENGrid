@@ -2,12 +2,12 @@
 % Please edit documentation in R/setup.R
 \name{setup}
 \alias{setup}
-\title{Sets a range of parameters re-used throughout the repo}
+\title{Sets a range of parameters re-used throughout the repo by sourcing the <repo>/ggParams.R file}
 \usage{
 setup()
 }
 \description{
-\code{setup} sets a range of parameters including data sources and .Rmd include locations. It returns these as a list.
+\code{setup} sources the <repo>/ggParams.R file which sets a range of parameters as elements of the `ggParams` list. These include data sources and .Rmd include locations.
 }
 \details{
 The parameters can be over-written in scipts if needed but do so wih care!
