@@ -147,24 +147,16 @@ Daylight saving begins/ends in October and March so we carefully avoid this prob
 ```{r explore NA, fig.cap="Plot showing presence of NA observations by time period and Fuel Type"}
 genDT <- genDT[, kWhisNA := ifelse(is.na(kWh), "NA", "Not NA")] # label NAs
 
-naPlotDT <- genDT[, .(nObs = .N), keyby = .(rYear, rMonth, Time_Period, Fuel_Code, kWhisNA)] # table them for plot
+naPlotDT <- genDT[, .(nObs = .N), keyby = .(year, month, Time_Period, Fuel_Code, kWhisNA)] # table them for plot
 
 # plot the NAs by Time_Period to look for patterns
-ggplot(naPlotDT[kWhisNA == "NA"], aes(x = rMonth, y = Time_Period, fill = nObs)) + 
+ggplot(naPlotDT[kWhisNA == "NA"], aes(x = month, y = Time_Period, fill = nObs)) + 
   geom_tile() +
-  facet_grid(r_year  ~ Fuel_Code) +
+  facet_grid(year  ~ Fuel_Code) +
       labs(x = "Month",
          caption = ggParams$figCaption
     )
 ```
-
-We therefore remove TP49 & TP50 from the data for the rest of the analysis.
-
-```{r remove TP49-50}
-cleanDT <- genDT[!is.na(kWh)]
-cleanDT <- droplevels(cleanDT)
-```
-
 
 # Analysis: Generation profiles
 
@@ -176,16 +168,16 @@ This plot replicates one of those found in [Staffel, 2018](https://www.sciencedi
 # See how we turned off printing the code into the report
 
 # create an aggregated tabe summing generation by fuel, date and time period. This is what data.table is really good at
-plotDT <- cleanDT[, 
+plotDT <- genDT[, 
                        .(totalkWh = sum(kWh),
                          nObs = .N),
-                       keyby = .(Time_Period, r_month, r_year, Fuel_Code)]
+                       keyby = .(rTime, month, year, Fuel_Code)]
 
 # > Use the new data to draw a chart of all generation in the data ----
 ggplot(plotDT, 
-       aes(x = Time_Period, y = totalkWh/1000000, fill = Fuel_Code)) +
+       aes(x = rTime, y = totalkWh/1000000, fill = Fuel_Code)) +
   geom_col() +
-  facet_grid(r_month ~ r_year) +
+  facet_grid(month ~ year) +
   labs(caption = ggParams$figCaption, y = "GWh", x = "Half hour") +
   theme(legend.title=element_blank())
 
