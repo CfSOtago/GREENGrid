@@ -1,7 +1,7 @@
 ---
-title: "NZ Generation History"
+title: "NZ Electricity Generation History"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
-date: 'Last run at: 2018-06-12 23:02:23'
+date: 'Last run at: 2018-06-13 11:31:19'
 output:
   html_document:
     fig_caption: yes
@@ -21,7 +21,7 @@ output:
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (2018) _NZ Generation History_, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin.
+ * Anderson, B. (2018) _NZ Generation History_, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin
 
 This work is (c) 2018 the University of Southampton.
 
@@ -29,10 +29,13 @@ This work is (c) 2018 the University of Southampton.
 
 # About
 
+## Circulation
+
+
 Report circulation:
 
  * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
-
+ 
 ## Purpose
 
 This report is intended to: 
@@ -42,10 +45,10 @@ This report is intended to:
 ## Requirements:
 
  * pre-downloaded NZ wholesale generation datasets for
-   + June 1998
-   + December 1998
-   + June 2017
-   + December 2017
+    + June 1998
+    + December 1998
+    + June 2017
+    + December 2017
 
 ## History
 
@@ -55,6 +58,9 @@ Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREE
  * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master)
  * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
  
+Specific history of this code: 
+ * https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd
+
 ## Support
 
 

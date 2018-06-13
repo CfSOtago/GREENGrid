@@ -52,7 +52,7 @@ ggParams$figCaption <- paste0("Source: June & December 1998 and June & December 
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) _NZ Generation History_, `r ggParams$pubLoc`
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) _NZ Electricity Generation History_, `r ggParams$pubLoc`
 
 This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
 
@@ -105,27 +105,17 @@ Data is kWh - so energy not power.
 
 Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates...
 
-```{r load the generation data over the net}
+```{r load the generation data}
 genDec2017DTorig <- fread(paste0(ggParams$dataLoc, "201712_Generation_MD.csv"))
 genJun2017DTorig <- fread(paste0(ggParams$dataLoc, "201706_Generation_MD.csv"))
 
 genDec1998DTorig <- fread(paste0(ggParams$dataLoc, "199812_Generation_MD.csv"))
 genJun1998DTorig <- fread(paste0(ggParams$dataLoc, "199806_Generation_MD.csv"))
 
-reshapeDT <- function(dt){
-  # reshape the data as it comes in a rather unhelpful form
-reshapedDT <- melt(dt, 
-                     id.vars=c("Site_Code","POC_Code","Nwk_Code", "Gen_Code", "Fuel_Code", "Tech_Code","Trading_date"),
-                     variable.name = "Time_Period", # converts TP1-48
-                     value.name = "kWh" # kiloWatts
-)
-return(reshapedDT)
-}
-
-dt1 <- reshapeDT(genDec2017DTorig)
-dt2 <- reshapeDT(genJun2017DTorig)
-dt3 <- reshapeDT(genDec1998DTorig)
-dt4 <- reshapeDT(genJun1998DTorig)
+dt1 <- nzGREENGrid::reshapeEAGenDT(genDec2017DTorig)
+dt2 <- nzGREENGrid::reshapeEAGenDT(genJun2017DTorig)
+dt3 <- nzGREENGrid::reshapeEAGenDT(genDec1998DTorig)
+dt4 <- nzGREENGrid::reshapeEAGenDT(genJun1998DTorig)
 
 genDT <- rbind(dt1, dt2, dt3, dt4)
 
