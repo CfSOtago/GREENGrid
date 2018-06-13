@@ -137,7 +137,7 @@ makeCheckPlot <- function(dt,fillVar){
          title = paste0("Data check chart:", eval(fillVar))
          )
 
-  ggplot2::ggsave(paste0(eval(fillVar),"Plot.pdf"))
+  ggplot2::ggsave(lDataLoc,paste0(eval(fillVar),"Plot.pdf"))
 
   return(myPlot)
 }
