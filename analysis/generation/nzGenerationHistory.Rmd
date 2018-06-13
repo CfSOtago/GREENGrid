@@ -43,9 +43,14 @@ nzGREENGrid::loadLibraries(rmdLibs)
 nzGREENGrid::setup()
 
 # Local paramaters
-ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/data/") # held in repo as public
+local <- 0 # set to 1 for local file storage (see below)
 
-ggParams$figCaption <- paste0("Source: June & December 1998 and June & December 2017 wholesale generation data",
+if(local){ # set data storage location
+  lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
+} else {
+  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
+}
+ggParams$figCaption <- paste0("Source: EA wholesale generation data",
                               "\nhttps://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/")
 
 ```
@@ -73,11 +78,7 @@ This report is intended to:
 
 ## Requirements:
 
- * pre-downloaded NZ wholesale generation datasets for
-    + June 1998
-    + December 1998
-    + June 2017
-    + December 2017
+ * pre-downloaded NZ wholesale generation datasets
 
 ## History
 
@@ -106,22 +107,27 @@ Data is kWh - so energy not power.
 Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates...
 
 ```{r load the generation data}
-genDec2017DTorig <- fread(paste0(ggParams$dataLoc, "201712_Generation_MD.csv"))
-genJun2017DTorig <- fread(paste0(ggParams$dataLoc, "201706_Generation_MD.csv"))
+filesToDateDT <- data.table::as.data.table(list.files(lDataLoc, "long.csv.gz")) # get list of files already downloaded & converted to long form
 
-genDec1998DTorig <- fread(paste0(ggParams$dataLoc, "199812_Generation_MD.csv"))
-genJun1998DTorig <- fread(paste0(ggParams$dataLoc, "199806_Generation_MD.csv"))
+# for our purposes here we will just use Jun & Dec in 1998 & 2017
+filesToDateDT <- filesToDateDT[, c("year","month", "stub") := tstrsplit(V1, "_")]
+filesToLoadDT <- filesToDateDT[(year == 1998 | year == 2017) & (month == "06" | month == "12"), V1]
 
-dt1 <- nzGREENGrid::reshapeEAGenDT(genDec2017DTorig)
-dt2 <- nzGREENGrid::reshapeEAGenDT(genJun2017DTorig)
-dt3 <- nzGREENGrid::reshapeEAGenDT(genDec1998DTorig)
-dt4 <- nzGREENGrid::reshapeEAGenDT(genJun1998DTorig)
 
-genDT <- rbind(dt1, dt2, dt3, dt4)
+genDT <- as.data.table(do.call(rbind,
+                                  lapply(filesToLoadDT,
+                                         function(f)
+                                           readr::read_csv(paste0(lDataLoc,f),
+                                                    progress = FALSE,
+                                                    col_types = cols()
+                                           ) # decodes .gz on the fly, requires readr, use the NULL col_types to suppress feedback
+                                         # https://blog.rstudio.org/2016/08/05/readr-1-0-0/
+                                  )
+                               )
+                       )
 
-genDT <- genDT[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
-genDT <- genDT[, r_month := lubridate::month(rDate, label = TRUE)]
-genDT <- genDT[, r_year := lubridate::year(rDate)]
+print("Files loaded")
+print(paste0("Loaded ", tidyNum(nrow(genDT)), " rows of data"))
 ```
 
 The following table sumamrises the data.
@@ -141,10 +147,10 @@ Daylight saving begins/ends in October and March so we carefully avoid this prob
 ```{r explore NA, fig.cap="Plot showing presence of NA observations by time period and Fuel Type"}
 genDT <- genDT[, kWhisNA := ifelse(is.na(kWh), "NA", "Not NA")] # label NAs
 
-naPlotDT <- genDT[, .(nObs = .N), keyby = .(r_year, r_month, Time_Period, Fuel_Code, kWhisNA)] # table them for plot
+naPlotDT <- genDT[, .(nObs = .N), keyby = .(rYear, rMonth, Time_Period, Fuel_Code, kWhisNA)] # table them for plot
 
 # plot the NAs by Time_Period to look for patterns
-ggplot(naPlotDT[kWhisNA == "NA"], aes(x = r_month, y = Time_Period, fill = nObs)) + 
+ggplot(naPlotDT[kWhisNA == "NA"], aes(x = rMonth, y = Time_Period, fill = nObs)) + 
   geom_tile() +
   facet_grid(r_year  ~ Fuel_Code) +
       labs(x = "Month",
