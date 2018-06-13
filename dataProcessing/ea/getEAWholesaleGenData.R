@@ -61,11 +61,12 @@ for(y in years){
       } else {
         print(paste0("File download failed (Error = ", req$status_code, ") - does it exist at that location?"))
       }
-      tempDT <- NULL # so existence check works
     }
   }
 }
 
+# remove the temp file
+file.remove("temp.csv")
 t <- proc.time() - startTime
 elapsed <- t[[3]]
 
