@@ -1,6 +1,6 @@
-#' Sets a range of parameters re-used throughout the repo
+#' Sets a range of parameters re-used throughout the repo by sourcing the <repo>/ggParams.R file
 #'
-#' \code{setup} sets a range of parameters including data sources and .Rmd include locations. It returns these as a list.
+#' \code{setup} sources the <repo>/ggParams.R file which sets a range of parameters as elements of the `ggParams` list. These include data sources and .Rmd include locations.
 #'
 #'   The parameters can be over-written in scipts if needed but do so wih care!
 #'
@@ -8,13 +8,6 @@
 #' @export
 #'
 setup <- function(){
-  p <- list() # params holder
-  p$projLoc <- nzGREENGrid::findParentDirectory("nzGREENGrid") # R project location
-  p$dataLoc <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS by default
-
-  p$historyGenericRmd <- paste0(p$projLoc, "/includes/historyGeneric.Rmd")
-  p$supportGenericRmd <- paste0(p$projLoc, "/includes/supportGeneric.Rmd")
-  p$pubLoc <- "[Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin."
-
-  return(p) #
+  pLoc <- nzGREENGrid::findParentDirectory("nzGREENGrid") # R project location
+  source(paste0(pLoc, "/ggParams.R"))
 }
