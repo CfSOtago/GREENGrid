@@ -31,7 +31,6 @@ findParentDirectory <- function(Parent){
   return(directory)
 }
 
-
 #' Installs and loads packages
 #'
 #' \code{loadLibraries} checks whether the package is already installed,
