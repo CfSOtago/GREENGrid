@@ -3,19 +3,29 @@
 # Gets or refreshes the EA wholesale generation data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/
 # Saves them as-is and also processes to long form & saves as .csv.gz
 
+# Housekeeping ----
+rm(list=ls(all=TRUE)) # remove all objects from workspace
+
+
 # Load libraries ----
 library(nzGREENGrid)
-library(data.table)
-library(readr)
-library(curl)
+
+# Packages needed in this .Rmd file ----
+reqLibs <- c("data.table", # data munching
+             "readr", # writing to files
+             "curl",  #for data download
+             "ggplot2", # for fancy graphs
+             "skimr" # for skim
+)
+# load them
+nzGREENGrid::loadLibraries(reqLibs)
 
 # Parameters ----
 
+local <- 0 # set to 1 for local file storage (see below)
+refresh <- 1 # set to 1 to try to download all files even if we have them
 
-local <- 0 # set to 1 for local file storage
-refresh <- 0 # set to 1 to try to download all files even if we have them
-
-if(local){
+if(local){ # set data storage location
   lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
 } else {
   lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
@@ -37,11 +47,15 @@ cleanEA <- function(df){
 }
 
 getMeta <- function(dt){
+  dt <- dt[, month := lubridate::month(rDate)]
+  dt <- dt[,year := lubridate::year(rDate)]
   testDT <- dt[, .(nObs = .N,
-                      sumkWh = sum(as.numeric(kWh)),
-                      nFuels = uniqueN(Fuel_Code),
-                      nDays = uniqueN(rDate)), keyby = .(month = lubridate::month(rDate), year = lubridate::year(rDate))]
-  testDT <- dt[, source := lfName]
+                   sumkWh = sum(as.numeric(kWh), na.rm = TRUE),
+                   nFuels = uniqueN(Fuel_Code),
+                   dateFrom = min(rDate),
+                   dateTo = max(rDate),
+                   nDays = uniqueN(rDate)), keyby = .(month,
+                                                      year)]
   return(testDT)
 }
 
@@ -70,25 +84,31 @@ for(y in years){
       print(paste0("Already got ", fName, ", loading from local..."))
       # Load so we can update meta
       df <- readr::read_csv(paste0(lDataLoc, fName))
-      genDT <- cleanEA(df) # clean up to a dt
-      testDT <- getMeta(genDT) # get metaData
+      dt <- cleanEA(df) # clean up to a dt
+      print(summary(dt))
+      testDT <- getMeta(dt) # get metaData
+      print(head(testDT))
+      testDT <- testDT[, source := fName]
       metaDT <- rbind(metaDT, testDT)
+      testDT <- NULL
     } else {
       # Get it
-      fullName <- paste0(rDataLoc,fName)
+      rFile <- paste0(rDataLoc,fName)
       print(paste0("We don't have or need to refresh ", fName))
       # use curl function to catch errors
-      print(paste0("Trying to download ", fullName))
-      req <- curl::curl_fetch_disk(fullName, "temp.csv")
-      if(req$status_code != 404){
+      print(paste0("Trying to download ", rFile))
+      req <- curl::curl_fetch_disk(rFile, "temp.csv") # https://cran.r-project.org/web/packages/curl/vignettes/intro.html
+      if(req$status_code != 404){ #https://cran.r-project.org/web/packages/curl/vignettes/intro.html#exception_handling
         df <- readr::read_csv(req$content)
         print("File downloaded successfully, saving it")
         data.table::fwrite(df, paste0(lDataLoc, fName))
-        genDT <- cleanEA(df) # clean up to a dt
-        testDT <- getMeta(genDT) # get metaData
+        dt <- cleanEA(df) # clean up to a dt
+        testDT <- getMeta(dt) # get metaData
+        testDT <- testDT[, source := fName]
         metaDT <- rbind(metaDT, testDT)
         print("Converted to long form, saving it")
-        data.table::fwrite(genDT, paste0(lDataLoc, lfName))
+        lfName <- paste0(y,m,"_Generation_MD_long.csv")
+        data.table::fwrite(dt, paste0(lDataLoc, lfName))
         cmd <- paste0("gzip -f ", "'", path.expand(paste0(lDataLoc, lfName)), "'") # gzip it - use quotes in case of spaces in file name, expand path if needed
         try(system(cmd)) # in case it fails - if it does there will just be .csv files (not gzipped) - e.g. under windows
         print("Compressed it")
@@ -99,14 +119,32 @@ for(y in years){
   }
 }
 
-figCaption <- paste0("EA Wholesale Generation data ", min(metaDT$month), " - ", max(metaDT$month))
+# load the meta data as a shortcut for testing ----
+# metaDT <- data.table::fread(paste0(lDataLoc, "metaDT.csv"))
 
-ggplot(metaDT, aes(x = rYear, y = rMonth, fill = nDays)) +
-  geom_tile() +
-  labs(x = Year, y = Month,
-       caption = figCaption)
 
-ggsave("nDaysPlot.pdf")
+figCaption <- paste0("EA Wholesale Generation data ", min(metaDT$dateFrom), " - ", max(metaDT$dateTo),
+                     "\nData: ", lDataLoc)
+
+makeCheckPlot <- function(dt,fillVar){
+  # makes a tile plot of month by year and fills colour by the indicator chosen
+  # serves as a data quality check
+  myPlot <- ggplot2::ggplot(dt, aes(x = as.factor(year), y = as.factor(month), fill = get(fillVar))) +
+    geom_tile() +
+    labs(x = "Year", y = "Month",
+         caption = figCaption,
+         title = paste0("Data check chart:", eval(fillVar))
+         )
+
+  ggplot2::ggsave(paste0(eval(fillVar),"Plot.pdf"))
+
+  return(myPlot)
+}
+
+makeCheckPlot(metaDT, "nDays")
+makeCheckPlot(metaDT, "nObs")
+makeCheckPlot(metaDT, "sumkWh")
+makeCheckPlot(metaDT, "nFuels")
 
 # write out the meta data ----
 data.table::fwrite(metaDT, paste0(lDataLoc, "metaDT.csv"))
