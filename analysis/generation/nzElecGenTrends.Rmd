@@ -168,7 +168,7 @@ naPlotDT <- genDT[, .(nObs = .N), keyby = .(year, month, Time_Period, Fuel_Code,
 ggplot(naPlotDT[kWhisNA == "NA"], aes(x = month, y = Time_Period, fill = nObs)) + 
   geom_tile() +
   facet_grid(year  ~ Fuel_Code) +
-      labs(x = "Month",
+      labs(x = "Month", title = "NA kWh values only",
          caption = ggParams$figCaption
     )
 ```
@@ -192,11 +192,11 @@ uniqueN(genDT$Time_Period)
 
 ## Distribution tests
 
-The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution is. This is also supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units have been [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
+The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution was in 1998 although far less so in 2017. This is also supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units were [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
 
 The boxplot shows the distribution of half-hourly observations by month and year. It clearly shows the use of coal in June 1998, non-use in December 1998 but re-use in December 2017 where there appears little differnece between winter & summer use for most fuels. We also see the emergence of wind by 2017.
 
-```{r distribution tests}
+```{r distribution tests, fig.height=6}
 t <- genDT[, .(sumMWh = sum(kWh)/1000,
                meanMWh = mean(kWh)/1000,
            medianMWh =median(kWh)/1000,
@@ -212,12 +212,13 @@ ggplot(genDT, aes(x = Fuel_Code, y = kWh/1000, colour = Fuel_Code)) +
   labs(x = "Fuel", y = "MWh")
 ```
 
-The next series of plots use histograms to visualise the distribution of values within fuel sources. Note that the vertical axis has been allowed to vary by fuel source so that smaller counts are visible. The y axis is constant which enables the higher unit output of coal to be clearly visible. The histogram for coal shows the use of multiple units in June 1998 but not 2017 for example. It also shows that coal was almost constantly generating in 2017 (very few zero values). Hydro on the other hand shows a large number of zero or low values as does wind and back-up diesel which is to be expected.
+The next series of plots use histograms to visualise the distribution of MWh values within fuel sources. Note that the vertical axis has been allowed to vary by fuel source so that smaller counts are visible. The y axis is constant which enables the higher unit output of coal to be clearly visible. The histogram for coal shows the use of multiple units in June 1998 but not 2017 for example. It also shows that coal was almost constantly generating in 2017 (very few zero values). Hydro on the other hand shows a large number of zero or low values as does wind and back-up diesel which is to be expected.
 
-```{r overall histograms}
+```{r overall histograms, fig.height=6}
 ggplot(genDT, aes(x = kWh/1000, fill = Fuel_Code), alpha = 0.2) +
   geom_histogram() + 
-  facet_grid(Fuel_Code ~ year, scales = "free_y")
+  facet_grid(Fuel_Code ~ year, scales = "free_y") + 
+  labs(x = "MWh")
 ```
 
 
@@ -241,7 +242,7 @@ The total is simply the sum of all half-hourly values and it shows the dominance
 ggplot(plotDT, aes(x = month, y = sumkWh/1000000, fill = Fuel_Code)) +
   geom_col() +
   facet_grid(. ~ year) +
-  labs(caption = ggParams$figCaption, y = "Total GWh", x = "Half hour") +
+  labs(caption = ggParams$figCaption, y = "Total GWh", x = "Month") +
   theme(legend.title=element_blank())
 ```
 
@@ -250,7 +251,7 @@ The next plot shows the mean of half-hourly values for each month and indicates 
 ggplot(plotDT, aes(x = month, y = meankWh/1000000, fill = Fuel_Code)) +
   geom_col() +
   facet_grid(. ~ year) +
-  labs(caption = ggParams$figCaption, y = "Mean GWh", x = "Half hour") +
+  labs(caption = ggParams$figCaption, y = "Mean GWh", x = "Month") +
   theme(legend.title=element_blank())
 ```
 
@@ -260,7 +261,7 @@ The next plot shows the standard deviation of the half-hourly generation data an
 ggplot(plotDT, aes(x = month, y = sdkWh/1000000, fill = Fuel_Code)) +
   geom_col(position = "dodge") +
   facet_grid(year ~ .) +
-  labs(caption = ggParams$figCaption, y = "SD GWh", x = "Half hour") +
+  labs(caption = ggParams$figCaption, y = "SD GWh", x = "Month") +
   theme(legend.title=element_blank())
 ```
 
@@ -271,7 +272,7 @@ plotDT <- plotDT[, cov := meankWh/sdkWh] # coefficient of variation https://en.w
 ggplot(plotDT, aes(x = month, y = cov, fill = Fuel_Code)) +
   geom_col(position = "dodge") +
   facet_grid(year ~ .) +
-  labs(caption = ggParams$figCaption, y = "CoV GWh", x = "Half hour") +
+  labs(caption = ggParams$figCaption, y = "CoV GWh", x = "Month") +
   theme(legend.title=element_blank())
 ```
 
@@ -289,7 +290,7 @@ plotDT <- genDT[,
                 keyby = .(rTime, month, year, Fuel_Code)]
 ```
 
-To do this, the following plot replicates one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days.
+To do this, the following plot replicates one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...).
 
 ```{r sum profile plot by month }
 # > Use the new data to draw a plot ----
@@ -318,7 +319,11 @@ ggplot2::ggplot(plotDT,
 
 ## Half hourly profiles by day of the month
 
-The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017. Nevertheless the differences between the compositions of each half-hour can be seen.
+The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017. 
+
+> To be fixed
+
+Nevertheless the differences between the compositions of each half-hour can be seen.
 
 ```{r point profile plots by day of month, fig.width=8}
 years <- c(1998,2017)
