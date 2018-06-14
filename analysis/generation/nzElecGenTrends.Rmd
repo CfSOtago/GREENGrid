@@ -3,8 +3,6 @@ title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
-  pdf_document:
-    toc: yes
   html_document:
     fig_caption: yes
     keep_md: yes
@@ -12,6 +10,8 @@ output:
     self_contained: no
     toc: yes
     toc_float: yes
+  pdf_document:
+    toc: yes
 ---
 
 ```{r knitrSetup, include=FALSE}

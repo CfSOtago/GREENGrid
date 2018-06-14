@@ -12,7 +12,7 @@
 <meta name="author" content="Ben Anderson (b.anderson@soton.ac.uk @dataknut)" />
 
 
-<title>NZ Electricity Generation Trends 1997-2018</title>
+<title>NZ Electricity Generation Trends 1998-2017</title>
 
 <script src="nzElecGenTrends_files/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -216,52 +216,59 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">NZ Electricity Generation Trends 1997-2018</h1>
+<h1 class="title toc-ignore">NZ Electricity Generation Trends 1998-2017</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a> <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-06-14 17:23:31</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-14 17:57:54</em></h4>
 
 </div>
 
 
+
+<div id="citation" class="section level1">
+<h1><span class="header-section-number">1</span> Citation</h1>
 <p>If you wish to use any of the material from this report please cite as:</p>
 <ul>
-<li>Anderson, B. (2018) <em>NZ Electricity Generation History</em>, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin</li>
+<li>Anderson, B. (2018) <em>NZ Electricity Generation Trends 1998-2017</em>, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin.</li>
 </ul>
 <p>This work is (c) 2018 the University of Southampton.</p>
 
+</div>
 <div id="about" class="section level1">
-<h1><span class="header-section-number">1</span> About</h1>
+<h1><span class="header-section-number">2</span> About</h1>
 <div id="circulation" class="section level2">
-<h2><span class="header-section-number">1.1</span> Circulation</h2>
+<h2><span class="header-section-number">2.1</span> Circulation</h2>
 <p>Report circulation:</p>
 <ul>
 <li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project partners and contractors.</li>
 </ul>
 </div>
 <div id="purpose" class="section level2">
-<h2><span class="header-section-number">1.2</span> Purpose</h2>
+<h2><span class="header-section-number">2.2</span> Purpose</h2>
 <p>This report is intended to:</p>
 <ul>
 <li>load and test NZ electricity generation data from <a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a> from 1998 to 2017.</li>
 </ul>
 </div>
 <div id="requirements" class="section level2">
-<h2><span class="header-section-number">1.3</span> Requirements:</h2>
+<h2><span class="header-section-number">2.3</span> Requirements:</h2>
 <ul>
 <li>pre-downloaded NZ wholesale generation datasets</li>
 </ul>
 </div>
 <div id="history" class="section level2">
-<h2><span class="header-section-number">1.4</span> History</h2>
+<h2><span class="header-section-number">2.4</span> History</h2>
 <p>Generally tracked via our git.soton <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a>:</p>
 <ul>
 <li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master">history</a></li>
 <li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a></li>
 </ul>
-<p>Specific history of this code: * <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd" class="uri">https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd</a></p>
+<p>Specific history of this code:</p>
+<ul>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd" class="uri">https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd</a></li>
+</ul>
 </div>
 <div id="support" class="section level2">
-<h2><span class="header-section-number">1.5</span> Support</h2>
+<h2><span class="header-section-number">2.5</span> Support</h2>
 <p>This work was supported by:</p>
 <ul>
 <li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
@@ -273,67 +280,183 @@ div.tocify {
 </div>
 </div>
 <div id="introduction" class="section level1">
-<h1><span class="header-section-number">2</span> Introduction</h1>
+<h1><span class="header-section-number">3</span> Introduction</h1>
 <p>Inspired by Steffel (<a href="https://www.sciencedirect.com/science/article/pii/S0301421516307017">2018</a>) which analyses trends in the type and timing of generation in the UK over the same time period. Intended to build on Kahn et al’s 2018 CO2 <a href="https://www.sciencedirect.com/science/article/pii/S0959652618306474?via%3Dihub">intensity of peak demand</a> paper - how have thngs changed over time?</p>
 <p>Uses <a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a> from 1998 to 2017.</p>
 <p>Data is kWh - so energy not power.</p>
 </div>
 <div id="load-data" class="section level1">
-<h1><span class="header-section-number">3</span>  Load data</h1>
-<p>Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates…</p>
+<h1><span class="header-section-number">4</span>  Load data</h1>
+<p>Load the generation data from files stored in:</p>
+<ul>
+<li>/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/</li>
+</ul>
+<p>These have been <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/ea">pre-downloaded and cleaned</a> but could be pulled on the fly to be refreshed for other dates…</p>
 <pre><code>## Warning in `[.data.table`(filesToDateDT, , `:=`(c(&quot;year&quot;, &quot;month&quot;,
 ## &quot;stub&quot;), : Supplied 3 columns to be assigned a list (length 5) of values (2
 ## unused)</code></pre>
 <pre><code>## [1] &quot;Files loaded&quot;</code></pre>
 <pre><code>## [1] &quot;Loaded 352,250 rows of data&quot;</code></pre>
 <p>The following table sumamrises the data.</p>
-<pre><code>## Skim summary statistics  
-##  n obs: 352250    
-##  n variables: 14    
-## 
-## Variable type: character
-## 
-## |  variable   | missing | complete |   n    | min | max | empty | n_unique |
-## |-------------|---------|----------|--------|-----|-----|-------|----------|
-## |  Fuel_Code  |    0    |  352250  | 352250 |  3  |  7  |   0   |    8     |
-## |  Gen_Code   |    0    |  352250  | 352250 |  3  | 15  |   0   |    68    |
-## |  Nwk_Code   |    0    |  352250  | 352250 |  4  |  4  |   0   |    27    |
-## |  POC_Code   |    0    |  352250  | 352250 |  7  |  7  |   0   |    68    |
-## |  Site_Code  |    0    |  352250  | 352250 |  3  |  3  |   0   |    69    |
-## |  Tech_Code  |    0    |  352250  | 352250 |  3  |  5  |   0   |    5     |
-## | Time_Period |    0    |  352250  | 352250 |  3  |  4  |   0   |    50    |
-## 
-## Variable type: Date
-## 
-## |   variable   | missing | complete |   n    |    min     |    max     |   median   | n_unique |
-## |--------------|---------|----------|--------|------------|------------|------------|----------|
-## |    rDate     |    0    |  352250  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   122    |
-## | Trading_date |    0    |  352250  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   122    |
-## 
-## Variable type: difftime
-## 
-## | variable | missing | complete |   n    |   min    |    max     |   median   | n_unique |
-## |----------|---------|----------|--------|----------|------------|------------|----------|
-## |  rTime   |  14090  |  338160  | 352250 | 900 secs | 85500 secs | 43200 secs |    48    |
-## 
-## Variable type: integer
-## 
-## | variable | missing | complete |   n    |  mean   |  sd  |  p0  | p25  | p50  | p75  | p100 |   hist   |
-## |----------|---------|----------|--------|---------|------|------|------|------|------|------|----------|
-## |  month   |    0    |  352250  | 352250 |  9.09   |  3   |  6   |  6   |  12  |  12  |  12  | ▇▁▁▁▁▁▁▇ |
-## |   year   |    0    |  352250  | 352250 | 2009.51 | 9.28 | 1998 | 1998 | 2017 | 2017 | 2017 | ▅▁▁▁▁▁▁▇ |
-## 
-## Variable type: numeric
-## 
-## | variable | missing | complete |   n    |   mean   |    sd    | p0 |   p25   |   p50    |  p75  |  p100  |   hist   |
-## |----------|---------|----------|--------|----------|----------|----|---------|----------|-------|--------|----------|
-## |   kWh    |  14090  |  338160  | 352250 | 37186.12 | 50545.37 | 0  | 6562.75 | 19714.76 | 48640 | 493020 | ▇▁▁▁▁▁▁▁ |
-## 
-## Variable type: POSIXct
-## 
-## | variable  | missing | complete |   n    |    min     |    max     |   median   | n_unique |
-## |-----------|---------|----------|--------|------------|------------|------------|----------|
-## | rDateTime |  14090  |  338160  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   5856   |</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="1%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="7%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="7%" />
+<col width="11%" />
+<col width="6%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Site_Code</th>
+<th align="left">POC_Code</th>
+<th align="left">Nwk_Code</th>
+<th align="left">Gen_Code</th>
+<th align="left">Fuel_Code</th>
+<th align="left">Tech_Code</th>
+<th align="left">Trading_date</th>
+<th align="left">Time_Period</th>
+<th align="left">kWh</th>
+<th align="left">rTime</th>
+<th align="left">rDate</th>
+<th align="left">rDateTime</th>
+<th align="left">month</th>
+<th align="left">year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Length:352250</td>
+<td align="left">Length:352250</td>
+<td align="left">Length:352250</td>
+<td align="left">Length:352250</td>
+<td align="left">Length:352250</td>
+<td align="left">Length:352250</td>
+<td align="left">Min. :1998-06-01</td>
+<td align="left">Length:352250</td>
+<td align="left">Min. : 0</td>
+<td align="left">Length:352250</td>
+<td align="left">Min. :1998-06-01</td>
+<td align="left">Min. :1998-06-01 00:15:00</td>
+<td align="left">Min. : 6.000</td>
+<td align="left">Min. :1998</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Class :character</td>
+<td align="left">Class :character</td>
+<td align="left">Class :character</td>
+<td align="left">Class :character</td>
+<td align="left">Class :character</td>
+<td align="left">Class :character</td>
+<td align="left">1st Qu.:1998-12-10</td>
+<td align="left">Class :character</td>
+<td align="left">1st Qu.: 6563</td>
+<td align="left">Class1:hms</td>
+<td align="left">1st Qu.:1998-12-10</td>
+<td align="left">1st Qu.:1998-12-10 09:15:00</td>
+<td align="left">1st Qu.: 6.000</td>
+<td align="left">1st Qu.:1998</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Mode :character</td>
+<td align="left">Mode :character</td>
+<td align="left">Mode :character</td>
+<td align="left">Mode :character</td>
+<td align="left">Mode :character</td>
+<td align="left">Mode :character</td>
+<td align="left">Median :2017-06-11</td>
+<td align="left">Mode :character</td>
+<td align="left">Median : 19715</td>
+<td align="left">Class2:difftime</td>
+<td align="left">Median :2017-06-11</td>
+<td align="left">Median :2017-06-11 15:45:00</td>
+<td align="left">Median :12.000</td>
+<td align="left">Median :2017</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Mean :2010-03-23</td>
+<td align="left">NA</td>
+<td align="left">Mean : 37186</td>
+<td align="left">Mode :numeric</td>
+<td align="left">Mean :2010-03-23</td>
+<td align="left">Mean :2010-03-23 19:23:45</td>
+<td align="left">Mean : 9.087</td>
+<td align="left">Mean :2010</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">3rd Qu.:2017-12-06</td>
+<td align="left">NA</td>
+<td align="left">3rd Qu.: 48640</td>
+<td align="left">NA</td>
+<td align="left">3rd Qu.:2017-12-06</td>
+<td align="left">3rd Qu.:2017-12-06 19:15:00</td>
+<td align="left">3rd Qu.:12.000</td>
+<td align="left">3rd Qu.:2017</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Max. :2017-12-31</td>
+<td align="left">NA</td>
+<td align="left">Max. :493020</td>
+<td align="left">NA</td>
+<td align="left">Max. :2017-12-31</td>
+<td align="left">Max. :2017-12-31 23:45:00</td>
+<td align="left">Max. :12.000</td>
+<td align="left">Max. :2017</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA’s :14090</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA’s :14090</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
 <p>Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50 being missing:</p>
 <blockquote>
 <p>“The data is presented by trading period, TP1, TP2, … TP48. Trading period 1 starts at midnight, trading period 2 starts at 12:30am, trading period 3 starts at 1:00am, etc. Users of this data should be aware of daylight saving in New Zealand. On the day daylight saving commences there are only 46 trading periods and on the day it ends, there are 50.” (<a href="https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/" class="uri">https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/</a>)</p>
@@ -569,11 +692,11 @@ nrow(genDT)</code></pre>
 uniqueN(genDT$Time_Period)</code></pre>
 <pre><code>## [1] 48</code></pre>
 </div>
-<div id="analysis-1998-2017-generation" class="section level1">
-<h1><span class="header-section-number">4</span> Analysis: 1998 &amp; 2017 Generation</h1>
+<div id="analysis-1998-2017-comparison" class="section level1">
+<h1><span class="header-section-number">5</span> Analysis: 1998 &amp; 2017 Comparison</h1>
 <div id="distribution-tests" class="section level2">
-<h2><span class="header-section-number">4.1</span> Distribution tests</h2>
-<p>The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. This is supported by the maximum values which show coal as the ‘peaked’ energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units have been <a href="https://en.wikipedia.org/wiki/Huntly_Power_Station">mothballed/retired</a> during this period.</p>
+<h2><span class="header-section-number">5.1</span> Distribution tests</h2>
+<p>The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution was in 1998 although far less so in 2017. This is also supported by the maximum values which show coal as the ‘peaked’ energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units were <a href="https://en.wikipedia.org/wiki/Huntly_Power_Station">mothballed/retired</a> during this period.</p>
 <p>The boxplot shows the distribution of half-hourly observations by month and year. It clearly shows the use of coal in June 1998, non-use in December 1998 but re-use in December 2017 where there appears little differnece between winter &amp; summer use for most fuels. We also see the emergence of wind by 2017.</p>
 <table>
 <thead>
@@ -732,12 +855,12 @@ uniqueN(genDT$Time_Period)</code></pre>
 </tbody>
 </table>
 <p><img src="nzElecGenTrends_files/figure-html/distribution%20tests-1.png" /><!-- --></p>
-<p>The next series of plots use histograms to visualise the distribution of values within fuel sources. The histogram for coal clearly shows the use of multiple units in June 1998 but not 2017 for example.</p>
+<p>The next series of plots use histograms to visualise the distribution of MWh values within fuel sources. Note that the vertical axis has been allowed to vary by fuel source so that smaller counts are visible. The y axis is constant which enables the higher unit output of coal to be clearly visible. The histogram for coal shows the use of multiple units in June 1998 but not 2017 for example. It also shows that coal was almost constantly generating in 2017 (very few zero values). Hydro on the other hand shows a large number of zero or low values as does wind and back-up diesel which is to be expected.</p>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="nzElecGenTrends_files/figure-html/overall%20histograms-1.png" /><!-- --></p>
 </div>
 <div id="monthly-generation" class="section level2">
-<h2><span class="header-section-number">4.2</span> Monthly generation</h2>
+<h2><span class="header-section-number">5.2</span> Monthly generation</h2>
 <p>The following plot shows the total, mean, s.d. and coefficient of variation plots of half-hourly GWh produced by each fuel source each month and to some extent relfects the previous box plots.</p>
 <p>The total is simply the sum of all half-hourly values and it shows the dominance of hydro followed by coal in June 1998; the non-use of coal in December 1998; the growth of gas &amp; geo by 2017 but the relative stasis in at-capacity hydro (?).</p>
 <p><img src="nzElecGenTrends_files/figure-html/total%20plot-1.png" /><!-- --></p>
@@ -749,31 +872,39 @@ uniqueN(genDT$Time_Period)</code></pre>
 <p><img src="nzElecGenTrends_files/figure-html/cov%20plot-1.png" /><!-- --></p>
 </div>
 <div id="half-hourly-profiles-by-month" class="section level2">
-<h2><span class="header-section-number">4.3</span> Half hourly profiles by month</h2>
+<h2><span class="header-section-number">5.3</span> Half hourly profiles by month</h2>
 <p>However the monthly plots do not tell us about the use of different generation sources by time of day which has clear implications for how peaks in demand are met.</p>
-<p>The following plot replicates one of those found in <a href="https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025">Staffel, 2018</a> for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days.</p>
+<p>To do this, the following plot replicates one of those found in <a href="https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025">Staffel, 2018</a> for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc…).</p>
 <p><img src="nzElecGenTrends_files/figure-html/sum%20profile%20plot%20by%20month-1.png" /><!-- --></p>
 <p>The next plot repeats this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.</p>
 <p><img src="nzElecGenTrends_files/figure-html/mean%20profile%20plot%20by%20month-1.png" /><!-- --></p>
 </div>
 <div id="half-hourly-profiles-by-day-of-the-month" class="section level2">
-<h2><span class="header-section-number">4.4</span> Half hourly profiles by day of the month</h2>
-<p>The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017. Nevertheless the differences between the compositions of each half-hour can be seen.</p>
+<h2><span class="header-section-number">5.4</span> Half hourly profiles by day of the month</h2>
+<p>The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017.</p>
+<blockquote>
+<p>To be fixed</p>
+</blockquote>
+<p>Nevertheless the differences between the compositions of each half-hour can be seen.</p>
 <p><img src="nzElecGenTrends_files/figure-html/point%20profile%20plots%20by%20day%20of%20month-1.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/point%20profile%20plots%20by%20day%20of%20month-2.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/point%20profile%20plots%20by%20day%20of%20month-3.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/point%20profile%20plots%20by%20day%20of%20month-4.png" /><!-- --></p>
 <p>The following plots repeat this but use stacked column plots to show the proportion of energy generation produced by each fuel.</p>
 <p><img src="nzElecGenTrends_files/figure-html/col%20profile%20plots%20by%20day%20of%20month-1.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/col%20profile%20plots%20by%20day%20of%20month-2.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/col%20profile%20plots%20by%20day%20of%20month-3.png" /><!-- --><img src="nzElecGenTrends_files/figure-html/col%20profile%20plots%20by%20day%20of%20month-4.png" /><!-- --></p>
 </div>
 </div>
-<div id="discuss-your-results" class="section level1">
-<h1><span class="header-section-number">5</span> Discuss your results</h1>
+<div id="analysis-trends-1998---2017" class="section level1">
+<h1><span class="header-section-number">6</span> Analysis: Trends 1998 - 2017</h1>
+<p>Using full dataset for each month &amp; year. To Do.</p>
+</div>
+<div id="discussion" class="section level1">
+<h1><span class="header-section-number">7</span> Discussion</h1>
 <p>here</p>
 </div>
 <div id="conclusions" class="section level1">
-<h1><span class="header-section-number">6</span> Conclusions</h1>
+<h1><span class="header-section-number">8</span> Conclusions</h1>
 <p>go here</p>
 </div>
 <div id="references" class="section level1">
-<h1><span class="header-section-number">7</span> References</h1>
+<h1><span class="header-section-number">9</span> References</h1>
 </div>
 
 

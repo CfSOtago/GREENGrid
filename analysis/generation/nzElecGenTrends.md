@@ -1,7 +1,7 @@
 ---
-title: "NZ Electricity Generation Trends 1997-2018"
+title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
-date: 'Last run at: 2018-06-14 17:23:31'
+date: 'Last run at: 2018-06-14 17:57:54'
 output:
   html_document:
     fig_caption: yes
@@ -19,9 +19,13 @@ output:
 
 
 
+\newpage
+
+# Citation
+
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (2018) _NZ Electricity Generation History_, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin
+ * Anderson, B. (2018) _NZ Electricity Generation Trends 1998-2017_, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin.
 
 This work is (c) 2018 the University of Southampton.
 
@@ -55,6 +59,7 @@ Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREE
  * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
  
 Specific history of this code: 
+
  * https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd
 
 ## Support
@@ -80,7 +85,11 @@ Data is kWh - so energy not power.
 
 # Load data
 
-Load the generation data from file. These have been pre-downloaded but could be pulled on the fly to be refreshed for other dates...
+Load the generation data from files stored in:
+
+ * /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/
+ 
+These have been [pre-downloaded and cleaned](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/ea) but could be pulled on the fly to be refreshed for other dates...
 
 
 ```
@@ -100,55 +109,15 @@ Load the generation data from file. These have been pre-downloaded but could be 
 The following table sumamrises the data.
 
 
-```
-## Skim summary statistics  
-##  n obs: 352250    
-##  n variables: 14    
-## 
-## Variable type: character
-## 
-## |  variable   | missing | complete |   n    | min | max | empty | n_unique |
-## |-------------|---------|----------|--------|-----|-----|-------|----------|
-## |  Fuel_Code  |    0    |  352250  | 352250 |  3  |  7  |   0   |    8     |
-## |  Gen_Code   |    0    |  352250  | 352250 |  3  | 15  |   0   |    68    |
-## |  Nwk_Code   |    0    |  352250  | 352250 |  4  |  4  |   0   |    27    |
-## |  POC_Code   |    0    |  352250  | 352250 |  7  |  7  |   0   |    68    |
-## |  Site_Code  |    0    |  352250  | 352250 |  3  |  3  |   0   |    69    |
-## |  Tech_Code  |    0    |  352250  | 352250 |  3  |  5  |   0   |    5     |
-## | Time_Period |    0    |  352250  | 352250 |  3  |  4  |   0   |    50    |
-## 
-## Variable type: Date
-## 
-## |   variable   | missing | complete |   n    |    min     |    max     |   median   | n_unique |
-## |--------------|---------|----------|--------|------------|------------|------------|----------|
-## |    rDate     |    0    |  352250  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   122    |
-## | Trading_date |    0    |  352250  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   122    |
-## 
-## Variable type: difftime
-## 
-## | variable | missing | complete |   n    |   min    |    max     |   median   | n_unique |
-## |----------|---------|----------|--------|----------|------------|------------|----------|
-## |  rTime   |  14090  |  338160  | 352250 | 900 secs | 85500 secs | 43200 secs |    48    |
-## 
-## Variable type: integer
-## 
-## | variable | missing | complete |   n    |  mean   |  sd  |  p0  | p25  | p50  | p75  | p100 |   hist   |
-## |----------|---------|----------|--------|---------|------|------|------|------|------|------|----------|
-## |  month   |    0    |  352250  | 352250 |  9.09   |  3   |  6   |  6   |  12  |  12  |  12  | ▇▁▁▁▁▁▁▇ |
-## |   year   |    0    |  352250  | 352250 | 2009.51 | 9.28 | 1998 | 1998 | 2017 | 2017 | 2017 | ▅▁▁▁▁▁▁▇ |
-## 
-## Variable type: numeric
-## 
-## | variable | missing | complete |   n    |   mean   |    sd    | p0 |   p25   |   p50    |  p75  |  p100  |   hist   |
-## |----------|---------|----------|--------|----------|----------|----|---------|----------|-------|--------|----------|
-## |   kWh    |  14090  |  338160  | 352250 | 37186.12 | 50545.37 | 0  | 6562.75 | 19714.76 | 48640 | 493020 | ▇▁▁▁▁▁▁▁ |
-## 
-## Variable type: POSIXct
-## 
-## | variable  | missing | complete |   n    |    min     |    max     |   median   | n_unique |
-## |-----------|---------|----------|--------|------------|------------|------------|----------|
-## | rDateTime |  14090  |  338160  | 352250 | 1998-06-01 | 2017-12-31 | 2017-06-11 |   5856   |
-```
+|   | Site_Code       |  POC_Code       |  Nwk_Code       |  Gen_Code       | Fuel_Code       | Tech_Code       | Trading_date      |Time_Period      |     kWh       |   rTime        |    rDate          |  rDateTime                 |    month      |     year    |
+|:--|:----------------|:----------------|:----------------|:----------------|:----------------|:----------------|:------------------|:----------------|:--------------|:---------------|:------------------|:---------------------------|:--------------|:------------|
+|   |Length:352250    |Length:352250    |Length:352250    |Length:352250    |Length:352250    |Length:352250    |Min.   :1998-06-01 |Length:352250    |Min.   :     0 |Length:352250   |Min.   :1998-06-01 |Min.   :1998-06-01 00:15:00 |Min.   : 6.000 |Min.   :1998 |
+|   |Class :character |Class :character |Class :character |Class :character |Class :character |Class :character |1st Qu.:1998-12-10 |Class :character |1st Qu.:  6563 |Class1:hms      |1st Qu.:1998-12-10 |1st Qu.:1998-12-10 09:15:00 |1st Qu.: 6.000 |1st Qu.:1998 |
+|   |Mode  :character |Mode  :character |Mode  :character |Mode  :character |Mode  :character |Mode  :character |Median :2017-06-11 |Mode  :character |Median : 19715 |Class2:difftime |Median :2017-06-11 |Median :2017-06-11 15:45:00 |Median :12.000 |Median :2017 |
+|   |NA               |NA               |NA               |NA               |NA               |NA               |Mean   :2010-03-23 |NA               |Mean   : 37186 |Mode  :numeric  |Mean   :2010-03-23 |Mean   :2010-03-23 19:23:45 |Mean   : 9.087 |Mean   :2010 |
+|   |NA               |NA               |NA               |NA               |NA               |NA               |3rd Qu.:2017-12-06 |NA               |3rd Qu.: 48640 |NA              |3rd Qu.:2017-12-06 |3rd Qu.:2017-12-06 19:15:00 |3rd Qu.:12.000 |3rd Qu.:2017 |
+|   |NA               |NA               |NA               |NA               |NA               |NA               |Max.   :2017-12-31 |NA               |Max.   :493020 |NA              |Max.   :2017-12-31 |Max.   :2017-12-31 23:45:00 |Max.   :12.000 |Max.   :2017 |
+|   |NA               |NA               |NA               |NA               |NA               |NA               |NA                 |NA               |NA's   :14090  |NA              |NA                 |NA's   :14090               |NA             |NA           |
 
 Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50 being missing:
 
@@ -253,11 +222,11 @@ uniqueN(genDT$Time_Period)
 ## [1] 48
 ```
 
-# Analysis: 1998 & 2017 Generation
+# Analysis: 1998 & 2017 Comparison
 
 ## Distribution tests
 
-The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. This is supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units have been [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
+The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution was in 1998 although far less so in 2017. This is also supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units were [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
 
 The boxplot shows the distribution of half-hourly observations by month and year. It clearly shows the use of coal in June 1998, non-use in December 1998 but re-use in December 2017 where there appears little differnece between winter & summer use for most fuels. We also see the emergence of wind by 2017.
 
@@ -281,7 +250,7 @@ The boxplot shows the distribution of half-hourly observations by month and year
 
 ![](nzElecGenTrends_files/figure-html/distribution tests-1.png)<!-- -->
 
-The next series of plots use histograms to visualise the distribution of values within fuel sources. The histogram for coal clearly shows the use of multiple units in June 1998 but not 2017 for example.
+The next series of plots use histograms to visualise the distribution of MWh values within fuel sources. Note that the vertical axis has been allowed to vary by fuel source so that smaller counts are visible. The y axis is constant which enables the higher unit output of coal to be clearly visible. The histogram for coal shows the use of multiple units in June 1998 but not 2017 for example. It also shows that coal was almost constantly generating in 2017 (very few zero values). Hydro on the other hand shows a large number of zero or low values as does wind and back-up diesel which is to be expected.
 
 
 ```
@@ -323,7 +292,7 @@ However the monthly plots do not tell us about the use of different generation s
 
 
 
-The following plot replicates one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days.
+To do this, the following plot replicates one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time. It shows the total half-hourly generation for each month summed over all days. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...).
 
 ![](nzElecGenTrends_files/figure-html/sum profile plot by month-1.png)<!-- -->
 
@@ -334,7 +303,11 @@ The next plot repeats this analysis but shows the mean, again suggesting that th
 
 ## Half hourly profiles by day of the month
 
-The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017. Nevertheless the differences between the compositions of each half-hour can be seen.
+The following plots show the profiles for each day of the month. Unfortunately due to the lack of wind generation in 1998 the colour scheme changes from 1998 to 2017. 
+
+> To be fixed
+
+Nevertheless the differences between the compositions of each half-hour can be seen.
 
 ![](nzElecGenTrends_files/figure-html/point profile plots by day of month-1.png)<!-- -->![](nzElecGenTrends_files/figure-html/point profile plots by day of month-2.png)<!-- -->![](nzElecGenTrends_files/figure-html/point profile plots by day of month-3.png)<!-- -->![](nzElecGenTrends_files/figure-html/point profile plots by day of month-4.png)<!-- -->
 
@@ -343,9 +316,11 @@ The following plots repeat this but use stacked column plots to show the proport
 ![](nzElecGenTrends_files/figure-html/col profile plots by day of month-1.png)<!-- -->![](nzElecGenTrends_files/figure-html/col profile plots by day of month-2.png)<!-- -->![](nzElecGenTrends_files/figure-html/col profile plots by day of month-3.png)<!-- -->![](nzElecGenTrends_files/figure-html/col profile plots by day of month-4.png)<!-- -->
 
 
+# Analysis: Trends 1998 - 2017
 
+Using full dataset for each month & year. To Do.
 
-# Discuss your results
+# Discussion
 here
 
 # Conclusions
