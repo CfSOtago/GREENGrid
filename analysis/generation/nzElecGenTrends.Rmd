@@ -190,7 +190,7 @@ Table \@ref(tab:boxPlot) shows summary statistics for each fuel source by year. 
 
 Figure \@ref(fig:boxPlot) shows the distribution of half-hourly observations by month and year. It clearly shows the use of coal in June 1998, non-use in December 1998 but re-use in December 2017 where there appears little differnece between winter & summer use for most fuels. We also see the emergence of wind by 2017.
 
-```{r boxPlot, fig.height=6, fig.cap = "Box plot of energy produced by all fuels"}
+```{r boxPlot, fig.cap = "Box plot of energy produced by all fuels"}
 t <- sampleGenDT[, .(sumMWh = sum(kWh)/1000,
                meanMWh = mean(kWh)/1000,
            medianMWh =median(kWh)/1000,
@@ -208,7 +208,7 @@ ggplot(sampleGenDT, aes(x = Fuel_Code, y = kWh/1000, colour = Fuel_Code)) +
 
 Figure \@ref(fig:overallHistograms) visualises the distribution of MWh values within fuel sources. Note that the vertical axis has been allowed to vary by fuel source so that smaller counts are visible. The y axis is constant which enables the higher unit output of coal to be clearly visible. The histogram for coal shows the use of multiple units in June 1998 but not 2017 for example where the output is clearly truncated. It also shows that coal was almost constantly generating in 2017 (very few zero values). Hydro on the other hand shows a large number of zero or low values as does wind and back-up diesel which is to be expected.
 
-```{r overallHistograms, fig.height=7, fig.cap = "Overall energy production histrograms by fuel type"}
+```{r overallHistograms, fig.cap = "Overall energy production histrograms by fuel type"}
 ggplot(sampleGenDT, aes(x = kWh/1000, fill = Fuel_Code), alpha = 0.2) +
   geom_histogram(binwidth = 10) + 
   facet_grid(Fuel_Code ~ year, scales = "free_y") + 
@@ -622,7 +622,7 @@ annotateAllGenMonths(myPlot)
 ```{r dailyTotalPlotCol, fig.cap="Yearly total plot by fuel type"}
 # col plot
 myPlot <- makePlotCol(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total daily GWh")
-myPlot +
+myPlot <- myPlot +
   scale_x_date(date_labels = "%b %Y", date_breaks = "6 months", limits = dateLims) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
   labs(title = myTitle)
