@@ -480,29 +480,41 @@ myTextSize <- 3
 
 annotateAllGenYears <- function(plot){
   plot <- plot +
-    annotate("text", x = 2004,
+    annotate("text", x = 2004, # x axis is just a number not a real date
              y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "Huntly 50 MW gas unit added", hjust = 0) +
     geom_vline(xintercept = 2004, alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = 2007,
+    annotate("text", x = 2005,
              y = yMax * 0.8, angle = 10,size = myTextSize,
+             label = "Warm dry winters", hjust = 0) +
+    geom_vline(xintercept = 2005, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2007,
+             y = yMax * 0.7, angle = 10,size = myTextSize,
              label = "Huntly CCGT unit added", hjust = 0) +
     geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2007,
-             y = yMax * 0.7, angle = 10,size = myTextSize,
+             y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "Huntly mainly gas fired", hjust = 0) +
     geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2008,
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.8, angle = 10,size = myTextSize,
              label = "Dry winter", hjust = 0) +
     geom_vline(xintercept = 2008, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2012,
-             y = yMax * 0.8, angle = 10,size = myTextSize,
+             y = yMax * 0.7, angle = 10,size = myTextSize,
              label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
     geom_vline(xintercept = 2012, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2012,
+             y = yMax * 0.9, angle = 10,size = myTextSize,
+             label = "Dry winter on South Island", hjust = 0) +
+    geom_vline(xintercept = 2012, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2013,
+             y = yMax * 0.8, angle = 10,size = myTextSize,
+             label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
+    geom_vline(xintercept = 2013, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2013,
              y = yMax * 0.7, angle = 10,size = myTextSize,
-             label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
+             label = "Warmest winter to date", hjust = 0) +
     geom_vline(xintercept = 2013, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2015,
              y = yMax * 0.9, angle = 10,size = myTextSize,
@@ -518,6 +530,10 @@ Figures \@ref(fig:yearlyTotalPlotCol) and \@ref(fig:yearlyTotalPlotPoint) show t
 makePlotCol(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
 ```
 
+Adding annotations with information from:
+
+ * https://www.niwa.co.nz/climate/summaries/seasonal
+ * https://en.wikipedia.org/wiki/Huntly_Power_Station
 
 ```{r yearlyTotalPlotPoint, fig.cap="Yearly total plot by fuel type"}
 myPlot <- makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
@@ -526,7 +542,10 @@ annotateAllGenYears(myPlot)
 
 ## Trends by day
 
-The following plots show the same trends but using daily data to highlight seasonal patterns over time. Annotations using information from https://en.wikipedia.org/wiki/Huntly_Power_Station (more reliable sources required!).
+The following plots show the same trends but using daily data to highlight seasonal patterns over time. Annotations use information from:
+
+ * https://www.niwa.co.nz/climate/summaries/seasonal
+ * https://en.wikipedia.org/wiki/Huntly_Power_Station
 
 ```{r dailyTotalPlotPoint, fig.height = 8, fig.cap="Yearly total plot by fuel type"}
 plotDT <- allGenDT[,
@@ -558,10 +577,14 @@ myTextSize <- 3
 
 annotateAllGenMonths <- function(plot){
   plot <- plot +
-    annotate("text", x = as.Date("2004-01-01"),
+    annotate("text", x = as.Date("2004-01-01"), # x axis is a real date
              y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "Huntly 50 MW gas unit added", hjust = 0) +
     geom_vline(xintercept = as.Date("2004-01-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2005-06-01"),
+             y = yMax * 0.9, angle = 10,size = myTextSize,
+             label = "Warm dry winters", hjust = 0) +
+    geom_vline(xintercept = as.Date("2005-06-01"), alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = as.Date("2007-01-01"),
              y = yMax * 0.8, angle = 10,size = myTextSize,
              label = "Huntly CCGT unit added", hjust = 0) +
@@ -578,12 +601,20 @@ annotateAllGenMonths <- function(plot){
              y = yMax * 0.8, angle = 10,size = myTextSize,
              label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
     geom_vline(xintercept = as.Date("2012-12-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2013-06-01"),
+    annotate("text", x = as.Date("2012-06-01"),
              y = yMax * 0.7, angle = 10,size = myTextSize,
+             label = "Dry winter on South Island", hjust = 0) +
+    geom_vline(xintercept = as.Date("2012-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2013-06-01"),
+             y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
     geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2013-06-01"),
+             y = yMax * 0.6, angle = 10,size = myTextSize,
+             label = "Warmest winter to date", hjust = 0) +
+    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = as.Date("2015-06-01"),
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.7, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
     geom_vline(xintercept = as.Date("2015-06-01"), alpha = vLineAlpha, colour = vLineCol)
   return(plot)
