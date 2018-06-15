@@ -1,4 +1,4 @@
-# Functions for EA generation data processing
+# Functions for EA wholesale generation data processing
 
 #' Reshapes an EA wholesale generation data table from wide (yuk) to long form
 #'
@@ -40,6 +40,15 @@ setEAGenTimePeriod <- function(dt){
   return(dt)
 }
 
+# Functions for EA embedded generation data processing
+
+#' Reshapes an EA embedded generation data table from wide (yuk) to long form
+#'
+#' \code{reshapeEAEmbeddedGenDT} assumes id.vars exist. They might not
+#'
+#' @author Ben Anderson, \email{b.anderson@@soton.ac.uk} (original)
+#' @export
+#'
 reshapeEAEmbeddedGenDT <- function(dt){
   # reshape the data as it comes in a rather unhelpful form
   reshapedDT <- melt(dt,
