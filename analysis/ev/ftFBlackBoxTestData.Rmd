@@ -3,23 +3,29 @@ title: 'FlipTheFleet Black Box Data Tests'
 subtitle: 'Exploration of test data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
+# output:
+#   html_document:
+#     code_folding: hide
+#     fig_caption: true
+#     keep_md: true
+#     number_sections: true
+#     self_contained: no
+#     toc: true
+#     toc_float: true
+#     toc_depth: 2
+#   pdf_document:
+#     fig_caption: yes
+#     keep_tex: yes
+#     number_sections: yes
+#     toc: yes
+#     toc_depth: 2
+# bibliography: '`r path.expand("~/bibliography.bib")`'
 output:
-  html_document:
-    code_folding: hide
-    fig_caption: true
-    keep_md: true
-    number_sections: true
-    self_contained: no
+  bookdown::pdf_document2: default
+  bookdown::html_document2:
     toc: true
     toc_float: true
-    toc_depth: 2
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
-bibliography: '`r path.expand("~/bibliography.bib")`'
+bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
@@ -39,6 +45,7 @@ library(nzGREENGrid)
 rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
              "ggplot2", # for fancy graphs
+             "lubridate", # date & time processing
              "readr", # writing to files
              "knitr" # for kable
 )
@@ -46,10 +53,10 @@ rmdLibs <- c("data.table", # data munching
 nzGREENGrid::loadLibraries(rmdLibs)
 
 # run gg set up
-ggParams <- nzGREENGrid::setup()
+nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
-ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/data/flipTheFleet/")
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
 ```
 
 \newpage
@@ -58,18 +65,19 @@ ggParams$dataLoc <- paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/da
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) FlipTheFleet Black Box Data Tests, `r pubLoc`.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) FlipTheFleet Black Box Data Tests, `r ggParams$pubLoc`.
 
 This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
 
 \newpage
 
-# Introduction
+# About
 
-Report circulation:
+## Circulation
 
- * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
-
+```{r generic circulation, child=ggParams$circulationGenericRmd}
+```
+ 
 ## Purpose
 
 This report is intended to: 
@@ -78,16 +86,20 @@ This report is intended to:
 
 ## Requirements:
 
- * test dataset stored at XXX
+ * test dataset stored at `r ggParams$dataLoc`
 
 ## History
 
-```{r include=ggParams$historyGenericRmd}
+```{r child=ggParams$historyGenericRmd}
 ```
  
+Specific history of this code:
+
+ * https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/ev
+
 ## Support
 
-```{r include=ggParams$supportGenericRmd}
+```{r child=ggParams$supportGenericRmd}
 ```
  
 
@@ -99,16 +111,59 @@ This report is intended to:
 ggParams$ftfFile <- paste0(ggParams$dataLoc, "EVBlackBox export 2018-06-10-233146.csv")
 ```
 
-In this section we load and describe the  data files from `r ggParams$ftfFile`.
+In this section we load and describe the  data files from `r ggParams$ftfFile`. Note that we remove the following variables before we do so as they are potentially disclosive:
+
+ * `Reg No`
+ * `Latitude`
+ * `Longitude` 
+ * `Course (deg)` 
 
 ```{r load ftf data}
 ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 
-Hmisc::describe(ftfDT)
+# do analysis on safe version
+ftfSafeDT <- ftfDT[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
+Hmisc::describe(ftfSafeDT)
+```
+
+Create some useful derived variables.
+```{r process ftf data, echo = TRUE}
+# create dateTime var
+ftfSafeDT <- ftfSafeDT[, rDate := lubridate::dmy(`Date (GPS)`)]
+ftfSafeDT <- ftfSafeDT[, rTime := hms::parse_hms(`Time (GPS)`)]
+#ftfSafeDT <- ftfSafeDT[, dateTime := lubridate::dmy_hms(rDate, rTime)]
+```
+
+Check charger related variables.
+
+```{r checkCharging}
+ggplot(ftfSafeDT, aes(x = `Charger (amps)`)) +
+  geom_histogram()
+
+ggplot(ftfSafeDT, aes(x = `Charger (V)`)) +
+  geom_histogram()
+
+ggplot(ftfSafeDT, aes(x = `Charger (amps)` , y = `Charger (V)` )) +
+  geom_point()
 ```
 
 
- 
+# Timing of charging
+
+We assume `Charger (amps)` is a good indicator of charging?
+
+```{r plotChargingTime}
+plotDT <- ftfSafeDT[, .(meanAmp = mean(`Charger (amps)`),
+                        sumAmp = sum(`Charger (amps)`)), keyby = .(rTime)]
+
+ggplot(plotDT, aes(x = rTime, y = meanAmp)) +
+  geom_point()
+
+ggplot(plotDT, aes(x = rTime, y = log(sumAmp))) +
+  geom_point()
+```
+
+So this car appears to be on an overnight charging timer, although we do still see charging in the evening. We need a way to infer when the car is 'at home' without being disclosive. Perhaps we could use the modal overnight `Latitude` <-> `Longtidude` as 'home'?
 # Runtime
 
 
