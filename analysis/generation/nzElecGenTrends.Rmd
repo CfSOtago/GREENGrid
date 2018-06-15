@@ -469,6 +469,46 @@ makePlotPoint <- function(dt, xVar, yVar, xLabel, yLabel){
     theme(legend.title=element_blank(), legend.position="bottom") +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
 }
+
+# set values for annotations
+yMax <- max(plotDT$sumkWh)/1000000
+myAlpha <- 0.1
+vLineAlpha <- 0.4
+vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+myTextSize <- 3
+
+annotateAllGenYears <- function(plot){
+  plot <- plot +
+    annotate("text", x = 2004,
+             y = yMax * 0.9, angle = 10,size = myTextSize,
+             label = "Huntly 50 MW gas unit added", hjust = 0) +
+    geom_vline(xintercept = 2004, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2007,
+             y = yMax * 0.8, angle = 10,size = myTextSize,
+             label = "Huntly CCGT unit added", hjust = 0) +
+    geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2007,
+             y = yMax * 0.7, angle = 10,size = myTextSize,
+             label = "Huntly mainly gas fired", hjust = 0) +
+    geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2008,
+             y = yMax * 0.9, angle = 10,size = myTextSize,
+             label = "Dry winter", hjust = 0) +
+    geom_vline(xintercept = 2008, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2012,
+             y = yMax * 0.8, angle = 10,size = myTextSize,
+             label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
+    geom_vline(xintercept = 2012, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2013,
+             y = yMax * 0.7, angle = 10,size = myTextSize,
+             label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
+    geom_vline(xintercept = 2013, alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = 2015,
+             y = yMax * 0.9, angle = 10,size = myTextSize,
+             label = "2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
+    geom_vline(xintercept = 2015, alpha = vLineAlpha, colour = vLineCol)
+  return(plot)
+}
 ```
 
 Figures \@ref(fig:yearlyTotalPlotCol) and \@ref(fig:yearlyTotalPlotPoint) show the dominance of hydro and decrease in coal use.
@@ -479,14 +519,15 @@ makePlotCol(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "T
 
 
 ```{r yearlyTotalPlotPoint, fig.cap="Yearly total plot by fuel type"}
-makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+myPlot <- makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+annotateAllGenYears(myPlot)
 ```
 
 ## Trends by day
 
 The following plots show the same trends but using daily data to highlight seasonal patterns over time. Annotations using information from https://en.wikipedia.org/wiki/Huntly_Power_Station (more reliable sources required!).
 
-```{r dailyTotalPlotPoint, fig.cap="Yearly total plot by fuel type"}
+```{r dailyTotalPlotPoint, fig.height = 8, fig.cap="Yearly total plot by fuel type"}
 plotDT <- allGenDT[, 
                 .(sumkWh = sum(kWh, na.rm = TRUE),
                   meankWh = mean(kWh, na.rm = TRUE),
@@ -508,47 +549,49 @@ myPlot <- myPlot +
   labs(title = myTitle)
 
 # set values for annotations
-yMax <- max(plotDT$sumkWh)
+yMax <- max(plotDT$sumkWh)/1000000
 myAlpha <- 0.1
 vLineAlpha <- 0.4
 vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
 myTextSize <- 3
 
-annotateAllGen <- function(plot){
+annotateAllGenMonths <- function(plot){
   plot <- plot +
-    annotate("text", x = "2004-01-01",
+    annotate("text", x = as.Date("2004-01-01"),
              y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "Huntly 50 MW gas unit added", hjust = 0) +
-    geom_vline(xintercept = "2004-01-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2007-01-01",
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+    geom_vline(xintercept = as.Date("2004-01-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2007-01-01"),
+             y = yMax * 0.8, angle = 10,size = myTextSize,
              label = "Huntly CCGT unit added", hjust = 0) +
-    geom_vline(xintercept = "2007-01-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2007-06-01",
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+    geom_vline(xintercept = as.Date("2007-01-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2007-06-01"),
+             y = yMax * 0.7, angle = 10,size = myTextSize,
              label = "Huntly mainly gas fired", hjust = 0) +
-    geom_vline(xintercept = "2007-06-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2008-06-01",
+    geom_vline(xintercept = as.Date("2007-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2008-06-01"),
              y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "Dry winter", hjust = 0) +
-    geom_vline(xintercept = "2008-06-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2012-12-01",
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+    geom_vline(xintercept = as.Date("2008-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2012-12-01"),
+             y = yMax * 0.8, angle = 10,size = myTextSize,
              label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
-    geom_vline(xintercept = "2012-12-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2013-06-01",
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+    geom_vline(xintercept = as.Date("2012-12-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2013-06-01"),
+             y = yMax * 0.7, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
-    geom_vline(xintercept = "2013-06-01", alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = "2015-06-01",
+    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2015-06-01"),
              y = yMax * 0.9, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
-    geom_vline(xintercept = "2015-06-01", alpha = vLineAlpha, colour = vLineCol)
+    geom_vline(xintercept = as.Date("2015-06-01"), alpha = vLineAlpha, colour = vLineCol)
   return(plot)
 }
 
 # final plot - adds annotations
-annotateAllGen(myPlot)
+myPlot <- annotateAllGenMonths(myPlot)
+
+myPlot
 
 ```
 
@@ -560,6 +603,11 @@ myPlot +
   scale_x_date(date_labels = "%b %Y", date_breaks = "6 months", limits = dateLims) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
   labs(title = myTitle)
+
+# final plot - adds annotations
+myPlot <- annotateAllGenMonths(myPlot)
+
+myPlot
 ```
 
 # Discussion
