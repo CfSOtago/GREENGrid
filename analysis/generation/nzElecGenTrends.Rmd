@@ -3,8 +3,8 @@ title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::pdf_document2: default
   bookdown::html_document2: default
+  bookdown::pdf_document2: default
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
@@ -535,7 +535,7 @@ annotateAllGenYears(myPlot)
 
 ## Trends by day
 
-The following plots show the same trends but using daily data to highlight seasonal patterns over time. Annotations use information from:
+Figures \@ref(fig:dailyTotalPlotPoint) and \@ref(fig:dailyTotalPlotCol) show the same trends but using daily data to highlight seasonal patterns over time. Annotations use information from:
 
  * https://www.niwa.co.nz/climate/summaries/seasonal
  * https://en.wikipedia.org/wiki/Huntly_Power_Station
@@ -638,6 +638,28 @@ here
 # Conclusions
 go here
 
+## Data issues
+
+### Huntly 1-4 Fuel source
+
+Figure \@ref(fig:checkHuntly) shows the fuel use by each of the Huntly units over time. It appears to show that huntly_1_4 always burns coal although the units are able to also burn gas. It is not clear if this data is correct.
+
+```{r checkHuntly, fig.cap="Huntly fuel sources"}
+huntlyDT <- allGenDT[Gen_Code %like% "huntly"]
+plotDT <- huntlyDT[, .(sumkWh = sum(kWh)), keyby = .(year, Fuel_Code, Gen_Code)]
+ggplot(plotDT, aes(x = year, y = sumkWh/1000000, fill = Fuel_Code)) +
+  geom_col() +
+  facet_grid(Gen_Code ~ .) +
+  labs(caption = ggParams$figCaption, x = "Year", y = "Total GWh per year")
+```
+
+
+### What to do about TP49 & TP50?
+
+### Solar & embedded generation
+
+Should we be adding embedded generation from https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation ?
+ 
 # Runtime
 
 
