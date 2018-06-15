@@ -28,6 +28,7 @@ rmdLibs <- c("data.table", # data munching
              "ggplot2", # for fancy graphs
              "readr", # writing to files
              "skimr", # for skim
+             "Hmisc", # describe
              "knitr" # for kable
 )
 # load them
@@ -137,19 +138,17 @@ print("Files loaded")
 print(paste0("Loaded ", tidyNum(nrow(sampleGenDT)), " rows of data"))
 ```
 
-The following table sumamrises the data.
-
-```{r summarise final data table}
-t <- summary(sampleGenDT)
-# note the chunk names needs to be unique
-knitr::kable(t, caption = "Summary table")
+```{r finalSummary}
+Hmisc::describe(sampleGenDT, tabular=TRUE)
 ```
 
-Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50 being missing:
+Table \@ref(tab:finalSummary) sumamrises the data. Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50:
 
 > "The data is presented by trading period, TP1, TP2, ... TP48. Trading period 1 starts at midnight, trading period 2 starts at 12:30am, trading period 3 starts at 1:00am, etc. Users of this data should be aware of daylight saving in New Zealand. On the day daylight saving commences there are only 46 trading periods and on the day it ends, there are 50." (https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/)
 
-Daylight saving begins/ends in October and March so we carefully avoid this problem by using June and December. However these TP are still present as labels in the Time_Period variable and so give NA kWh in the data as the following table and plot (Figure \@ref(fig:exploreNA)) of NA observations (only) by Fuel Type and month show.
+So on 2 days of the year TP47 & TP48 do not exist and on the following days they are back and we also have TP49 & TP50. There are only two things in life worse than death & taxes: daylight saving time and time-zones.
+
+Daylight saving begins/ends in October and March so we carefully avoid this problem in this section by using June and December. However these TP are still present as labels in the Time_Period variable and so give NA kWh in the data as the following table (Table \@ref(tab:exploreNA)) and plot (Figure \@ref(fig:exploreNA)) of NA observations (only) by Fuel Type and month show.
 
 ```{r exploreNA, fig.cap="Plot showing presence of NA observations by time period and Fuel Type"}
 dt <- sampleGenDT[, .(mean = mean(kWh)), keyby = .(Time_Period)]
@@ -187,7 +186,7 @@ uniqueN(sampleGenDT$Time_Period)
 
 ## Distribution tests
 
-The following table shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution was in 1998 although far less so in 2017. This is also supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units were [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
+Table \@ref(tab:boxPlot) shows summary statistics for each fuel source by year. Hydro contributes the majority of energy in each year but coal has the highest half-hourly mean in each year suggesting that is makes large contributions at specific times. Comparing the mean and median for coal shows how skewed this distirbution was in 1998 although far less so in 2017. This is also supported by the maximum values which show coal as the 'peaked' energy producer in 1998 although this has faded by 2017 where it shows similar maxima to gas and hydro. Note that 2 of the 4 the Huntly coal-fired units were [mothballed/retired](https://en.wikipedia.org/wiki/Huntly_Power_Station) during this period.
 
 Figure \@ref(fig:boxPlot) shows the distribution of half-hourly observations by month and year. It clearly shows the use of coal in June 1998, non-use in December 1998 but re-use in December 2017 where there appears little differnece between winter & summer use for most fuels. We also see the emergence of wind by 2017.
 
@@ -344,8 +343,6 @@ The following plots show the profiles for each day of the month. Unfortunately d
 
 Nevertheless the differences between the compositions of each half-hour can be seen.
 
-Figure \@ref(fig:sumDailyProfilePoint) shows the total as a point plot.
-
 ```{r sumDailyProfilePoint,fig.cap= "Half-hourly profile plot by fuel type"}
 makePointProfilePlot <- function(dt, title){
   #print(paste0("Making plot ", title))
@@ -362,7 +359,7 @@ makePointProfilePlot(sampleGenDT[year == 2017 & month == 6], "June 2017")
 makePointProfilePlot(sampleGenDT[year == 2017 & month == 12], "December 2017")
 ```
 
-Figure \@ref(fig:sumDailyProfileCol) shows the total as stacked column plots to show the proportion of energy generation produced by each fuel.
+Figure \@ref(fig:sumDailyProfilePoint) shows the total as a point plot while Figure \@ref(fig:sumDailyProfileCol) shows the total as stacked column plots to show the proportion of energy generation produced by each fuel.
 
 ```{r sumDailyProfileCol,fig.cap= "Half-hourly profile plot by fuel type"}
 makeColProfilePlot <- function(dt, title){
@@ -661,6 +658,7 @@ R packages used:
  * lubridate - date manipulation [@lubridate]
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
+ * Hmisc - for describe [@Hmisc]
  * knitr - to create this document & neat tables [@knitr]
  * bookdown - for additional markdown [@bookdown]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
