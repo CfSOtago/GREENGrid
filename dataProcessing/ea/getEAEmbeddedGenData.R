@@ -1,6 +1,6 @@
 # Get NZ EA Wholesale Generation data ----
 # Not a function
-# Gets or refreshes the EA wholesale generation data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/
+# Gets or refreshes the EA wholesale generation data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation
 # Saves them as-is and also processes to long form & saves as .csv.gz
 
 # Housekeeping ----
@@ -28,10 +28,10 @@ refresh <- 0 # set to 1 to try to download all files even if we have them
 if(local){ # set data storage location
   lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
 } else {
-  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
+  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Embedded_Generation_Data/")
 }
 
-rDataLoc <- "https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/"
+rDataLoc <- "https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation/"
 years <- seq(1997, 2018, 1)
 months <- seq(1,12,1)
 
@@ -39,7 +39,7 @@ months <- seq(1,12,1)
 cleanEA <- function(df){
   # takes a df, cleans & returns a dt
   dt <- data.table::as.data.table(df) # make dt
-  dt <- nzGREENGrid::reshapeEAGenDT(dt) # make long
+  dt <- nzGREENGrid::reshapeEAEmbeddedGenDT(dt) # make long
   dt <- nzGREENGrid::setEAGenTimePeriod(dt) # set time periods to something intelligible as rTime
   dt <- dt[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
   dt <- dt[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
@@ -77,7 +77,7 @@ for(y in years){
       m <- month
     }
     lfName <- paste0(y,"_", m,"_Generation_MD.csv") # for ease of future file filtering
-    rfName <- paste0(y, m,"_Generation_MD.csv")
+    rfName <- paste0(y, m,"_Embedded_generation.csv")
     print(paste0("Checking ", lfName))
     test <- filesToDateDT[V1 %like% lfName] # should catch .csv.gz too
     if(nrow(test) > 0 & refresh == 0){
