@@ -142,7 +142,7 @@ print(paste0("Loaded ", tidyNum(nrow(sampleGenDT)), " rows of data"))
 Hmisc::describe(sampleGenDT, tabular=TRUE)
 ```
 
-Table \@ref(tab:finalSummary) sumamrises the data. Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50:
+Table \@ref(tab:finalSummary) sumarises the data. Notice that there are missing (NA) values in the kWh column. These are caused by periods 49 and 50:
 
 > "The data is presented by trading period, TP1, TP2, ... TP48. Trading period 1 starts at midnight, trading period 2 starts at 12:30am, trading period 3 starts at 1:00am, etc. Users of this data should be aware of daylight saving in New Zealand. On the day daylight saving commences there are only 46 trading periods and on the day it ends, there are 50." (https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/)
 
