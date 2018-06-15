@@ -51,7 +51,6 @@ getMeta <- function(dt){
   dt <- dt[,year := lubridate::year(rDate)]
   testDT <- dt[, .(nObs = .N,
                    sumkWh = sum(as.numeric(kWh), na.rm = TRUE),
-                   nFuels = uniqueN(Fuel_Code),
                    dateFrom = min(rDate),
                    dateTo = max(rDate),
                    nDays = uniqueN(rDate)), keyby = .(month,
@@ -145,7 +144,6 @@ makeCheckPlot <- function(dt,fillVar){
 makeCheckPlot(metaDT, "nDays")
 makeCheckPlot(metaDT, "nObs")
 makeCheckPlot(metaDT, "sumkWh")
-makeCheckPlot(metaDT, "nFuels")
 
 # write out the meta data ----
 data.table::fwrite(metaDT, paste0(lDataLoc, "metaDT.csv"))
