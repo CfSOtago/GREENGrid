@@ -4,21 +4,6 @@ author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
   bookdown::pdf_document2: default
-  html_document:
-    code_folding: hide
-    fig_caption: yes
-    keep_md: yes
-    number_sections: yes
-    self_contained: no
-    toc: yes
-    toc_depth: 2
-    toc_float: yes
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
   bookdown::html_document2: default
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
@@ -247,10 +232,19 @@ plotDT <- sampleGenDT[,
                 keyby = .(month, year, Fuel_Code)]
 
 # create a function to produce identical plots
-makeMonthlyPlot <- function(dt, yVar, yLabel){
+makeMonthlyStackedPlot <- function(dt, yVar, yLabel){
   #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
   ggplot(plotDT, aes(x = as.factor(month), y = get(yVar)/1000000, fill = Fuel_Code)) +
-    geom_col() +
+    geom_col() + # stack = default
+    facet_grid(. ~ year) +
+    labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Month") +
+    theme(legend.title=element_blank(), legend.position="right")
+}
+
+makeMonthlyDodgedPlot <- function(dt, yVar, yLabel){
+  #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
+  ggplot(plotDT, aes(x = as.factor(month), y = get(yVar)/1000000, fill = Fuel_Code)) +
+    geom_col(position = "dodge") +
     facet_grid(. ~ year) +
     labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Month") +
     theme(legend.title=element_blank(), legend.position="bottom")
@@ -260,26 +254,27 @@ makeMonthlyPlot <- function(dt, yVar, yLabel){
 The total is simply the sum of all half-hourly values and Figure \@ref(fig:monthlyTotalPlot) shows the dominance of hydro followed by coal in June 1998; the non-use of coal in December 1998; the growth of gas & geo by 2017 but the relative stasis in at-capacity hydro (?).
 
 ```{r monthlyTotalPlot, fig.cap="Monthly total plot by fuel type"}
-makeMonthlyPlot(plotDT, "sumkWh", "Total GWh")
+makeMonthlyStackedPlot(plotDT, "sumkWh", "Total GWh per month")
 ```
 
 Figure \@ref(fig:monthlyMeanPlot) shows the mean of half-hourly values for each month and indicates that the Coal generation may be skewed, especially for June 1998 by a few very large values (ref the histograms above).
 ```{r monthlyMeanPlot, fig.cap="Monthly mean plot by fuel type"}
-makeMonthlyPlot(plotDT, "meankWh", "Mean GWh")
+makeMonthlyDodgedPlot(plotDT, "meankWh", "Mean GWh per half hour")
 ```
 
 Figure \@ref(fig:monthlySdPlot) shows the standard deviation of the half-hourly generation data and suggests that coal has the highest absolute variation in June 1998 which may correspond to a particular spike and/or a period of very heavy use. Coal is less variable in 2017 perhaps due to the increased use of Gas.
 
 ```{r monthlySdPlot, fig.cap="Monthly s.d. plot by fuel type"}
-makeMonthlyPlot(plotDT, "sdkWh", "S.D. GWh")
+makeMonthlyDodgedPlot(plotDT, "sdkWh", "S.D. halfhourly GWh")
 ```
 
-Finally, Figure \@ref(fig:monthlyCovPlot) shows the coefficient of variation across the half-hourly values (mean/s.d). We take the CoV to indicate _relative_ variability (i.e. relative volatility) in generation load between the different fuels and use it in preference to the standard deviation (shown above) which, as an absolute measure, is affected by the underlying magnitude of each fuel's use. The plots suggest that coal and wood tend to see greatest relative variability although Gas & Oil in 1998 also stand out.
+Finally, Figure \@ref(fig:monthlyCovPlot) shows the coefficient of variation across the half-hourly values (mean/s.d). We take the CoV to indicate _relative_ variability (i.e. relative volatility) in generation load between the different fuels and use it in preference to the standard deviation (shown above) which, as an absolute measure, is affected by the underlying magnitude of each fuel's use. The plots suggest that Coal and Wood tend to see greatest relative variability although Gas & Oil in 1998 also stand out.
 
-```{r monthlyCovPlot, fig.caption = "Monthly coefficient of variation"}
-plotDT <- plotDT[, cov := meankWh/sdkWh] # coefficient of variation https://en.wikipedia.org/wiki/Coefficient_of_variation
+```{r monthlyCovPlot, fig.caption = "Monthly coefficient of variation", echo = TRUE}
+# coefficient of variation https://en.wikipedia.org/wiki/Coefficient_of_variation
+plotDT <- plotDT[, cov := 1000000 * (meankWh/sdkWh)] # corrct for GW conversion in plot function (doh!)
 
-makeMonthlyPlot(plotDT, "cov", "CoV GWh")
+makeMonthlyDodgedPlot(plotDT, "cov", "CoV half-hourly GWh") + geom_col(position = "dodge")
 ```
 
 ## Half hourly profiles by month
@@ -324,21 +319,21 @@ To do this, the following plots partially replicate one of those found in [Staff
 Figure \@ref(fig:sumProfileCol) shows the total half-hourly generation for each month summed over all days whilst Figure \@ref(fig:sumProfilePoint) shows the same data but as a point plot to more clearly show the absolute contribution of each fuel. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...).
 
 ```{r sumProfileCol, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
-makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh")
+makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh per half hour")
 ```
 
 ```{r sumProfilePoint, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
-makeHalfHourlyPointPlot(plotDT, "sumkWh", "Sum GWh")
+makeHalfHourlyPointPlot(plotDT, "sumkWh", "Sum GWh per half hour")
 ```
 
 Figures \@ref(fig:meanProfileCol) and \@ref(fig:meanProfilePoint) repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.
 
 ```{r meanProfileCol,fig.height=6,fig.cap= "Half-hourly profile plot by fuel type (mean)"}
-makeHalfHourlyColPlot(plotDT, "meankWh", "Mean GWh")
+makeHalfHourlyColPlot(plotDT, "meankWh", "Mean GWh per half hour")
 ```
 
 ```{r meanProfilePoint,fig.height=6,fig.cap= "Half-hourly profile plot by fuel type (mean)"}
-makeHalfHourlyPointPlot(plotDT, "meankWh", "Mean GWh")
+makeHalfHourlyPointPlot(plotDT, "meankWh", "Mean GWh per half hour")
 ```
 
 ## Half hourly profiles by day of the month
@@ -356,7 +351,7 @@ makePointProfilePlot <- function(dt, title){
   #print(paste0("Making plot ", title))
   ggplot(dt, aes(x = rDateTime, y = kWh/1000, colour = Fuel_Code)) +
     geom_point(alpha=0.4) +
-    labs(title = title, caption = ggParams$figCaption, y = "MWh", x = "Date") +
+    labs(title = title, caption = ggParams$figCaption, y = "MWh per half hour", x = "Date") +
     theme(legend.title=element_blank(), legend.position="bottom") +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
 }
@@ -374,7 +369,7 @@ makeColProfilePlot <- function(dt, title){
   myPlot <- ggplot(dt, 
                    aes(x = rDateTime, y = kWh/1000, fill = Fuel_Code)) +
     geom_col(alpha = 0.4) +
-    labs(title = title, caption = ggParams$figCaption, y = "MWh", x = "Date") +
+    labs(title = title, caption = ggParams$figCaption, y = "MWh per half hour", x = "Date") +
     theme(legend.title=element_blank(), legend.position="bottom") +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
   return(myPlot)
@@ -481,43 +476,43 @@ myTextSize <- 3
 annotateAllGenYears <- function(plot){
   plot <- plot +
     annotate("text", x = 2004, # x axis is just a number not a real date
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.6, angle = 10,size = myTextSize,
              label = "Huntly 50 MW gas unit added", hjust = 0) +
     geom_vline(xintercept = 2004, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2005,
-             y = yMax * 0.8, angle = 10,size = myTextSize,
+             y = yMax * 0.5, angle = 10,size = myTextSize,
              label = "Warm dry winters", hjust = 0) +
     geom_vline(xintercept = 2005, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2007,
-             y = yMax * 0.7, angle = 10,size = myTextSize,
+             y = yMax * 0.4, angle = 10,size = myTextSize,
              label = "Huntly CCGT unit added", hjust = 0) +
     geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2007,
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.6, angle = 10,size = myTextSize,
              label = "Huntly mainly gas fired", hjust = 0) +
     geom_vline(xintercept = 2007, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2008,
-             y = yMax * 0.8, angle = 10,size = myTextSize,
+             y = yMax * 0.5, angle = 10,size = myTextSize,
              label = "Dry winter", hjust = 0) +
     geom_vline(xintercept = 2008, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2012,
-             y = yMax * 0.7, angle = 10,size = myTextSize,
+             y = yMax * 0.4, angle = 10,size = myTextSize,
              label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
     geom_vline(xintercept = 2012, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2012,
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.6, angle = 10,size = myTextSize,
              label = "Dry winter on South Island", hjust = 0) +
     geom_vline(xintercept = 2012, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2013,
-             y = yMax * 0.8, angle = 10,size = myTextSize,
+             y = yMax * 0.5, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
     geom_vline(xintercept = 2013, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2013,
-             y = yMax * 0.7, angle = 10,size = myTextSize,
+             y = yMax * 0.3, angle = 10,size = myTextSize,
              label = "Warmest winter to date", hjust = 0) +
     geom_vline(xintercept = 2013, alpha = vLineAlpha, colour = vLineCol) +
     annotate("text", x = 2015,
-             y = yMax * 0.9, angle = 10,size = myTextSize,
+             y = yMax * 0.6, angle = 10,size = myTextSize,
              label = "2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
     geom_vline(xintercept = 2015, alpha = vLineAlpha, colour = vLineCol)
   return(plot)
@@ -527,7 +522,8 @@ annotateAllGenYears <- function(plot){
 Figures \@ref(fig:yearlyTotalPlotCol) and \@ref(fig:yearlyTotalPlotPoint) show the dominance of hydro and decrease in coal use.
 
 ```{r yearlyTotalPlotCol, fig.cap="Yearly total plot by fuel type"}
-makePlotCol(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+myPlot <- makePlotCol(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total yearly GWh")
+annotateAllGenYears(myPlot)
 ```
 
 Adding annotations with information from:
@@ -536,7 +532,7 @@ Adding annotations with information from:
  * https://en.wikipedia.org/wiki/Huntly_Power_Station
 
 ```{r yearlyTotalPlotPoint, fig.cap="Yearly total plot by fuel type"}
-myPlot <- makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+myPlot <- makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total yearly GWh")
 annotateAllGenYears(myPlot)
 ```
 
@@ -560,7 +556,7 @@ dateLims <- as.Date(c('1998-01-01','2018-12-01')) # force restriction which also
 myTitle <- "Total daily New Zealand electricity generation by fuel source 1998-2018"
 
 # point plot
-myPlot <- makePlotPoint(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+myPlot <- makePlotPoint(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total daily GWh")
 
 # add formats for scales etc
 myPlot <- myPlot +
@@ -621,25 +617,22 @@ annotateAllGenMonths <- function(plot){
 }
 
 # final plot - adds annotations
-myPlot <- annotateAllGenMonths(myPlot)
-
-myPlot
+annotateAllGenMonths(myPlot)
 
 ```
 
 
 ```{r dailyTotalPlotCol, fig.cap="Yearly total plot by fuel type"}
 # col plot
-myPlot <- makePlotCol(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total GWh")
+myPlot <- makePlotCol(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total daily GWh")
 myPlot +
   scale_x_date(date_labels = "%b %Y", date_breaks = "6 months", limits = dateLims) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
   labs(title = myTitle)
 
 # final plot - adds annotations
-myPlot <- annotateAllGenMonths(myPlot)
+annotateAllGenMonths(myPlot)
 
-myPlot
 ```
 
 # Discussion
