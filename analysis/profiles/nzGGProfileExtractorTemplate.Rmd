@@ -23,7 +23,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 2
-bibliography: '`r path.expand("~/bibliography.bib")`'
+bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
