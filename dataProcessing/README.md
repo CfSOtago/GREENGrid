@@ -28,3 +28,7 @@ See the [TUD Readme](tud/) for more information.
 ## Dwelling and appliance surveys
 
 See the [surveys Readme](surveys/) for more information.
+
+## Other data
+
+This directory probably contains code for prociessing other datasets which were not collected by GREEN Grid but obtained form other sources. [#YMMV](https://en.wiktionary.org/wiki/YMMV).
