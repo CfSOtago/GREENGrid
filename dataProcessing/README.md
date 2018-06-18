@@ -5,7 +5,7 @@
  * Occupant time-use diaries (focused on energy use)
  * Dwelling & appliance surveys
 
-_None_ of the code here will work unless you also have access to the data. While we have plans to deposit anonymised versions of the data with a suitable data archive (any offers?!), the data is currently held on the University of Otago High Performance Storage filestore and access is controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid data (via github readme)).
+NB: This data is _not_ held in this repo so _none_ of the code here will work unless you also have access to the data. While we have plans to deposit anonymised versions of the data with a suitable data archive (any offers?!), the data is currently held on the University of Otago High Performance Storage filestore and access is controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid data (via github readme)).
 
 ## 1 min electricity power data
 
@@ -31,4 +31,4 @@ See the [surveys Readme](surveys/) for more information.
 
 ## Other data
 
-This directory probably contains code for prociessing other datasets which were not collected by GREEN Grid but obtained form other sources. [#YMMV](https://en.wiktionary.org/wiki/YMMV).
+This directory probably contains code for processing other datasets which were not collected by GREEN Grid but obtained from other sources. [#YMMV](https://en.wiktionary.org/wiki/YMMV).
