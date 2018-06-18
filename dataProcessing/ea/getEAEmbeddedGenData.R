@@ -8,7 +8,7 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 
 
 # Load libraries ----
-library(nzGREENGrid)
+library(nzGREENGrid) # load this first - you will need to download & install it locally from this repo
 
 # Packages needed in this .Rmd file ----
 reqLibs <- c("data.table", # data munching
@@ -32,8 +32,8 @@ if(local){ # set data storage location
 }
 
 rDataLoc <- "https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation/"
-years <- seq(1997, 2018, 1)
-months <- seq(1,12,1)
+years <- seq(1997, 2018, 1) # change these to restrict or extend the file search
+months <- seq(1,12,1) # change these to restrict or extend the file search
 
 # Local functions ----
 cleanEA <- function(df){
