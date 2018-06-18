@@ -318,11 +318,11 @@ To do this, the following plots partially replicate one of those found in [Staff
 Figure \@ref(fig:sumProfileCol) shows the total half-hourly generation for each month summed over all days whilst Figure \@ref(fig:sumProfilePoint) shows the same data but as a point plot to more clearly show the absolute contribution of each fuel. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...).
 
 ```{r sumProfileCol, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
-makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh per half hour")
+makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh per half hour across all days of the month")
 ```
 
 ```{r sumProfilePoint, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
-makeHalfHourlyPointPlot(plotDT, "sumkWh", "Sum GWh per half hour")
+makeHalfHourlyPointPlot(plotDT, "sumkWh", "Sum GWh per half hour across all days of the month")
 ```
 
 Figures \@ref(fig:meanProfileCol) and \@ref(fig:meanProfilePoint) repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.
@@ -332,7 +332,7 @@ makeHalfHourlyColPlot(plotDT, "meankWh", "Mean GWh per half hour")
 ```
 
 ```{r meanProfilePoint,fig.height=6,fig.cap= "Half-hourly profile plot by fuel type (mean)"}
-makeHalfHourlyPointPlot(plotDT, "meankWh", "Mean GWh per half hour")
+makeHalfHourlyPointPlot(plotDT, "meankWh", "Mean GWh per half hour across all days of the month")
 ```
 
 ## Half hourly profiles by day of the month
@@ -344,19 +344,21 @@ The following plots show the profiles for each day of the month. Unfortunately d
 Nevertheless the differences between the compositions of each half-hour can be seen.
 
 ```{r sumDailyProfilePoint,fig.cap= "Half-hourly profile plot by fuel type"}
+plotDT <- sampleGenDT[, .(sumkWh = sum(kWh)), by = .(year, month, Fuel_Code, rDateTime)]
+  
 makePointProfilePlot <- function(dt, title){
   #print(paste0("Making plot ", title))
-  ggplot(dt, aes(x = rDateTime, y = kWh/1000, colour = Fuel_Code)) +
+  ggplot(dt, aes(x = rDateTime, y = sumkWh/1000000, colour = Fuel_Code)) +
     geom_point(alpha=0.4) +
-    labs(title = title, caption = ggParams$figCaption, y = "MWh per half hour", x = "Date") +
+    labs(title = title, caption = ggParams$figCaption, y = "Sum GWh per half hour", x = "Date") +
     theme(legend.title=element_blank(), legend.position="bottom") +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
 }
 
-makePointProfilePlot(sampleGenDT[year == 1998 & month == 6], "June 1998")
-makePointProfilePlot(sampleGenDT[year == 1998 & month == 12], "December 1998")
-makePointProfilePlot(sampleGenDT[year == 2017 & month == 6], "June 2017")
-makePointProfilePlot(sampleGenDT[year == 2017 & month == 12], "December 2017")
+makePointProfilePlot(plotDT[year == 1998 & month == 6], "June 1998")
+makePointProfilePlot(plotDT[year == 1998 & month == 12], "December 1998")
+makePointProfilePlot(plotDT[year == 2017 & month == 6], "June 2017")
+makePointProfilePlot(plotDT[year == 2017 & month == 12], "December 2017")
 ```
 
 Figure \@ref(fig:sumDailyProfilePoint) shows the total as a point plot while Figure \@ref(fig:sumDailyProfileCol) shows the total as stacked column plots to show the proportion of energy generation produced by each fuel.
@@ -364,7 +366,7 @@ Figure \@ref(fig:sumDailyProfilePoint) shows the total as a point plot while Fig
 ```{r sumDailyProfileCol,fig.cap= "Half-hourly profile plot by fuel type"}
 makeColProfilePlot <- function(dt, title){
   myPlot <- ggplot(dt, 
-                   aes(x = rDateTime, y = kWh/1000, fill = Fuel_Code)) +
+                   aes(x = rDateTime, y = sumkWh/1000, fill = Fuel_Code)) +
     geom_col(alpha = 0.4) +
     labs(title = title, caption = ggParams$figCaption, y = "MWh per half hour", x = "Date") +
     theme(legend.title=element_blank(), legend.position="bottom") +
@@ -379,10 +381,10 @@ makeColProfilePlot <- function(dt, title){
 #   }
 # }
 
-makeColProfilePlot(sampleGenDT[year == 1998 & month == 6], "June 1998")
-makeColProfilePlot(sampleGenDT[year == 1998 & month == 12], "December 1998")
-makeColProfilePlot(sampleGenDT[year == 2017 & month == 6], "June 2017")
-makeColProfilePlot(sampleGenDT[year == 2017 & month == 12], "December 2017")
+makeColProfilePlot(plotDT[year == 1998 & month == 6], "June 1998")
+makeColProfilePlot(plotDT[year == 1998 & month == 12], "December 1998")
+makeColProfilePlot(plotDT[year == 2017 & month == 6], "June 2017")
+makeColProfilePlot(plotDT[year == 2017 & month == 12], "December 2017")
 ```
 
 
