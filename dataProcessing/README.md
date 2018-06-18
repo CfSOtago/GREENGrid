@@ -31,4 +31,4 @@ See the [surveys Readme](surveys/) for more information.
 
 ## Other data
 
-This directory probably contains code for prociessing other datasets which were not collected by GREEN Grid but obtained form other sources. [#YMMV](https://en.wiktionary.org/wiki/YMMV).
+This directory probably contains code for processing other datasets which were not collected by GREEN Grid but obtained from other sources. [#YMMV](https://en.wiktionary.org/wiki/YMMV).
