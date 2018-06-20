@@ -1,28 +1,11 @@
 ---
 params:
- title: "Title"
- subtitle: "subtitle"
-title: 'Title'
-subtitle: 'subtitle'
+ title: "Technical Potential of Demand Response"
+ subtitle: "Heat Pump Analysis"
+title: 'Technical Potential of Demand Response'
+subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-20 14:01:48'
-# output:
-#   html_document:
-#     code_folding: hide
-#     fig_caption: true
-#     keep_md: true
-#     number_sections: true
-#     self_contained: no
-#     toc: true
-#     toc_float: true
-#     toc_depth: 2
-#   pdf_document:
-#     fig_caption: yes
-#     keep_tex: yes
-#     number_sections: yes
-#     toc: yes
-#     toc_depth: 2
-# bibliography: '/Users/ben/bibliography.bib'
+date: 'Last run at: 2018-06-20 14:18:25'
 output:
   bookdown::html_document2:
     toc: true
@@ -46,7 +29,7 @@ bibliography: '/Users/ben/git.soton/ba1e12/nzGREENGrid/bibliography.bib'
 
 If you wish to use any of the material from this report please cite as:
 
- * Dortans, C. (2018) Title: subtitle, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin.
+ * Dortans, C. (2018) Technical Potential of Demand Response: Heat Pump Analysis, [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin.
 
 This work is (c) 2018 the University of Southampton.
 
@@ -128,21 +111,21 @@ Describe using skim:
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ────────────────────────────────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ─────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -159,7 +142,7 @@ Describe using skim:
 
 
 
-Analysis completed in 1.83 seconds ( 0.03 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 1.77 seconds ( 0.03 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

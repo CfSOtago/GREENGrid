@@ -1,0 +1,362 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Technical Potential of Demand Response},
+            pdfauthor={Carsten Dortans (xxx@otago.ac.nz)},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Technical Potential of Demand Response}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \subtitle{Heat Pump Analysis}
+  \author{Carsten Dortans
+(\href{mailto:xxx@otago.ac.nz}{\nolinkurl{xxx@otago.ac.nz}})}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{Last run at: 2018-06-20 14:18:14}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\newpage
+
+\section{Citation}\label{citation}
+
+If you wish to use any of the material from this report please cite as:
+
+\begin{itemize}
+\tightlist
+\item
+  Dortans, C. (2018) Technical Potential of Demand Response: Heat Pump
+  Analysis, \href{http://www.otago.ac.nz/centre-sustainability/}{Centre
+  for Sustainability}, University of Otago: Dunedin.
+\end{itemize}
+
+This work is (c) 2018 the University of Southampton.
+
+\newpage
+
+\section{About}\label{about}
+
+\subsection{Circulation}\label{circulation}
+
+Report circulation:
+
+\begin{itemize}
+\tightlist
+\item
+  Restricted to:
+  \href{https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html}{NZ
+  GREEN Grid} project partners and contractors.
+\end{itemize}
+
+\subsection{Purpose}\label{purpose}
+
+This report is intended to:
+
+\begin{itemize}
+\tightlist
+\item
+  load and test GREEN Grid heat pump and hot water profiles.
+\end{itemize}
+
+\subsection{Requirements:}\label{requirements}
+
+\begin{itemize}
+\tightlist
+\item
+  test dataset stored at /Volumes/hum-csafe/Research Projects/GREEN
+  Grid/Clean\_data/safe/gridSpy/1min/profiles/
+\end{itemize}
+
+\subsection{History}\label{history}
+
+Generally tracked via our git.soton
+\href{https://git.soton.ac.uk/ba1e12/nzGREENGrid}{repo}:
+
+\begin{itemize}
+\tightlist
+\item
+  \href{https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master}{history}
+\item
+  \href{https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues}{issues}
+\end{itemize}
+
+Specific history of this code:
+
+\begin{itemize}
+\tightlist
+\item
+  \url{https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse}
+\end{itemize}
+
+\subsection{Support}\label{support}
+
+This work was supported by:
+
+\begin{itemize}
+\tightlist
+\item
+  The \href{https://www.otago.ac.nz/}{University of Otago};
+\item
+  The \href{https://www.southampton.ac.uk/}{University of Southampton};
+\item
+  The New Zealand \href{http://www.mbie.govt.nz/}{Ministry of Business,
+  Innovation and Employment (MBIE)} through the
+  \href{https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html}{NZ
+  GREEN Grid} project;
+\item
+  \href{http://www.energy.soton.ac.uk/tag/spatialec/}{SPATIALEC} - a
+  \href{http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm}{Marie
+  Skłodowska-Curie Global Fellowship} based at the University of Otago's
+  \href{http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html}{Centre
+  for Sustainability} (2017-2019) \& the University of Southampton's
+  Sustainable Energy Research Group (2019-202).
+\end{itemize}
+
+We do not `support' the code but if you have a problem check the
+\href{https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues}{issues} on our
+\href{https://git.soton.ac.uk/ba1e12/nzGREENGrid}{repo} and if it
+doesn't already exist, open one. We might be able to fix it :-)
+
+\section{Load data files}\label{load-data-files}
+
+\subsection{Heat pump profiles}\label{heat-pump-profiles}
+
+This file is the pre-aggregated data for all heat pump circuits in the
+GREEN Grid data for April 2015 - March 2016 (check!)
+
+In this section we load and describe the data files from
+/Volumes/hum-csafe/Research Projects/GREEN
+Grid/Clean\_data/safe/gridSpy/1min/profiles/Heat
+Pump\_2015-04-01\_2016-03-31\_overallSeasonalProfiles.csv.gz.
+
+\begin{verbatim}
+## Parsed with column specification:
+## cols(
+##   obsHourMin = col_time(format = ""),
+##   season = col_character(),
+##   meanW = col_double(),
+##   medianW = col_double(),
+##   nObs = col_integer(),
+##   sdW = col_double()
+## )
+\end{verbatim}
+
+Describe using skim:
+
+\begin{verbatim}
+## Skim summary statistics
+##  n obs: 5760 
+##  n variables: 6 
+## 
+## -- Variable type:character ---------------------------------------------------------------------------------------------------
+##  variable missing complete    n min max empty n_unique
+##    season       0     5760 5760   6   6     0        4
+## 
+## -- Variable type:difftime ----------------------------------------------------------------------------------------------------
+##    variable missing complete    n    min        max     median n_unique
+##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
+## 
+## -- Variable type:integer -----------------------------------------------------------------------------------------------------
+##  variable missing complete    n    mean     sd   p0    p25    p50     p75
+##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
+##  p100     hist
+##  2688 ▅▁▁▁▁▇▁▅
+## 
+## -- Variable type:numeric -----------------------------------------------------------------------------------------------------
+##  variable missing complete    n   mean     sd     p0    p25    p50    p75
+##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
+##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
+##       sdW       0     5760 5760 329.77 146.05 101.04 234.33 298.61 407.13
+##    p100     hist
+##  613.89 ▇▃▂▁▁▁▁▁
+##  392.55 ▇▁▁▁▁▁▁▁
+##  879.07 ▆▇▆▅▂▂▁▁
+\end{verbatim}
+
+\section{Runtime}\label{runtime}
+
+Analysis completed in 1.8 seconds ( 0.03 minutes) using
+\href{https://cran.r-project.org/package=knitr}{knitr} in
+\href{http://www.rstudio.com}{RStudio} with R version 3.5.0 (2018-04-23)
+running on x86\_64-apple-darwin15.6.0.
+
+\section{R environment}\label{r-environment}
+
+R packages used:
+
+\begin{itemize}
+\tightlist
+\item
+  base R - for the basics (R Core Team 2016)
+\item
+  data.table - for fast (big) data handling (Dowle et al. 2015)
+\item
+  lubridate - date manipulation (Grolemund and Wickham 2011)
+\item
+  ggplot2 - for slick graphics (Wickham 2009)
+\item
+  readr - for csv reading/writing (Wickham, Hester, and Francois 2016)
+\item
+  skimr - for skim (Arino de la Rubia et al. 2017)
+\item
+  knitr - to create this document \& neat tables (Xie 2016)
+\item
+  nzGREENGrid - for local NZ GREEN Grid project utilities
+\end{itemize}
+
+Session info:
+
+\begin{verbatim}
+## R version 3.5.0 (2018-04-23)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.5
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] bindrcpp_0.2.2    knitr_1.20        skimr_1.0.3       readr_1.1.1      
+## [5] lubridate_1.7.4   ggplot2_2.2.1     dplyr_0.7.5       data.table_1.11.4
+## [9] nzGREENGrid_0.1.0
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.17      pillar_1.2.3      compiler_3.5.0   
+##  [4] plyr_1.8.4        bindr_0.1.1       prettyunits_1.0.2
+##  [7] tools_3.5.0       progress_1.2.0    digest_0.6.15    
+## [10] gtable_0.2.0      evaluate_0.10.1   tibble_1.4.2     
+## [13] pkgconfig_2.0.1   rlang_0.2.1       cli_1.0.0        
+## [16] rstudioapi_0.7    yaml_2.1.19       xfun_0.1         
+## [19] stringr_1.3.1     hms_0.4.2         rprojroot_1.3-2  
+## [22] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
+## [25] R6_2.2.2          rmarkdown_1.10    bookdown_0.7     
+## [28] tidyr_0.8.1       purrr_0.2.5       reshape2_1.4.3   
+## [31] magrittr_1.5      scales_0.5.0      backports_1.1.2  
+## [34] htmltools_0.3.6   assertthat_0.2.0  colorspace_1.3-2 
+## [37] stringi_1.2.3     lazyeval_0.2.1    munsell_0.5.0    
+## [40] crayon_1.3.4
+\end{verbatim}
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\hypertarget{ref-skimr}{}
+Arino de la Rubia, Eduardo, Hao Zhu, Shannon Ellis, Elin Waring, and
+Michael Quinn. 2017. \emph{Skimr: Skimr}.
+\url{https://github.com/ropenscilabs/skimr}.
+
+\hypertarget{ref-data.table}{}
+Dowle, M, A Srinivasan, T Short, S Lianoglou with contributions from R
+Saporta, and E Antonyan. 2015. \emph{Data.table: Extension of
+Data.frame}. \url{https://CRAN.R-project.org/package=data.table}.
+
+\hypertarget{ref-lubridate}{}
+Grolemund, Garrett, and Hadley Wickham. 2011. ``Dates and Times Made
+Easy with lubridate.'' \emph{Journal of Statistical Software} 40 (3):
+1--25. \url{http://www.jstatsoft.org/v40/i03/}.
+
+\hypertarget{ref-baseR}{}
+R Core Team. 2016. \emph{R: A Language and Environment for Statistical
+Computing}. Vienna, Austria: R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}.
+
+\hypertarget{ref-ggplot2}{}
+Wickham, Hadley. 2009. \emph{Ggplot2: Elegant Graphics for Data
+Analysis}. Springer-Verlag New York. \url{http://ggplot2.org}.
+
+\hypertarget{ref-readr}{}
+Wickham, Hadley, Jim Hester, and Romain Francois. 2016. \emph{Readr:
+Read Tabular Data}. \url{https://CRAN.R-project.org/package=readr}.
+
+\hypertarget{ref-knitr}{}
+Xie, Yihui. 2016. \emph{Knitr: A General-Purpose Package for Dynamic
+Report Generation in R}. \url{https://CRAN.R-project.org/package=knitr}.
+
+
+\end{document}

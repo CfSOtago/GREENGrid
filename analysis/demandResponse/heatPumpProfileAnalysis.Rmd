@@ -1,28 +1,11 @@
 ---
 params:
- title: "Title"
- subtitle: "subtitle"
+ title: "Technical Potential of Demand Response"
+ subtitle: "Heat Pump Analysis"
 title: '`r params$title`'
 subtitle: '`r params$subtitle`'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
 date: 'Last run at: `r Sys.time()`'
-# output:
-#   html_document:
-#     code_folding: hide
-#     fig_caption: true
-#     keep_md: true
-#     number_sections: true
-#     self_contained: no
-#     toc: true
-#     toc_float: true
-#     toc_depth: 2
-#   pdf_document:
-#     fig_caption: yes
-#     keep_tex: yes
-#     number_sections: yes
-#     toc: yes
-#     toc_depth: 2
-# bibliography: '`r path.expand("~/bibliography.bib")`'
 output:
   bookdown::html_document2:
     toc: true
