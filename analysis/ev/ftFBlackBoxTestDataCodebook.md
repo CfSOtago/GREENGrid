@@ -5,24 +5,7 @@ params:
 title: 'FlipTheFleet Test Black Box Data: Codebook'
 subtitle: 'Exploration of test data'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
-date: 'Last run at: 2018-06-20 22:41:23'
-# output:
-#   html_document:
-#     code_folding: hide
-#     fig_caption: true
-#     keep_md: true
-#     number_sections: true
-#     self_contained: no
-#     toc: true
-#     toc_float: true
-#     toc_depth: 2
-#   pdf_document:
-#     fig_caption: yes
-#     keep_tex: yes
-#     number_sections: yes
-#     toc: yes
-#     toc_depth: 2
-# bibliography: '/Users/ben/bibliography.bib'
+date: 'Last run at: 2018-06-20 22:45:57'
 output:
   bookdown::html_document2:
     toc: true
@@ -1382,7 +1365,7 @@ Describe data to create codebook:
 
 
 
-Analysis completed in 25.07 seconds ( 0.42 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 19.96 seconds ( 0.33 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
