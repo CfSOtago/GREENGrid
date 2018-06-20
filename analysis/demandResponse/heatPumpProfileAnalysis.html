@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Carsten Dortans (xxx@otago.ac.nz)" />
+
+
+<title>Title</title>
+
+<script src="heatPumpProfileAnalysis_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="heatPumpProfileAnalysis_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="heatPumpProfileAnalysis_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="heatPumpProfileAnalysis_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="heatPumpProfileAnalysis_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="heatPumpProfileAnalysis_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="heatPumpProfileAnalysis_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="heatPumpProfileAnalysis_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="heatPumpProfileAnalysis_files/navigation-1.1/tabsets.js"></script>
+<link href="heatPumpProfileAnalysis_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="heatPumpProfileAnalysis_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Title</h1>
+<h3 class="subtitle"><em>subtitle</em></h3>
+<h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-20 14:01:48</em></h4>
+
+</div>
+
+
+
+<div id="citation" class="section level1">
+<h1><span class="header-section-number">1</span> Citation</h1>
+<p>If you wish to use any of the material from this report please cite as:</p>
+<ul>
+<li>Dortans, C. (2018) Title: subtitle, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin.</li>
+</ul>
+<p>This work is (c) 2018 the University of Southampton.</p>
+
+</div>
+<div id="about" class="section level1">
+<h1><span class="header-section-number">2</span> About</h1>
+<div id="circulation" class="section level2">
+<h2><span class="header-section-number">2.1</span> Circulation</h2>
+<p>Report circulation:</p>
+<ul>
+<li>Restricted to: <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project partners and contractors.</li>
+</ul>
+</div>
+<div id="purpose" class="section level2">
+<h2><span class="header-section-number">2.2</span> Purpose</h2>
+<p>This report is intended to:</p>
+<ul>
+<li>load and test GREEN Grid heat pump and hot water profiles.</li>
+</ul>
+</div>
+<div id="requirements" class="section level2">
+<h2><span class="header-section-number">2.3</span> Requirements:</h2>
+<ul>
+<li>test dataset stored at /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/</li>
+</ul>
+</div>
+<div id="history" class="section level2">
+<h2><span class="header-section-number">2.4</span> History</h2>
+<p>Generally tracked via our git.soton <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a>:</p>
+<ul>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master">history</a></li>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a></li>
+</ul>
+<p>Specific history of this code:</p>
+<ul>
+<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse" class="uri">https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse</a></li>
+</ul>
+</div>
+<div id="support" class="section level2">
+<h2><span class="header-section-number">2.5</span> Support</h2>
+<p>This work was supported by:</p>
+<ul>
+<li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
+<li>The <a href="https://www.southampton.ac.uk/">University of Southampton</a>;</li>
+<li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a> through the <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project;</li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-202).</li>
+</ul>
+<p>We do not ‘support’ the code but if you have a problem check the <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a> on our <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a> and if it doesn’t already exist, open one. We might be able to fix it :-)</p>
+</div>
+</div>
+<div id="load-data-files" class="section level1">
+<h1><span class="header-section-number">3</span> Load data files</h1>
+<div id="heat-pump-profiles" class="section level2">
+<h2><span class="header-section-number">3.1</span> Heat pump profiles</h2>
+<p>This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)</p>
+<p>In this section we load and describe the data files from /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.</p>
+<pre><code>## Parsed with column specification:
+## cols(
+##   obsHourMin = col_time(format = &quot;&quot;),
+##   season = col_character(),
+##   meanW = col_double(),
+##   medianW = col_double(),
+##   nObs = col_integer(),
+##   sdW = col_double()
+## )</code></pre>
+<p>Describe using skim:</p>
+<pre><code>## Skim summary statistics
+##  n obs: 5760 
+##  n variables: 6 
+## 
+## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete    n min max empty n_unique
+##    season       0     5760 5760   6   6     0        4
+## 
+## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##    variable missing complete    n    min        max     median n_unique
+##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
+## 
+## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete    n    mean     sd   p0    p25    p50     p75
+##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
+##  p100     hist
+##  2688 ▅▁▁▁▁▇▁▅
+## 
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete    n   mean     sd     p0    p25    p50    p75
+##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
+##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
+##       sdW       0     5760 5760 329.77 146.05 101.04 234.33 298.61 407.13
+##    p100     hist
+##  613.89 ▇▃▂▁▁▁▁▁
+##  392.55 ▇▁▁▁▁▁▁▁
+##  879.07 ▆▇▆▅▂▂▁▁</code></pre>
+</div>
+</div>
+<div id="runtime" class="section level1">
+<h1><span class="header-section-number">4</span> Runtime</h1>
+<p>Analysis completed in 1.83 seconds ( 0.03 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+</div>
+<div id="r-environment" class="section level1">
+<h1><span class="header-section-number">5</span> R environment</h1>
+<p>R packages used:</p>
+<ul>
+<li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>
+<li>data.table - for fast (big) data handling <span class="citation">(Dowle et al. 2015)</span></li>
+<li>lubridate - date manipulation <span class="citation">(Grolemund and Wickham 2011)</span></li>
+<li>ggplot2 - for slick graphics <span class="citation">(Wickham 2009)</span></li>
+<li>readr - for csv reading/writing <span class="citation">(Wickham, Hester, and Francois 2016)</span></li>
+<li>skimr - for skim <span class="citation">(Arino de la Rubia et al. 2017)</span></li>
+<li>knitr - to create this document &amp; neat tables <span class="citation">(Xie 2016)</span></li>
+<li>nzGREENGrid - for local NZ GREEN Grid project utilities</li>
+</ul>
+<p>Session info:</p>
+<pre><code>## R version 3.5.0 (2018-04-23)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.5
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] bindrcpp_0.2.2    knitr_1.20        skimr_1.0.3       readr_1.1.1      
+## [5] lubridate_1.7.4   ggplot2_2.2.1     dplyr_0.7.5       data.table_1.11.4
+## [9] nzGREENGrid_0.1.0
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.17      pillar_1.2.3      compiler_3.5.0   
+##  [4] plyr_1.8.4        bindr_0.1.1       prettyunits_1.0.2
+##  [7] tools_3.5.0       progress_1.2.0    digest_0.6.15    
+## [10] gtable_0.2.0      evaluate_0.10.1   tibble_1.4.2     
+## [13] pkgconfig_2.0.1   rlang_0.2.1       cli_1.0.0        
+## [16] rstudioapi_0.7    yaml_2.1.19       xfun_0.1         
+## [19] stringr_1.3.1     hms_0.4.2         rprojroot_1.3-2  
+## [22] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
+## [25] R6_2.2.2          rmarkdown_1.10    bookdown_0.7     
+## [28] tidyr_0.8.1       purrr_0.2.5       reshape2_1.4.3   
+## [31] magrittr_1.5      scales_0.5.0      backports_1.1.2  
+## [34] htmltools_0.3.6   assertthat_0.2.0  colorspace_1.3-2 
+## [37] stringi_1.2.3     lazyeval_0.2.1    munsell_0.5.0    
+## [40] crayon_1.3.4</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-skimr">
+<p>Arino de la Rubia, Eduardo, Hao Zhu, Shannon Ellis, Elin Waring, and Michael Quinn. 2017. <em>Skimr: Skimr</em>. <a href="https://github.com/ropenscilabs/skimr" class="uri">https://github.com/ropenscilabs/skimr</a>.</p>
+</div>
+<div id="ref-data.table">
+<p>Dowle, M, A Srinivasan, T Short, S Lianoglou with contributions from R Saporta, and E Antonyan. 2015. <em>Data.table: Extension of Data.frame</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
+</div>
+<div id="ref-lubridate">
+<p>Grolemund, Garrett, and Hadley Wickham. 2011. “Dates and Times Made Easy with lubridate.” <em>Journal of Statistical Software</em> 40 (3): 1–25. <a href="http://www.jstatsoft.org/v40/i03/" class="uri">http://www.jstatsoft.org/v40/i03/</a>.</p>
+</div>
+<div id="ref-baseR">
+<p>R Core Team. 2016. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
+</div>
+<div id="ref-ggplot2">
+<p>Wickham, Hadley. 2009. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="http://ggplot2.org" class="uri">http://ggplot2.org</a>.</p>
+</div>
+<div id="ref-readr">
+<p>Wickham, Hadley, Jim Hester, and Romain Francois. 2016. <em>Readr: Read Tabular Data</em>. <a href="https://CRAN.R-project.org/package=readr" class="uri">https://CRAN.R-project.org/package=readr</a>.</p>
+</div>
+<div id="ref-knitr">
+<p>Xie, Yihui. 2016. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://CRAN.R-project.org/package=knitr" class="uri">https://CRAN.R-project.org/package=knitr</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
