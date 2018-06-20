@@ -108,6 +108,8 @@ ggParams$profilesFile <- paste0(ggParams$dataLoc, "xxxx")
 In this section we load and describe the  data files from `r ggParams$profilesFile`.
 
 ```{r load data}
+
+print(paste0("Trying to load data from ", ggParams$profilesFile))
 dataDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
 ```
 
