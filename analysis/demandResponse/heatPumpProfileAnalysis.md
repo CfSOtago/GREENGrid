@@ -5,7 +5,11 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
+<<<<<<< HEAD
 date: 'Last run at: 2018-06-20 15:21:17'
+=======
+date: 'Last run at: 2018-06-20 15:52:55'
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 output:
   bookdown::html_document2:
     toc: true
@@ -52,7 +56,11 @@ This report is intended to:
 
 ## Requirements:
 
+<<<<<<< HEAD
  * test dataset stored at /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/
+=======
+ * test dataset stored at /Users/ben/Dropbox/Work/Carsten_MSc/ggData/profiles/
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 
 ## History
 
@@ -86,9 +94,28 @@ We do not 'support' the code but if you have a problem check the [issues](https:
 This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)
 
 
+```r
+ggParams$profilesFile <- paste0(ggParams$dataLoc, "Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz")
+```
 
+In this section we load and describe the  data files from /Users/ben/Dropbox/Work/Carsten_MSc/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.
+
+
+<<<<<<< HEAD
 In this section we load and describe the  data files from /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.
+=======
+```r
+print(paste0("Trying to load: ", ggParams$profilesFile))
+```
 
+```
+## [1] "Trying to load: /Users/ben/Dropbox/Work/Carsten_MSc/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz"
+```
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
+
+```r
+heatPumpProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+```
 
 ```
 ## [1] "Trying to load: /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz"
@@ -110,11 +137,16 @@ In this section we load and describe the  data files from /Users/carsten.dortans
 Describe using skim:
 
 
+```r
+skimr::skim(heatPumpProfileDT)
+```
+
 ```
 ## Skim summary statistics
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
+<<<<<<< HEAD
 ## ── Variable type:character ─────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
@@ -124,12 +156,27 @@ Describe using skim:
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
 ## ── Variable type:integer ───────────────────────────────────────────────────────────────────────────
+=======
+## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete    n min max empty n_unique
+##    season       0     5760 5760   6   6     0        4
+## 
+## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────
+##    variable missing complete    n    min        max     median n_unique
+##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
+## 
+## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
+<<<<<<< HEAD
 ## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────
+=======
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -140,13 +187,50 @@ Describe using skim:
 ##  879.07 ▆▇▆▅▂▂▁▁
 ```
 
+Draw a plot of GreenGrid heat pump profiles.
+
+
+```r
+myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = meanW)) +
+  facet_grid(season ~ .)
+
+myPlot
+```
+
+<div class="figure">
+<img src="heatPumpProfileAnalysis_files/figure-html/profilePlot-1.png" alt="Heat pump profiles"  />
+<p class="caption">(\#fig:profilePlot)Heat pump profiles</p>
+</div>
+
+Now draw a plot of what woud happen if we scaled this up to all NZ households?
+
+
+```r
+nzHH <- 1549890
+
+heatPumpProfileDT <- heatPumpProfileDT[, scaledMW := (meanW * nzHH)/10^6]
+
+myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = scaledMW)) +
+  facet_grid(season ~ .)
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png)<!-- -->
+
 
 # Runtime
 
 
 
 
+<<<<<<< HEAD
 Analysis completed in 0.79 seconds ( 0.01 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+=======
+Analysis completed in 2.55 seconds ( 0.04 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 
 # R environment
 
@@ -185,6 +269,7 @@ Session info:
 ## [7] dplyr_0.7.5         data.table_1.10.4-3 nzGREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
+<<<<<<< HEAD
 ##  [1] Rcpp_0.12.16      pillar_1.2.1      compiler_3.4.4   
 ##  [4] plyr_1.8.4        bindr_0.1.1       prettyunits_1.0.2
 ##  [7] tools_3.4.4       progress_1.2.0    digest_0.6.15    
@@ -199,6 +284,22 @@ Session info:
 ## [34] htmltools_0.3.6   assertthat_0.2.0  colorspace_1.3-2 
 ## [37] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
 ## [40] crayon_1.3.4
+=======
+##  [1] Rcpp_0.12.17      highr_0.7         pillar_1.2.3     
+##  [4] compiler_3.5.0    plyr_1.8.4        bindr_0.1.1      
+##  [7] prettyunits_1.0.2 tools_3.5.0       progress_1.2.0   
+## [10] digest_0.6.15     gtable_0.2.0      evaluate_0.10.1  
+## [13] tibble_1.4.2      pkgconfig_2.0.1   rlang_0.2.1      
+## [16] cli_1.0.0         rstudioapi_0.7    yaml_2.1.19      
+## [19] xfun_0.1          stringr_1.3.1     hms_0.4.2        
+## [22] rprojroot_1.3-2   grid_3.5.0        tidyselect_0.2.4 
+## [25] glue_1.2.0        R6_2.2.2          rmarkdown_1.10   
+## [28] bookdown_0.7      tidyr_0.8.1       purrr_0.2.5      
+## [31] reshape2_1.4.3    magrittr_1.5      scales_0.5.0     
+## [34] backports_1.1.2   htmltools_0.3.6   assertthat_0.2.0 
+## [37] colorspace_1.3-2  labeling_0.3      stringi_1.2.3    
+## [40] lazyeval_0.2.1    munsell_0.5.0     crayon_1.3.4
+>>>>>>> 3c453f20f6a7b463cc22c3c0e59ef9379a54e7ac
 ```
 
 # References

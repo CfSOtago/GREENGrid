@@ -19,8 +19,8 @@ output:
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+```{r knitrSetup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # by default turn off code echo
 #options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
 ```
 
@@ -126,6 +126,30 @@ Describe using skim:
 
 ```{r skimRable}
 skimr::skim(heatPumpProfileDT)
+```
+
+Draw a plot of GreenGrid heat pump profiles.
+
+```{r profilePlot, fig.cap="Heat pump profiles"}
+myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = meanW)) +
+  facet_grid(season ~ .)
+
+myPlot
+```
+
+Now draw a plot of what woud happen if we scaled this up to all NZ households?
+
+```{r scaledUpPlots}
+nzHH <- 1549890
+
+heatPumpProfileDT <- heatPumpProfileDT[, scaledMW := (meanW * nzHH)/10^6]
+
+myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = scaledMW)) +
+  facet_grid(season ~ .)
+
+myPlot
 ```
 
 
