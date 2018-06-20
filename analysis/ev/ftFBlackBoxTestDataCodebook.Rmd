@@ -7,15 +7,18 @@ subtitle: '`r params$subtitle`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  bookdown::word_document2:
+    toc: true
+    toc_depth: 2
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
   bookdown::html_document2:
     toc: true
     toc_float: TRUE
     toc_depth: 2
     keep_md: TRUE
     self_contained: no
-  bookdown::pdf_document2:
-    toc: true
-    toc_depth: 2
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
@@ -119,19 +122,32 @@ ftfSafeDT <- createSafeFtF(ftfDT)
 ```
 
 Create some useful derived variables.
+
 ```{r process ftf data, echo = TRUE}
-# create deried 
+# create derived 
 ftfSafeDT <- createDerivedFtF(ftfSafeDT)
 ```
 
+# Codebooks
+
+## Using Hmisc
+
 Describe data to create codebook:
 
-```{r skimRable}
+```{r createCodebookHmisc}
 # would prefer to use skim but the output wraps in a way that makes it less than useful
 #skimr::skim(ftfSafeDT)
 
 Hmisc::describe(ftfSafeDT)
 ```
+
+## Using codebook
+
+```{r createCodebook}
+#fails to wrap properly
+#codebook::codebook_table(ftfSafeDT)
+```
+
 
 # Runtime
 
