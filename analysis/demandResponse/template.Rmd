@@ -48,7 +48,7 @@ nzGREENGrid::loadLibraries(rmdLibs)
 nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/")
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/")
 ```
 
 \newpage
@@ -102,20 +102,20 @@ Specific history of this code:
 This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)
 
 ```{r set fileName}
-ggParams$profilesFile <- paste0(ggParams$dataLoc, "Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz")
+ggParams$profilesFile <- paste0(ggParams$dataLoc, "xxxx")
 ```
 
 In this section we load and describe the  data files from `r ggParams$profilesFile`.
 
 ```{r load data}
-heatPumpProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+dataDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
 ```
 
 
 Describe using skim:
 
 ```{r skimRable}
-skimr::skim(heatPumpProfileDT)
+skimr::skim(dataDT)
 ```
 
 
