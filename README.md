@@ -15,7 +15,7 @@ This repo follows the structure of an [R package](https://github.com/ropensci/rr
 
  * manual build & install from [git.soton.ac.uk](https://git.soton.ac.uk/ba1e12/nzGREENGrid): 
      + clone the repo from https://git.soton.ac.uk/ba1e12/nzGREENGrid
-     + open the project file in RStudio and use the Build -> Install and Restart menu item
+     + open the project file in RStudio and use the Build -> Install and Restart menu item. Be aware that it might fail if you do not have all the required packages. If so, install them from the RStudio packages tab.
  * automatic build & install from [git.soton.ac.uk](https://git.soton.ac.uk/ba1e12/nzGREENGrid): this ought to work but doesn't, possibly because `devtools` were designed for github.com (git.soton.ac.uk is a gitlab server):
      + `install.packages("devtools")` and then
      + `devtools::install_github("ba1e12/nzGREENGrid", host = "https://git.soton.ac.uk")` - NB 'host' matters, otherwise it will look on github...
