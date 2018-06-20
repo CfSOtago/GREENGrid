@@ -1,6 +1,9 @@
 ---
-title: 'FlipTheFleet Black Box Data Tests'
-subtitle: 'Exploration of test data'
+params:
+ title: "FlipTheFleet Test Black Box Data: Testing Time of Charging"
+ subtitle: "Exploration of test data"
+title: '`r params$title`'
+subtitle: '`r params$subtitle`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 # output:
@@ -65,7 +68,7 @@ ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) FlipTheFleet Black Box Data Tests, `r ggParams$pubLoc`.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) `r params$title`: `r params$subtitle`, `r ggParams$pubLoc`.
 
 This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
 
@@ -82,7 +85,8 @@ This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southa
 
 This report is intended to: 
 
- * load and test preliminary 'black box' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/).
+ * load and test preliminary 'black box' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/)
+ * preliminary analysis of time of charging to understand impact on 'peak' electricity
 
 ## Requirements:
 
@@ -123,7 +127,6 @@ ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 
 # do analysis on safe version
 ftfSafeDT <- ftfDT[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
-Hmisc::describe(ftfSafeDT)
 ```
 
 Create some useful derived variables.
@@ -133,6 +136,8 @@ ftfSafeDT <- ftfSafeDT[, rDate := lubridate::dmy(`Date (GPS)`)]
 ftfSafeDT <- ftfSafeDT[, rTime := hms::parse_hms(`Time (GPS)`)]
 #ftfSafeDT <- ftfSafeDT[, dateTime := lubridate::dmy_hms(rDate, rTime)]
 ```
+
+See ftFBlackBoxTestDataCodebook.Rmd for a full description of the data. 
 
 Check charger related variables.
 
