@@ -1,0 +1,182 @@
+---
+params:
+ title: "FlipTheFleet Test Black Box Data: Codebook"
+ subtitle: "Exploration of test data"
+title: '`r params$title`'
+subtitle: '`r params$subtitle`'
+author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
+date: 'Last run at: `r Sys.time()`'
+# output:
+#   html_document:
+#     code_folding: hide
+#     fig_caption: true
+#     keep_md: true
+#     number_sections: true
+#     self_contained: no
+#     toc: true
+#     toc_float: true
+#     toc_depth: 2
+#   pdf_document:
+#     fig_caption: yes
+#     keep_tex: yes
+#     number_sections: yes
+#     toc: yes
+#     toc_depth: 2
+# bibliography: '`r path.expand("~/bibliography.bib")`'
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_float: TRUE
+    toc_depth: 2
+    keep_md: TRUE
+    self_contained: no
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+#options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
+```
+
+```{r codeSetup, include=FALSE}
+#rm(list=ls(all=TRUE)) # remove all objects from workspace
+
+# Set start time ----
+startTime <- proc.time()
+
+library(nzGREENGrid)
+
+# Packages needed in this .Rmd file ----
+rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
+             "ggplot2", # for fancy graphs
+             "lubridate", # date & time processing
+             "readr", # writing to files
+             "skimr", # for skim
+             "knitr" # for kable
+)
+# load them
+nzGREENGrid::loadLibraries(rmdLibs)
+
+# run gg set up
+nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
+
+# Local paramaters
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
+```
+
+\newpage
+
+# Citation
+
+If you wish to use any of the material from this report please cite as:
+
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) `r params$title`: `r params$subtitle`, `r ggParams$pubLoc`.
+
+This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
+
+\newpage
+
+# About
+
+## Circulation
+
+```{r generic circulation, child=ggParams$circulationGenericRmd}
+```
+ 
+## Purpose
+
+This report is intended to: 
+
+ * load and test preliminary 'black box' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/).
+
+## Requirements:
+
+ * test dataset stored at `r ggParams$dataLoc`
+
+## History
+
+```{r child=ggParams$historyGenericRmd}
+```
+ 
+Specific history of this code:
+
+ * https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/ev
+
+## Support
+
+```{r child=ggParams$supportGenericRmd}
+```
+ 
+
+# Load data files
+
+## EV test data
+
+```{r set fileName}
+ggParams$ftfFile <- paste0(ggParams$dataLoc, "EVBlackBox export 2018-06-10-233146.csv")
+```
+
+In this section we load and describe the  data files from `r ggParams$ftfFile`. Note that we remove the following variables before we do so as they are potentially disclosive:
+
+ * `Reg No`
+ * `Latitude`
+ * `Longitude` 
+ * `Course (deg)` 
+
+```{r load ftf data}
+ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
+
+# do analysis on safe version
+ftfSafeDT <- ftfDT[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
+#Hmisc::describe(ftfSafeDT)
+```
+
+Create some useful derived variables.
+```{r process ftf data, echo = TRUE}
+# create dateTime var
+ftfSafeDT <- ftfSafeDT[, rDate := lubridate::dmy(`Date (GPS)`)]
+ftfSafeDT <- ftfSafeDT[, rTime := hms::parse_hms(`Time (GPS)`)]
+#ftfSafeDT <- ftfSafeDT[, dateTime := lubridate::dmy_hms(rDate, rTime)]
+```
+
+Describe using skim:
+
+```{r skimRable}
+skimr::skim(ftfSafeDT)
+```
+
+# Runtime
+
+
+```{r check runtime, include=FALSE}
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+```
+
+Analysis completed in `r round(elapsed,2)` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+# R environment
+
+R packages used:
+
+ * base R - for the basics [@baseR]
+ * data.table - for fast (big) data handling [@data.table]
+ * lubridate - date manipulation [@lubridate]
+ * ggplot2 - for slick graphics [@ggplot2]
+ * readr - for csv reading/writing [@readr]
+ * skimr - for skim [@skimr]
+ * knitr - to create this document & neat tables [@knitr]
+ * nzGREENGrid - for local NZ GREEN Grid project utilities
+
+Session info:
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References
