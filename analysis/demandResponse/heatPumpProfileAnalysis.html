@@ -219,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-06-20 15:55:44</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-20 17:08:56</em></h4>
 
 </div>
 
@@ -305,21 +305,21 @@ div.tocify {
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ─────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ─────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ──────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ──────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ───────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ───────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -340,7 +340,12 @@ myPlot</code></pre>
 Figure 3.1: Heat pump profiles
 </p>
 </div>
+</div>
+</div>
+<div id="scaling-method-1" class="section level1">
+<h1><span class="header-section-number">4</span> Scaling method 1</h1>
 <p>Now draw a plot of what woud happen if we scaled this up to all NZ households?</p>
+<p>Figure <a href="#fig:scaledUpPlots">4.1</a></p>
 <pre class="r"><code>nzHH &lt;- 1549890
 
 heatPumpProfileDT &lt;- heatPumpProfileDT[, scaledMW := (meanW * nzHH)/10^6]
@@ -350,15 +355,38 @@ myPlot &lt;- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = sea
   facet_grid(season ~ .)
 
 myPlot</code></pre>
-<p><img src="heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png" /><!-- --></p>
+<div class="figure"><span id="fig:scaledUpPlots"></span>
+<img src="heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png" alt="Mean Load Heat Pumps by Season"  />
+<p class="caption">
+Figure 4.1: Mean Load Heat Pumps by Season
+</p>
 </div>
+</div>
+<div id="scaling-method-2" class="section level1">
+<h1><span class="header-section-number">5</span> Scaling method 2</h1>
+<p>Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA’s total GWh with the percentage</p>
+<pre class="r"><code>totalGWH&lt;-708
+
+summeanW&lt;-heatPumpProfileDT[,sum(meanW)]
+
+
+
+heatPumpProfileDT &lt;- heatPumpProfileDT[, EECApm := (meanW / summeanW) * totalGWH] 
+
+myPlot &lt;- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = EECApm)) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;)
+
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/new%20calc-1.png" /><!-- --></p>
 </div>
 <div id="runtime" class="section level1">
-<h1><span class="header-section-number">4</span> Runtime</h1>
-<p>Analysis completed in 4.21 seconds ( 0.07 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<h1><span class="header-section-number">6</span> Runtime</h1>
+<p>Analysis completed in 4.59 seconds ( 0.08 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
-<h1><span class="header-section-number">5</span> R environment</h1>
+<h1><span class="header-section-number">7</span> R environment</h1>
 <p>R packages used:</p>
 <ul>
 <li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>

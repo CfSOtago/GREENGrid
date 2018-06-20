@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-20 15:55:44'
+date: 'Last run at: 2018-06-20 17:08:56'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ─────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ─────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ──────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ──────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ───────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ───────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -170,8 +170,11 @@ myPlot
 <img src="heatPumpProfileAnalysis_files/figure-html/profilePlot-1.png" alt="Heat pump profiles"  />
 <p class="caption">(\#fig:profilePlot)Heat pump profiles</p>
 </div>
+#Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
+
+Figure \@ref(fig:scaledUpPlots)
 
 
 ```r
@@ -186,7 +189,32 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 myPlot
 ```
 
-![](heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png)<!-- -->
+<div class="figure">
+<img src="heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png" alt="Mean Load Heat Pumps by Season"  />
+<p class="caption">(\#fig:scaledUpPlots)Mean Load Heat Pumps by Season</p>
+</div>
+#Scaling method 2
+Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
+
+```r
+totalGWH<-708
+
+summeanW<-heatPumpProfileDT[,sum(meanW)]
+
+
+
+heatPumpProfileDT <- heatPumpProfileDT[, EECApm := (meanW / summeanW) * totalGWH] 
+
+myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
+  geom_point(aes(y = EECApm)) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh')
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/new calc-1.png)<!-- -->
+
 
 
 # Runtime
@@ -194,7 +222,7 @@ myPlot
 
 
 
-Analysis completed in 4.21 seconds ( 0.07 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 4.59 seconds ( 0.08 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
