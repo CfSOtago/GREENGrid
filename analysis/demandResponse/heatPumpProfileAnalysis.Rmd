@@ -54,8 +54,9 @@ sysInfo <- Sys.info()
 userName <- sysInfo[[7]]
 if(userName == "ben"){
   ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/")
-} else (userName == "carsten.dortans"){
-  ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/")
+} 
+if(userName == "carsten.dortans"){
+  ggParams$dataLoc <- path.expand("~/Dropbox/Carsten_MA/ggData/profiles/")
 }
 ```
 
