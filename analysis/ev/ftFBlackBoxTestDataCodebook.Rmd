@@ -55,6 +55,7 @@ rmdLibs <- c("data.table", # data munching
              "ggplot2", # for fancy graphs
              "lubridate", # date & time processing
              "readr", # writing to files
+             "Hmisc", # describe
              "skimr", # for skim
              "knitr" # for kable
 )
@@ -131,22 +132,22 @@ In this section we load and describe the  data files from `r ggParams$ftfFile`. 
 ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 
 # do analysis on safe version
-ftfSafeDT <- ftfDT[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
-#Hmisc::describe(ftfSafeDT)
+ftfSafeDT <- createSafeFtF(ftfDT)
 ```
 
 Create some useful derived variables.
 ```{r process ftf data, echo = TRUE}
-# create dateTime var
-ftfSafeDT <- ftfSafeDT[, rDate := lubridate::dmy(`Date (GPS)`)]
-ftfSafeDT <- ftfSafeDT[, rTime := hms::parse_hms(`Time (GPS)`)]
-#ftfSafeDT <- ftfSafeDT[, dateTime := lubridate::dmy_hms(rDate, rTime)]
+# create deried 
+ftfSafeDT <- createDerivedFtF(ftfSafeDT)
 ```
 
-Describe using skim:
+Describe data to create codebook:
 
 ```{r skimRable}
-skimr::skim(ftfSafeDT)
+# would prefer to use skim but the output wraps in a way that makes it less than useful
+#skimr::skim(ftfSafeDT)
+
+Hmisc::describe(ftfSafeDT)
 ```
 
 # Runtime

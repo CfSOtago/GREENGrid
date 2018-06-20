@@ -115,7 +115,7 @@ Specific history of this code:
 ggParams$ftfFile <- paste0(ggParams$dataLoc, "EVBlackBox export 2018-06-10-233146.csv")
 ```
 
-In this section we load and describe the  data files from `r ggParams$ftfFile`. Note that we remove the following variables before we do so as they are potentially disclosive:
+In this section we load and describe the data from `r ggParams$ftfFile`. Note that we remove the following variables before we do so as they are potentially disclosive:
 
  * `Reg No`
  * `Latitude`
@@ -126,15 +126,14 @@ In this section we load and describe the  data files from `r ggParams$ftfFile`. 
 ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 
 # do analysis on safe version
-ftfSafeDT <- ftfDT[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
+ftfSafeDT <- createSafeFtF(ftfDT)
 ```
 
 Create some useful derived variables.
+
 ```{r process ftf data, echo = TRUE}
-# create dateTime var
-ftfSafeDT <- ftfSafeDT[, rDate := lubridate::dmy(`Date (GPS)`)]
-ftfSafeDT <- ftfSafeDT[, rTime := hms::parse_hms(`Time (GPS)`)]
-#ftfSafeDT <- ftfSafeDT[, dateTime := lubridate::dmy_hms(rDate, rTime)]
+# create deried 
+ftfSafeDT <- createDerivedFtF(ftfSafeDT)
 ```
 
 See ftFBlackBoxTestDataCodebook.Rmd for a full description of the data. 
