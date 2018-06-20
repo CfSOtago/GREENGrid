@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-20 16:55:19'
+date: 'Last run at: 2018-06-20 17:08:56'
 output:
   bookdown::html_document2:
     toc: true
@@ -170,6 +170,7 @@ myPlot
 <img src="heatPumpProfileAnalysis_files/figure-html/profilePlot-1.png" alt="Heat pump profiles"  />
 <p class="caption">(\#fig:profilePlot)Heat pump profiles</p>
 </div>
+#Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -192,6 +193,7 @@ myPlot
 <img src="heatPumpProfileAnalysis_files/figure-html/scaledUpPlots-1.png" alt="Mean Load Heat Pumps by Season"  />
 <p class="caption">(\#fig:scaledUpPlots)Mean Load Heat Pumps by Season</p>
 </div>
+#Scaling method 2
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
 
 ```r
@@ -220,7 +222,7 @@ myPlot
 
 
 
-Analysis completed in 4.35 seconds ( 0.07 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 4.59 seconds ( 0.08 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

@@ -137,6 +137,7 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 
 myPlot
 ```
+#Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -153,6 +154,7 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 
 myPlot
 ```
+#Scaling method 2
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
 ```{r new calc}
 totalGWH<-708
