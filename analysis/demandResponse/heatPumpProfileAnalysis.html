@@ -94,9 +94,6 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
-.html-widget {
-  margin-bottom: 20px;
-}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -222,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-06-20 14:18:25</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-20 15:21:17</em></h4>
 
 </div>
 
@@ -256,7 +253,7 @@ div.tocify {
 <div id="requirements" class="section level2">
 <h2><span class="header-section-number">2.3</span> Requirements:</h2>
 <ul>
-<li>test dataset stored at /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/</li>
+<li>test dataset stored at /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/</li>
 </ul>
 </div>
 <div id="history" class="section level2">
@@ -288,7 +285,8 @@ div.tocify {
 <div id="heat-pump-profiles" class="section level2">
 <h2><span class="header-section-number">3.1</span> Heat pump profiles</h2>
 <p>This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)</p>
-<p>In this section we load and describe the data files from /Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.</p>
+<p>In this section we load and describe the data files from /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.</p>
+<pre><code>## [1] &quot;Trying to load: /Users/carsten.dortans/Dropbox/Carsten_MA/ggData/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   obsHourMin = col_time(format = &quot;&quot;),
@@ -303,21 +301,21 @@ div.tocify {
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ───────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ─────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ──────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ─────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ───────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ─────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -330,7 +328,7 @@ div.tocify {
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">4</span> Runtime</h1>
-<p>Analysis completed in 1.77 seconds ( 0.03 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 0.79 seconds ( 0.01 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">5</span> R environment</h1>
@@ -346,39 +344,39 @@ div.tocify {
 <li>nzGREENGrid - for local NZ GREEN Grid project utilities</li>
 </ul>
 <p>Session info:</p>
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.4.4 (2018-03-15)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.5
+## Running under: macOS High Sierra 10.13.4
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## [1] en_NZ.UTF-8/en_NZ.UTF-8/en_NZ.UTF-8/C/en_NZ.UTF-8/en_NZ.UTF-8
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2.2    knitr_1.20        skimr_1.0.3       readr_1.1.1      
-## [5] lubridate_1.7.4   ggplot2_2.2.1     dplyr_0.7.5       data.table_1.11.4
-## [9] nzGREENGrid_0.1.0
+## [1] bindrcpp_0.2.2      knitr_1.20          skimr_1.0.3        
+## [4] readr_1.1.1         lubridate_1.7.4     ggplot2_2.2.1      
+## [7] dplyr_0.7.5         data.table_1.10.4-3 nzGREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.17      pillar_1.2.3      compiler_3.5.0   
+##  [1] Rcpp_0.12.16      pillar_1.2.1      compiler_3.4.4   
 ##  [4] plyr_1.8.4        bindr_0.1.1       prettyunits_1.0.2
-##  [7] tools_3.5.0       progress_1.2.0    digest_0.6.15    
+##  [7] tools_3.4.4       progress_1.2.0    digest_0.6.15    
 ## [10] gtable_0.2.0      evaluate_0.10.1   tibble_1.4.2     
-## [13] pkgconfig_2.0.1   rlang_0.2.1       cli_1.0.0        
-## [16] rstudioapi_0.7    yaml_2.1.19       xfun_0.1         
-## [19] stringr_1.3.1     hms_0.4.2         rprojroot_1.3-2  
-## [22] grid_3.5.0        tidyselect_0.2.4  glue_1.2.0       
-## [25] R6_2.2.2          rmarkdown_1.10    bookdown_0.7     
+## [13] pkgconfig_2.0.1   rlang_0.2.0       cli_1.0.0        
+## [16] rstudioapi_0.7    yaml_2.1.18       xfun_0.2         
+## [19] stringr_1.3.0     hms_0.4.2         rprojroot_1.3-2  
+## [22] grid_3.4.4        tidyselect_0.2.4  glue_1.2.0       
+## [25] R6_2.2.2          rmarkdown_1.9     bookdown_0.7     
 ## [28] tidyr_0.8.1       purrr_0.2.5       reshape2_1.4.3   
 ## [31] magrittr_1.5      scales_0.5.0      backports_1.1.2  
 ## [34] htmltools_0.3.6   assertthat_0.2.0  colorspace_1.3-2 
-## [37] stringi_1.2.3     lazyeval_0.2.1    munsell_0.5.0    
+## [37] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
 ## [40] crayon_1.3.4</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
