@@ -48,7 +48,15 @@ nzGREENGrid::loadLibraries(rmdLibs)
 nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/")
+
+sysInfo <- Sys.info()
+
+userName <- sysInfo[[7]]
+if(userName == "ben"){
+  ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/")
+} else (userName == "carsten.dortans"){
+  ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/")
+}
 ```
 
 \newpage
@@ -108,6 +116,7 @@ ggParams$profilesFile <- paste0(ggParams$dataLoc, "Heat Pump_2015-04-01_2016-03-
 In this section we load and describe the  data files from `r ggParams$profilesFile`.
 
 ```{r load data}
+print(paste0("Trying to load: ", ggParams$profilesFile))
 heatPumpProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
 ```
 
