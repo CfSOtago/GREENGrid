@@ -1,0 +1,46 @@
+sample,hhID,newID,Location,nAdults,nChildren0_12,nTeenagers13_18,outlierFlag,removed
+Unison,rf_28,rf_28,Hawkes Bay,2,3,0,NA,NA
+Unison,rf_29,rf_29,Hawkes Bay,2,1,0,NA,live
+Unison,rf_30,rf_30,Hawkes Bay,2,0,0,NA,NA
+Unison,rf_31,rf_31,Hawkes Bay,3,0,0,NA,live
+Unison,rf_32,rf_32,Hawkes Bay,2,2,0,NA,NA
+Unison,rf_33,rf_33,Hawkes Bay,2,2,1,NA,live
+Unison,rf_34,rf_34,Hawkes Bay,3,0,0,NA,NA
+Unison,rf_35,rf_35,Hawkes Bay,2,0,0,NA,42322
+Unison,rf_36,rf_36,Hawkes Bay,1,0,2,NA,live
+Unison,rf_37,rf_37,Hawkes Bay,2,0,0,NA,live
+Unison,rf_38,rf_38,Hawkes Bay,NA,0,0,NA,NA
+Unison,rf_38,rf_38,Hawkes Bay,2,2,0,NA,NA
+Unison,rf_39,rf_39,Hawkes Bay,2,0,1,NA,live
+Unison,rf_40,rf_40,Hawkes Bay,2,0,0,NA,42330
+Unison,rf_41,rf_41,Hawkes Bay,2,2,0,NA,live
+Unison,rf_42,rf_42,Hawkes Bay,2,3,0,NA,NA
+Unison,rf_43,rf_43,Hawkes Bay,2,0,0,NA,42296
+Unison,rf_44,rf_44,Hawkes Bay,2,2,0,NA,NA
+Unison,rf_45,rf_45,Hawkes Bay,2,3,0,NA,NA
+Unison,rf_46,rf_46,Hawkes Bay,2,1,0,NA,live
+Unison,rf_47,rf_47,Hawkes Bay,3,0,2,NA,NA
+Powerco,rf_12,rf_12,New Plymouth,1,0,0,NA,3/6/1015
+Powerco,rf_25,rf_25,New Plymouth,1,1,0,NA,NA
+Powerco,rf_23,rf_23,New Plymouth,1,0,0,NA,NA
+Powerco,rf_26,rf_26,New Plymouth,2,0,0,NA,NA
+Powerco,rf_06,rf_06,New Plymouth,2,0,0,NA,NA
+Powerco,rf_19,rf_19,New Plymouth,1,0,0,NA,NA
+Powerco,rf_10,rf_10,New Plymouth,2,1,0,NA,NA
+Powerco,rf_11,rf_11,New Plymouth,NA,NA,NA,NA,NA
+Powerco,rf_13,rf_13,New Plymouth,2,1,1,NA,NA
+Powerco,rf_09,rf_09,New Plymouth,2,1,0,NA,42171
+Powerco,rf_07,rf_07,New Plymouth,2,2,0,NA,NA
+Powerco,rf_22,rf_22,New Plymouth,2,0,0,NA,NA
+Powerco,rf_08,rf_08,New Plymouth,2,0,0,NA,NA
+Powerco,rf_18,rf_18,New Plymouth,2,1,0,NA,42532
+Powerco,rf_17_oldNo reused,rf_17b,New Plymouth,2,3,1,Unusual configration,42457
+Powerco,rf_14,rf_14,New Plymouth,1,1,0,NA,NA
+Powerco,rf_16,rf_16,New Plymouth,2,0,0,NA,42089
+Powerco,rf_21,rf_21,New Plymouth,2,0,0,NA,42821
+Powerco,rf_20,rf_20,New Plymouth,2,2,0,NA,42166
+Powerco,rf_27,rf_27,New Plymouth,2,1,1,NA,NA
+Powerco,rf_15_old,rf_15b,New Plymouth,1,0,0,NA,42019
+Powerco,rf_24,rf_24,New Plymouth,2,2,0,NA,NA
+Powerco,rf_15,rf_15a,New Plymouth,0,0,0,NA,42462
+Powerco,rf_17 sn_662,rf_17a,New Plymouth,0,0,0,NA,NA
