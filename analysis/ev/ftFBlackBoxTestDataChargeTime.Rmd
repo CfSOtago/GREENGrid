@@ -37,7 +37,7 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 ```
 
 ```{r codeSetup, include=FALSE}
-rm(list=ls(all=TRUE)) # remove all objects from workspace
+#rm(list=ls(all=TRUE)) # remove all objects from workspace # <- don't do this - rmeoves params set in yaml!
 
 # Set start time ----
 startTime <- proc.time()
@@ -85,8 +85,14 @@ This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southa
 
 This report is intended to: 
 
- * load and test preliminary 'black box' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/)
- * preliminary analysis of time of charging to understand impact on 'peak' electricity
+ * load and test preliminary '[black box](https://flipthefleet.org/ev-black-box/)' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/)
+ * preliminary analysis of time of charging to understand impact on 'peak' electricity demand
+
+<right>
+
+![The Black Box (Source: FlipTheFleet)](fig/bb.jpg)
+
+</right>
 
 ## Requirements:
 
@@ -94,7 +100,7 @@ This report is intended to:
 
 ## History
 
-```{r child=ggParams$historyGenericRmd}
+```{r includeHistory, child=ggParams$historyGenericRmd}
 ```
  
 Specific history of this code:
@@ -103,7 +109,7 @@ Specific history of this code:
 
 ## Support
 
-```{r child=ggParams$supportGenericRmd}
+```{r includeSupport, child=ggParams$supportGenericRmd}
 ```
  
 
@@ -132,42 +138,114 @@ ftfSafeDT <- createSafeFtF(ftfDT)
 Create some useful derived variables.
 
 ```{r process ftf data, echo = TRUE}
-# create deried 
+# create derived variables
 ftfSafeDT <- createDerivedFtF(ftfSafeDT)
 ```
 
-See ftFBlackBoxTestDataCodebook.Rmd for a full description of the data. 
+See [ftFBlackBoxTestDataCodebook.docx](https://www.dropbox.com/s/bfepx3sgfxek78e/ftFBlackBoxTestDataCodebook.docx?dl=0) for a full description of the data. 
 
-Check charger related variables.
+Check charger related variables. We think these are:
 
-```{r checkCharging}
-ggplot(ftfSafeDT, aes(x = `Charger (amps)`)) +
-  geom_histogram()
+ * `Charger (amps)`
+ * `Charger (V)`
 
-ggplot(ftfSafeDT, aes(x = `Charger (V)`)) +
-  geom_histogram()
+Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@ref(fig:checkPower) examine the distribution of amps, volts and the derived W.
 
-ggplot(ftfSafeDT, aes(x = `Charger (amps)` , y = `Charger (V)` )) +
-  geom_point()
+```{r setCaptions}
+# for plots
+figCaption <- paste0("FlipTheFleet 'Black Box' test data for 1 car for ", 
+                     uniqueN(ftfSafeDT$rDate), " days from ",
+                     min(ftfSafeDT$rDate, na.rm = TRUE), " to ", max(ftfSafeDT$rDate, na.rm = TRUE))
 ```
 
+```{r checkAmps, fig.cap="Distribution of charger amp readings"}
+ggplot(ftfSafeDT, aes(x = `Charger (amps)`)) +
+  geom_histogram(binwidth = 0.1) +
+  labs(caption = figCaption)
+```
+
+```{r checkVolts, fig.cap="Distribution of charger volt readings"}
+ggplot(ftfSafeDT, aes(x = `Charger (V)`)) +
+  geom_histogram(binwidth = 5) +
+  labs(caption = figCaption)
+```
+
+```{r checkPower, fig.cap="Distribution of derived power demand"}
+
+ftfSafeDT <- ftfSafeDT[, powerW := `Charger (amps)` * `Charger (V)`]
+
+ggplot(ftfSafeDT, aes(x = powerW/1000)) +
+  geom_histogram(binwidth = 0.1) +
+  labs(x = "kW", caption = figCaption)
+```
+
+The following table sumarises these distributions.
+
+```{r summaryTable, fig.cap="Summary table"}
+t <- summary(ftfSafeDT[, c("Charger (amps)", "Charger (V)", "powerW")])
+
+knitr::kable(caption = "Summary of Charger (amps)", t)
+```
+
+_XX Is the Amp reading of 33 an outlier? If so should we ignore the ~= 8kW values? XX_
 
 # Timing of charging
 
-We assume `Charger (amps)` is a good indicator of charging?
+We assume `powerW` is a good indicator of charging. For now we do not exclude the apparent outlier caused by the few very high Amp values (`Charger (amps)` > 30) but we flag them as potential problems.
 
-```{r plotChargingTime}
-plotDT <- ftfSafeDT[, .(meanAmp = mean(`Charger (amps)`),
-                        sumAmp = sum(`Charger (amps)`)), keyby = .(rTime)]
-
-ggplot(plotDT, aes(x = rTime, y = meanAmp)) +
-  geom_point()
-
-ggplot(plotDT, aes(x = rTime, y = log(sumAmp))) +
-  geom_point()
+```{r flagAmpOutliers}
+ftfSafeDT <- ftfSafeDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
 ```
 
-So this car appears to be on an overnight charging timer, although we do still see charging in the evening. We need a way to infer when the car is 'at home' without being disclosive. Perhaps we could use the modal overnight `Latitude` <-> `Longtidude` as 'home'?
+The following plot shows mean kW by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
+
+```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
+# set day of the week
+ftfSafeDT <- ftfSafeDT[, dow := lubridate::wday(rDate, label = TRUE)]
+
+plotDT <- ftfSafeDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, dow, ampOutlier)]
+
+myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = ampOutlier)) +
+  geom_point() +
+  facet_grid(dow ~ ampOutlier) +
+  labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
+  theme(legend.position = "bottom") #  legend
+  
+  myPlot
+  
+  # myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+  #                         hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), hms::as.hms("15:00:00"), 
+  #                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
+```
+
+Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday. We re-draw this plot (Figure \@ref(fig:plotChargingTimeClean)) excluding these outliers and also excluding values of exactly 0 for clarity.
+
+```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)"}
+myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data" & !is.na(dow) & meanPowerW != 0], aes(x = rTime, y = meanPowerW/1000)) +
+  geom_point() +
+  facet_grid(dow ~ .) +
+  labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
+  theme(legend.position = "bottom") #  legend
+  
+  myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                        hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), hms::as.hms("15:00:00"), 
+                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
+```
+
+We can see that this car appears to be on an overnight charging timer, although we do still see charging scattered through the rest of the day. So where is this charging happening? We need a way to infer when the car is 'at home' without being disclosive. Perhaps we could use the modal overnight `Latitude` <-> `Longtidude` as 'home'?
+
+# Questions to ask
+
+ * Data:
+    + Do the Amp & Volt distributions look right?
+    + Cause of Amp outliers?
+ * Research:
+    + Do all FlipTheFleet EV owners charge like this?
+    + Where are the EVs being charged and how can we tell?
+    + Does it vary by car/tariff/commute pattern/main use?
+    + What other patterns exist and how much within-vehicel and between-vehicle variation is there?
+   
+
 # Runtime
 
 
@@ -189,7 +267,6 @@ R packages used:
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
  * dplyr - for select and contains [@dplyr]
- * progress - for progress bars [@progress]
  * knitr - to create this document & neat tables [@knitr]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
 
