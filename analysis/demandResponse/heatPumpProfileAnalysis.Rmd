@@ -51,12 +51,14 @@ nzGREENGrid::setup() # sets a load of parameters which are then accessible via g
 
 sysInfo <- Sys.info()
 
-userName <- sysInfo[[7]]
+userName <- sysInfo[[7]] # need this to then set the data location correctly
+
 if(userName == "ben"){
-  ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/")
+  #ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles") # <- HPS
+  ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/") # <- dropbox
 } 
 if(userName == "carsten.dortans"){
-  ggParams$dataLoc <- path.expand("~/Dropbox/Carsten_MA/ggData/profiles/")
+  ggParams$dataLoc <- path.expand("~/Dropbox/Carsten_MA/ggData/profiles/") # <- dropbox
 }
 ```
 
@@ -146,10 +148,10 @@ Figure \@ref(fig:scaledUpPlots)
 ```{r scaledUpPlots,fig.cap='Mean Load Heat Pumps by Season'}
 nzHH <- 1549890
 
-heatPumpProfileDT <- heatPumpProfileDT[, scaledMW := (meanW * nzHH)/10^6]
+heatPumpProfileDT <- heatPumpProfileDT[, scaledMWmethod1 := (meanW * nzHH)/10^6]
 
 myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
-  geom_point(aes(y = scaledMW)) +
+  geom_point(aes(y = scaledMWmethod1)) +
   facet_grid(season ~ .)
 
 myPlot
@@ -163,17 +165,45 @@ summeanW<-heatPumpProfileDT[,sum(meanW)]
 
 
 
-heatPumpProfileDT <- heatPumpProfileDT[, EECApm := (meanW / summeanW) * totalGWH] 
+heatPumpProfileDT <- heatPumpProfileDT[, EECApmMethod2 := (meanW / summeanW) * totalGWH] 
 
 myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
-  geom_point(aes(y = EECApm)) +
+  geom_point(aes(y = EECApmMethod2)) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh')
 
 myPlot
 ```
 
+# Aggregation to half-hours
 
+So far we have used data at the 1 minute level. This makes for difficulties in comparison with standared electricity sector half-hourly tariff periods etc. This section takes each scaling method, aggregates to half-hours as appropriate and re-plots.
+
+```{r set halfHours}
+# create a 'half hour' variable for aggregation
+heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::round_hms(obsHourMin, 1800)]
+```
+
+## Method 1
+
+```{r aggregateMethod1}
+# aggregate the scaled MW to half hours
+# as it is MW we need to take the mean - taking the sum would not be meaningfull
+method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
+                                  keyby = .(obsHalfHour, season)] # <- takes the mean for each category of half hour & season
+
+myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
+  geom_point(aes(y = meanMW)) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Mean MW')
+
+myPlot
+```
+
+
+## Method 2
+
+To do :-)
 
 # Runtime
 
