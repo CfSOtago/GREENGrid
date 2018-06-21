@@ -42,6 +42,7 @@ rmdLibs <- c("data.table", # data munching
              "lubridate", # date & time processing
              "readr", # writing to files
              "Hmisc", # describe
+             "codebook", # codebook
              "skimr", # for skim
              "knitr" # for kable
 )
@@ -128,26 +129,42 @@ Create some useful derived variables.
 ftfSafeDT <- createDerivedFtF(ftfSafeDT)
 ```
 
-# Codebooks
-
-## Using Hmisc
+# Codebook
 
 Describe data to create codebook:
 
-```{r createCodebookHmisc}
-# would prefer to use skim but the output wraps in a way that makes it less than useful
-#skimr::skim(ftfSafeDT)
+```{r hmiscCodebook, eval=TRUE}
+# fails to wrap properly even if we remove cols - how to force small font so it fits?
+# uses skim
 
-Hmisc::describe(ftfSafeDT)
+cb <- Hmisc::describe(ftfSafeDT)
+
+cb
 ```
 
-## Using codebook
 
-```{r createCodebook}
-#fails to wrap properly
-#codebook::codebook_table(ftfSafeDT)
+```{r codebookCodebook, eval=FALSE}
+# fails to wrap properly even if we remove cols - how to force small font so it fits?
+# uses skim
+
+cb <- codebook::codebook_table(ftfSafeDT)
+cb <- dplyr::select(cb, -starts_with("p")) 
+cb <- dplyr::select(cb, -starts_with("comp")) 
+cb <- dplyr::select(cb, -starts_with("median")) 
+cb <- dplyr::select(cb, -starts_with("n_unique")) 
+cb <- dplyr::select(cb, -starts_with("empty"))
+cb <- dplyr::select(cb, -starts_with("units"))
+
+cb
 ```
 
+```{r skimCodebook, eval=FALSE}
+# an alternative approach also fails to wrap properly - how to force small font so it fits?
+
+skimCB <- skim(ftfSafeDT)
+
+cb <- dplyr::filter(skimCB, stat != "p0" & stat != "p100")
+```
 
 # Runtime
 
@@ -169,7 +186,7 @@ R packages used:
  * lubridate - date manipulation [@lubridate]
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
- * skimr - for skim [@skimr]
+ * Hmisc - for describe [@Hmisc]
  * knitr - to create this document & neat tables [@knitr]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
 
