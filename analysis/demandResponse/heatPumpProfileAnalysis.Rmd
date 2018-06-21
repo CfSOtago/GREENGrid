@@ -34,10 +34,10 @@ library(nzGREENGrid)
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
-             "dplyr", # data munching
              "ggplot2", # for fancy graphs
              "lubridate", # date & time processing
              "readr", # writing to files
+             "hms", # manipulate h:m:s
              "skimr", # for skim
              "knitr" # for kable
 )
@@ -139,7 +139,8 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 
 myPlot
 ```
-#Scaling method 1
+
+# Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -156,8 +157,11 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 
 myPlot
 ```
-#Scaling method 2
+
+# Scaling method 2
+
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
+
 ```{r new calc}
 totalGWH<-708
 
@@ -179,9 +183,21 @@ myPlot
 
 So far we have used data at the 1 minute level. This makes for difficulties in comparison with standared electricity sector half-hourly tariff periods etc. This section takes each scaling method, aggregates to half-hours as appropriate and re-plots.
 
+To do that we need to set a half-hour value from the observed time. We do this using truncate so that:
+
+ * 13:18:00 -> 13:00:00
+ * 13:40:00 -> 13:30 etc
+
+> NB: This means any plots will be using the 1/2 hour value at the  _start_  of the period!
+
 ```{r set halfHours}
 # create a 'half hour' variable for aggregation
-heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::round_hms(obsHourMin, 1800)]
+heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)] # <- this truncates the time to the previous half hour (hms works in seconds so 30 mins * 60 secs = 1800 secs). e.g. 13:18:00 -> 13:00:00 but 13:40:00 -> 13:30 etc
+
+# This means any plots will be using the 1/2 hour value at the  -> start <-  of the period!
+
+# check
+head(heatPumpProfileDT)
 ```
 
 ## Method 1
@@ -195,7 +211,9 @@ method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)),
 myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
   geom_point(aes(y = meanMW)) +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Mean MW')
+  labs(x='Time of Day', y='Mean MW') +
+  scale_x_time(breaks = c(hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
 
 myPlot
 ```
@@ -204,6 +222,8 @@ myPlot
 ## Method 2
 
 To do :-)
+
+> NB: should you aggregate this scaling method using mean or sum? Why? :-)
 
 # Runtime
 
