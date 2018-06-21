@@ -128,7 +128,7 @@ In this section we load and describe the data from `r ggParams$ftfFile`. Note th
  * `Longitude` 
  * `Course (deg)` 
 
-```{r load ftf data}
+```{r load ftf data, echo=TRUE}
 ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 
 # do analysis on safe version
@@ -243,7 +243,7 @@ We can see that this car appears to be on an overnight charging timer, although 
     + Do all FlipTheFleet EV owners charge like this?
     + Where are the EVs being charged and how can we tell?
     + Does it vary by car/tariff/commute pattern/main use?
-    + What other patterns exist and how much within-vehicel and between-vehicle variation is there?
+    + What other patterns exist and how much within-vehicle and between-vehicle variation is there?
    
 
 # Runtime
