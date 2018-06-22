@@ -150,7 +150,7 @@ Doing so removed `r before - after` (`r pcGPSNA` %) observations.
 
 ## Location inference
 
-Figure \@ref(fig:mapAllLocations) shows the location of all observations in the dataset (without sampling) coloured by `Speed (GPS)` If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
+Figure \@ref(fig:mapAllLocations) maps the location of a subset of the observations in the dataset coloured by `Speed (GPS)`. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
 
 ```{r mapAllLocations, fig.cap="Map of all observations coloured by speed"}
 # draw map of all GPS locations
