@@ -113,7 +113,7 @@ That loaded `r nzGREENGrid::tidyNum(nrow(ftfDT))` observations.
 
 ## Create derived variables
 
-Next we create some useful derived variables. Errors may be 'odd' dates and times or even not set inthe original data as we see below.
+Next we create some useful derived variables. Errors may be 'odd' dates and times or even not set in the original data as we see below.
 
 ```{r process ftf data, echo = TRUE}
 # create derived variables
@@ -133,7 +133,9 @@ knitr::kable(caption = "Number of obs and mean pack volts where time cannot be s
 
 ```
 
-We remove these NAs from the data (should we - what does GPS NA mean? no signal?).
+We remove these NAs from the data 
+
+> _XX (should we - what does GPS NA mean? no signal?) XX _
 
 ```{r removeNA}
 # remove NA dates
@@ -179,7 +181,7 @@ Figure \@ref(fig:inferLoc) shows the results of this inference. Does it look lik
 
 Next we remove the following variables as they are potentially disclosive:
 
- * `Reg No`
+ * `Reg No` - this is converted to `evID` using an encryption method
  * `Latitude`
  * `Longitude` 
  * `Course (deg)` 
@@ -247,7 +249,7 @@ We assume `powerW` is a good indicator of charging. For now we do not exclude th
 ftfSafeDT <- ftfSafeDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
 ```
 
-The following plot shows mean kW by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
+Figure \@ref(fig:plotChargingTime) shows mean kW by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
 
 ```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
 plotDT <- ftfSafeDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow, ampOutlier,geoLoc)]
@@ -265,25 +267,26 @@ myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = ampOutlier
   #                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
 ```
 
-Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday. We re-draw this plot (Figure \@ref(fig:plotChargingTimeClean)) excluding these outliers and also excluding values of exactly 0 for clarity.
+Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday and we also appear to see some night charging 'not at home' which may indicate our location inference is imperfect. We re-draw this plot (Figure \@ref(fig:plotChargingTimeClean)) excluding the Amp outliers and also excluding values of exactly 0 for clarity.
 
-```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)"}
+```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)", fig.height=6}
 myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data" & !is.na(rDow) & meanPowerW != 0], aes(x = rTime, y = meanPowerW/1000)) +
   geom_point() +
   facet_grid(rDow ~ geoLoc) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
-  myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
-                        hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), hms::as.hms("15:00:00"), 
-                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
+myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("06:00:00"),
+                        hms::as.hms("12:00:00"), hms::as.hms("18:00:00"), hms::as.hms("24:00:00")))
 ```
 
-We can see that this car appears to be on an overnight charging timer, although we do still see charging scattered through the rest of the day. So where is this charging happening? We need a way to infer when the car is 'at home' without being disclosive. Perhaps we could use the modal overnight `Latitude` <-> `Longtidude` as 'home'?
+We can see that this car appears to be on an overnight charging timer at home although we do still see charging scattered through the rest of the day. 
+
+So where is the non-home charging happening? We need a way to infer other locations without being disclosive.
 
 # Conclusions
 
-Questions to be aszked
+Questions to be asked
 
  * Data:
     + Do the Amp & Volt distributions look right?
@@ -316,7 +319,7 @@ R packages used:
  * lubridate - date manipulation [@lubridate]
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
- * dplyr - for select and contains [@dplyr]
+ * openssl - for hashing `Reg No` [@openssl]
  * knitr - to create this document & neat tables [@knitr]
  * nzGREENGrid - for local NZ GREEN Grid project utilities
 
