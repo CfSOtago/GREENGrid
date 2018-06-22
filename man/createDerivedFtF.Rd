@@ -7,9 +7,10 @@
 createDerivedFtF(dt)
 }
 \description{
-\code{createDerivedFtF} converts the given time periods (TP1 -> TP48, 49. 50) to hh:mm. It ignores
- TP49 & TP50 as evil incarnations of DST related clock changes (see https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/).
- We advise NEVER using the months in which this happens as it will hurt your brain.
+\code{createDerivedFtF} sets proper dates and times for R
+}
+\details{
+adds new derived variables to the passed data.table and returns it
 }
 \author{
 Ben Anderson, \email{b.anderson@soton.ac.uk} (original)
