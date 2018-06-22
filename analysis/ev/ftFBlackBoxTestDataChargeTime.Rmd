@@ -291,7 +291,7 @@ Questions to be asked
  * Data:
     + Do the Amp & Volt distributions look right?
     + Cause of Amp outliers?
-    + Date/Time NA (`r pcGPSNA` % of observations) are due to a lack of GPS date/time (and lat/long) - this means that there is no date/time in the data when GPS has no signal (?). Do we need another source of date/time?
+    + Date/Time NA (`r pcGPSNA` % of observations) are due to a lack of GPS date/time (and lat/long). Does this mean that there is no date/time in the data when GPS has no signal?. Our tests suggest that other data (e.g. power etc) is logged even though there is no date/time. Do we need another source of date/time? Could we infer time from seconds since powered on (assumes GPS OK at start-up?)
  * Research:
     + Do all FlipTheFleet EV owners charge like this?
     + Where are the EVs being charged when not at home and how can we tell?
