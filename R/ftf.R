@@ -56,10 +56,10 @@ inferLocationFtF <- function(dt){
   dt <- dt[, obsHour := lubridate::hour(rTime)]
   # could use a fancy bounding box but...
   # find bb for the hours of 01:00 - 05:00: we assume this is 'home'
-  dt <- homeMinLat <- dt[, homeMinLat := min(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(evID)] # do this for each value of evID so bbox is different for each one
-  dt <- homeMaxLat <- dt[, homeMaxLat := max(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(evID)]
-  dt <- homeMinLon <- dt[, homeMinLon := min(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(evID)]
-  dt <- homeMinLon <- dt[, homeMaxLon := max(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(evID)]
+  dt <- dt[, homeMinLat := min(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(evID)] # do this for each value of evID so bbox is different for each one
+  dt <- dt[, homeMaxLat := max(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(evID)]
+  dt <- dt[, homeMinLon := min(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(evID)]
+  dt <- dt[, homeMaxLon := max(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(evID)]
 
   dt <- dt[, geoLoc := ifelse((Latitude >= homeMinLat & Latitude <= homeMaxLat) &
                                 (Longitude >= homeMinLon & Longitude <= homeMaxLon), "Home", "Not home"), # set home if within bb at any time

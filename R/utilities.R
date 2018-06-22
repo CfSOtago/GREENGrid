@@ -1,3 +1,15 @@
+#' Clear workspace
+#'
+#' \code{clearAll} clears the workspace - use with care
+#'
+#' @author Ben Anderson, \email{b.anderson@@soton.ac.uk}
+#' @export
+#'
+clearAll <- function() {
+  print("Clearing workspace - going, going.... gone!")
+  rm(list=ls(all=TRUE))
+}
+
 #' Tidy long numbers
 #'
 #' \code{tidyNum} reformats long numbers to include commas and prevents scientific formats
