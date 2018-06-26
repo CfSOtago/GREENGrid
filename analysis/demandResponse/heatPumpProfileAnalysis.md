@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-26 10:14:26'
+date: 'Last run at: 2018-06-26 14:09:44'
 output:
   bookdown::html_document2:
     toc: true
@@ -284,14 +284,51 @@ myPlot
 
 To do :-)
 
-> NB: should you aggregate this scaling method using mean or sum? Why? :-)
+> NB: should you aggregate this scaling method using mean or sum? Why? :-) -->Since we take the percentages of GWh we need to sum up
+
+
+
+```r
+# aggregate the percentage of GWh
+method2AggDT <- heatPumpProfileDT[, .(GWh = sum(EECApmMethod2)), 
+                                  keyby = .(season, obsHalfHour)] # <- takes the sum for each category of half hour & season
+
+myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
+  geom_step(aes(y = GWh)) +
+  ggtitle("Total New Zealand half hour heat pump energy consumption by season") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+scale_colour_gradient(low= "green", high="red")
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/aggregateMethod2-1.png)<!-- -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Runtime
 
 
 
 
-Analysis completed in 5.65 seconds ( 0.09 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 6.45 seconds ( 0.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

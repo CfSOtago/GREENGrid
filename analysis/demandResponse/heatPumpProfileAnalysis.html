@@ -219,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-06-26 10:14:26</em></h4>
+<h4 class="date"><em>Last run at: 2018-06-26 14:09:44</em></h4>
 
 </div>
 
@@ -434,13 +434,28 @@ myPlot</code></pre>
 <h2><span class="header-section-number">6.2</span> Method 2</h2>
 <p>To do :-)</p>
 <blockquote>
-<p>NB: should you aggregate this scaling method using mean or sum? Why? :-)</p>
+<p>NB: should you aggregate this scaling method using mean or sum? Why? :-) –&gt;Since we take the percentages of GWh we need to sum up</p>
 </blockquote>
+<pre class="r"><code># aggregate the percentage of GWh
+method2AggDT &lt;- heatPumpProfileDT[, .(GWh = sum(EECApmMethod2)), 
+                                  keyby = .(season, obsHalfHour)] # &lt;- takes the sum for each category of half hour &amp; season
+
+myPlot &lt;- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
+  geom_step(aes(y = GWh)) +
+  ggtitle(&quot;Total New Zealand half hour heat pump energy consumption by season&quot;) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;03:00:00&quot;), hms::as.hms(&quot;06:00:00&quot;), hms::as.hms(&quot;09:00:00&quot;), hms::as.hms(&quot;12:00:00&quot;), 
+                          hms::as.hms(&quot;15:00:00&quot;), hms::as.hms(&quot;18:00:00&quot;), hms::as.hms(&quot;21:00:00&quot;))) +
+scale_colour_gradient(low= &quot;green&quot;, high=&quot;red&quot;)
+
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/aggregateMethod2-1.png" /><!-- --></p>
 </div>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">7</span> Runtime</h1>
-<p>Analysis completed in 5.65 seconds ( 0.09 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 6.45 seconds ( 0.11 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">8</span> R environment</h1>
