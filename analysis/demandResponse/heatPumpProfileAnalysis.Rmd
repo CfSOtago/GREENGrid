@@ -206,7 +206,7 @@ head(heatPumpProfileDT)
 # aggregate the scaled MW to half hours
 # as it is MW we need to take the mean - taking the sum would not be meaningfull
 method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
-                                  keyby = .(obsHalfHour, season)] # <- takes the mean for each category of half hour & season
+                                  keyby = .(season, obsHalfHour)] # <- takes the mean for each category of half hour & season
 
 myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
   geom_point(aes(y = meanMW)) +
