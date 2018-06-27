@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-26 14:09:44'
+date: 'Last run at: 2018-06-27 11:15:12'
 output:
   bookdown::html_document2:
     toc: true
@@ -281,7 +281,7 @@ myPlot
 
 
 ## Method 2
-
+Used the EECA total NZ number for heat pump energy consumption and converted it into GWh. Converted minute data into half-hour steps. 
 To do :-)
 
 > NB: should you aggregate this scaling method using mean or sum? Why? :-) -->Since we take the percentages of GWh we need to sum up
@@ -295,7 +295,7 @@ method2AggDT <- heatPumpProfileDT[, .(GWh = sum(EECApmMethod2)),
 
 myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
   geom_step(aes(y = GWh)) +
-  ggtitle("Total New Zealand half hour heat pump energy consumption by season") +
+  ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
@@ -307,6 +307,73 @@ myPlot
 
 ![](heatPumpProfileAnalysis_files/figure-html/aggregateMethod2-1.png)<!-- -->
 
+#BRANZ vs. EECA comparison
+
+```r
+nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership and 2013 census data
+wToKw <- 1000
+
+heatPumpProfileDT <- heatPumpProfileDT[, scaledMWmethod1 := ((meanW * nzHHheatPumps)/wToKw)*(1/60)] # <- convert mean W to kWh for all NZ hhs
+
+assumeDaysPerSeason <- 90
+
+sumbranzGWh <- heatPumpProfileDT[, sum((scaledMWmethod1 * assumeDaysPerSeason)/1000)/1000]
+
+diffbranzeeca <- 1-(sumbranzGWh/totalGWH)
+skimr::skim(sumbranzGWh)
+```
+
+```
+## 
+## Skim summary statistics
+## 
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##     variable missing complete n   mean sd     p0    p25    p50    p75
+##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
+##    p100     hist
+##  638.63 ▁▁▁▇▁▁▁▁
+```
+
+```r
+skimr::skim(totalGWH)
+```
+
+```
+## 
+## Skim summary statistics
+## 
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
+##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
+```
+
+```r
+skimr::skim(diffbranzeeca)
+```
+
+```
+## 
+## Skim summary statistics
+## 
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
+##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
+##      hist
+##  ▁▁▁▇▁▁▁▁
+```
+Wee identify that BRANZ in comination with GREENGrid Grid Spy and 2013 household ownership census data represent a 9% lower total energy consumption for heat pumps than EECA calculates.
+
+EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
+
+BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
+
+Comparison of error bands:
+
+Number of heatpumps BRANZ                   Difference between BRANZ+Census+GREENGrid and EECA 2015 in total consumption
+
+Without error band        515,015           BRANZ < EECA (9% smaller)
+With +6/+10% error band   620,588           EECA  < BRANZ (8% smaller)
+With -6/-10% error band   409,442           BRANZ < EECA (28% smaller)
 
 
 
@@ -314,6 +381,13 @@ myPlot
 
 
 
+
+# Yearly consumption
+We need the original data for this, currently the data basis is for an average day in each season.
+
+```r
+heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+```
 
 
 
@@ -328,7 +402,7 @@ myPlot
 
 
 
-Analysis completed in 6.45 seconds ( 0.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 6.63 seconds ( 0.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
