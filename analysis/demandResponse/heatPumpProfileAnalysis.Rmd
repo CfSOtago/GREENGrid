@@ -206,7 +206,7 @@ head(heatPumpProfileDT)
 # aggregate the scaled MW to half hours
 # as it is MW we need to take the mean - taking the sum would not be meaningfull
 method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
-                                  keyby = .(obsHalfHour, season)] # <- takes the mean for each category of half hour & season
+                                  keyby = .(season, obsHalfHour)] # <- takes the mean for each category of half hour & season
 
 myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
   geom_point(aes(y = meanMW)) +
@@ -220,10 +220,124 @@ myPlot
 
 
 ## Method 2
-
+Used the EECA total NZ number for heat pump energy consumption and converted it into GWh. Converted minute data into half-hour steps. 
 To do :-)
 
-> NB: should you aggregate this scaling method using mean or sum? Why? :-)
+> NB: should you aggregate this scaling method using mean or sum? Why? :-) -->Since we take the percentages of GWh we need to sum up
+
+
+```{r aggregateMethod2}
+# aggregate the percentage of GWh
+method2AggDT <- heatPumpProfileDT[, .(GWh = sum(EECApmMethod2)), 
+                                  keyby = .(season, obsHalfHour)] # <- takes the sum for each category of half hour & season
+
+myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
+  geom_step(aes(y = GWh)) +
+  ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+scale_colour_gradient(low= "green", high="red")
+
+myPlot
+```
+
+#BRANZ vs. EECA comparison
+```{r branzvseeca}
+nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership and 2013 census data
+wToKw <- 1000
+assumeDaysPerSeason <- 90
+
+heatPumpProfileDT <- heatPumpProfileDT[, scaledGWh := (((meanW * nzHHheatPumps)/wToKw)*(1/60)*assumeDaysPerSeason)/1000/1000] # <- convert mean W to kWh for all NZ hhs, then assumes 90 days per season and calculate GWh
+
+sumbranzGWh <- heatPumpProfileDT[, sum(scaledGWh)]
+
+
+diffbranzeeca <- 1-(sumbranzGWh/totalGWH)
+skimr::skim(sumbranzGWh)
+skimr::skim(totalGWH)
+skimr::skim(diffbranzeeca)
+```
+Wee identify that BRANZ in comination with GREENGrid Grid Spy and 2013 household ownership census data represent a 9% lower total energy consumption for heat pumps than EECA calculates.
+
+EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
+
+BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
+
+
+# Yearly consumption
+We need the original data for this, currently the data basis is for an average day in each season.
+```{r yearlyconsumption}
+heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+
+```
+
+# Technical potential of demand response: Scenarios for heat pump data
+We assume that peak time periods are prevalent from half hours 13-20 and 32-41, equivalent to 6.30am-10am and 4pm-8.30pm.
+## Load curtailment to zero
+In this first scenario we assume that the laod during peak time periods is cut out of the consumption pattern.
+
+Steps:
+1) Extracting peak time-periods from heat pump data
+2) Building sum of GWh
+
+```{r scenario load curtailment}
+
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW", "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+sc1data <- sc1data[, timePeriod := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:30:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   timePeriod := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:30:00"),
+                   timePeriod := "Evening Peak"]
+
+sc1data[, .(sum = sum(scaledGWh)), keyby = .(season, timePeriod)]
+
+
+if(sc1data(timePeriod) == "Not Peak"){
+  sc1data <- sc1data(scaledGWh==0) # <- dropbox
+}
+
+
+
+
+
+
+
+
+if (sc1data)
+
+
+myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, colour=season)) +
+  geom_step(aes(y = scaledGWh)) +
+  ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+#scale_colour_gradient(low= "green", high="red")
+
+myPlot
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
 
 # Runtime
 
