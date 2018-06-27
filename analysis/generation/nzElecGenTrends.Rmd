@@ -3,9 +3,9 @@ title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::pdf_document2: default
   bookdown::html_document2:
     self_contained: no
+  bookdown::pdf_document2: default
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
@@ -47,9 +47,11 @@ if(local){ # set data storage location
   ggParams$lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
 }
 
-ggParams$figCaption <- paste0("Source: EA wholesale generation data 1997-2018",
-                              "\nAvailable from: https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/")
-
+ggParams$genCaption <- paste0("Source: NZ Energy Authority",
+                              "\nhttps://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/")
+ggParams$soiCaption <- paste0("Source: The Ministry for the Environment and Statistics New Zealand",
+                    "\nhttps://data.mfe.govt.nz/table/89381-monthly-el-nino-southern-oscillation-index-19862016")
+ggParams$jointCaption <- paste0(ggParams$genCaption, "\n", ggParams$soiCaption)
 ```
 
 \newpage
@@ -438,9 +440,72 @@ uniqueN(allGenDT$Time_Period)
 
 ## Trends over years
 
+The hydro trends (and the consequences for Carbon-based generation) should be seen in the context of the [Southern Oscilation](https://www.niwa.co.nz/climate/information-and-resources/elnino/el-nino-and-southern-oscillation)'s effect on rainfall.
+
+![Southern Oscillation Index](https://www.niwa.co.nz/sites/niwa.co.nz/files/styles/sidebar/public/sites/default/files/images/imported/0005/73454/soi_5mthmn_188003-201509_v2.png)
+
+"Although El Niño and La Niña (collectively known as El Niño-Southern Oscillation or ENSO) have an important influence on New Zealand’s climate, it accounts for less than 25 percent of the year-to year variance in seasonal rainfall and temperature at most locations. Nevertheless, its effects can be significant." https://www.niwa.co.nz/climate/information-and-resources/elnino/elnino-impacts-on-newzealand
+
+"La Niña events have different impacts on New Zealand's climate. More north–easterly winds are characteristic, which tend to bring moist, rainy conditions to the north–east of the North Island, and reduced rainfall to the south and south–west of the South Island.
+
+Therefore, some areas, such as central Otago and South Canterbury, can experience drought in both El Niño and La Niña. "
+
+Figure \ref(fig:monthlySOI) shows the monthly El Niño Southern Oscillation Index for 1986–2016 and shows at least four strong El Nino periods centred on 1987, 1993, 1997, 2005 and 2015.
+
+```{r monthlySOI, fig.cap="Monthly Southern Oscillation"}
+
+soFile <- paste0(ggParams$dataLoc,"_RAW DATA/mfe/mfe-monthly-el-nino-southern-oscillation-index-19862016/monthly-el-nino-southern-oscillation-index-19862016.csv")
+monthlySODT <- data.table::as.data.table(readr::read_csv(soFile))
+
+head(monthlySODT)
+
+# fix the unhelpful month format
+monthlySODT <- monthlySODT[, c("monthChar", "yearChar") := data.table::tstrsplit(Month_year, "-")]
+monthlySODT <- monthlySODT[, rYear := ifelse(as.integer(yearChar) > 85, 
+                                             paste0(as.integer(yearChar) + 1900),
+                                             paste0(as.integer(yearChar) + 2000)
+                                             )
+                           ]
+monthlySODT <- monthlySODT[, dateChar := paste0(rYear, "-", monthChar,"-" , "01") # <- set to 1st of the month
+                           ]
+monthlySODT <- monthlySODT[, rMonth := lubridate::ymd(dateChar) # <- set to 1st of the month
+                           ]
+
+# check plot
+ 
+ggplot(monthlySODT, aes(x = rMonth, y = Southern_oscillation_index)) +
+  geom_step() + 
+  geom_hline(yintercept = 0) +
+  annotate("text", x = as.Date("1990-01-01"), y = 2.5, label = "La Nina") +
+  annotate("text", x = as.Date("1990-01-01"), y = -2.5, label = "El Nino") +
+  labs(x = "Date",
+       y = "Monthly El Niño Southern Oscillation Index, 1986–2016",
+       caption = ggParams$soiCaption) +
+  scale_x_date(date_labels = "%Y", date_breaks = "2 years")
+
+```
+
+Figure \ref(fig:yearlySOI) confirms this overall pattern although the aggregation to calendar years (as opposed to climate years) masks some of the periods.
+
+```{r yearlySOI}
+# create yearly summary
+yearlySODT <- monthlySODT[, .(meanSOI = mean(Southern_oscillation_index)), keyby = .(rYear)]
+
+ggplot(yearlySODT, aes(x = as.integer(rYear), y = meanSOI)) +
+  geom_step() + 
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1990, y = 2, label = "La Nina") +
+  annotate("text", x = 1990, y = -2, label = "El Nino") +
+  labs(x = "Year",
+       y = "Mean monthly El Niño Southern Oscillation Index, 1986–2016",
+       caption = ggParams$soiCaption)
+```
+
+## Yearly generation trends
+
 ```{r yearly summary}
-plotDT <- allGenDT[,
-                .(sumkWh = sum(kWh, na.rm = TRUE),
+yearlyPlotDT <- allGenDT[,
+                .(sumGWh = sum(kWh, na.rm = TRUE)/1000000,
                   meankWh = mean(kWh, na.rm = TRUE),
                   mediankWh = median(kWh, na.rm = TRUE),
                   sdkWh = sd(kWh, na.rm = TRUE),
@@ -450,7 +515,7 @@ plotDT <- allGenDT[,
 # create a function to produce identical plots
 makePlotCol <- function(dt, xVar, yVar, xLabel, yLabel){
   #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
-  ggplot(plotDT, aes(x = get(xVar), y = get(yVar)/1000000, fill = Fuel_Code)) +
+  ggplot(dt, aes(x = get(xVar), y = get(yVar), fill = Fuel_Code)) +
     geom_col(alpha = 0.4) +
     labs(caption = ggParams$figCaption, x = eval(xLabel), y = eval(yLabel)) +
     theme(legend.title=element_blank(), legend.position="bottom") +
@@ -459,15 +524,24 @@ makePlotCol <- function(dt, xVar, yVar, xLabel, yLabel){
 
 makePlotPoint <- function(dt, xVar, yVar, xLabel, yLabel){
   #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
-  ggplot(plotDT, aes(x = get(xVar), y = get(yVar)/1000000, colour = Fuel_Code)) +
+  ggplot(dt, aes(x = get(xVar), y = get(yVar), colour = Fuel_Code)) +
     geom_point(alpha = 0.4) +
     labs(caption = ggParams$figCaption, x = eval(xLabel), y = eval(yLabel)) +
     theme(legend.title=element_blank(), legend.position="bottom") +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
 }
 
+makePlotStep <- function(dt, xVar, yVar, xLabel, yLabel){
+  #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
+  ggplot(dt, aes(x = get(xVar), y = get(yVar), colour = Fuel_Code)) +
+    geom_step(alpha = 0.4) +
+    labs(caption = ggParams$figCaption, x = eval(xLabel), y = eval(yLabel)) +
+    theme(legend.title=element_blank(), legend.position="bottom") +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
+}
+
 # set values for annotations
-yMax <- max(plotDT$sumkWh)/1000000
+yMax <- max(yearlyPlotDT$sumGWh)
 myAlpha <- 0.1
 vLineAlpha <- 0.4
 vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
@@ -519,12 +593,7 @@ annotateAllGenYears <- function(plot){
 }
 ```
 
-Figures \@ref(fig:yearlyTotalPlotCol) and \@ref(fig:yearlyTotalPlotPoint) show the dominance of hydro and decrease in coal use.
-
-```{r yearlyTotalPlotCol, fig.cap="Yearly total plot by fuel type"}
-myPlot <- makePlotCol(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total yearly GWh")
-annotateAllGenYears(myPlot)
-```
+Figure \@ref(fig:yearlyTotalPlotPoint) shows the dominance of hydro and decrease in coal use.
 
 Adding annotations with information from:
 
@@ -532,20 +601,194 @@ Adding annotations with information from:
  * https://en.wikipedia.org/wiki/Huntly_Power_Station
 
 ```{r yearlyTotalPlotPoint, fig.cap="Yearly total plot by fuel type"}
-myPlot <- makePlotPoint(plotDT, xVar = "year", yVar = "sumkWh", xLabel = "Year", yLabel = "Total yearly GWh")
+myPlot <- makePlotPoint(yearlyPlotDT, xVar = "year", yVar = "sumGWh", xLabel = "Year", yLabel = "Total yearly GWh")
 annotateAllGenYears(myPlot)
 ```
 
-## Trends by day
+If we consider the relationship between generation and the SOI at the yearly level, Figure \ref(fig:yearlyGenSOI) suggests that Gas is fairly responsive to increasing SOI above 0 (La Nina years) and hydro is the inverse (with considerable variation/uncertainty) on an annual measure. Presumably this indicates the use of Gas for peaking generation when hydro is at capacity in drier years?
 
-Figures \@ref(fig:dailyTotalPlotPoint) and \@ref(fig:dailyTotalPlotCol) show the same trends but using daily data to highlight seasonal patterns over time. Annotations use information from:
+```{r yearlyGenSOI, fig.cap="Yearly generation values by fuel vs yearly SOI"}
+#summary(plotDT)
+yearlyPlotDT <- yearlyPlotDT[, rYear := as.integer(year)]
+setkey(yearlyPlotDT, rYear)
+yearlySODT <- yearlySODT[, rYear := as.integer(rYear)]
+setkey(yearlySODT, rYear)
+yearlyPlotDT <- yearlyPlotDT[yearlySODT]
+#summary(yearlyPlotDT)
+
+# exclude 1997 as missing data
+ggplot(yearlyPlotDT[!is.na(Fuel_Code) & rYear != 1997], aes(x = sumGWh, y = meanSOI)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 0) +
+  labs(x = "Total GWh",
+       y = "Monthly El Niño Southern Oscillation Index, 1986–2016",
+       caption = ggParams$jointCaption) +
+  facet_wrap(~Fuel_Code, ncol = 4, scales = "free")
+```
+
+
+## Monthly trends
+
+This section uses monthly aggregates.
+
+```{r monthlyTotalPlotPoint, fig.height = 8, fig.cap="Yearly total plot by fuel type"}
+allGenDT <- allGenDT[, dateChar := paste0(lubridate::year(rDate),
+                                           "-",
+                                           lubridate::month(rDate),
+                                           "-01")]
+allGenDT <- allGenDT[, rMonth := lubridate::ymd(dateChar) # <- set to 1st of the month
+                           ]
+monthlyPlotDT <- allGenDT[,
+                .(sumGWh = sum(kWh, na.rm = TRUE)/1000000,
+                  meankWh = mean(kWh, na.rm = TRUE),
+                  mediankWh = median(kWh, na.rm = TRUE),
+                  sdkWh = sd(kWh, na.rm = TRUE),
+                  nObs = .N),
+                keyby = .(rMonth, Fuel_Code)]
+
+annotateAllGenMonths <- function(plot){
+  plot <- plot +
+    annotate("text", x = as.Date("2004-01-01"), # x axis is a real date
+             y = yMax * 0.6, angle = 10,size = myTextSize,
+             label = "<- Huntly 50 MW gas unit added", hjust = 0) +
+    geom_vline(xintercept = as.Date("2004-01-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2005-06-01"),
+             y = yMax * 0.5, angle = 10,size = myTextSize,
+             label = "<~ Warm dry winters", hjust = 0) +
+    geom_vline(xintercept = as.Date("2005-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2007-01-01"),
+             y = yMax * 0.5, angle = 10,size = myTextSize,
+             label = "<- Huntly CCGT unit added", hjust = 0) +
+    geom_vline(xintercept = as.Date("2007-01-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2007-06-01"),
+             y = yMax * 0.4, angle = 10,size = myTextSize,
+             label = "<- Huntly mainly gas fired", hjust = 0) +
+    geom_vline(xintercept = as.Date("2007-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2008-06-01"),
+             y = yMax * 0.6, angle = 10,size = myTextSize,
+             label = "<- Dry winter", hjust = 0) +
+    geom_vline(xintercept = as.Date("2008-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2012-12-01"),
+             y = yMax * 0.5, angle = 10,size = myTextSize,
+             label = "<- 1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
+    geom_vline(xintercept = as.Date("2012-12-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2012-06-01"),
+             y = yMax * 0.4, angle = 10,size = myTextSize,
+             label = "<- Dry winter on South Island", hjust = 0) +
+    geom_vline(xintercept = as.Date("2012-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2013-06-01"),
+             y = yMax * 0.6, angle = 10,size = myTextSize,
+             label = "<- 2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
+    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2013-06-01"),
+             y = yMax * 0.3, angle = 10,size = myTextSize,
+             label = "<- Warmest winter to date", hjust = 0) +
+    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
+    annotate("text", x = as.Date("2015-06-01"),
+             y = yMax * 0.4, angle = 10,size = myTextSize,
+             label = "<- 2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
+    geom_vline(xintercept = as.Date("2015-06-01"), alpha = vLineAlpha, colour = vLineCol)
+  return(plot)
+}
+
+annotateSOIMonths <- function(plot){
+  plot <- myPlot + 
+  annotate("text", x = as.Date("2000-01-01"),
+             y = yMax * 1.05, angle = 10,size = myTextSize,colour = "blue",
+             label = "La Nina", hjust = 0) +
+  annotate("rect", xmin = as.Date("1999-01-01"),
+             xmax = as.Date("2001-01-01"), 
+             ymin = yMin, ymax = yMax, alpha = rectAlpha, fill = vLineCol, colour = vLineCol) +
+  annotate("text", x = as.Date("2005-01-01"),
+             y = yMax * 1.05, angle = 10,size = myTextSize, colour = "blue",
+             label = "El Nino", hjust = 0) +
+  annotate("rect", xmin = as.Date("2004-01-01"),
+             xmax = as.Date("2006-01-01"), 
+             ymin = yMin, ymax = yMax, alpha = rectAlpha, fill = vLineCol, colour = vLineCol) +
+  annotate("text", x = as.Date("2008-06-01"),
+             y = yMax * 1.05, angle = 10,size = myTextSize,colour = "blue",
+             label = "La Nina", hjust = 0) +
+  annotate("rect", xmin = as.Date("2008-01-01"),
+             xmax = as.Date("2009-01-01"), 
+             ymin = yMin, ymax = yMax, alpha = rectAlpha, fill = vLineCol, colour = vLineCol) +
+  annotate("text", x = as.Date("2012-01-01"),
+             y = yMax * 1.05, angle = 10,size = myTextSize,colour = "blue",
+             label = "La Nina", hjust = 0) +
+  annotate("rect", xmin = as.Date("2011-01-01"),
+             xmax = as.Date("2013-01-01"), 
+             ymin = yMin, ymax = yMax, alpha = rectAlpha, fill = vLineCol, colour = vLineCol) +
+  annotate("text", x = as.Date("2015-06-01"),
+             y = yMax * 1.05, angle = 10,size = myTextSize, colour = "blue",
+             label = "El Nino", hjust = 0) +
+  annotate("rect", xmin = as.Date("2015-01-01"),
+             xmax = as.Date("2016-01-01"), 
+             ymin = yMin, ymax = yMax, alpha = rectAlpha, fill = vLineCol, colour = vLineCol)
+  return(plot)
+}
+
+dateLims <- as.Date(c('1998-01-01','2018-12-01')) # force restriction which also ensures labels are at month 6 & 12 :-)
+myTitle <- "Total monthly New Zealand electricity generation by fuel source 1998-2018"
+
+myPlot <- makePlotStep(monthlyPlotDT[!is.na(Fuel_Code)], xVar = "rMonth", yVar = "sumGWh", xLabel = "Year", yLabel = "Total monthly GWh")
+
+# add formats for scales etc
+myPlot <- myPlot +
+  scale_x_date(date_labels = "%Y", date_breaks = "6 months", limits = dateLims) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
+  labs(title = myTitle)
+
+# set values for annotations
+yMax <- max(monthlyPlotDT$sumGWh, na.rm = TRUE)
+myAlpha <- 0.1
+vLineAlpha <- 0.4
+vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+myTextSize <- 4
+rectAlpha <- 0.05
+
+# final plot - adds annotations
+yMin <- min(monthlyPlotDT[Fuel_Code == "Hydro"]$sumGWh, na.rm = TRUE)
+myPlot <- annotateAllGenMonths(myPlot) 
+annotateSOIMonths(myPlot)+ # add SOI annotations
+  labs(caption = ggParams$jointCaption)
+
+ggsave("monthlyNZGenSOI.png", width = 11)
+```
+
+
+Figures \@ref(fig:monthlyTotalPlotPoint) shows the same trends as previously but using monthly data to highlight seasonal patterns over time.
+
+If we consider the relationship between generation and the SOI at the monthly level, Figure \ref(fig:monthlyGenSOI) suggests there is a much less clear relationship although the fit lines are still in the same directions with increased use of gas as the SOI increases and the inverse for hydro.
+
+```{r monthlyGenSOI, fig.cap="Yearly generation values by fuel vs yearly SOI"}
+
+setkey(monthlyPlotDT, rMonth)
+setkey(monthlySODT, rMonth)
+monthlyPlotDT <- monthlyPlotDT[monthlySODT]
+
+
+# exclude 1997 as missing data
+ggplot(monthlyPlotDT[!is.na(Fuel_Code) & rYear != 1997], aes(x = sumGWh, y = Southern_oscillation_index)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 0) +
+  labs(x = "Monthly GWh",
+       y = "Monthly El Niño Southern Oscillation Index, 1986–2016",
+       caption = ggParams$jointCaption) +
+  facet_wrap(~Fuel_Code, ncol = 4, scales = "free")
+```
+
+
+## Daily trends
+
+Figures \@ref(fig:dailyTotalPlotPoint) and \@ref(fig:dailyTotalPlotCol) show the same trends as previously but using daily data to highlight seasonal patterns over time. Annotations use information from:
 
  * https://www.niwa.co.nz/climate/summaries/seasonal
  * https://en.wikipedia.org/wiki/Huntly_Power_Station
 
 ```{r dailyTotalPlotPoint, fig.height = 8, fig.cap="Yearly total plot by fuel type"}
-plotDT <- allGenDT[,
-                .(sumkWh = sum(kWh, na.rm = TRUE),
+dailyPlotDT <- allGenDT[,
+                .(sumGWh = sum(kWh, na.rm = TRUE)/1000000,
                   meankWh = mean(kWh, na.rm = TRUE),
                   mediankWh = median(kWh, na.rm = TRUE),
                   sdkWh = sd(kWh, na.rm = TRUE),
@@ -555,8 +798,8 @@ plotDT <- allGenDT[,
 dateLims <- as.Date(c('1998-01-01','2018-12-01')) # force restriction which also ensures labels are at month 6 & 12 :-)
 myTitle <- "Total daily New Zealand electricity generation by fuel source 1998-2018"
 
-# point plot
-myPlot <- makePlotPoint(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total daily GWh")
+# step plot
+myPlot <- makePlotStep(dailyPlotDT, xVar = "rDate", yVar = "sumGWh", xLabel = "Year", yLabel = "Total daily GWh")
 
 # add formats for scales etc
 myPlot <- myPlot +
@@ -565,75 +808,21 @@ myPlot <- myPlot +
   labs(title = myTitle)
 
 # set values for annotations
-yMax <- max(plotDT$sumkWh)/1000000
+yMax <- max(dailyPlotDT$sumGWh)
 myAlpha <- 0.1
 vLineAlpha <- 0.4
 vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-myTextSize <- 3
-
-annotateAllGenMonths <- function(plot){
-  plot <- plot +
-    annotate("text", x = as.Date("2004-01-01"), # x axis is a real date
-             y = yMax * 0.9, angle = 10,size = myTextSize,
-             label = "Huntly 50 MW gas unit added", hjust = 0) +
-    geom_vline(xintercept = as.Date("2004-01-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2005-06-01"),
-             y = yMax * 0.9, angle = 10,size = myTextSize,
-             label = "Warm dry winters", hjust = 0) +
-    geom_vline(xintercept = as.Date("2005-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2007-01-01"),
-             y = yMax * 0.8, angle = 10,size = myTextSize,
-             label = "Huntly CCGT unit added", hjust = 0) +
-    geom_vline(xintercept = as.Date("2007-01-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2007-06-01"),
-             y = yMax * 0.7, angle = 10,size = myTextSize,
-             label = "Huntly mainly gas fired", hjust = 0) +
-    geom_vline(xintercept = as.Date("2007-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2008-06-01"),
-             y = yMax * 0.9, angle = 10,size = myTextSize,
-             label = "Dry winter", hjust = 0) +
-    geom_vline(xintercept = as.Date("2008-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2012-12-01"),
-             y = yMax * 0.8, angle = 10,size = myTextSize,
-             label = "1 of 4 Huntly Power Station 250 MW units mothballed", hjust = 0) +
-    geom_vline(xintercept = as.Date("2012-12-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2012-06-01"),
-             y = yMax * 0.7, angle = 10,size = myTextSize,
-             label = "Dry winter on South Island", hjust = 0) +
-    geom_vline(xintercept = as.Date("2012-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2013-06-01"),
-             y = yMax * 0.9, angle = 10,size = myTextSize,
-             label = "2 of 4 Huntly Power Station 250 MW units in storage", hjust = 0) +
-    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2013-06-01"),
-             y = yMax * 0.6, angle = 10,size = myTextSize,
-             label = "Warmest winter to date", hjust = 0) +
-    geom_vline(xintercept = as.Date("2013-06-01"), alpha = vLineAlpha, colour = vLineCol) +
-    annotate("text", x = as.Date("2015-06-01"),
-             y = yMax * 0.7, angle = 10,size = myTextSize,
-             label = "2 of 4 Huntly Power Station 250 MW units retired", hjust = 0) +
-    geom_vline(xintercept = as.Date("2015-06-01"), alpha = vLineAlpha, colour = vLineCol)
-  return(plot)
-}
+myTextSize <- 4
 
 # final plot - adds annotations
-annotateAllGenMonths(myPlot)
+yMin <- min(dailyPlotDT[Fuel_Code == "Hydro"]$sumGWh, na.rm = TRUE)
+myPlot <- annotateAllGenMonths(myPlot)
+annotateSOIMonths(myPlot) + # add SOI annotations
+  labs(caption = ggParams$jointCaption)
 
+ggsave("dailyNZGenSOI.png", width = 11)
 ```
 
-
-```{r dailyTotalPlotCol, fig.cap="Yearly total plot by fuel type"}
-# col plot
-myPlot <- makePlotCol(plotDT, xVar = "rDate", yVar = "sumkWh", xLabel = "Year", yLabel = "Total daily GWh")
-myPlot <- myPlot +
-  scale_x_date(date_labels = "%b %Y", date_breaks = "6 months", limits = dateLims) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
-  labs(title = myTitle)
-
-# final plot - adds annotations
-annotateAllGenMonths(myPlot)
-
-```
 
 # Discussion
 here
