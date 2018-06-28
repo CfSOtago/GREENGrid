@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-27 11:15:12'
+date: 'Last run at: 2018-06-28 10:34:56'
 output:
   bookdown::html_document2:
     toc: true
@@ -312,12 +312,12 @@ myPlot
 ```r
 nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership and 2013 census data
 wToKw <- 1000
-
-heatPumpProfileDT <- heatPumpProfileDT[, scaledMWmethod1 := ((meanW * nzHHheatPumps)/wToKw)*(1/60)] # <- convert mean W to kWh for all NZ hhs
-
 assumeDaysPerSeason <- 90
 
-sumbranzGWh <- heatPumpProfileDT[, sum((scaledMWmethod1 * assumeDaysPerSeason)/1000)/1000]
+heatPumpProfileDT <- heatPumpProfileDT[, scaledGWh := (((meanW * nzHHheatPumps)/wToKw)*(1/60)*assumeDaysPerSeason)/1000/1000] # <- convert mean W to kWh for all NZ hhs, then assumes 90 days per season and calculate GWh
+
+sumbranzGWh <- heatPumpProfileDT[, sum(scaledGWh)]
+
 
 diffbranzeeca <- 1-(sumbranzGWh/totalGWH)
 skimr::skim(sumbranzGWh)
@@ -367,20 +367,6 @@ EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
 
 BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
 
-Comparison of error bands:
-
-Number of heatpumps BRANZ                   Difference between BRANZ+Census+GREENGrid and EECA 2015 in total consumption
-
-Without error band        515,015           BRANZ < EECA (9% smaller)
-With +6/+10% error band   620,588           EECA  < BRANZ (8% smaller)
-With -6/-10% error band   409,442           BRANZ < EECA (28% smaller)
-
-
-
-
-
-
-
 
 # Yearly consumption
 We need the original data for this, currently the data basis is for an average day in each season.
@@ -389,7 +375,63 @@ We need the original data for this, currently the data basis is for an average d
 heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
 ```
 
+# Technical potential of demand response: Scenarios for heat pump data
+We assume that peak time periods are prevalent from half hours 13-20 and 32-41, equivalent to 6.30am-10am and 4pm-8.30pm.
+## Load curtailment to zero
+In this first scenario we assume that the laod during peak time periods is cut out of the consumption pattern.
 
+Steps:
+1) Extracting peak time-periods from heat pump data
+2) Building sum of GWh
+
+
+```r
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW", "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+sc1data <- sc1data[, timePeriod := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:30:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   timePeriod := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:30:00"),
+                   timePeriod := "Evening Peak"]
+
+sc1data[, .(sum = sum(scaledGWh)), keyby = .(season, timePeriod)]
+```
+
+```
+##     season   timePeriod       sum
+##  1: Autumn Evening Peak  31.74000
+##  2: Autumn Morning Peak  33.72567
+##  3: Autumn     Not Peak  58.17214
+##  4: Spring Evening Peak  38.35552
+##  5: Spring Morning Peak  34.48746
+##  6: Spring     Not Peak  58.44770
+##  7: Summer Evening Peak  11.39316
+##  8: Summer Morning Peak  19.99209
+##  9: Summer     Not Peak  56.01087
+## 10: Winter Evening Peak  82.22371
+## 11: Winter Morning Peak  85.00968
+## 12: Winter     Not Peak 129.07319
+```
+
+```r
+myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, colour=scaledGWh)) +
+  geom_step(aes(y=scaledGWh)) +
+  ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+scale_colour_gradient(low= "green", high="red")
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/scenario load curtailment-1.png)<!-- -->
 
 
 
@@ -402,7 +444,7 @@ heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMi
 
 
 
-Analysis completed in 6.63 seconds ( 0.11 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 7.89 seconds ( 0.13 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
