@@ -319,10 +319,10 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=Period)) +
 
 myPlot
 
-ggsave("Total heat pump energy consumption by time-period for 2015.jpeg",
-       dpi=600)
+#ggsave("Total heat pump energy consumption by time-period for 2015.jpeg",
+       #dpi=600)
 
-# Potential load curtailment output by period
+# Potential load curtailment output by period in GWh
 
 sc1data <- sc1data[, .(PotCur = sum(GWh)),
                    keyby = .(season, Period)]
