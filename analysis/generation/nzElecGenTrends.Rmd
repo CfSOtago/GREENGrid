@@ -3,9 +3,9 @@ title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
+  bookdown::pdf_document2: default
   bookdown::html_document2:
     self_contained: no
-  bookdown::pdf_document2: default
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
