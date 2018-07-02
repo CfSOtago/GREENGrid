@@ -219,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-07-02 15:11:19</em></h4>
+<h4 class="date"><em>Last run at: 2018-07-02 16:27:24</em></h4>
 
 </div>
 
@@ -853,9 +853,24 @@ sc1data &lt;- sc1data[, GWhs3:= ifelse(Period ==&quot;Evening Peak&quot;,
 #Renaming GWhs3 into GWh to depict the right text in the colorbar
 setnames(sc1data, old=c(&quot;GWhs3&quot;), new=c(&quot;GWh&quot;))
 
-#Visualising
-myPlot &lt;- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
-  geom_line(aes(y=GWh), size=0.5) +
+#Visualising only shifted consumption
+#myPlot &lt;- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
+  #geom_line(aes(y=GWh), size=0.5) +
+  #theme(text = element_text(family = &quot;Cambria&quot;)) +
+  #ggtitle(&quot;Total shifted New Zealand half hour heat pump energy consumption by season for 2015&quot;) +
+  #facet_grid(season ~ .) +
+  #labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;) +
+  #scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+  #scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;03:00:00&quot;), hms::as.hms(&quot;06:00:00&quot;),       hms::as.hms(&quot;09:00:00&quot;), hms::as.hms(&quot;12:00:00&quot;), 
+  #hms::as.hms(&quot;15:00:00&quot;), hms::as.hms(&quot;18:00:00&quot;), hms::as.hms(&quot;21:00:00&quot;))) +
+  #scale_colour_gradient(low= &quot;green&quot;, high=&quot;red&quot;, guide = &quot;colorbar&quot;)
+
+#myPlot
+
+#Visualising shifted and original consumption
+myPlot &lt;- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWh, color=GWh), size=0.5) +
+  geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
   theme(text = element_text(family = &quot;Cambria&quot;)) +
   ggtitle(&quot;Total shifted New Zealand half hour heat pump energy consumption by season for 2015&quot;) +
   facet_grid(season ~ .) +
@@ -863,12 +878,13 @@ myPlot &lt;- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
   scale_y_continuous(breaks = c(4, 8, 12, 16)) +
   scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;03:00:00&quot;), hms::as.hms(&quot;06:00:00&quot;),       hms::as.hms(&quot;09:00:00&quot;), hms::as.hms(&quot;12:00:00&quot;), 
   hms::as.hms(&quot;15:00:00&quot;), hms::as.hms(&quot;18:00:00&quot;), hms::as.hms(&quot;21:00:00&quot;))) +
-  scale_colour_gradient(low= &quot;green&quot;, high=&quot;red&quot;, guide = &quot;colorbar&quot;)
+  scale_color_gradient(low= &quot;green&quot;, high=&quot;red&quot;)
 
 myPlot</code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/load%20shifting%20to%20prior%20periods-1.png" /><!-- --></p>
-<pre class="r"><code>#ggsave(&quot;Total shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg&quot;,
-      # dpi=600)</code></pre>
+<pre class="r"><code>ggsave(&quot;Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg&quot;,
+       dpi=600)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
 </div>
 </div>
 <div id="myplot-example" class="section level1">
@@ -954,7 +970,7 @@ myPlot</code></pre>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">11</span> Runtime</h1>
-<p>Analysis completed in 12.36 seconds ( 0.21 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 11.43 seconds ( 0.19 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">12</span> R environment</h1>

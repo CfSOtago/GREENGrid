@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-02 15:11:19'
+date: 'Last run at: 2018-07-02 16:27:24'
 output:
   bookdown::html_document2:
     toc: true
@@ -837,9 +837,24 @@ sc1data <- sc1data[, GWhs3:= ifelse(Period =="Evening Peak",
 #Renaming GWhs3 into GWh to depict the right text in the colorbar
 setnames(sc1data, old=c("GWhs3"), new=c("GWh"))
 
-#Visualising
-myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
-  geom_line(aes(y=GWh), size=0.5) +
+#Visualising only shifted consumption
+#myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
+  #geom_line(aes(y=GWh), size=0.5) +
+  #theme(text = element_text(family = "Cambria")) +
+  #ggtitle("Total shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  #facet_grid(season ~ .) +
+  #labs(x='Time of Day', y='GWh') +
+  #scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+  #scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  #hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+#myPlot
+
+#Visualising shifted and original consumption
+myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWh, color=GWh), size=0.5) +
+  geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total shifted New Zealand half hour heat pump energy consumption by season for 2015") +
   facet_grid(season ~ .) +
@@ -847,7 +862,7 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
   scale_y_continuous(breaks = c(4, 8, 12, 16)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
   hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
-  scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+  scale_color_gradient(low= "green", high="red")
 
 myPlot
 ```
@@ -855,8 +870,12 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/load shifting to prior periods-1.png)<!-- -->
 
 ```r
-#ggsave("Total shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-      # dpi=600)
+ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
+       dpi=600)
+```
+
+```
+## Saving 7 x 5 in image
 ```
 
 #MyPlot example
@@ -976,7 +995,7 @@ myPlot
 
 
 
-Analysis completed in 12.36 seconds ( 0.21 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 11.43 seconds ( 0.19 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
