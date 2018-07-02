@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-06-29 15:58:30'
+date: 'Last run at: 2018-07-02 15:11:19'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -327,7 +327,7 @@ skimr::skim(sumbranzGWh)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -342,7 +342,7 @@ skimr::skim(totalGWH)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 ```
@@ -355,7 +355,7 @@ skimr::skim(diffbranzeeca)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -376,7 +376,7 @@ heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMi
 ```
 
 # Technical potential of demand response: Scenarios for heat pump data
-We assume that peak time periods are prevalent from half hours 13-20 and 32-41, equivalent to 6.30am-10am and 4pm-8.30pm.
+We assume that peak time periods are prevalent from 6.00am-10.00am and from 4.00pm-8.00pm.
 
 ## Load curtailment to zero
 In this first scenario we assume that the laod during peak time periods is cut out of the consumption pattern.
@@ -548,14 +548,11 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero-1.png)<!-- -->
 
 ```r
-ggsave("Total heat pump load curtailment in peak time-periods by season.jpeg",
-       dpi=600) 
-```
-
-```
-## Saving 7 x 5 in image
+#ggsave("Total heat pump load curtailment in peak time-periods by season.jpeg",
+       #dpi=600) 
 ```
 ##Load curtailment of particular amount
+###Visualising new load profile
 
 ```r
 sc1data <- heatPumpProfileDT
@@ -628,7 +625,7 @@ sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", GWh*0.5, GWh )]
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump load curtailment in peak time-periods by season") +
+  ggtitle("Total heat pump load curtailment in peak time-periods by season 50%") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(3, 6, 9, 12)) +
@@ -641,6 +638,15 @@ myPlot
 
 ![](heatPumpProfileAnalysis_files/figure-html/Curtail load based on percentage-1.png)<!-- -->
 
+```r
+ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
+       dpi=600) 
+```
+
+```
+## Saving 7 x 5 in image
+```
+###Potential load curtailment based on percentage curtailed
 
 ```r
 sc1data <- sc1data[, .(PotCur = sum(GWh)),
@@ -663,8 +669,195 @@ sc1data
 ## 11: Winter Morning Peak  48.448717
 ## 12: Winter     Not Peak 124.131411
 ```
+##Load shifting to prior periods
 
 
+
+```r
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc1data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc1data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc1data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc1data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc1data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc1data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc1data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc1data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc1data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc1data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc1data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc1data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc1data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc1data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc1data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc1data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc1data <- sc1data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc1data <- sc1data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc1data <- sc1data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc1data <- sc1data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc1data <- sc1data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc1data <- sc1data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc1data <- sc1data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc1data <- sc1data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc1data <- sc1data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc1data <- sc1data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+
+
+#Renaming GWhs3 into GWh to depict the right text in the colorbar
+setnames(sc1data, old=c("GWhs3"), new=c("GWh"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
+  geom_line(aes(y=GWh), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Total shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/load shifting to prior periods-1.png)<!-- -->
+
+```r
+#ggsave("Total shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
+      # dpi=600)
+```
 
 #MyPlot example
 
@@ -734,6 +927,47 @@ myPlot
 ```r
 #ggsave("Total New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
       # dpi=600)
+
+
+
+
+
+#Other examples
+
+#AuMP <- 38.35385
+#WiMP <- 96.89743
+#SpMP <- 39.09743
+#SuMP <- 23.28916
+#AuEP <- 29.11365
+#WiEP <- 75.27774
+#SpEP <- 35.80694
+#SuEP <- 10.12392
+
+#AuNP1 <- sc1data[ GWhs1[1:12 42:48]]
+#AuNP2 <- sc1data[ c(22:32), "GWhs1"]
+#WiNP1 <- sc1data[ c(145:156, 186:192), "GWhs1"]
+#WiNP2 <- sc1data[ c(166:176), "GWhs1"]
+#SpNP1 <- sc1data[ c(49:60, 90:96), "GWhs1"]
+#SpNP2 <- sc1data[ c(70:80), "GWhs1"]
+#SuNP1 <- sc1data[ c(97:108, 138:144), "GWhs1"]
+#SuNP2 <- sc1data[ c(118:128), "GWhs1"]
+
+#sc1data <- sc1data[, ShiftL := GWhs1] # Creating new column ShiftL based on GWhs1
+
+# Updating ShiftL predefined rows with the percentage of peak-period sum. Spreading Morning Peak load over a longer duration than Evening Peak
+#sc1data <- sc1data[, ShiftL := AuNP1 * AuMP * 1/19]
+#sc1data <- sc1data[, ShiftL := WiNP1 * WiMP * 1/19]
+#sc1data <- sc1data[, ShiftL := SpNP1 * SpMP * 1/19]
+#sc1data <- sc1data[, ShiftL := SuNP1 * SuMP * 1/19]
+
+#sc1data <- sc1data[, ShiftL := AuNP2 * AuEP * 1/11]
+#sc1data <- sc1data[, ShiftL := WiNP2 * WiEP * 1/11]
+#sc1data <- sc1data[, ShiftL := SpNP2 * SpEP * 1/11]
+#sc1data <- sc1data[, ShiftL := SuNP2 * SuEP * 1/11]
+
+
+#sc1data <- sc1data[, ShiftL:= ifelse(Period == "Evening Peak", 0, ShiftL )]
+#sc1data <- sc1data[, ShiftL:= ifelse(Period == "Morning Peak", 0, ShiftL )]
 ```
 
 
@@ -742,7 +976,7 @@ myPlot
 
 
 
-Analysis completed in 10.46 seconds ( 0.17 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 12.36 seconds ( 0.21 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

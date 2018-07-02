@@ -124,9 +124,23 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-06-28 10:34:21}
+  \date{Last run at: 2018-07-01 14:09:16}
 
 
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{proposition}{Proposition}[section]
+\theoremstyle{definition}
+\newtheorem{example}{Example}[section]
+\theoremstyle{definition}
+\newtheorem{exercise}{Exercise}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{solution}{Solution}
 \begin{document}
 \maketitle
 
@@ -293,21 +307,21 @@ Describe using skim:
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## -- Variable type:character -----------------------------------------------------------------------------------------------------------------
+## -- Variable type:character -------------------------------------------------
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## -- Variable type:difftime ------------------------------------------------------------------------------------------------------------------
+## -- Variable type:difftime --------------------------------------------------
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## -- Variable type:integer -------------------------------------------------------------------------------------------------------------------
+## -- Variable type:integer ---------------------------------------------------
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## -- Variable type:numeric -------------------------------------------------------------------------------------------------------------------
+## -- Variable type:numeric ---------------------------------------------------
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -483,7 +497,7 @@ NB: should you aggregate this scaling method using mean or sum? Why? :-)
 \NormalTok{                                  keyby =}\StringTok{ }\NormalTok{.(season, obsHalfHour)] }\CommentTok{# <- takes the sum for each category of half hour & season}
 
 \NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(method2AggDT, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{colour=}\NormalTok{GWh)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_step}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ GWh)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ GWh)) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total New Zealand half hour heat pump energy consumption by season for 2015"}\NormalTok{) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{facet_grid}\NormalTok{(season }\OperatorTok{~}\StringTok{ }\NormalTok{.) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{'Time of Day'}\NormalTok{, }\DataTypeTok{y=}\StringTok{'GWh'}\NormalTok{) }\OperatorTok{+}
@@ -519,7 +533,7 @@ NB: should you aggregate this scaling method using mean or sum? Why? :-)
 ## 
 ## Skim summary statistics
 ## 
-## -- Variable type:numeric -------------------------------------------------------------------------------------------------------------------
+## -- Variable type:numeric ---------------------------------------------------
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -536,7 +550,7 @@ NB: should you aggregate this scaling method using mean or sum? Why? :-)
 ## 
 ## Skim summary statistics
 ## 
-## -- Variable type:numeric -------------------------------------------------------------------------------------------------------------------
+## -- Variable type:numeric ---------------------------------------------------
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 \end{verbatim}
@@ -551,7 +565,7 @@ NB: should you aggregate this scaling method using mean or sum? Why? :-)
 ## 
 ## Skim summary statistics
 ## 
-## -- Variable type:numeric -------------------------------------------------------------------------------------------------------------------
+## -- Variable type:numeric ---------------------------------------------------
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -583,69 +597,1853 @@ average day in each season.
 \section{Technical potential of demand response: Scenarios for heat pump
 data}\label{technical-potential-of-demand-response-scenarios-for-heat-pump-data}
 
-We assume that peak time periods are prevalent from half hours 13-20 and
-32-41, equivalent to 6.30am-10am and 4pm-8.30pm. \#\# Load curtailment
-to zero In this first scenario we assume that the laod during peak time
-periods is cut out of the consumption pattern.
+We assume that peak time periods are prevalent from 6.00am-10.00am and
+from 4.00pm-8.00pm.
+
+\subsection{Load curtailment to zero}\label{load-curtailment-to-zero}
+
+In this first scenario we assume that the laod during peak time periods
+is cut out of the consumption pattern.
+
+\subsubsection{Defining peak/off-peak
+periods}\label{defining-peakoff-peak-periods}
 
 Steps: 1) Extracting peak time-periods from heat pump data 2) Building
 sum of GWh
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{sc1data <-}\StringTok{ }\NormalTok{heatPumpProfileDT}
-\NormalTok{sc1data[, }\KeywordTok{c}\NormalTok{(}\StringTok{"medianW"}\NormalTok{, }\StringTok{"obsHourMin"}\NormalTok{, }\StringTok{"meanW"}\NormalTok{, }\StringTok{"nObs"}\NormalTok{, }\StringTok{"sdW"}\NormalTok{, }\StringTok{"scaledMWmethod1"}\NormalTok{, }\StringTok{"EECApmMethod2"}\NormalTok{)}\OperatorTok{:}\ErrorTok{=}\OtherTok{NULL}\NormalTok{] }\CommentTok{#Deleting unnecessary columns}
-
-\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, timePeriod }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Not Peak"}\NormalTok{]}
-
-\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:30:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
-\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"10:00:00"}\NormalTok{),}
-\NormalTok{                   timePeriod }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Morning Peak"}\NormalTok{]}
-
-\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"16:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
-\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"20:30:00"}\NormalTok{),}
-\NormalTok{                   timePeriod }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Evening Peak"}\NormalTok{]}
-
-\NormalTok{sc1data[, .(}\DataTypeTok{sum =} \KeywordTok{sum}\NormalTok{(scaledGWh)), keyby =}\StringTok{ }\NormalTok{.(season, timePeriod)]}
+\KeywordTok{library}\NormalTok{(}\StringTok{"extrafont"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##     season   timePeriod       sum
-##  1: Autumn Evening Peak  31.74000
-##  2: Autumn Morning Peak  33.72567
-##  3: Autumn     Not Peak  58.17214
-##  4: Spring Evening Peak  38.35552
-##  5: Spring Morning Peak  34.48746
-##  6: Spring     Not Peak  58.44770
-##  7: Summer Evening Peak  11.39316
-##  8: Summer Morning Peak  19.99209
-##  9: Summer     Not Peak  56.01087
-## 10: Winter Evening Peak  82.22371
-## 11: Winter Morning Peak  85.00968
-## 12: Winter     Not Peak 129.07319
+## Registering fonts with R
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(sc1data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{colour=}\NormalTok{scaledGWh)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_step}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y=}\NormalTok{scaledGWh)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total New Zealand half hour heat pump energy consumption by season for 2015"}\NormalTok{) }\OperatorTok{+}
+\KeywordTok{loadfonts}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Keyboard already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## More than one version of regular/bold/italic found for System Font. Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## Andale Mono already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## More than one version of regular/bold/italic found for Apple Braille. Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## AppleMyungjo already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Arial Black already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Arial already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Arial Narrow already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Arial Rounded MT Bold already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Arial Unicode MS already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Bodoni Ornaments already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Bodoni 72 Smallcaps already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## No regular (non-bold, non-italic) version of . Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## No regular (non-bold, non-italic) version of Brush Script MT. Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## Cambria already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Comic Sans MS already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Courier New already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## No regular (non-bold, non-italic) version of DIN Alternate. Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## No regular (non-bold, non-italic) version of DIN Condensed. Skipping setup for this font.
+\end{verbatim}
+
+\begin{verbatim}
+## Georgia already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Impact already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Khmer Sangam MN already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Lao Sangam MN already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Lato Black already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Lato already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Lato Light already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Lato Medium already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Liberation Serif already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Luminari already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Microsoft Sans Serif already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Tahoma already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Times New Roman already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Trattatello already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Trebuchet MS already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Verdana already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Webdings already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Wingdings already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Wingdings 2 already registered with pdfFonts().
+\end{verbatim}
+
+\begin{verbatim}
+## Wingdings 3 already registered with pdfFonts().
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{heatPumpProfileDT}
+\NormalTok{sc1data[, }\KeywordTok{c}\NormalTok{(}\StringTok{"medianW"}\NormalTok{, }\StringTok{"obsHourMin"}\NormalTok{, }\StringTok{"meanW"}\NormalTok{, }\StringTok{"nObs"}\NormalTok{, }\StringTok{"sdW"}\NormalTok{,}
+            \StringTok{"scaledMWmethod1"}\NormalTok{, }\StringTok{"EECApmMethod2"}\NormalTok{)}\OperatorTok{:}\ErrorTok{=}\OtherTok{NULL}\NormalTok{] }\CommentTok{#Deleting unnecessary columns}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{GWh =} \KeywordTok{sum}\NormalTok{(scaledGWh)), }
+\NormalTok{                    keyby =}\StringTok{ }\NormalTok{.(season, obsHalfHour)]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Not Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"10:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Morning Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"16:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"20:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Evening Peak"}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Visualising periods}\label{visualising-periods}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(sc1data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{color=}\NormalTok{Period)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y=}\NormalTok{GWh), }\DataTypeTok{size=}\FloatTok{0.5}\NormalTok{, }\DataTypeTok{alpha =} \DecValTok{1}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{family =} \StringTok{"Cambria"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total heat pump energy consumption by time-period"}\NormalTok{) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{facet_grid}\NormalTok{(season }\OperatorTok{~}\StringTok{ }\NormalTok{.) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{'Time of Day'}\NormalTok{, }\DataTypeTok{y=}\StringTok{'GWh'}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_x_time}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"00:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"03:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"09:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"12:00:00"}\NormalTok{), }
-\NormalTok{                          hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"15:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"18:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"21:00:00"}\NormalTok{))) }\OperatorTok{+}
-\KeywordTok{scale_colour_gradient}\NormalTok{(}\DataTypeTok{low=} \StringTok{"green"}\NormalTok{, }\DataTypeTok{high=}\StringTok{"red"}\NormalTok{)}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{12}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_time}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"00:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"03:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{),       hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"09:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"12:00:00"}\NormalTok{), }
+\NormalTok{  hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"15:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"18:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"21:00:00"}\NormalTok{))) }
+  \CommentTok{#scale_colour_gradient(low= "green", high="red", guide = "colorbar")}
 
 \NormalTok{myPlot}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x2d
+\end{verbatim}
+
+\includegraphics{heatPumpProfileAnalysis_files/figure-latex/visualising peak/off-peak-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#ggsave("Total heat pump energy consumption by time-period for 2015.jpeg",}
+       \CommentTok{#dpi=600)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Potential load curtailment output by period in
+GWh}\label{potential-load-curtailment-output-by-period-in-gwh}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{PotCur =} \KeywordTok{sum}\NormalTok{(GWh)),}
+\NormalTok{                   keyby =}\StringTok{ }\NormalTok{.(season, Period)]}
+\NormalTok{sc1data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     season       Period    PotCur
+##  1: Autumn Evening Peak  29.11365
+##  2: Autumn Morning Peak  38.35385
+##  3: Autumn     Not Peak  56.17032
+##  4: Spring Evening Peak  35.80694
+##  5: Spring Morning Peak  39.09743
+##  6: Spring     Not Peak  56.38630
+##  7: Summer Evening Peak  10.12392
+##  8: Summer Morning Peak  23.28916
+##  9: Summer     Not Peak  53.98303
+## 10: Winter Evening Peak  75.27774
+## 11: Winter Morning Peak  96.89743
+## 12: Winter     Not Peak 124.13141
+\end{verbatim}
+
+\subsubsection{Visualising curtailed
+periods}\label{visualising-curtailed-periods}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{heatPumpProfileDT}
+\NormalTok{sc1data[, }\KeywordTok{c}\NormalTok{(}\StringTok{"medianW"}\NormalTok{, }\StringTok{"obsHourMin"}\NormalTok{, }\StringTok{"meanW"}\NormalTok{, }\StringTok{"nObs"}\NormalTok{, }\StringTok{"sdW"}\NormalTok{,}
+            \StringTok{"scaledMWmethod1"}\NormalTok{, }\StringTok{"EECApmMethod2"}\NormalTok{)}\OperatorTok{:}\ErrorTok{=}\OtherTok{NULL}\NormalTok{] }\CommentTok{#Deleting unnecessary columns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{GWhs1 =} \KeywordTok{sum}\NormalTok{(scaledGWh)), }
+\NormalTok{                    keyby =}\StringTok{ }\NormalTok{.(season, obsHalfHour)]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Not Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"10:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Morning Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"16:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"20:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Evening Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\NormalTok{GWhs1] }\CommentTok{# Creating new column GWh based on GWhs1}
+
+
+\CommentTok{#sc1data <- sc1data[Period == "Evening Peak",}
+                   \CommentTok{#GWh := 0]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Period }\OperatorTok{==}\StringTok{ "Evening Peak"}\NormalTok{, }\DecValTok{0}\NormalTok{, GWh )] }\CommentTok{# If Period is Evening peak then make GWh zero}
+                   
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Period }\OperatorTok{==}\StringTok{ "Morning Peak"}\NormalTok{, }\DecValTok{0}\NormalTok{, GWh )]}
+
+
+
+
+
+\NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(sc1data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{y =}\NormalTok{ GWh, }\DataTypeTok{color=}\NormalTok{GWh)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{size=}\FloatTok{0.5}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{family =} \StringTok{"Cambria"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total heat pump load curtailment in peak time-periods by season"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_grid}\NormalTok{(season }\OperatorTok{~}\StringTok{ }\NormalTok{.) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{'Time of Day'}\NormalTok{, }\DataTypeTok{y=}\StringTok{'GWh'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{12}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_time}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"00:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"03:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{),       hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"09:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"12:00:00"}\NormalTok{), }
+\NormalTok{  hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"15:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"18:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"21:00:00"}\NormalTok{))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_colour_gradient}\NormalTok{(}\DataTypeTok{low=} \StringTok{"green"}\NormalTok{, }\DataTypeTok{high=}\StringTok{"red"}\NormalTok{, }\DataTypeTok{guide =} \StringTok{"colorbar"}\NormalTok{)}
+
+\NormalTok{myPlot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\includegraphics{heatPumpProfileAnalysis_files/figure-latex/setting peak periods to zero-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggsave}\NormalTok{(}\StringTok{"Total heat pump load curtailment in peak time-periods by season.jpeg"}\NormalTok{,}
+       \DataTypeTok{dpi=}\DecValTok{600}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Saving 6.5 x 4.5 in image
+\end{verbatim}
+
+\subsection{Load curtailment of particular
+amount}\label{load-curtailment-of-particular-amount}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{heatPumpProfileDT}
+\NormalTok{sc1data[, }\KeywordTok{c}\NormalTok{(}\StringTok{"medianW"}\NormalTok{, }\StringTok{"obsHourMin"}\NormalTok{, }\StringTok{"meanW"}\NormalTok{, }\StringTok{"nObs"}\NormalTok{, }\StringTok{"sdW"}\NormalTok{,}
+            \StringTok{"scaledMWmethod1"}\NormalTok{, }\StringTok{"EECApmMethod2"}\NormalTok{)}\OperatorTok{:}\ErrorTok{=}\OtherTok{NULL}\NormalTok{] }\CommentTok{#Deleting unnecessary columns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{GWhs1 =} \KeywordTok{sum}\NormalTok{(scaledGWh)), }
+\NormalTok{                    keyby =}\StringTok{ }\NormalTok{.(season, obsHalfHour)]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Not Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"10:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Morning Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[obsHalfHour }\OperatorTok{>=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"16:00:00"}\NormalTok{) }\OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{obsHalfHour }\OperatorTok{<=}\StringTok{ }\NormalTok{hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"20:00:00"}\NormalTok{),}
+\NormalTok{                   Period }\OperatorTok{:}\ErrorTok{=}\StringTok{ "Evening Peak"}\NormalTok{]}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\NormalTok{GWhs1] }\CommentTok{# Creating new column GWh based on GWhs1}
+
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Period }\OperatorTok{==}\StringTok{ "Evening Peak"}\NormalTok{, }\FloatTok{0.5}\OperatorTok{*}\NormalTok{GWh, GWh )] }\CommentTok{# If Period is Evening peak then change the value of GWh by 50%}
+                   
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, GWh}\OperatorTok{:}\ErrorTok{=}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Period }\OperatorTok{==}\StringTok{ "Morning Peak"}\NormalTok{, GWh}\OperatorTok{*}\FloatTok{0.5}\NormalTok{, GWh )]}
+
+
+
+
+
+\NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(sc1data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{y =}\NormalTok{ GWh, }\DataTypeTok{color=}\NormalTok{GWh)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{size=}\FloatTok{0.5}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{family =} \StringTok{"Cambria"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total heat pump load curtailment in peak time-periods by season"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_grid}\NormalTok{(season }\OperatorTok{~}\StringTok{ }\NormalTok{.) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{'Time of Day'}\NormalTok{, }\DataTypeTok{y=}\StringTok{'GWh'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{12}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_time}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"00:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"03:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{),       hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"09:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"12:00:00"}\NormalTok{), }
+\NormalTok{  hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"15:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"18:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"21:00:00"}\NormalTok{))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_colour_gradient}\NormalTok{(}\DataTypeTok{low=} \StringTok{"green"}\NormalTok{, }\DataTypeTok{high=}\StringTok{"red"}\NormalTok{, }\DataTypeTok{guide =} \StringTok{"colorbar"}\NormalTok{)}
+
+\NormalTok{myPlot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x2d
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\includegraphics{heatPumpProfileAnalysis_files/figure-latex/Curtail load based on percentage-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{PotCur =} \KeywordTok{sum}\NormalTok{(GWh)),}
+\NormalTok{                   keyby =}\StringTok{ }\NormalTok{.(season, Period)]}
+\NormalTok{sc1data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     season       Period     PotCur
+##  1: Autumn Evening Peak  14.556826
+##  2: Autumn Morning Peak  19.176923
+##  3: Autumn     Not Peak  56.170319
+##  4: Spring Evening Peak  17.903472
+##  5: Spring Morning Peak  19.548717
+##  6: Spring     Not Peak  56.386304
+##  7: Summer Evening Peak   5.061961
+##  8: Summer Morning Peak  11.644582
+##  9: Summer     Not Peak  53.983031
+## 10: Winter Evening Peak  37.638868
+## 11: Winter Morning Peak  48.448717
+## 12: Winter     Not Peak 124.131411
+\end{verbatim}
+
+\section{MyPlot example}\label{myplot-example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{heatPumpProfileDT}
+\NormalTok{sc1data[, }\KeywordTok{c}\NormalTok{(}\StringTok{"medianW"}\NormalTok{, }\StringTok{"obsHourMin"}\NormalTok{, }\StringTok{"meanW"}\NormalTok{, }\StringTok{"nObs"}\NormalTok{, }\StringTok{"sdW"}\NormalTok{, }\StringTok{"scaledMWmethod1"}\NormalTok{, }\StringTok{"EECApmMethod2"}\NormalTok{)}\OperatorTok{:}\ErrorTok{=}\OtherTok{NULL}\NormalTok{] }\CommentTok{#Deleting unnecessary columns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sc1data <-}\StringTok{ }\NormalTok{sc1data[, .(}\DataTypeTok{GWh =} \KeywordTok{sum}\NormalTok{(scaledGWh)), }
+\NormalTok{                    keyby =}\StringTok{ }\NormalTok{.(season, obsHalfHour)]}
+
+\NormalTok{myPlot <-}\StringTok{ }\NormalTok{ggplot2}\OperatorTok{::}\KeywordTok{ggplot}\NormalTok{(sc1data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ obsHalfHour, }\DataTypeTok{color=}\NormalTok{GWh)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_step}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y=}\NormalTok{GWh), }\DataTypeTok{size=}\FloatTok{0.5}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{family =} \StringTok{"Cambria"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Total New Zealand half hour heat pump energy consumption by season for 2015"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_grid}\NormalTok{(season }\OperatorTok{~}\StringTok{ }\NormalTok{.) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=}\StringTok{'Time of Day'}\NormalTok{, }\DataTypeTok{y=}\StringTok{'GWh'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{12}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_time}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"00:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"03:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"06:00:00"}\NormalTok{),       hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"09:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"12:00:00"}\NormalTok{), }
+\NormalTok{  hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"15:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"18:00:00"}\NormalTok{), hms}\OperatorTok{::}\KeywordTok{as.hms}\NormalTok{(}\StringTok{"21:00:00"}\NormalTok{))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_colour_gradient}\NormalTok{(}\DataTypeTok{low=} \StringTok{"green"}\NormalTok{, }\DataTypeTok{high=}\StringTok{"red"}\NormalTok{, }\DataTypeTok{guide =} \StringTok{"colorbar"}\NormalTok{)}
+
+\NormalTok{myPlot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## font width unknown for character 0x20
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x
+## $y, : font width unknown for character 0x20
+\end{verbatim}
+
 \includegraphics{heatPumpProfileAnalysis_files/figure-latex/scenario load curtailment-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#ggsave("Total New Zealand half hour heat pump energy consumption by season for 2015.jpeg",}
+      \CommentTok{# dpi=600)}
+\end{Highlighting}
+\end{Shaded}
 
 \section{Runtime}\label{runtime}
 
-Analysis completed in 5.83 seconds ( 0.1 minutes) using
+Analysis completed in 7.53 seconds ( 0.13 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.4.4 (2018-03-15)
 running on x86\_64-apple-darwin15.6.0.
@@ -692,9 +2490,10 @@ Session info:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2.2      knitr_1.20          skimr_1.0.3        
-## [4] hms_0.4.2           readr_1.1.1         lubridate_1.7.4    
-## [7] ggplot2_2.2.1       data.table_1.10.4-3 nzGREENGrid_0.1.0  
+##  [1] extrafont_0.17      bindrcpp_0.2.2      knitr_1.20         
+##  [4] skimr_1.0.3         hms_0.4.2           readr_1.1.1        
+##  [7] lubridate_1.7.4     ggplot2_2.2.1       data.table_1.10.4-3
+## [10] nzGREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.16      highr_0.6         pillar_1.2.1     
@@ -703,14 +2502,15 @@ Session info:
 ## [10] digest_0.6.15     gtable_0.2.0      evaluate_0.10.1  
 ## [13] tibble_1.4.2      pkgconfig_2.0.1   rlang_0.2.0      
 ## [16] cli_1.0.0         rstudioapi_0.7    yaml_2.1.18      
-## [19] xfun_0.2          dplyr_0.7.5       stringr_1.3.0    
-## [22] rprojroot_1.3-2   grid_3.4.4        tidyselect_0.2.4 
-## [25] glue_1.2.0        R6_2.2.2          rmarkdown_1.9    
-## [28] bookdown_0.7      tidyr_0.8.1       purrr_0.2.5      
-## [31] reshape2_1.4.3    magrittr_1.5      scales_0.5.0     
-## [34] backports_1.1.2   htmltools_0.3.6   assertthat_0.2.0 
-## [37] colorspace_1.3-2  labeling_0.3      stringi_1.1.7    
-## [40] lazyeval_0.2.1    munsell_0.4.3     crayon_1.3.4
+## [19] xfun_0.2          Rttf2pt1_1.3.6    dplyr_0.7.5      
+## [22] stringr_1.3.0     rprojroot_1.3-2   grid_3.4.4       
+## [25] tidyselect_0.2.4  glue_1.2.0        R6_2.2.2         
+## [28] rmarkdown_1.9     bookdown_0.7      extrafontdb_1.0  
+## [31] tidyr_0.8.1       purrr_0.2.5       reshape2_1.4.3   
+## [34] magrittr_1.5      scales_0.5.0      backports_1.1.2  
+## [37] htmltools_0.3.6   assertthat_0.2.0  colorspace_1.3-2 
+## [40] labeling_0.3      stringi_1.1.7     lazyeval_0.2.1   
+## [43] munsell_0.4.3     crayon_1.3.4
 \end{verbatim}
 
 \section*{References}\label{references}
