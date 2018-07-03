@@ -278,7 +278,7 @@ heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMi
 # Technical potential of demand response: Scenarios for heat pump data
 We assume that peak time periods are prevalent from 6.00am-10.00am and from 4.00pm-8.00pm.
 
-## Load curtailment to zero
+## Load curtailment to zero: SC1
 In this first scenario we assume that the laod during peak time periods is cut out of the consumption pattern.
 
 ###Defining peak/off-peak periods 
@@ -390,7 +390,7 @@ myPlot
        #dpi=600) 
 
 ```
-##Load curtailment of particular amount
+##Load curtailment of particular amount: SC2
 ###Visualising new load profile
 ```{r Curtail load based on percentage}
 
@@ -434,8 +434,8 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
 
 myPlot
 
-ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
-       dpi=600) 
+#ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
+      # dpi=600) 
 ```
 ###Potential load curtailment based on percentage curtailed
 ```{r Potential load curtialment in GWh of percentage curtailment}
@@ -445,7 +445,7 @@ sc1data <- sc1data[, .(PotCur = sum(GWh)),
 sc1data
 
 ```
-##Load shifting to prior periods
+##Load shifting to prior periods: SC3
 
 
 ```{r load shifting to prior periods}
@@ -681,8 +681,8 @@ myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, color=GWh)) +
 
 myPlot
 
-ggsave("New Zealand half hour hot water energy consumption by season for 2015",
-       dpi=600) 
+#ggsave("Total New Zealand half hour hot water energy consumption by season for 2015.jpeg",
+      # dpi = 600)
 
 ```
 ##Load curtailment to zero SC1
@@ -720,6 +720,9 @@ myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, color=Period)) +
   #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
+
+#ggsave("Total New Zealand hot water energy consumption by time-period.jpeg",
+       #dpi = 600)
 
 #Potential load curtailment by season
 
@@ -773,6 +776,8 @@ myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
 
 myPlot
 
+ #ggsave("Total hot water load curtailment in peak time-periods by season.jpeg",
+      #  dpi = 600)
 
 ```
 ##Load curtailment of particular amount (50%): SC2
@@ -810,7 +815,7 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", GWh * 0.5, GWh )]
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total hot water load curtailment in peak time-periods by season") +
+  ggtitle("50 per cent hot water load curtailment at peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
@@ -820,7 +825,8 @@ myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
 
 myPlot
 
-
+#ggsave("50 per cent hot water load curtailment at peak time-periods by season.jpeg",
+       #dpi = 600)
 
 ```
 ###Potential load curtailment based on percentage
@@ -832,9 +838,11 @@ sc2data <- sc2data[, .(PotCur = sum(GWh)),
 sc2data
 
 ```
-##Load shifting 
+##Load shifting to prior times: SC3
 
 ```{r load shifting to prior periods hot water}
+#I had to insert a 2 and 4 respectively in order to allow comparisons between sc1data and sc2data. I can now run the whole script without affecting the variables associated to sc1data
+
 
 sc2data <- hotWaterProfileDT
 sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
@@ -988,8 +996,8 @@ myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
 
 myPlot
 
-#ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-       #dpi=600)
+#ggsave("Original and shifted New Zealand half hour hot water energy consumption by season for 2015.jpeg",
+      # dpi=600)
 
 ```
 

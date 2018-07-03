@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-03 14:09:44'
+date: 'Last run at: 2018-07-03 14:50:12'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ─────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ──────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ───────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -327,7 +327,7 @@ skimr::skim(sumbranzGWh)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -342,7 +342,7 @@ skimr::skim(totalGWH)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 ```
@@ -355,7 +355,7 @@ skimr::skim(diffbranzeeca)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -982,6 +982,11 @@ myPlot
 ```
 
 ![](heatPumpProfileAnalysis_files/figure-html/set halfHours2-1.png)<!-- -->
+
+```r
+#ggsave("Total New Zealand half hour hot water energy consumption by season for 2015.jpeg",
+      # dpi = 600)
+```
 ##Load curtailment to zero SC1
 
 
@@ -1022,6 +1027,9 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/load curtailment hot water data-1.png)<!-- -->
 
 ```r
+#ggsave("Total New Zealand hot water energy consumption by time-period.jpeg",
+       #dpi = 600)
+
 #Potential load curtailment by season
 
 sc2data <- sc2data[, .(PotCur = sum(GWh)),
@@ -1105,6 +1113,11 @@ myPlot
 ```
 
 ![](heatPumpProfileAnalysis_files/figure-html/visalising curtailed hot water consumption-1.png)<!-- -->
+
+```r
+ #ggsave("Total hot water load curtailment in peak time-periods by season.jpeg",
+      #  dpi = 600)
+```
 ##Load curtailment of particular amount (50%): SC2
 
 
@@ -1220,6 +1233,9 @@ sc2data
 
 
 ```r
+#I had to insert a 2 and 4 respectively in order to allow comparisons between sc1data and sc2data. I can now run the whole script without affecting the variables associated to sc1data
+
+
 sc2data <- hotWaterProfileDT
 sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
             "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
@@ -1416,8 +1432,12 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/load shifting to prior periods hot water-1.png)<!-- -->
 
 ```r
-#ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-       #dpi=600)
+ggsave("Original and shifted New Zealand half hour hot water energy consumption by season for 2015.jpeg",
+       dpi=600)
+```
+
+```
+## Saving 7 x 5 in image
 ```
 
 
@@ -1538,7 +1558,7 @@ myPlot
 
 
 
-Analysis completed in 16.45 seconds ( 0.27 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 17.75 seconds ( 0.3 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
