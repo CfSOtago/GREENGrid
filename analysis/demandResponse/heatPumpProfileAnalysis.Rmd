@@ -247,7 +247,7 @@ myPlot
 
 #BRANZ vs. EECA comparison
 ```{r branzvseeca}
-nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership and 2013 census data
+nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership (House condition survey 2015) and 2013 census data
 wToKw <- 1000
 assumeDaysPerSeason <- 90
 
@@ -587,23 +587,40 @@ setnames(sc1data, old=c("GWhs3"), new=c("GWh"))
 
 #myPlot
 
-#Visualising shifted and original consumption
+#myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
+ # geom_line(aes(y=GWh, color=GWh), size=0.5) +
+  #geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+ # facet_grid(season ~ .) +
+ # labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+ # hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_color_gradient(low= "green", high="red")
+
+#myPlot
+
+#Visualising shifted and original consumption with labels in different colours
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
-  geom_line(aes(y=GWh, color=GWh), size=0.5) +
-  geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
+  geom_line(aes(y=GWh, color="red"), size=0.5) +
+  geom_line(aes(y=GWhs1, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  scale_colour_manual(name = element_blank(), 
+         values =c('red'='red','blue'='blue'), labels = c('Original consumption',
+                  'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(4, 8, 12, 16)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
-  scale_color_gradient(low= "green", high="red")
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  #scale_color_gradient(low= "green", high="red")
 
 myPlot
 
 #ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-       #dpi=600)
+      # dpi=600)
 
 ```
 #Technical potential of demand response: Scenarios for hot water data
@@ -982,22 +999,40 @@ setnames(sc2data, old=c("GWhs2"), new=c("GWh"))
 #myPlot
 
 #Visualising shifted and original consumption
-myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
-  geom_line(aes(y=GWh, color=GWh), size=0.5) +
-  geom_line(aes(y=GWhs4, color=GWhs4), size=0.5) +
+#myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
+ # geom_line(aes(y=GWh, color=GWh), size=0.5) +
+ # geom_line(aes(y=GWhs4, color=GWhs4), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+#  facet_grid(season ~ .) +
+#  labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+#  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+#  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_color_gradient(low= "green", high="red")
+
+#myPlot
+
+#Visualising shifted and original consumption two colours
+  myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWh, color="red"), size=0.5) +
+  geom_line(aes(y=GWhs4, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  scale_colour_manual(name = element_blank(), 
+         values =c('red'='red','blue'='blue'), labels = c('Original consumption',
+                  'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
-  scale_color_gradient(low= "green", high="red")
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+ 
 
 myPlot
 
 #ggsave("Original and shifted New Zealand half hour hot water energy consumption by season for 2015.jpeg",
-      # dpi=600)
+     #  dpi=600)
 
 ```
 
