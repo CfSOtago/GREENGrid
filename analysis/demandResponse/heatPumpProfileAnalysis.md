@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-03 14:50:12'
+date: 'Last run at: 2018-07-08 21:27:04'
 output:
   bookdown::html_document2:
     toc: true
@@ -310,7 +310,7 @@ myPlot
 #BRANZ vs. EECA comparison
 
 ```r
-nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership and 2013 census data
+nzHHheatPumps <- 515015 #This is based on the BRANZ report of household ownership (House condition survey 2015) and 2013 census data
 wToKw <- 1000
 assumeDaysPerSeason <- 90
 
@@ -378,7 +378,7 @@ heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMi
 # Technical potential of demand response: Scenarios for heat pump data
 We assume that peak time periods are prevalent from 6.00am-10.00am and from 4.00pm-8.00pm.
 
-## Load curtailment to zero
+## Load curtailment to zero: SC1
 In this first scenario we assume that the laod during peak time periods is cut out of the consumption pattern.
 
 ###Defining peak/off-peak periods 
@@ -551,7 +551,7 @@ myPlot
 #ggsave("Total heat pump load curtailment in peak time-periods by season.jpeg",
        #dpi=600) 
 ```
-##Load curtailment of particular amount
+##Load curtailment of particular amount: SC2
 ###Visualising new load profile
 
 ```r
@@ -639,12 +639,8 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/Curtail load based on percentage-1.png)<!-- -->
 
 ```r
-ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
-       dpi=600) 
-```
-
-```
-## Saving 7 x 5 in image
+#ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
+      # dpi=600) 
 ```
 ###Potential load curtailment based on percentage curtailed
 
@@ -669,7 +665,7 @@ sc1data
 ## 11: Winter Morning Peak  48.448717
 ## 12: Winter     Not Peak 124.131411
 ```
-##Load shifting to prior periods
+##Load shifting to prior periods: SC3
 
 
 
@@ -851,18 +847,35 @@ setnames(sc1data, old=c("GWhs3"), new=c("GWh"))
 
 #myPlot
 
-#Visualising shifted and original consumption
+#myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
+ # geom_line(aes(y=GWh, color=GWh), size=0.5) +
+  #geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+ # facet_grid(season ~ .) +
+ # labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+ # hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_color_gradient(low= "green", high="red")
+
+#myPlot
+
+#Visualising shifted and original consumption with labels in different colours
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
-  geom_line(aes(y=GWh, color=GWh), size=0.5) +
-  geom_line(aes(y=GWhs1, color=GWhs1), size=0.5) +
+  geom_line(aes(y=GWh, color="red"), size=0.5) +
+  geom_line(aes(y=GWhs1, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  scale_colour_manual(name = element_blank(), 
+         values =c('red'='red','blue'='blue'), labels = c('Original consumption',
+                  'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(4, 8, 12, 16)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
-  scale_color_gradient(low= "green", high="red")
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  #scale_color_gradient(low= "green", high="red")
 
 myPlot
 ```
@@ -871,7 +884,7 @@ myPlot
 
 ```r
 #ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-       #dpi=600)
+      # dpi=600)
 ```
 #Technical potential of demand response: Scenarios for hot water data
 
@@ -1193,7 +1206,7 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", GWh * 0.5, GWh )]
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total hot water load curtailment in peak time-periods by season") +
+  ggtitle("50 per cent hot water load curtailment at peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
@@ -1205,6 +1218,11 @@ myPlot
 ```
 
 ![](heatPumpProfileAnalysis_files/figure-html/hot water load consumption curtailment of particular amount-1.png)<!-- -->
+
+```r
+#ggsave("50 per cent hot water load curtailment at peak time-periods by season.jpeg",
+       #dpi = 600)
+```
 ###Potential load curtailment based on percentage
 
 
@@ -1229,7 +1247,7 @@ sc2data
 ## 11: Winter Morning Peak 115.25172
 ## 12: Winter     Not Peak 525.81307
 ```
-##Load shifting 
+##Load shifting to prior times: SC3
 
 
 ```r
@@ -1280,7 +1298,7 @@ sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 ```
 
 ```r
-sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
+  sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
 
@@ -1380,13 +1398,13 @@ sc2data <- sc2data[season == "Autumn" &
                      GWhs2 + distGWhOP2Au2]
 sc2data <- sc2data[season == "Winter" &
                      Period == "Off Peak 2", GWhs4 :=
-                     GWhs2 + distGWhOP2Wi]
+                     GWhs2 + distGWhOP2Wi2]
 sc2data <- sc2data[season == "Spring" &
                      Period == "Off Peak 2", GWhs4 :=
-                     GWhs2 + distGWhOP2Sp]
+                     GWhs2 + distGWhOP2Sp2]
 sc2data <- sc2data[season == "Summer" &
                      Period == "Off Peak 2", GWhs4 :=
-                     GWhs2 + distGWhOP2Su]
+                     GWhs2 + distGWhOP2Su2]
 
 
 #Setting missing values in peak periods to NULL
@@ -1414,17 +1432,35 @@ setnames(sc2data, old=c("GWhs2"), new=c("GWh"))
 #myPlot
 
 #Visualising shifted and original consumption
-myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
-  geom_line(aes(y=GWh, color=GWh), size=0.5) +
-  geom_line(aes(y=GWhs4, color=GWhs4), size=0.5) +
+#myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
+ # geom_line(aes(y=GWh, color=GWh), size=0.5) +
+ # geom_line(aes(y=GWhs4, color=GWhs4), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+#  facet_grid(season ~ .) +
+#  labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+#  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+#  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_color_gradient(low= "green", high="red")
+
+#myPlot
+
+#Visualising shifted and original consumption two colours
+  myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWh, color="red"), size=0.5) +
+  geom_line(aes(y=GWhs4, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  scale_colour_manual(name = element_blank(), 
+         values =c('red'='red','blue'='blue'), labels = c('Original consumption',
+                  'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
-  scale_color_gradient(low= "green", high="red")
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+ 
 
 myPlot
 ```
@@ -1432,71 +1468,168 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/load shifting to prior periods hot water-1.png)<!-- -->
 
 ```r
-ggsave("Original and shifted New Zealand half hour hot water energy consumption by season for 2015.jpeg",
-       dpi=600)
+#ggsave("Original and shifted New Zealand half hour hot water energy consumption by season for 2015.jpeg",
+     #  dpi=600)
 ```
-
-```
-## Saving 7 x 5 in image
-```
-
-
-#MyPlot example
+#Both appliances together
+##Load curtailment to zero: SC1
+###Visualising peak time-periods
 
 ```r
-sc1data <- heatPumpProfileDT
-sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW", "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
-```
+#Defining peak and off-peak for heat pump and hot water seperately
+sc3data <- heatPumpProfileDT
 
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
-```
 
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
-## it).
-```
-
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
-```
-
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
-```
-
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
-```
-
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
-## (deleting it).
-```
-
-```
-## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
-## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
-## it).
-```
-
-```r
-sc1data <- sc1data[, .(GWh = sum(scaledGWh)), 
+sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
-myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
-  geom_step(aes(y=GWh), size=0.5) +
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+
+sc32data <- hotWaterProfileDT
+
+sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc32data <- sc32data[, Period := "Not Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+#Copying hot water consumption column into heat pump data table
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
+
+#Building sum of heat pump and hot water consumption
+sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
+
+#Visualising peak ond off-peak
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
+  geom_point(aes(y=PumpandWater), size=0.5, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
+  ggtitle("Total consumption heat pump and hot water by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_y_continuous(breaks = c(3, 6, 9, 12)) +
+  scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/heat pump and hot water together-1.png)<!-- -->
+
+```r
+#ggsave("Total consumption heat pump and hot water by season.jpeg", dpi = 600)
+```
+
+###Potential load curtailment
+
+
+```r
+sc3data <- sc3data[, .(PotCur = sum(PumpandWater)),
+                   keyby = .(season, Period)]
+sc3data
+```
+
+```
+##     season       Period   PotCur
+##  1: Autumn Evening Peak 233.8804
+##  2: Autumn Morning Peak 228.1014
+##  3: Autumn     Not Peak 503.7944
+##  4: Spring Evening Peak 269.6152
+##  5: Spring Morning Peak 241.6436
+##  6: Spring     Not Peak 484.5461
+##  7: Summer Evening Peak 176.0773
+##  8: Summer Morning Peak 162.7911
+##  9: Summer     Not Peak 383.8985
+## 10: Winter Evening Peak 290.4532
+## 11: Winter Morning Peak 327.4009
+## 12: Winter     Not Peak 649.9445
+```
+
+```r
+#sc3data <- sc1data
+#sc3data[, c("GWhs1"):=NULL] #Deleting unnecessary columns
+
+#Copying the scaled GWh of hot water into the new data table
+#sc3data <- cbind(sc3data, sc2data[,"GWhs4"])
+
+#Building the sum of heat pump and hot water scaled numbers in a sepatrate variable
+#sc3data <- sc3data[, PumpandWater := GWh + GWhs4]
+```
+###Visualising curtailed periods
+
+
+```r
+#Defining peak and off-peak for heat pump and hot water seperately
+sc3data <- heatPumpProfileDT
+
+
+sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+
+sc32data <- hotWaterProfileDT
+
+sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc32data <- sc32data[, Period := "Not Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+#Copying hot water consumption column into heat pump data table
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
+
+#Building sum of heat pump and hot water consumption
+sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
+
+
+sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", 0, PumpandWater )] # If Period is Evening peak then make GWh zero
+                   
+sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", 0, PumpandWater )]
+
+
+
+
+
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
+  geom_line(size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Total heat pump and hot water load curtailment in peak time-periods by season") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_y_continuous(breaks = c(20, 40, 60, 80)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
   hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
@@ -1504,9 +1637,397 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
 myPlot
 ```
 
-![](heatPumpProfileAnalysis_files/figure-html/scenario load curtailment-1.png)<!-- -->
+![](heatPumpProfileAnalysis_files/figure-html/Visualising hp and hw curtailed periods-1.png)<!-- -->
 
 ```r
+#ggsave(".jpeg", dpi = 600)
+```
+##Load curtailment of particular amount 50%: SC2
+###Visualising new load profile
+
+
+```r
+sc3data <- heatPumpProfileDT
+
+
+sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+
+sc32data <- hotWaterProfileDT
+
+sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc32data <- sc32data[, Period := "Not Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+#Copying hot water consumption column into heat pump data table
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
+
+#Building sum of heat pump and hot water consumption
+sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
+
+
+sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", PumpandWater*0.5, PumpandWater )] # If Period is Evening peak then make GWh zero
+                   
+sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWater*0.5, PumpandWater )]
+
+
+
+
+
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
+  geom_line(size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Total heat pump and hot water load curtailment in peak time-periods by season") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/particular amount of hp and hw-1.png)<!-- -->
+
+```r
+#ggsave(".jpeg", dpi = 600)
+```
+
+###Potential load curtailment heat pump and hot water based on percentage
+
+```r
+sc3data <- sc3data[, .(PotCur = sum(PumpandWater)),
+                   keyby = .(season, Period)]
+sc3data
+```
+
+```
+##     season       Period    PotCur
+##  1: Autumn Evening Peak 116.94022
+##  2: Autumn Morning Peak 114.05069
+##  3: Autumn     Not Peak 503.79440
+##  4: Spring Evening Peak 134.80761
+##  5: Spring Morning Peak 120.82178
+##  6: Spring     Not Peak 484.54605
+##  7: Summer Evening Peak  88.03867
+##  8: Summer Morning Peak  81.39555
+##  9: Summer     Not Peak 383.89850
+## 10: Winter Evening Peak 145.22659
+## 11: Winter Morning Peak 163.70044
+## 12: Winter     Not Peak 649.94448
+```
+##Load shifting to prior times: SC3
+
+```r
+sc3data <- heatPumpProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+  sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+
+
+
+
+
+
+sc4data <- hotWaterProfileDT
+
+sc4data <- sc4data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc4data <- sc4data[, Period := "Not Peak"]
+
+sc4data <- sc4data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc4data <- sc4data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc4data <- sc4data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc4data <- sc4data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc4data <- sc4data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+sc3data <- cbind(sc3data, sc4data[,"GWhHW"])
+
+
+sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
+
+
+
+
+
+
+#Building the sum of each peak period by season
+AuMP3 <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(PumpandWater)]
+WiMP3 <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(PumpandWater)]
+SpMP3 <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(PumpandWater)]
+SuMP3 <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(PumpandWater)]
+
+AuEP3 <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(PumpandWater)]
+WiEP3 <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(PumpandWater)]
+SpEP3 <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(PumpandWater)]
+SuEP3 <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(PumpandWater)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours3 <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours3 <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours3 <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours3 <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours3 <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours3 <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours3 <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours3 <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au3 <- AuMP3/AuMPHalfHours3
+distGWhOP1Wi3 <- WiMP3/WiMPHalfHours3
+distGWhOP1Sp3 <- SpMP3/SpMPHalfHours3
+distGWhOP1Su3 <- SuMP3/SuMPHalfHours3
+
+distGWhOP2Au3 <- AuEP3/AuEPHalfHours3
+distGWhOP2Wi3 <- WiEP3/WiEPHalfHours3
+distGWhOP2Sp3 <- SpEP3/SpEPHalfHours3
+distGWhOP2Su3 <- SuEP3/SuEPHalfHours3
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     PumpandWater + distGWhOP1Au3]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     PumpandWater + distGWhOP1Wi3]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     PumpandWater + distGWhOP1Sp3]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     PumpandWater + distGWhOP1Su3]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     PumpandWater + distGWhOP2Au3]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     PumpandWater + distGWhOP2Wi3]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     PumpandWater + distGWhOP2Sp3]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     PumpandWater + distGWhOP2Su3]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs4:= ifelse(Period =="Morning Peak",
+                                  0, GWhs4)]
+sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
+                                  0, GWhs4)]
+
+
+#Renaming GWhs3 into GWh to depict the right text in the colorbar
+#setnames(sc2data, old=c("GWhs4"), new=c("GWh"))
+
+#Visualising only shifted consumption
+#myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, color=GWh)) +
+  #geom_line(aes(y=GWh), size=0.5) +
+  #theme(text = element_text(family = "Cambria")) +
+  #ggtitle("Total shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  #facet_grid(season ~ .) +
+  #labs(x='Time of Day', y='GWh') +
+  #scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+  #scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  #hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+#myPlot
+
+#Visualising shifted and original consumption
+#myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
+ # geom_line(aes(y=GWh, color=GWh), size=0.5) +
+ # geom_line(aes(y=GWhs4, color=GWhs4), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+#  facet_grid(season ~ .) +
+#  labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+#  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+#  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_color_gradient(low= "green", high="red")
+
+#myPlot
+
+#Visualising shifted and original consumption two colours
+  myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWhs4, color="red"), size=0.5) +
+  geom_line(aes(y=PumpandWater, color="blue"), size=0.5) +
+  geom_line(aes(y=GWhHP, color="green"), size=0.5) + 
+  geom_line(aes(y=GWhHW, color="black"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Heat pump and hot water appliances together in GWh") +
+  scale_colour_manual(name = element_blank(), 
+         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Original HW consumption', 'Original HP & HW consumption', 'Original HP consumption', 'Shifted HP & HW consumption')) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='GWh') +
+  scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+ 
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/hp and hw load shifting-1.png)<!-- -->
+
+```r
+ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
+```
+
+```
+## Saving 7 x 5 in image
+```
+#MyPlot example
+
+```r
+#sc1data <- heatPumpProfileDT
+#sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW", "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+#sc1data <- sc1data[, .(GWh = sum(scaledGWh)), 
+                   # keyby = .(season, obsHalfHour)]
+
+#myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=GWh)) +
+  #geom_step(aes(y=GWh), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
+ # facet_grid(season ~ .) +
+ # labs(x='Time of Day', y='GWh') +
+ # scale_y_continuous(breaks = c(3, 6, 9, 12)) +
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
+ # hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ # scale_colour_gradient(low= "green", high="red", guide = "colorbar")
+
+#myPlot
+
 #ggsave("Total New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
       # dpi=600)
 
@@ -1558,7 +2079,7 @@ myPlot
 
 
 
-Analysis completed in 17.75 seconds ( 0.3 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 17.11 seconds ( 0.29 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -1579,7 +2100,7 @@ Session info:
 ```
 ## R version 3.4.4 (2018-03-15)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.4
+## Running under: macOS High Sierra 10.13.5
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib

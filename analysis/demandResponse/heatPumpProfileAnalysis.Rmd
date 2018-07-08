@@ -1073,7 +1073,7 @@ sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") &
                    Period := "Evening Peak"]
 
 #Copying hot water consumption column into heat pump data table
-sc3data <- cbind(sc3data, sc4data[,"GWhHW"])
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
 
 #Building sum of heat pump and hot water consumption
 sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
@@ -1082,7 +1082,7 @@ sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
   geom_point(aes(y=PumpandWater), size=0.5, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump and hot water energy consumption by time-period") +
+  ggtitle("Total consumption heat pump and hot water by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
@@ -1092,7 +1092,7 @@ myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
 
 myPlot
 
-#ggsave(".jpeg", dpi = 600)
+#ggsave("Total consumption heat pump and hot water by season.jpeg", dpi = 600)
 ```
 
 ###Potential load curtailment
@@ -1163,7 +1163,7 @@ sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") &
                    Period := "Evening Peak"]
 
 #Copying hot water consumption column into heat pump data table
-sc3data <- cbind(sc3data, sc4data[,"GWhHW"])
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
 
 #Building sum of heat pump and hot water consumption
 sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
@@ -1190,7 +1190,7 @@ myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=
 
 myPlot
 
-#ggsave(".jpeg", dpi = 600)
+#ggsave("Total heat pump and hot water load curtailment in peak time-periods by season.jpeg", dpi = 600)
 
 
 ```
@@ -1232,7 +1232,7 @@ sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") &
                    Period := "Evening Peak"]
 
 #Copying hot water consumption column into heat pump data table
-sc3data <- cbind(sc3data, sc4data[,"GWhHW"])
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
 
 #Building sum of heat pump and hot water consumption
 sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
@@ -1249,7 +1249,7 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWate
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump and hot water load curtailment in peak time-periods by season") +
+  ggtitle("Total heat pump and hot water 50 per cent load curtailment") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
@@ -1259,7 +1259,7 @@ myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=
 
 myPlot
 
-#ggsave(".jpeg", dpi = 600)
+ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
 ```
 
 ###Potential load curtailment heat pump and hot water based on percentage
