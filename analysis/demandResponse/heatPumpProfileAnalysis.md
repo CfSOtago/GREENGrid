@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-08 21:27:04'
+date: 'Last run at: 2018-07-09 10:00:16'
 output:
   bookdown::html_document2:
     toc: true
@@ -1640,7 +1640,7 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/Visualising hp and hw curtailed periods-1.png)<!-- -->
 
 ```r
-#ggsave(".jpeg", dpi = 600)
+#ggsave("Total heat pump and hot water load curtailment in peak time-periods by season.jpeg", dpi = 600)
 ```
 ##Load curtailment of particular amount 50%: SC2
 ###Visualising new load profile
@@ -1697,7 +1697,7 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWate
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump and hot water load curtailment in peak time-periods by season") +
+  ggtitle("Total heat pump and hot water 50 per cent load curtailment") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
@@ -1711,7 +1711,11 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/particular amount of hp and hw-1.png)<!-- -->
 
 ```r
-#ggsave(".jpeg", dpi = 600)
+ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
+```
+
+```
+## Saving 7 x 5 in image
 ```
 
 ###Potential load curtailment heat pump and hot water based on percentage
@@ -2000,11 +2004,7 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/hp and hw load shifting-1.png)<!-- -->
 
 ```r
-ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
-```
-
-```
-## Saving 7 x 5 in image
+#ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
 ```
 #MyPlot example
 
@@ -2079,7 +2079,7 @@ ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
 
 
 
-Analysis completed in 17.11 seconds ( 0.29 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 19.1 seconds ( 0.32 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

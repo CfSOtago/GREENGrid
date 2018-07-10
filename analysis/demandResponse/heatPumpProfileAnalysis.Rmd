@@ -1266,7 +1266,7 @@ myPlot
 ```{r potential curtailment in GWh hp and hw}
 
 
-sc3data <- sc3data[, .(PotCur = sum(PumpandWater)),
+sc3data <- sc3data[, .(PotCur = sum(GWh)),
                    keyby = .(season, Period)]
 sc3data
 
@@ -1471,6 +1471,10 @@ sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
 
 #myPlot
 
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 #Visualising shifted and original consumption two colours
   myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWhs4, color="red"), size=0.5) +
@@ -1480,7 +1484,7 @@ sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Heat pump and hot water appliances together in GWh") +
   scale_colour_manual(name = element_blank(), 
-         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Original HW consumption', 'Original HP & HW consumption', 'Original HP consumption', 'Shifted HP & HW consumption')) +
+         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Orig. HW', 'Orig. HP & HW', 'Orig. HP', 'Shif. HP & HW')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
