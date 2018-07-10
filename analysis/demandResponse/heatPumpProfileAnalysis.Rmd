@@ -1242,11 +1242,11 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", PumpandWate
                    
 sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWater*0.5, PumpandWater )]
 
+#Renaming PumpandWater to depict the right y in the colorbar
+setnames(sc3data, old=c("PumpandWater"), new=c("GWh"))
 
 
-
-
-myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total heat pump and hot water 50 per cent load curtailment") +
@@ -1259,7 +1259,7 @@ myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=
 
 myPlot
 
-ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
+#ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
 ```
 
 ###Potential load curtailment heat pump and hot water based on percentage
@@ -1490,7 +1490,7 @@ sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
 
 myPlot
 
-ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
+#ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
 
 
 
