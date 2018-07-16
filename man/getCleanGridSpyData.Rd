@@ -2,14 +2,12 @@
 % Please edit documentation in R/gridSpyData.R
 \name{getCleanGridSpyData}
 \alias{getCleanGridSpyData}
-\title{Loads cleaned grid spy power data for a given circuit between two dates into a data.table}
+\title{Loads cleaned grid spy power data for all households between two dates into a data.table}
 \usage{
-getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
+getCleanGridSpyData(iFile, fPath, dateFrom, dateTo)
 }
 \arguments{
 \item{fPath}{location of files to load}
-
-\item{circuitPattern}{the circuit pattern to match}
 
 \item{dateFrom}{date to start extract (inclusive)}
 
@@ -17,14 +15,12 @@ getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
 }
 \description{
 \code{getCleanGridSpyData} checks to see if the extract file already exists. If not it loops over a file list and loads each in turn using \code{readr::read_csv}. It filters each file to
-extract data for particular circuits between two dates and creates some derived time/date variables before
+extract data between two dates and creates some derived time/date variables before
 using \code{rbind} to create a single data.table which is saved and returned.
 }
 \details{
-Function matches \code{circuitPattern} to extract specific circuits and selects observations between
- \code{dateFrom} and \code{dateTo}. Use this to extract any circuit you want between any given dates.
-
-\code{circuitPattern} is passed to the \code{data.table} operator \code{\%like\%} so wild cards & stuff may work. YMMV
+Function selects observations between
+ \code{dateFrom} and \code{dateTo}.
 
 Use of \code{readr::read_csv} enables .gz files to be autoloaded and proper parsing of dateTimes.
 }
