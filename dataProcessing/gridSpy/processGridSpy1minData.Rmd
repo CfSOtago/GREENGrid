@@ -352,8 +352,8 @@ kable(caption = "Example data rows", lastOfHeadDT)
 ```{r add meta data to file list}
 # add metadata
 setkey(fListCompleteDT, hhID)
-setkey(metaDT, hhID)
-fListCompleteDT <- fListCompleteDT[metaDT]
+setkey(metaDT, newID)
+fListCompleteDT <- fListCompleteDT[metaDT] # <- some won't match
 ```
 
 # Data quality analysis
@@ -377,8 +377,14 @@ Some or all of these may be true at any given time!
 t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
 knitr::kable(caption = "Circuit labels list by household", t)
 
-ofile <- paste0(outPath, "circuitLabelCheckTable.csv")
+ofile <- paste0(outPath, "circuitLabelbyHHCheckTable.csv")
 write.csv(t, ofile)
+
+t <- fListCompleteDT[, .(circuitLabelCounts = uniqueN(hhID)), keyby = .(circuitLabels)]
+knitr::kable(caption = "Counts of circuit labels", t)
+ofile <- paste0(outPath, "circuitLabelbyHHCheckTable.csv")
+write.csv(t, ofile)
+
 ```
 
 Errors are easy to spot in the following plot where a hhID spans 2 or more circuit labels.

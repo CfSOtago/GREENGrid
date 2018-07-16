@@ -86,8 +86,14 @@ fListCompleteDT <- fListCompleteDT[metaDT]
 
 # create data quality outputs ----
 t <- table(fListCompleteDT$circuitLabels,fListCompleteDT$hhID)
+knitr::kable(caption = "Circuit labels list by household", t)
 
-ofile <- paste0(outPath, "circuitLabelCheckTable.csv")
+ofile <- paste0(outPath, "circuitLabelbyHHCheckTable.csv")
+write.csv(t, ofile)
+
+t <- fListCompleteDT[, .(circuitLabelCounts = uniqueN(hhID)), keyby = .(circuitLabels)]
+knitr::kable(caption = "Counts of circuit labels", t)
+ofile <- paste0(outPath, "circuitLabelbyHHCheckTable.csv")
 write.csv(t, ofile)
 
 dt <- fListCompleteDT[!is.na(circuitLabels),
