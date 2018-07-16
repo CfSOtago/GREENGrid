@@ -13,7 +13,7 @@ Downloaded from https://www.emi.ea.govt.nz/Wholesale/Datasets for various purpos
 
 ## Embedded Generation Data
 
- * Basically as for Wholesale Generation data but gets data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation/
+ * Basically as for Wholesale Generation data but gets data from https://www.emi.ea.govt.nz/Wholesale/Datasets/Metered_data/Embedded_generation/ to try to add solar gen to the wholesale gen to get the _whole_ picture (tm)
  
 ----
 [#YMMV](https://en.wiktionary.org/wiki/YMMV).
