@@ -11,7 +11,7 @@ startTime <- proc.time()
 
 # Local parameters ----
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 0 # test (1) or full (0) run?
+baTest <- 1 # test (1) or full (0) run?
 refreshData <- 0 # re-build entire fileset? 0 = no
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
@@ -21,7 +21,7 @@ if(baTest == 1){
   # Local test
   dPath <- "~/Data/NZGreenGrid/gridspy/" # BA laptop test set
   fpath <- paste0(dPath,"1min_orig/") # location of data
-  outPath <- paste0(dPath, "consolidated/1min/") # place to save them
+  outPath <- paste0("~/Data/NZGreenGrid/safe/gridSpy/1min/") # place to save them
 } else {
   # full monty
   dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
