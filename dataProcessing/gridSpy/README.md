@@ -21,7 +21,7 @@ Data has been downloaded from the [gridSpy](https://gridspy.com/) servers initia
    + Save out 1 file per household to a clean, long form .csv.gz file in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
    + It does not generate a fancy report
  * processGridSpy1minData.Rmd - does the same as processGridSpy1minData.R but generates a fancy html/pdf report with data quality analysis & plots
- * extractGridSpy1minData.R - extracts observations from the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/ which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files. It does not generate a fancy report.
+ * extractCleanGridSpy1minData.R - extracts observations from the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/ which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files. It does not generate a fancy report.
 
 The saved clean data files have 4 columns:
 
