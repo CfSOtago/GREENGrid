@@ -142,7 +142,9 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 myPlot
 ```
 
-# Scaling method 1
+
+#Scaling
+##Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -160,7 +162,7 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 myPlot
 ```
 
-# Scaling method 2
+##Scaling method 2
 
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
 
@@ -181,7 +183,7 @@ myPlot <- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season
 myPlot
 ```
 
-# Aggregation to half-hours
+#Aggregation to half-hours
 
 So far we have used data at the 1 minute level. This makes for difficulties in comparison with standared electricity sector half-hourly tariff periods etc. This section takes each scaling method, aggregates to half-hours as appropriate and re-plots.
 
@@ -268,7 +270,7 @@ EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
 BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
 
 
-# Yearly consumption
+#Yearly consumption
 We need the original data for this, currently the data basis is for an average day in each season.
 ```{r yearlyconsumption}
 heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
@@ -1548,7 +1550,7 @@ SeasonAvgDT <- PricesDT[, .(meanprice = mean(`Price ($/MWh)`)), keyby = .(season
 
 ```
 
-## Visualisation
+### Visualisation
 ```{r test plot}
 SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
@@ -1566,9 +1568,56 @@ myPlot
 
 
 ```
-#Test
 
-### Merging data SC3
+## Calculations
+###Heat pump economic value 
+####Load curtailment to zero SC1
+
+```{r setting peak periods to zero economic value}
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[, GWh:=GWhs1*1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+
+#sc1data <- sc1data[, GWh:= ifelse(Period == "Evening Peak", 0, GWh )] # If Period is Evening peak then make GWh zero
+                   
+#sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+###Merging data
 ```{r merging sc3data}
 
 setkey(SeasonAvgDT, season, obsHalfHour)

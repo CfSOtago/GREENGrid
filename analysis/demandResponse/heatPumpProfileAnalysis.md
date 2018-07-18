@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-18 11:39:40'
+date: 'Last run at: 2018-07-18 11:53:25'
 output:
   bookdown::html_document2:
     toc: true
@@ -2089,9 +2089,9 @@ myPlot
 ```
 
 ![](heatPumpProfileAnalysis_files/figure-html/test plot-1.png)<!-- -->
-#Test
 
-### Merging data SC3
+## Calculations
+###Merging data
 
 ```r
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -2182,7 +2182,7 @@ MergedDT <- sc3dataDT[SeasonAvgDT]
 
 
 
-Analysis completed in 21.01 seconds ( 0.35 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 20.43 seconds ( 0.34 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
