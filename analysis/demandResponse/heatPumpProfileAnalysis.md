@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-18 11:53:25'
+date: 'Last run at: 2018-07-18 16:46:21'
 output:
   bookdown::html_document2:
     toc: true
@@ -171,7 +171,9 @@ myPlot
 <p class="caption">(\#fig:profilePlot)Heat pump profiles</p>
 </div>
 
-# Scaling method 1
+
+#Scaling
+##Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -195,7 +197,7 @@ myPlot
 <p class="caption">(\#fig:scaledUpPlots)Mean Load Heat Pumps by Season</p>
 </div>
 
-# Scaling method 2
+##Scaling method 2
 
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
 
@@ -219,7 +221,7 @@ myPlot
 
 ![](heatPumpProfileAnalysis_files/figure-html/new calc-1.png)<!-- -->
 
-# Aggregation to half-hours
+#Aggregation to half-hours
 
 So far we have used data at the 1 minute level. This makes for difficulties in comparison with standared electricity sector half-hourly tariff periods etc. This section takes each scaling method, aggregates to half-hours as appropriate and re-plots.
 
@@ -368,7 +370,7 @@ EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
 BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
 
 
-# Yearly consumption
+#Yearly consumption
 We need the original data for this, currently the data basis is for an average day in each season.
 
 ```r
@@ -2070,7 +2072,7 @@ PricesDT <- PricesDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating tim
 SeasonAvgDT <- PricesDT[, .(meanprice = mean(`Price ($/MWh)`)), keyby = .(season, obsHalfHour, Region)]
 ```
 
-## Visualisation
+### Visualisation
 
 ```r
 SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
@@ -2079,7 +2081,7 @@ SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(SeasonAvgDT, aes(x = obsHalfHour)) +
   geom_line(aes(y=meanprice, color= Region), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Test") +
+  ggtitle("Wholesale electricity prices 01.09.2016-31.08.2017") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='$/MWh') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
@@ -2091,6 +2093,513 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/test plot-1.png)<!-- -->
 
 ## Calculations
+###Heat pump economic value 
+####Load curtailment to zero SC1
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[, MWh:=GWhs1*1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+#sc3dataDT <- as.data.table(sc3data)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc1DT <- sc1data[SeasonAvgDT]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * `meanprice`), 0)] 
+
+
+#Change the order in facet_grid()
+Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero economic value-1.png)<!-- -->
+
+```r
+Mergedsc1DT <- Mergedsc1DT[, .(EcoVal = sum(ecoValueHH)),
+                   keyby = .(Region, season, Period)]
+
+
+
+Mergedsc1DT
+```
+
+```
+##                   Region season       Period     EcoVal
+##  1: Central North Island Spring Evening Peak  1914669.2
+##  2: Central North Island Spring Morning Peak  2113786.6
+##  3: Central North Island Spring     Not Peak        0.0
+##  4: Central North Island Summer Evening Peak   547211.1
+##  5: Central North Island Summer Morning Peak  1225738.7
+##  6: Central North Island Summer     Not Peak        0.0
+##  7: Central North Island Autumn Evening Peak  1843095.8
+##  8: Central North Island Autumn Morning Peak  2273601.7
+##  9: Central North Island Autumn     Not Peak        0.0
+## 10: Central North Island Winter Evening Peak  8618411.7
+## 11: Central North Island Winter Morning Peak 11155188.9
+## 12: Central North Island Winter     Not Peak        0.0
+## 13:   Lower North Island Spring Evening Peak  1812175.7
+## 14:   Lower North Island Spring Morning Peak  2007127.8
+## 15:   Lower North Island Spring     Not Peak        0.0
+## 16:   Lower North Island Summer Evening Peak   511445.0
+## 17:   Lower North Island Summer Morning Peak  1161330.3
+## 18:   Lower North Island Summer     Not Peak        0.0
+## 19:   Lower North Island Autumn Evening Peak  1804392.1
+## 20:   Lower North Island Autumn Morning Peak  2254408.9
+## 21:   Lower North Island Autumn     Not Peak        0.0
+## 22:   Lower North Island Winter Evening Peak  8920228.0
+## 23:   Lower North Island Winter Morning Peak 11756722.9
+## 24:   Lower North Island Winter     Not Peak        0.0
+## 25:   Lower South Island Spring Evening Peak  1609013.9
+## 26:   Lower South Island Spring Morning Peak  1793491.4
+## 27:   Lower South Island Spring     Not Peak        0.0
+## 28:   Lower South Island Summer Evening Peak   385632.7
+## 29:   Lower South Island Summer Morning Peak   916720.1
+## 30:   Lower South Island Summer     Not Peak        0.0
+## 31:   Lower South Island Autumn Evening Peak  1847127.2
+## 32:   Lower South Island Autumn Morning Peak  2318245.9
+## 33:   Lower South Island Autumn     Not Peak        0.0
+## 34:   Lower South Island Winter Evening Peak  9787107.8
+## 35:   Lower South Island Winter Morning Peak 12807702.8
+## 36:   Lower South Island Winter     Not Peak        0.0
+## 37:   Upper North Island Spring Evening Peak  2046413.2
+## 38:   Upper North Island Spring Morning Peak  2245826.9
+## 39:   Upper North Island Spring     Not Peak        0.0
+## 40:   Upper North Island Summer Evening Peak   575273.5
+## 41:   Upper North Island Summer Morning Peak  1288109.3
+## 42:   Upper North Island Summer     Not Peak        0.0
+## 43:   Upper North Island Autumn Evening Peak  1955162.1
+## 44:   Upper North Island Autumn Morning Peak  2403725.3
+## 45:   Upper North Island Autumn     Not Peak        0.0
+## 46:   Upper North Island Winter Evening Peak  9210756.3
+## 47:   Upper North Island Winter Morning Peak 11824578.5
+## 48:   Upper North Island Winter     Not Peak        0.0
+## 49:   Upper South Island Spring Evening Peak  1770104.7
+## 50:   Upper South Island Spring Morning Peak  1994752.9
+## 51:   Upper South Island Spring     Not Peak        0.0
+## 52:   Upper South Island Summer Evening Peak   481863.2
+## 53:   Upper South Island Summer Morning Peak  1097440.3
+## 54:   Upper South Island Summer     Not Peak        0.0
+## 55:   Upper South Island Autumn Evening Peak  1907032.6
+## 56:   Upper South Island Autumn Morning Peak  2439421.7
+## 57:   Upper South Island Autumn     Not Peak        0.0
+## 58:   Upper South Island Winter Evening Peak 10443278.0
+## 59:   Upper South Island Winter Morning Peak 13459937.7
+## 60:   Upper South Island Winter     Not Peak        0.0
+##                   Region season       Period     EcoVal
+```
+
+####Load curtailment of particular amount: SC2
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc2data <- heatPumpProfileDT
+sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc2data <- sc2data[, Period := "Not Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc2data <- sc2data[, MWh:=GWhs2*1000*0.5] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc2data, season, obsHalfHour)
+
+Mergedsc2DT <- sc2data[SeasonAvgDT]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * `meanprice`), 0)] 
+
+#Change the order in facet_grid()
+Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc2DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic value of particular amount-1.png)<!-- -->
+
+```r
+Mergedsc2DT <- Mergedsc2DT[, .(EcoVal = sum(ecoValueHH)),
+                   keyby = .(Region, season, Period)]
+
+
+
+Mergedsc2DT
+```
+
+```
+##                   Region season       Period    EcoVal
+##  1: Central North Island Spring Evening Peak  957334.6
+##  2: Central North Island Spring Morning Peak 1056893.3
+##  3: Central North Island Spring     Not Peak       0.0
+##  4: Central North Island Summer Evening Peak  273605.5
+##  5: Central North Island Summer Morning Peak  612869.4
+##  6: Central North Island Summer     Not Peak       0.0
+##  7: Central North Island Autumn Evening Peak  921547.9
+##  8: Central North Island Autumn Morning Peak 1136800.9
+##  9: Central North Island Autumn     Not Peak       0.0
+## 10: Central North Island Winter Evening Peak 4309205.9
+## 11: Central North Island Winter Morning Peak 5577594.5
+## 12: Central North Island Winter     Not Peak       0.0
+## 13:   Lower North Island Spring Evening Peak  906087.9
+## 14:   Lower North Island Spring Morning Peak 1003563.9
+## 15:   Lower North Island Spring     Not Peak       0.0
+## 16:   Lower North Island Summer Evening Peak  255722.5
+## 17:   Lower North Island Summer Morning Peak  580665.1
+## 18:   Lower North Island Summer     Not Peak       0.0
+## 19:   Lower North Island Autumn Evening Peak  902196.0
+## 20:   Lower North Island Autumn Morning Peak 1127204.4
+## 21:   Lower North Island Autumn     Not Peak       0.0
+## 22:   Lower North Island Winter Evening Peak 4460114.0
+## 23:   Lower North Island Winter Morning Peak 5878361.5
+## 24:   Lower North Island Winter     Not Peak       0.0
+## 25:   Lower South Island Spring Evening Peak  804506.9
+## 26:   Lower South Island Spring Morning Peak  896745.7
+## 27:   Lower South Island Spring     Not Peak       0.0
+## 28:   Lower South Island Summer Evening Peak  192816.4
+## 29:   Lower South Island Summer Morning Peak  458360.0
+## 30:   Lower South Island Summer     Not Peak       0.0
+## 31:   Lower South Island Autumn Evening Peak  923563.6
+## 32:   Lower South Island Autumn Morning Peak 1159122.9
+## 33:   Lower South Island Autumn     Not Peak       0.0
+## 34:   Lower South Island Winter Evening Peak 4893553.9
+## 35:   Lower South Island Winter Morning Peak 6403851.4
+## 36:   Lower South Island Winter     Not Peak       0.0
+## 37:   Upper North Island Spring Evening Peak 1023206.6
+## 38:   Upper North Island Spring Morning Peak 1122913.4
+## 39:   Upper North Island Spring     Not Peak       0.0
+## 40:   Upper North Island Summer Evening Peak  287636.8
+## 41:   Upper North Island Summer Morning Peak  644054.7
+## 42:   Upper North Island Summer     Not Peak       0.0
+## 43:   Upper North Island Autumn Evening Peak  977581.0
+## 44:   Upper North Island Autumn Morning Peak 1201862.7
+## 45:   Upper North Island Autumn     Not Peak       0.0
+## 46:   Upper North Island Winter Evening Peak 4605378.1
+## 47:   Upper North Island Winter Morning Peak 5912289.2
+## 48:   Upper North Island Winter     Not Peak       0.0
+## 49:   Upper South Island Spring Evening Peak  885052.3
+## 50:   Upper South Island Spring Morning Peak  997376.4
+## 51:   Upper South Island Spring     Not Peak       0.0
+## 52:   Upper South Island Summer Evening Peak  240931.6
+## 53:   Upper South Island Summer Morning Peak  548720.2
+## 54:   Upper South Island Summer     Not Peak       0.0
+## 55:   Upper South Island Autumn Evening Peak  953516.3
+## 56:   Upper South Island Autumn Morning Peak 1219710.8
+## 57:   Upper South Island Autumn     Not Peak       0.0
+## 58:   Upper South Island Winter Evening Peak 5221639.0
+## 59:   Upper South Island Winter Morning Peak 6729968.8
+## 60:   Upper South Island Winter     Not Peak       0.0
+##                   Region season       Period    EcoVal
+```
+
+####Load shifting to prior time periods: SC3
+
+```r
+sc3data <- heatPumpProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+```
+
 ###Merging data
 
 ```r
@@ -2182,7 +2691,7 @@ MergedDT <- sc3dataDT[SeasonAvgDT]
 
 
 
-Analysis completed in 20.43 seconds ( 0.34 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 22.87 seconds ( 0.38 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

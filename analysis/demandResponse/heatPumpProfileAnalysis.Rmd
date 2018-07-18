@@ -1558,7 +1558,7 @@ SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(SeasonAvgDT, aes(x = obsHalfHour)) +
   geom_line(aes(y=meanprice, color= Region), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Test") +
+  ggtitle("Wholesale electricity prices 01.09.2016-31.08.2017") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='$/MWh') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
@@ -1593,29 +1593,271 @@ sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") &
                      obsHalfHour <= hms::as.hms("20:00:00"),
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[, GWh:=GWhs1*1000] # Creating new column GWh based on GWhs1 in MWh
+sc1data <- sc1data[, MWh:=GWhs1*1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+#sc3dataDT <- as.data.table(sc3data)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc1DT <- sc1data[SeasonAvgDT]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * `meanprice`), 0)] 
+
+
+#Change the order in facet_grid()
+Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+
+Mergedsc1DT <- Mergedsc1DT[, .(EcoVal = sum(ecoValueHH)),
+                   keyby = .(Region, season, Period)]
 
 
 
-#sc1data <- sc1data[, GWh:= ifelse(Period == "Evening Peak", 0, GWh )] # If Period is Evening peak then make GWh zero
-                   
-#sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
+Mergedsc1DT
+
+```
+
+####Load curtailment of particular amount: SC2
+
+```{r economic value of particular amount}
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc2data <- heatPumpProfileDT
+sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc2data <- sc2data[, Period := "Not Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc2data <- sc2data[, MWh:=GWhs2*1000*0.5] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc2data, season, obsHalfHour)
+
+Mergedsc2DT <- sc2data[SeasonAvgDT]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * `meanprice`), 0)] 
+
+#Change the order in facet_grid()
+Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc2DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+
+Mergedsc2DT <- Mergedsc2DT[, .(EcoVal = sum(ecoValueHH)),
+                   keyby = .(Region, season, Period)]
+
+
+
+Mergedsc2DT
+
+```
+
+####Load shifting to prior time periods: SC3
+```{r economic value load shifting heat pumps}
+
+
+sc3data <- heatPumpProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+#Creating new column
+sc3data <- sc3data[, DiffOrigMWh := 0]
+#Calculating the amount added because of load shifting
+sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0, (GWhs3-GWhs1) * 1000, 0)]
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc3data, season, obsHalfHour)
+
+Mergedsc3DT <- sc3data[SeasonAvgDT]
+Mergedsc3DT <- Mergedsc3DT[, neEcoValueHH := 0]
+Mergedsc3DT <- Mergedsc3DT[, neEcoValueHH := ifelse(GWhs3 > 0, DiffOrigMWh * meanprice, 0)]
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := 0]
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(DiffOrigMWh == 0,
+                                                (GWhs1 * 1000) * meanprice, 0)]
+
+neEcoValSumDT <- Mergedsc3DT[, .(sum(neEcoValueHH)),
+                           keyby = .(Region, season, Period)]
+setnames(neEcoValSumDT, old=c("V1"), new=c("neEcoVal"))
+
+
+EcoValSumDT <- Mergedsc3DT[, .(sum(ecoValueHH)), keyby = .(Region, season, Period )]
+setnames(EcoValSumDT, old=c("V1"), new=c("EcoVal"))
+
+setkey(neEcoValSumDT, Region, season, Period)
+
+setkey(EcoValSumDT, Region, season, Period)
+
+MergedEcoValue <- neEcoValSumDT[EcoValSumDT]
+
+
+
+
+
+
 
 
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 ###Merging data
 ```{r merging sc3data}
