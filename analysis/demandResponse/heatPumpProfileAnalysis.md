@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-09 10:00:16'
+date: 'Last run at: 2018-07-18 11:39:40'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ─────────────────────────────────────────────────────
+## ── Variable type:character ────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ──────────────────────────────────────────────────────
+## ── Variable type:difftime ─────────────────────────────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ───────────────────────────────────────────────────────
+## ── Variable type:integer ──────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -327,7 +327,7 @@ skimr::skim(sumbranzGWh)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -342,7 +342,7 @@ skimr::skim(totalGWH)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 ```
@@ -355,7 +355,7 @@ skimr::skim(diffbranzeeca)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ───────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -1690,11 +1690,11 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", PumpandWate
                    
 sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWater*0.5, PumpandWater )]
 
+#Renaming PumpandWater to depict the right y in the colorbar
+setnames(sc3data, old=c("PumpandWater"), new=c("GWh"))
 
 
-
-
-myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total heat pump and hot water 50 per cent load curtailment") +
@@ -1711,17 +1711,13 @@ myPlot
 ![](heatPumpProfileAnalysis_files/figure-html/particular amount of hp and hw-1.png)<!-- -->
 
 ```r
-ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
-```
-
-```
-## Saving 7 x 5 in image
+#ggsave("Total heat pump and hot water 50 per cent load curtailment.jpeg", dpi = 600)
 ```
 
 ###Potential load curtailment heat pump and hot water based on percentage
 
 ```r
-sc3data <- sc3data[, .(PotCur = sum(PumpandWater)),
+sc3data <- sc3data[, .(PotCur = sum(GWh)),
                    keyby = .(season, Period)]
 sc3data
 ```
@@ -1981,6 +1977,12 @@ sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
 
 #myPlot
 
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+
 #Visualising shifted and original consumption two colours
   myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWhs4, color="red"), size=0.5) +
@@ -1990,13 +1992,14 @@ sc3data <- sc3data[, GWhs4:= ifelse(Period =="Evening Peak",
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Heat pump and hot water appliances together in GWh") +
   scale_colour_manual(name = element_blank(), 
-         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Original HW consumption', 'Original HP & HW consumption', 'Original HP consumption', 'Shifted HP & HW consumption')) +
+         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Orig. HW', 'Orig. HP & HW', 'Orig. HP', 'Shif. HP & HW')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
- 
+  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+
+
 
 myPlot
 ```
@@ -2006,6 +2009,106 @@ myPlot
 ```r
 #ggsave("Heat pump and hot water appliances together in GWh.jpeg", dpi = 600)
 ```
+
+#Economic analysis
+## Reading original data
+
+```r
+WholesalePrices  <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Wholesale_Prices/Wholesale_16-17_clean.csv"
+
+
+print(paste0("Trying to load: ", WholesalePrices))
+```
+
+```
+## [1] "Trying to load: /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Wholesale_Prices/Wholesale_16-17_clean.csv"
+```
+
+```r
+PricesDT <- data.table::as.data.table(readr::read_csv(WholesalePrices)) # reading data
+```
+
+```
+## Parsed with column specification:
+## cols(
+##   `Period start` = col_character(),
+##   `Period end` = col_character(),
+##   `Trading period` = col_integer(),
+##   `Region ID` = col_character(),
+##   Region = col_character(),
+##   `Price ($/MWh)` = col_double()
+## )
+```
+
+## Time adjustments
+
+```r
+PricesDT <- PricesDT[, dateTimeStartUTC := lubridate::dmy_hm(`Period start`)] # creating column based on orig. data
+PricesDT <- PricesDT[, dateTimeStart := lubridate::force_tz(dateTimeStartUTC, tz = "Pacific/Auckland")] # changing time to NZST
+PricesDT$dateTimeStartUTC <- NULL
+PricesDT <- PricesDT[, dstFlag := lubridate::dst(dateTimeStart)]
+#PricesDT[, .(n = .N), keyby = .(month = lubridate::month(dateTimeStart), dstFlag)]# Daylight saving test
+```
+
+## Defining seasons
+
+```r
+PricesDT <- PricesDT[, month := lubridate::month(dateTimeStart)]
+
+PricesDT <- PricesDT[month >= 9 & month <= 11, season := "Spring"]
+PricesDT <- PricesDT[month == 12 | month == 1 | month == 2, season := "Summer"]
+PricesDT <- PricesDT[month == 3 | month == 4 | month == 5, season := "Autumn"]
+PricesDT <- PricesDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+```
+
+## Mean Price per MWh
+
+```r
+PricesDT <- PricesDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating time column without date
+
+
+SeasonAvgDT <- PricesDT[, .(meanprice = mean(`Price ($/MWh)`)), keyby = .(season, obsHalfHour, Region)]
+```
+
+## Visualisation
+
+```r
+SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+myPlot <- ggplot2::ggplot(SeasonAvgDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=meanprice, color= Region), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Test") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='$/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/test plot-1.png)<!-- -->
+#Test
+
+### Merging data SC3
+
+```r
+setkey(SeasonAvgDT, season, obsHalfHour)
+sc3dataDT <- as.data.table(sc3data)
+setkey(sc3dataDT, season, obsHalfHour)
+
+MergedDT <- sc3dataDT[SeasonAvgDT]
+```
+
+
+
+
+
+
+
+
+
 #MyPlot example
 
 ```r
@@ -2079,7 +2182,7 @@ myPlot
 
 
 
-Analysis completed in 19.1 seconds ( 0.32 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 21.01 seconds ( 0.35 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

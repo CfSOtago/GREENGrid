@@ -125,7 +125,7 @@ PricesDT <- PricesDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 ## Mean Price per MWh
 ```{r Mean Price by season, region and half hour}
 PricesDT <- PricesDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating time column without date
-table(PricesDT$obsHalfHour)
+
 
 SeasonAvgDT <- PricesDT[, .(meanprice = mean(`Price ($/MWh)`)), keyby = .(season, obsHalfHour, Region)]
 
