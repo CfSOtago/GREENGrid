@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-18 16:46:21'
+date: 'Last run at: 2018-07-19 16:45:05'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ─────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ─────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ──────────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ───────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -329,7 +329,7 @@ skimr::skim(sumbranzGWh)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -344,7 +344,7 @@ skimr::skim(totalGWH)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 ```
@@ -357,7 +357,7 @@ skimr::skim(diffbranzeeca)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ───────────────────────────────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -2094,6 +2094,121 @@ myPlot
 
 ## Calculations
 ###Heat pump economic value 
+####Baseline value
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc0data <- heatPumpProfileDT
+sc0data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc0data <- sc0data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc0data <- sc0data[, Period := "Not Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc0data <- sc0data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc0DT <- sc0data[SeasonAvgDT]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (-meanprice), 
+                           keyby = .(season, Region, obsHalfHour)]
+
+#Change the order in facet_grid()
+Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic benefits baseline") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero economic value2-1.png)<!-- -->
+
+```r
+#Building season sum by period
+Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
+                   keyby = .(season, Region, Period)]
+```
 ####Load curtailment to zero SC1
 
 
@@ -2147,6 +2262,8 @@ sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
+
+#Defining peak and off-peak periods
 sc1data <- sc1data[, Period := "Not Peak"]
 
 sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
@@ -2157,11 +2274,24 @@ sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") &
                      obsHalfHour <= hms::as.hms("20:00:00"),
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[, MWh:=GWhs1*1000] # Creating new column GWh based on GWhs1 in MWh
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc1data <- sc1data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
 
 
 setkey(SeasonAvgDT, season, obsHalfHour)
-#sc3dataDT <- as.data.table(sc3data)
 setkey(sc1data, season, obsHalfHour)
 
 Mergedsc1DT <- sc1data[SeasonAvgDT]
@@ -2170,14 +2300,16 @@ Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
 
 Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
                                                   Period == "Evening Peak",
-                                                (`MWh` * `meanprice`), 0)] 
+                                                (`MWh` * `meanprice`),
+                                                (MWh * (-meanprice))),
+                           keyby = .(season, Region, obsHalfHour)] 
 
 
 #Change the order in facet_grid()
 Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
-#Visualising only shifted consumption
+#Visualising
 myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
   geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
   theme(text = element_text(family = "Cambria")) +
@@ -2202,68 +2334,88 @@ Mergedsc1DT
 ```
 
 ```
-##                   Region season       Period     EcoVal
-##  1: Central North Island Spring Evening Peak  1914669.2
-##  2: Central North Island Spring Morning Peak  2113786.6
-##  3: Central North Island Spring     Not Peak        0.0
-##  4: Central North Island Summer Evening Peak   547211.1
-##  5: Central North Island Summer Morning Peak  1225738.7
-##  6: Central North Island Summer     Not Peak        0.0
-##  7: Central North Island Autumn Evening Peak  1843095.8
-##  8: Central North Island Autumn Morning Peak  2273601.7
-##  9: Central North Island Autumn     Not Peak        0.0
-## 10: Central North Island Winter Evening Peak  8618411.7
-## 11: Central North Island Winter Morning Peak 11155188.9
-## 12: Central North Island Winter     Not Peak        0.0
-## 13:   Lower North Island Spring Evening Peak  1812175.7
-## 14:   Lower North Island Spring Morning Peak  2007127.8
-## 15:   Lower North Island Spring     Not Peak        0.0
-## 16:   Lower North Island Summer Evening Peak   511445.0
-## 17:   Lower North Island Summer Morning Peak  1161330.3
-## 18:   Lower North Island Summer     Not Peak        0.0
-## 19:   Lower North Island Autumn Evening Peak  1804392.1
-## 20:   Lower North Island Autumn Morning Peak  2254408.9
-## 21:   Lower North Island Autumn     Not Peak        0.0
-## 22:   Lower North Island Winter Evening Peak  8920228.0
-## 23:   Lower North Island Winter Morning Peak 11756722.9
-## 24:   Lower North Island Winter     Not Peak        0.0
-## 25:   Lower South Island Spring Evening Peak  1609013.9
-## 26:   Lower South Island Spring Morning Peak  1793491.4
-## 27:   Lower South Island Spring     Not Peak        0.0
-## 28:   Lower South Island Summer Evening Peak   385632.7
-## 29:   Lower South Island Summer Morning Peak   916720.1
-## 30:   Lower South Island Summer     Not Peak        0.0
-## 31:   Lower South Island Autumn Evening Peak  1847127.2
-## 32:   Lower South Island Autumn Morning Peak  2318245.9
-## 33:   Lower South Island Autumn     Not Peak        0.0
-## 34:   Lower South Island Winter Evening Peak  9787107.8
-## 35:   Lower South Island Winter Morning Peak 12807702.8
-## 36:   Lower South Island Winter     Not Peak        0.0
-## 37:   Upper North Island Spring Evening Peak  2046413.2
-## 38:   Upper North Island Spring Morning Peak  2245826.9
-## 39:   Upper North Island Spring     Not Peak        0.0
-## 40:   Upper North Island Summer Evening Peak   575273.5
-## 41:   Upper North Island Summer Morning Peak  1288109.3
-## 42:   Upper North Island Summer     Not Peak        0.0
-## 43:   Upper North Island Autumn Evening Peak  1955162.1
-## 44:   Upper North Island Autumn Morning Peak  2403725.3
-## 45:   Upper North Island Autumn     Not Peak        0.0
-## 46:   Upper North Island Winter Evening Peak  9210756.3
-## 47:   Upper North Island Winter Morning Peak 11824578.5
-## 48:   Upper North Island Winter     Not Peak        0.0
-## 49:   Upper South Island Spring Evening Peak  1770104.7
-## 50:   Upper South Island Spring Morning Peak  1994752.9
-## 51:   Upper South Island Spring     Not Peak        0.0
-## 52:   Upper South Island Summer Evening Peak   481863.2
-## 53:   Upper South Island Summer Morning Peak  1097440.3
-## 54:   Upper South Island Summer     Not Peak        0.0
-## 55:   Upper South Island Autumn Evening Peak  1907032.6
-## 56:   Upper South Island Autumn Morning Peak  2439421.7
-## 57:   Upper South Island Autumn     Not Peak        0.0
-## 58:   Upper South Island Winter Evening Peak 10443278.0
-## 59:   Upper South Island Winter Morning Peak 13459937.7
-## 60:   Upper South Island Winter     Not Peak        0.0
-##                   Region season       Period     EcoVal
+##                   Region season       Period      EcoVal
+##  1: Central North Island Spring Evening Peak   1914669.2
+##  2: Central North Island Spring Morning Peak   2113786.6
+##  3: Central North Island Spring   Off Peak 1  -1749695.5
+##  4: Central North Island Spring   Off Peak 2   -734938.1
+##  5: Central North Island Summer Evening Peak    547211.1
+##  6: Central North Island Summer Morning Peak   1225738.7
+##  7: Central North Island Summer   Off Peak 1  -1581141.6
+##  8: Central North Island Summer   Off Peak 2   -700579.4
+##  9: Central North Island Autumn Evening Peak   1843095.8
+## 10: Central North Island Autumn Morning Peak   2273601.7
+## 11: Central North Island Autumn   Off Peak 1  -1662131.3
+## 12: Central North Island Autumn   Off Peak 2   -876148.8
+## 13: Central North Island Winter Evening Peak   8618411.7
+## 14: Central North Island Winter Morning Peak  11155188.9
+## 15: Central North Island Winter   Off Peak 1  -8445197.5
+## 16: Central North Island Winter   Off Peak 2  -3767757.2
+## 17:   Lower North Island Spring Evening Peak   1812175.7
+## 18:   Lower North Island Spring Morning Peak   2007127.8
+## 19:   Lower North Island Spring   Off Peak 1  -1744058.1
+## 20:   Lower North Island Spring   Off Peak 2   -701421.4
+## 21:   Lower North Island Summer Evening Peak    511445.0
+## 22:   Lower North Island Summer Morning Peak   1161330.3
+## 23:   Lower North Island Summer   Off Peak 1  -1540217.4
+## 24:   Lower North Island Summer   Off Peak 2   -654119.0
+## 25:   Lower North Island Autumn Evening Peak   1804392.1
+## 26:   Lower North Island Autumn Morning Peak   2254408.9
+## 27:   Lower North Island Autumn   Off Peak 1  -1729106.5
+## 28:   Lower North Island Autumn   Off Peak 2   -866261.8
+## 29:   Lower North Island Winter Evening Peak   8920228.0
+## 30:   Lower North Island Winter Morning Peak  11756722.9
+## 31:   Lower North Island Winter   Off Peak 1  -9147806.3
+## 32:   Lower North Island Winter   Off Peak 2  -3999391.7
+## 33:   Lower South Island Spring Evening Peak   1609013.9
+## 34:   Lower South Island Spring Morning Peak   1793491.4
+## 35:   Lower South Island Spring   Off Peak 1  -1698223.8
+## 36:   Lower South Island Spring   Off Peak 2   -633959.5
+## 37:   Lower South Island Summer Evening Peak    385632.7
+## 38:   Lower South Island Summer Morning Peak    916720.1
+## 39:   Lower South Island Summer   Off Peak 1  -1288654.8
+## 40:   Lower South Island Summer   Off Peak 2   -484086.9
+## 41:   Lower South Island Autumn Evening Peak   1847127.2
+## 42:   Lower South Island Autumn Morning Peak   2318245.9
+## 43:   Lower South Island Autumn   Off Peak 1  -1963855.8
+## 44:   Lower South Island Autumn   Off Peak 2   -919911.9
+## 45:   Lower South Island Winter Evening Peak   9787107.8
+## 46:   Lower South Island Winter Morning Peak  12807702.8
+## 47:   Lower South Island Winter   Off Peak 1 -10372059.7
+## 48:   Lower South Island Winter   Off Peak 2  -4363643.4
+## 49:   Upper North Island Spring Evening Peak   2046413.2
+## 50:   Upper North Island Spring Morning Peak   2245826.9
+## 51:   Upper North Island Spring   Off Peak 1  -1851372.8
+## 52:   Upper North Island Spring   Off Peak 2   -783938.3
+## 53:   Upper North Island Summer Evening Peak    575273.5
+## 54:   Upper North Island Summer Morning Peak   1288109.3
+## 55:   Upper North Island Summer   Off Peak 1  -1651400.8
+## 56:   Upper North Island Summer   Off Peak 2   -738499.1
+## 57:   Upper North Island Autumn Evening Peak   1955162.1
+## 58:   Upper North Island Autumn Morning Peak   2403725.3
+## 59:   Upper North Island Autumn   Off Peak 1  -1737434.9
+## 60:   Upper North Island Autumn   Off Peak 2   -929724.3
+## 61:   Upper North Island Winter Evening Peak   9210756.3
+## 62:   Upper North Island Winter Morning Peak  11824578.5
+## 63:   Upper North Island Winter   Off Peak 1  -8825927.4
+## 64:   Upper North Island Winter   Off Peak 2  -3989293.0
+## 65:   Upper South Island Spring Evening Peak   1770104.7
+## 66:   Upper South Island Spring Morning Peak   1994752.9
+## 67:   Upper South Island Spring   Off Peak 1  -1780602.9
+## 68:   Upper South Island Spring   Off Peak 2   -691288.0
+## 69:   Upper South Island Summer Evening Peak    481863.2
+## 70:   Upper South Island Summer Morning Peak   1097440.3
+## 71:   Upper South Island Summer   Off Peak 1  -1491720.8
+## 72:   Upper South Island Summer   Off Peak 2   -598289.2
+## 73:   Upper South Island Autumn Evening Peak   1907032.6
+## 74:   Upper South Island Autumn Morning Peak   2439421.7
+## 75:   Upper South Island Autumn   Off Peak 1  -1928349.1
+## 76:   Upper South Island Autumn   Off Peak 2   -931932.0
+## 77:   Upper South Island Winter Evening Peak  10443278.0
+## 78:   Upper South Island Winter Morning Peak  13459937.7
+## 79:   Upper South Island Winter   Off Peak 1 -10571232.4
+## 80:   Upper South Island Winter   Off Peak 2  -4499601.0
+##                   Region season       Period      EcoVal
 ```
 
 ####Load curtailment of particular amount: SC2
@@ -2316,9 +2468,11 @@ sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 ```
 
 ```r
-sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
+sc2data <- sc2data[, .(GWhs1 = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
+
+#Defining peak and off-peak periods
 sc2data <- sc2data[, Period := "Not Peak"]
 
 sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
@@ -2329,7 +2483,19 @@ sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") &
                      obsHalfHour <= hms::as.hms("20:00:00"),
                    Period := "Evening Peak"]
 
-sc2data <- sc2data[, MWh:=GWhs2*1000*0.5] # Creating new column GWh based on GWhs1 in MWh
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+sc2data <- sc2data[, MWh:=GWhs1*1000*0.5] # Creating new column GWh based on GWhs1 in MWh
 
 
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -2342,7 +2508,9 @@ Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
 
 Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
                                                   Period == "Evening Peak",
-                                                (`MWh` * `meanprice`), 0)] 
+                                                (`MWh` * `meanprice`),
+                                                MWh * (-meanprice)),
+                           keyby = .(season, Region, obsHalfHour)] 
 
 #Change the order in facet_grid()
 Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
@@ -2373,68 +2541,88 @@ Mergedsc2DT
 ```
 
 ```
-##                   Region season       Period    EcoVal
-##  1: Central North Island Spring Evening Peak  957334.6
-##  2: Central North Island Spring Morning Peak 1056893.3
-##  3: Central North Island Spring     Not Peak       0.0
-##  4: Central North Island Summer Evening Peak  273605.5
-##  5: Central North Island Summer Morning Peak  612869.4
-##  6: Central North Island Summer     Not Peak       0.0
-##  7: Central North Island Autumn Evening Peak  921547.9
-##  8: Central North Island Autumn Morning Peak 1136800.9
-##  9: Central North Island Autumn     Not Peak       0.0
-## 10: Central North Island Winter Evening Peak 4309205.9
-## 11: Central North Island Winter Morning Peak 5577594.5
-## 12: Central North Island Winter     Not Peak       0.0
-## 13:   Lower North Island Spring Evening Peak  906087.9
-## 14:   Lower North Island Spring Morning Peak 1003563.9
-## 15:   Lower North Island Spring     Not Peak       0.0
-## 16:   Lower North Island Summer Evening Peak  255722.5
-## 17:   Lower North Island Summer Morning Peak  580665.1
-## 18:   Lower North Island Summer     Not Peak       0.0
-## 19:   Lower North Island Autumn Evening Peak  902196.0
-## 20:   Lower North Island Autumn Morning Peak 1127204.4
-## 21:   Lower North Island Autumn     Not Peak       0.0
-## 22:   Lower North Island Winter Evening Peak 4460114.0
-## 23:   Lower North Island Winter Morning Peak 5878361.5
-## 24:   Lower North Island Winter     Not Peak       0.0
-## 25:   Lower South Island Spring Evening Peak  804506.9
-## 26:   Lower South Island Spring Morning Peak  896745.7
-## 27:   Lower South Island Spring     Not Peak       0.0
-## 28:   Lower South Island Summer Evening Peak  192816.4
-## 29:   Lower South Island Summer Morning Peak  458360.0
-## 30:   Lower South Island Summer     Not Peak       0.0
-## 31:   Lower South Island Autumn Evening Peak  923563.6
-## 32:   Lower South Island Autumn Morning Peak 1159122.9
-## 33:   Lower South Island Autumn     Not Peak       0.0
-## 34:   Lower South Island Winter Evening Peak 4893553.9
-## 35:   Lower South Island Winter Morning Peak 6403851.4
-## 36:   Lower South Island Winter     Not Peak       0.0
-## 37:   Upper North Island Spring Evening Peak 1023206.6
-## 38:   Upper North Island Spring Morning Peak 1122913.4
-## 39:   Upper North Island Spring     Not Peak       0.0
-## 40:   Upper North Island Summer Evening Peak  287636.8
-## 41:   Upper North Island Summer Morning Peak  644054.7
-## 42:   Upper North Island Summer     Not Peak       0.0
-## 43:   Upper North Island Autumn Evening Peak  977581.0
-## 44:   Upper North Island Autumn Morning Peak 1201862.7
-## 45:   Upper North Island Autumn     Not Peak       0.0
-## 46:   Upper North Island Winter Evening Peak 4605378.1
-## 47:   Upper North Island Winter Morning Peak 5912289.2
-## 48:   Upper North Island Winter     Not Peak       0.0
-## 49:   Upper South Island Spring Evening Peak  885052.3
-## 50:   Upper South Island Spring Morning Peak  997376.4
-## 51:   Upper South Island Spring     Not Peak       0.0
-## 52:   Upper South Island Summer Evening Peak  240931.6
-## 53:   Upper South Island Summer Morning Peak  548720.2
-## 54:   Upper South Island Summer     Not Peak       0.0
-## 55:   Upper South Island Autumn Evening Peak  953516.3
-## 56:   Upper South Island Autumn Morning Peak 1219710.8
-## 57:   Upper South Island Autumn     Not Peak       0.0
-## 58:   Upper South Island Winter Evening Peak 5221639.0
-## 59:   Upper South Island Winter Morning Peak 6729968.8
-## 60:   Upper South Island Winter     Not Peak       0.0
-##                   Region season       Period    EcoVal
+##                   Region season       Period     EcoVal
+##  1: Central North Island Spring Evening Peak   957334.6
+##  2: Central North Island Spring Morning Peak  1056893.3
+##  3: Central North Island Spring   Off Peak 1  -874847.8
+##  4: Central North Island Spring   Off Peak 2  -367469.1
+##  5: Central North Island Summer Evening Peak   273605.5
+##  6: Central North Island Summer Morning Peak   612869.4
+##  7: Central North Island Summer   Off Peak 1  -790570.8
+##  8: Central North Island Summer   Off Peak 2  -350289.7
+##  9: Central North Island Autumn Evening Peak   921547.9
+## 10: Central North Island Autumn Morning Peak  1136800.9
+## 11: Central North Island Autumn   Off Peak 1  -831065.7
+## 12: Central North Island Autumn   Off Peak 2  -438074.4
+## 13: Central North Island Winter Evening Peak  4309205.9
+## 14: Central North Island Winter Morning Peak  5577594.5
+## 15: Central North Island Winter   Off Peak 1 -4222598.8
+## 16: Central North Island Winter   Off Peak 2 -1883878.6
+## 17:   Lower North Island Spring Evening Peak   906087.9
+## 18:   Lower North Island Spring Morning Peak  1003563.9
+## 19:   Lower North Island Spring   Off Peak 1  -872029.0
+## 20:   Lower North Island Spring   Off Peak 2  -350710.7
+## 21:   Lower North Island Summer Evening Peak   255722.5
+## 22:   Lower North Island Summer Morning Peak   580665.1
+## 23:   Lower North Island Summer   Off Peak 1  -770108.7
+## 24:   Lower North Island Summer   Off Peak 2  -327059.5
+## 25:   Lower North Island Autumn Evening Peak   902196.0
+## 26:   Lower North Island Autumn Morning Peak  1127204.4
+## 27:   Lower North Island Autumn   Off Peak 1  -864553.3
+## 28:   Lower North Island Autumn   Off Peak 2  -433130.9
+## 29:   Lower North Island Winter Evening Peak  4460114.0
+## 30:   Lower North Island Winter Morning Peak  5878361.5
+## 31:   Lower North Island Winter   Off Peak 1 -4573903.2
+## 32:   Lower North Island Winter   Off Peak 2 -1999695.9
+## 33:   Lower South Island Spring Evening Peak   804506.9
+## 34:   Lower South Island Spring Morning Peak   896745.7
+## 35:   Lower South Island Spring   Off Peak 1  -849111.9
+## 36:   Lower South Island Spring   Off Peak 2  -316979.8
+## 37:   Lower South Island Summer Evening Peak   192816.4
+## 38:   Lower South Island Summer Morning Peak   458360.0
+## 39:   Lower South Island Summer   Off Peak 1  -644327.4
+## 40:   Lower South Island Summer   Off Peak 2  -242043.4
+## 41:   Lower South Island Autumn Evening Peak   923563.6
+## 42:   Lower South Island Autumn Morning Peak  1159122.9
+## 43:   Lower South Island Autumn   Off Peak 1  -981927.9
+## 44:   Lower South Island Autumn   Off Peak 2  -459956.0
+## 45:   Lower South Island Winter Evening Peak  4893553.9
+## 46:   Lower South Island Winter Morning Peak  6403851.4
+## 47:   Lower South Island Winter   Off Peak 1 -5186029.9
+## 48:   Lower South Island Winter   Off Peak 2 -2181821.7
+## 49:   Upper North Island Spring Evening Peak  1023206.6
+## 50:   Upper North Island Spring Morning Peak  1122913.4
+## 51:   Upper North Island Spring   Off Peak 1  -925686.4
+## 52:   Upper North Island Spring   Off Peak 2  -391969.2
+## 53:   Upper North Island Summer Evening Peak   287636.8
+## 54:   Upper North Island Summer Morning Peak   644054.7
+## 55:   Upper North Island Summer   Off Peak 1  -825700.4
+## 56:   Upper North Island Summer   Off Peak 2  -369249.5
+## 57:   Upper North Island Autumn Evening Peak   977581.0
+## 58:   Upper North Island Autumn Morning Peak  1201862.7
+## 59:   Upper North Island Autumn   Off Peak 1  -868717.5
+## 60:   Upper North Island Autumn   Off Peak 2  -464862.2
+## 61:   Upper North Island Winter Evening Peak  4605378.1
+## 62:   Upper North Island Winter Morning Peak  5912289.2
+## 63:   Upper North Island Winter   Off Peak 1 -4412963.7
+## 64:   Upper North Island Winter   Off Peak 2 -1994646.5
+## 65:   Upper South Island Spring Evening Peak   885052.3
+## 66:   Upper South Island Spring Morning Peak   997376.4
+## 67:   Upper South Island Spring   Off Peak 1  -890301.4
+## 68:   Upper South Island Spring   Off Peak 2  -345644.0
+## 69:   Upper South Island Summer Evening Peak   240931.6
+## 70:   Upper South Island Summer Morning Peak   548720.2
+## 71:   Upper South Island Summer   Off Peak 1  -745860.4
+## 72:   Upper South Island Summer   Off Peak 2  -299144.6
+## 73:   Upper South Island Autumn Evening Peak   953516.3
+## 74:   Upper South Island Autumn Morning Peak  1219710.8
+## 75:   Upper South Island Autumn   Off Peak 1  -964174.6
+## 76:   Upper South Island Autumn   Off Peak 2  -465966.0
+## 77:   Upper South Island Winter Evening Peak  5221639.0
+## 78:   Upper South Island Winter Morning Peak  6729968.8
+## 79:   Upper South Island Winter   Off Peak 1 -5285616.2
+## 80:   Upper South Island Winter   Off Peak 2 -2249800.5
+##                   Region season       Period     EcoVal
 ```
 
 ####Load shifting to prior time periods: SC3
@@ -2598,16 +2786,54 @@ sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
                                   0, GWhs3)]
 sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
                                   0, GWhs3)]
+#Economic value starts::
+
+#Creating new column
+sc3data <- sc3data[, DiffOrigMWh := 0]
+#Calculating the amount added due to load shifting + converting to MWh
+sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0,
+                                           (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
+#Preparation for merging DTs
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc3data, season, obsHalfHour)
+
+#Merging
+Mergedsc3DT <- sc3data[SeasonAvgDT]
+
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                DiffOrigMWh * (-meanprice),
+                                                GWhs3 * (-meanprice)),
+                           keyby = .(season, Region, obsHalfHour)]#WARNING DiffOrigMWh represents distinction between positive and negative already
+
+
+#Change the order in facet_grid()
+Mergedsc3DT$season <- factor(Mergedsc3DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc3DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
 ```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic value load shifting heat pumps-1.png)<!-- -->
 
 ###Merging data
 
 ```r
-setkey(SeasonAvgDT, season, obsHalfHour)
-sc3dataDT <- as.data.table(sc3data)
-setkey(sc3dataDT, season, obsHalfHour)
+#setkey(SeasonAvgDT, season, obsHalfHour)
+#sc3dataDT <- as.data.table(sc3data)
+#setkey(sc3dataDT, season, obsHalfHour)
 
-MergedDT <- sc3dataDT[SeasonAvgDT]
+#MergedDT <- sc3dataDT[SeasonAvgDT]
 ```
 
 
@@ -2691,7 +2917,7 @@ MergedDT <- sc3dataDT[SeasonAvgDT]
 
 
 
-Analysis completed in 22.87 seconds ( 0.38 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 24.75 seconds ( 0.41 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
