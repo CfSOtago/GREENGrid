@@ -1618,7 +1618,7 @@ Mergedsc0DT <- sc0data[SeasonAvgDT]
 
 Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
 
-Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (-meanprice), 
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (meanprice), 
                            keyby = .(season, Region, obsHalfHour)]
 
 #Change the order in facet_grid()
@@ -1691,8 +1691,8 @@ Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
 
 Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
                                                   Period == "Evening Peak",
-                                                (`MWh` * `meanprice`),
-                                                (MWh * (-meanprice))),
+                                                (`MWh` * (-meanprice)),
+                                                (MWh * (meanprice))),
                            keyby = .(season, Region, obsHalfHour)] 
 
 
@@ -1754,7 +1754,8 @@ sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") &
                      obsHalfHour <= hms::as.hms("15:30:00"),
                    Period := "Off Peak 2"]
 
-sc2data <- sc2data[, MWh:=GWhs1*1000*0.5] # Creating new column GWh based on GWhs1 in MWh
+sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
+                                    Period == "Evening Peak", GWhs1*1000*0.5, GWhs1*1000)] # Creating new column GWh based on GWhs1 in MWh
 
 
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -1767,8 +1768,8 @@ Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
 
 Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
                                                   Period == "Evening Peak",
-                                                (`MWh` * `meanprice`),
-                                                MWh * (-meanprice)),
+                                                (`MWh` * (-meanprice)),
+                                                MWh * (meanprice)),
                            keyby = .(season, Region, obsHalfHour)] 
 
 #Change the order in facet_grid()
@@ -1932,8 +1933,8 @@ Mergedsc3DT <- sc3data[SeasonAvgDT]
 
 Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
                                                   Period == "Evening Peak",
-                                                DiffOrigMWh * (-meanprice),
-                                                DiffOrigMWh * (-meanprice)),
+                                                DiffOrigMWh * (meanprice),
+                                                DiffOrigMWh * (meanprice)),
                            keyby = .(season, Region, obsHalfHour)]#WARNING DiffOrigMWh represents distinction between positive and negative already
 
 
@@ -1953,9 +1954,82 @@ myPlot <- ggplot2::ggplot(Mergedsc3DT, aes(x = obsHalfHour)) +
                           hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
 myPlot
 
+#Putting all values together and check!
+EcoVaHHDT <- copy(Mergedsc0DT)
 
-#Mergedsc3DT <- Mergedsc3DT[, .(EcoVal = sum(ecoValueHH)),
-                  # keyby = .(Region, season, Period)]
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("Baseline"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc1DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc2DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc*0.5@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc3DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLs"))
+
+EcoVaHHDT <- EcoVaHHDT[, c("GWhs1", "MWh") := NULL]
+
+EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
+                 keyby = .(season, Region, obsHalfHour)]
+
+```
+
+```{r economic visualisation SC0}
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
+#EcoVaSumSC0DT <- EcoVaSumSC0DT[, UNI := ifelse(Region== "Upper North Island", cop(""), NA)]
+
+EcoVaSumSC0DT$Period <- factor(EcoVaSumSC0DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC0DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline cost scenario for heat pump") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+
+
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC0DT[season = "Winter"], aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline cost scenario for heat pump") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+
+
+
+
+
+
+
+
+
+
+#[season = "Winter"]                           
+                        
+
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
