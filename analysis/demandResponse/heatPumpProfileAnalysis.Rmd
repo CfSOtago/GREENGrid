@@ -1629,7 +1629,7 @@ Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
   geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Economic benefits baseline") +
+  ggtitle("Costs baseline scenario") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='Economic value $/MWh') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
@@ -1974,55 +1974,358 @@ EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
                  keyby = .(season, Region, obsHalfHour)]
 
 ```
-
+####Visualisation heat pump
 ```{r economic visualisation SC0}
 
 EcoVaSumDT <- copy(EcoVaHHDT)
 
 EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
 EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
-#EcoVaSumSC0DT <- EcoVaSumSC0DT[, UNI := ifelse(Region== "Upper North Island", cop(""), NA)]
+
 
 EcoVaSumSC0DT$Period <- factor(EcoVaSumSC0DT$Period, levels = c("Off Peak 1","Morning Peak",
                                                     "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)
+
+SavingsMillionNZD <- CostBaseline-CostBaseline
+SavingsPercent <- 0#Compared to Baseline
+
+SavingsMillionNZD
+SavingsPercent
 
 myPlot <- ggplot2::ggplot(EcoVaSumSC0DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
   #geom_line(aes(y= V1)) +
   theme(text = element_text(family = "Cambria")) +
   facet_grid(season ~ .) +
-  ggtitle("Baseline cost scenario for heat pump") +
+  ggtitle("Baseline scenario: Cost for heat pumps") +
   labs(x='Period', y='Cost in million NZD') 
   
 myPlot 
 
 
-
-myPlot <- ggplot2::ggplot(EcoVaSumSC0DT[season = "Winter"], aes(x = Period, fill = Region)) +
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC0DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
   #geom_line(aes(y= V1)) +
   theme(text = element_text(family = "Cambria")) +
   facet_grid(season ~ .) +
-  ggtitle("Baseline cost scenario for heat pump") +
+  ggtitle("Baseline scenario: Cost for heat pumps in Winter") +
   labs(x='Period', y='Cost in million NZD') 
   
-
-
-
-
-
-
-
-
-
-
-#[season = "Winter"]                           
+myPlot
                         
 
 ```
+```{r economic visualisation SC1 1}
+#Plots cost of load curtailment to zero, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := ifelse(Period == "Morning Peak" |
+                                                      Period == "Evening Peak", 0,
+                                                    `EcoVaLc@Peak`)]
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumDT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc@Peak` / CostBaseline)
+
+SavingsMillionNZD
+SavingsPercent
+
+#Visualisation
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for heat pumps in Winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+
+```
+```{r economic visualisation SC1 2}
+#Plots benefits when load is curtailed to zero 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC1DT <- EcoVaSumDT
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := ifelse(Period == "Off Peak 1" |
+                                                            Period == "Off Peak 2", 0,
+                                                          `EcoVaLc@Peak`*(-1))]#We want to disply savings
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario:Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+
+```
+```{r economic visualisation SC2 1}
+
+#Plots cost and benefits of load curtailment to 0.5, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Morning Peak" |
+                                                          Period == "Evening Peak",
+                                              (Baseline*0.5),`EcoVaLc*0.5@Peak`)]
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumDT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
+                                                                "Morning Peak",
+                                                                "Off Peak 2",
+                                                                "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
+
+SavingsMillionNZD
+SavingsPercent
+
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for heat pumps in Winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+
+
+```
+```{r r economic visualisation SC2 2}
+
+#Plots benefits when load is curtailed to 0.5 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC2DT <- EcoVaSumDT
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Off Peak 1"|
+                                                            Period == "Off Peak 2",0,
+                                 `EcoVaLc*0.5@Peak`*(-1))]#We want to disply savings
+
+
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario:Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+
+```
+```{r  economic visualisation SC3 1}
+
+#Plots cost and benefits of load shifting, does not consider baseline but increases costs at off peaks
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+
+EcoVaSumDT <- EcoVaSumDT[, EcoSummary := ifelse(Period == "Off Peak 1" |
+                                               Period == "Off Peak 2",
+                                             Baseline + EcoVaLs, 0)]#It has to be zero 
 
 
 
+EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
+EcoVaSumSC3DT <- EcoVaSumDT[, (`EcoSummary` = sum(`EcoSummary`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+
+
+
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostLoadShif` <- sum(EcoVaSumDT$`EcoSummary`)
+
+SavingsMillionNZD <- CostBaseline - `CostLoadShif`
+SavingsPercent <- 1-(`CostLoadShif` / CostBaseline)
+
+SavingsMillionNZD
+SavingsPercent
+
+
+
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for heat pumps in Winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+
+```
+
+```{r economic visualisation SC3 2}
+
+
+#Plots benefits load shifting by acknowledging difference between baseline and icreased amount -> reduces savings therefore
+#EcoVaLs displays the difference between increased consumption and baseline already 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+Test1 <- EcoVaSumDT[, c("season", "Region", "Period", "EcoVaLs")]
+Test1 <- Test1[, EcoOP := ifelse(Period == "Off Peak 1" | Period == "Off Peak 2",
+                                 EcoVaLs, 0)]
+Test1 <- Test1[, EcoPeak := ifelse(Period == "Morning Peak" |
+                                     Period == "Evening Peak", EcoVaLs, 0)]
+Test1 <- Test1[, EcoOP := sum(EcoOP), keyby = .(Region, season, Period)]
+Test1 <- Test1[, EcoPeak := sum(EcoPeak), keyby = .(Region, season, Period)]
+Test1 <- Test1[, Result := ifelse(Period == "Morning Peak",
+                                  "Morning Peak" - "Off Peak 2", 0)]
+
+EcoVaSumSC3DT <- EcoVaSumDT[, Test := ifelse(Period == "Morning Peak", rowsum(EcoVaLs, "Off-Peak 1", reorder = FALSE), 
+
+
+Maybe with creating variables???
+
+
+
+
+
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario:Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
 
 
 
@@ -2035,7 +2338,6 @@ myPlot <- ggplot2::ggplot(EcoVaSumSC0DT[season = "Winter"], aes(x = Period, fill
 
 
 ```
-
 ###Merging data
 ```{r merging sc3data}
 
