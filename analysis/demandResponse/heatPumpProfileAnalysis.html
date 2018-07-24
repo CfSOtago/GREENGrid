@@ -219,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-07-23 16:55:28</em></h4>
+<h4 class="date"><em>Last run at: 2018-07-24 17:26:25</em></h4>
 
 </div>
 
@@ -4119,8 +4119,548 @@ myPlot</code></pre>
 <pre class="r"><code>#ggsave(&quot;Load shifting scenario: Cost for HP &amp; HW in winter.jpeg&quot;, dpi = 600)</code></pre>
 </div>
 </div>
+<div id="cpd-analysis" class="section level3">
+<h3><span class="header-section-number">11.5.4</span> CPD analysis</h3>
+<pre class="r"><code>CpdMinOrig  &lt;- &quot;/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_whole.csv&quot;
+
+
+print(paste0(&quot;Trying to load: &quot;, CpdMinOrig))</code></pre>
+<pre><code>## [1] &quot;Trying to load: /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_whole.csv&quot;</code></pre>
+<pre class="r"><code>CPDMinDT &lt;- data.table::as.data.table(readr::read_csv(CpdMinOrig)) # reading data</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   DateTime = col_character(),
+##   month = col_integer(),
+##   CPDmin12 = col_integer(),
+##   CPDmin13 = col_integer(),
+##   CPDmin14 = col_double(),
+##   CPDmin15 = col_double(),
+##   CPDmin16 = col_integer()
+## )</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 76 parsing failures.
+## row # A tibble: 5 x 5 col     row col      expected               actual file                        expected   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                       actual 1  1093 CPDmin16 no trailing characters .6     &#39;/Volumes/hum-csafe/Resear… file 2  1169 CPDmin16 no trailing characters .8     &#39;/Volumes/hum-csafe/Resear… row 3  1173 CPDmin16 no trailing characters .2     &#39;/Volumes/hum-csafe/Resear… col 4  1475 CPDmin16 no trailing characters .6     &#39;/Volumes/hum-csafe/Resear… expected 5  1478 CPDmin16 no trailing characters .2     &#39;/Volumes/hum-csafe/Resear…
+## ... ................. ... .......................................................................... ........ .......................................................................... ...... .......................................................................... .... .......................................................................... ... .......................................................................... ... .......................................................................... ........ ..........................................................................
+## See problems(...) for more details.</code></pre>
+<div id="time-adjustments-1" class="section level4">
+<h4><span class="header-section-number">11.5.4.1</span> Time adjustments</h4>
+<pre class="r"><code>CPDMinDT &lt;- CPDMinDT[, dateTimeStartUTC := lubridate::dmy_hm(`DateTime`)] # creating column based on orig. data
+CPDMinDT &lt;- CPDMinDT[, dateTimeStart := lubridate::force_tz(dateTimeStartUTC, tz = &quot;Pacific/Auckland&quot;)] # changing time to NZST
+CPDMinDT$dateTimeStartUTC &lt;- NULL
+CPDMinDT &lt;- CPDMinDT[, dstFlag := lubridate::dst(dateTimeStart)]
+
+CPDMinDT &lt;- CPDMinDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating time column without date
+#CPDMinDT[, .(n = .N), keyby = .(month = lubridate::month(dateTimeStart), dstFlag)]# Daylight saving test</code></pre>
+</div>
+<div id="defining-seasons-1" class="section level4">
+<h4><span class="header-section-number">11.5.4.2</span> Defining seasons</h4>
+<pre class="r"><code>CPDMinDT &lt;- CPDMinDT[, month := lubridate::month(dateTimeStart)]
+
+CPDMinDT &lt;- CPDMinDT[month &gt;= 5 &amp; month &lt;= 5, season := &quot;Autumn&quot;]
+CPDMinDT &lt;- CPDMinDT[month == 6 | month == 7 | month == 8, season := &quot;Winter&quot;]
+
+CPDMinDT &lt;- CPDMinDT[, c(&quot;TestX&quot;, &quot;dstFlag&quot;) :=NULL]</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDMinDT, , `:=`(c(&quot;TestX&quot;, &quot;dstFlag&quot;), NULL)):
+## Adding new column &#39;TestX&#39; then assigning NULL (deleting it).</code></pre>
+</div>
+<div id="loop-cpd-mins-by-season" class="section level4">
+<h4><span class="header-section-number">11.5.4.3</span> Loop CPD mins by season</h4>
+<div id="winter" class="section level5">
+<h5><span class="header-section-number">11.5.4.3.1</span> Winter</h5>
+<pre class="r"><code>CPDMinDT[is.na(CPDMinDT)] &lt;- 0
+CPDsumDT &lt;- copy(CPDMinDT)
+CPDsumDT &lt;- CPDsumDT[, c(&quot;month&quot;, &quot;DateTime&quot;, &quot;CPDmin12&quot;, &quot;CPDmin13&quot;, &quot;CPDmin14&quot;, &quot;CPDmin15&quot;,
+                               &quot;CPDmin16&quot;, &quot;dateTimeStart&quot;, &quot;WinterSumMin&quot;) := NULL]</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDsumDT, , `:=`(c(&quot;month&quot;, &quot;DateTime&quot;,
+## &quot;CPDmin12&quot;, : Adding new column &#39;WinterSumMin&#39; then assigning NULL
+## (deleting it).</code></pre>
+<pre class="r"><code>CPDsumDT &lt;- CPDsumDT[, . (Sum = 0), keyby = .(season, obsHalfHour)]
+
+#Winter sum by half hour
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;00:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW1 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;00:00:00&quot;), CPDW1, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;00:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW2 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;00:30:00&quot;), CPDW2, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;01:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW3 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;01:00:00&quot;), CPDW3, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;01:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW4 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;01:30:00&quot;), CPDW4, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;02:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW5 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;02:00:00&quot;), CPDW5, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;02:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW6 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;02:30:00&quot;), CPDW6, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;03:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW7 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;03:00:00&quot;), CPDW7, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;03:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW8 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;03:30:00&quot;), CPDW8, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;04:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW9 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;04:00:00&quot;), CPDW9, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;04:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW10 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;04:30:00&quot;), CPDW10, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;05:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW11 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;05:00:00&quot;), CPDW11, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;05:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW12 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;05:30:00&quot;), CPDW12, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;06:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW13 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;06:00:00&quot;), CPDW13, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;06:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW14 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;06:30:00&quot;), CPDW14, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;07:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW15 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;07:00:00&quot;), CPDW15, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;07:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW16 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;07:30:00&quot;), CPDW16, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;08:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW17 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;08:00:00&quot;), CPDW17, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;08:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW18 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;08:30:00&quot;), CPDW18, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;09:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW19 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;09:00:00&quot;), CPDW19, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;09:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW20 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;09:30:00&quot;), CPDW20, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;10:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW21 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;10:00:00&quot;), CPDW21, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;10:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW22 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;10:30:00&quot;), CPDW22, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;11:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW23 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;11:00:00&quot;), CPDW23, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;11:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW24 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;11:30:00&quot;), CPDW24, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;12:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW25 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;12:00:00&quot;), CPDW25, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;12:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW26 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;12:30:00&quot;), CPDW26, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;13:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW27 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;13:00:00&quot;), CPDW27, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;13:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW28 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;13:30:00&quot;), CPDW28, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;14:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW29 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;14:00:00&quot;), CPDW29, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;14:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW30 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;14:30:00&quot;), CPDW30, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;15:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW31 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;15:00:00&quot;), CPDW31, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;15:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW32 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;15:30:00&quot;), CPDW32, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;16:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW33 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;16:00:00&quot;), CPDW33, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;16:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW34 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;16:30:00&quot;), CPDW34, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;17:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW35 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;17:00:00&quot;), CPDW35, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;17:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW36 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;17:30:00&quot;), CPDW36, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;18:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW37 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;18:00:00&quot;), CPDW37, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;18:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW38 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;18:30:00&quot;), CPDW38, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;19:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW39 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;19:00:00&quot;), CPDW39, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;19:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW40 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;19:30:00&quot;), CPDW40, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;20:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW41 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;20:00:00&quot;), CPDW41, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;20:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW42 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;20:30:00&quot;), CPDW42, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;21:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW43 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;21:00:00&quot;), CPDW43, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;21:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW44 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;21:30:00&quot;), CPDW44, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;22:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW45 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;22:00:00&quot;), CPDW45, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;22:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW46 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;22:30:00&quot;), CPDW46, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;23:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW47 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;23:00:00&quot;), CPDW47, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, WinterSumMin := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;23:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW48 &lt;- sum(CPDMinDT$WinterSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Winter&quot; &amp; obsHalfHour == as.hms(&quot;23:30:00&quot;), CPDW48, Sum)]</code></pre>
+</div>
+<div id="autumn" class="section level5">
+<h5><span class="header-section-number">11.5.4.3.2</span> Autumn</h5>
+<pre class="r"><code>#Autumn 
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;00:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA1 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;00:00:00&quot;), CPDA1, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;00:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA2 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;00:30:00&quot;), CPDA2, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;01:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA3 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;01:00:00&quot;), CPDA3, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;01:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA4 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;01:30:00&quot;), CPDA4, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;02:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA5 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;02:00:00&quot;), CPDA5, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;02:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA6 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;02:30:00&quot;), CPDA6, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;03:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA7 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;03:00:00&quot;), CPDA7, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;03:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA8 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;03:30:00&quot;), CPDA8, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;04:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA9 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;04:00:00&quot;), CPDA9, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;04:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA10 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;04:30:00&quot;), CPDA10, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;05:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA11 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;05:00:00&quot;), CPDA11, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;05:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA12 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;05:30:00&quot;), CPDA12, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;06:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA13 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;06:00:00&quot;), CPDA13, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;06:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA14 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;06:30:00&quot;), CPDA14, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;07:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA15 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;07:00:00&quot;), CPDA15, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;07:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA16 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;07:30:00&quot;), CPDA16, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;08:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA17 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;08:00:00&quot;), CPDA17, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;08:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA18 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;08:30:00&quot;), CPDA18, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;09:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA19 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;09:00:00&quot;), CPDA19, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;09:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA20 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;09:30:00&quot;), CPDA20, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;10:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA21 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;10:00:00&quot;), CPDA21, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;10:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA22 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;10:30:00&quot;), CPDA22, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;11:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA23 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;11:00:00&quot;), CPDA23, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;11:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA24 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;11:30:00&quot;), CPDA24, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;12:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA25 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;12:00:00&quot;), CPDA25, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;12:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA26 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;12:30:00&quot;), CPDA26, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;13:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA27 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;13:00:00&quot;), CPDA27, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;13:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA28 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;13:30:00&quot;), CPDA28, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;14:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA29 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;14:00:00&quot;), CPDA29, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;14:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA30 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;14:30:00&quot;), CPDA30, Sum)]
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;15:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA31 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;15:00:00&quot;), CPDA31, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;15:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA32 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;15:30:00&quot;), CPDA32, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;16:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA33 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;16:00:00&quot;), CPDA33, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;16:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA34 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;16:30:00&quot;), CPDA34, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;17:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA35 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;17:00:00&quot;), CPDA35, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;17:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA36 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;17:30:00&quot;), CPDA36, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;18:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA37 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;18:00:00&quot;), CPDA37, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;18:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA38 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;18:30:00&quot;), CPDA38, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;19:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA39 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;19:00:00&quot;), CPDA39, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;19:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA40 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;19:30:00&quot;), CPDA40, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;20:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA41 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;20:00:00&quot;), CPDA41, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;20:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA42 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;20:30:00&quot;), CPDA42, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;21:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA43 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;21:00:00&quot;), CPDA43, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;21:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA44 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;21:30:00&quot;), CPDA44, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;22:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA45 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;22:00:00&quot;), CPDA45, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;22:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA46 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;22:30:00&quot;), CPDA46, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;23:00:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA47 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;23:00:00&quot;), CPDA47, Sum)]
+
+
+CPDMinDT &lt;- CPDMinDT[, AutumnSumMin := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;23:30:00&quot;), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA48 &lt;- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT &lt;- CPDsumDT[, Sum := ifelse(season == &quot;Autumn&quot; &amp; obsHalfHour == as.hms(&quot;23:30:00&quot;), CPDA48, Sum)]</code></pre>
+</div>
+</div>
+<div id="calculation" class="section level4">
+<h4><span class="header-section-number">11.5.4.4</span> Calculation</h4>
+<pre class="r"><code>CPDsumDT &lt;- CPDsumDT[, Probability := Sum/(5*90*24*60)]
+
+#Visualising CPD by season
+  myPlot &lt;- ggplot2::ggplot(CPDsumDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=Probability), size=1, colour = &quot;blue&quot;) +
+  theme(text = element_text(family = &quot;Cambria&quot;)) +
+  ggtitle(&quot;Probability of congestion period demand&quot;) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;Probability&#39;) +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;),hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),
+                          hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), hms::as.hms(&quot;20:00:00&quot;)))
+
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/CPD%20calc-1.png" /><!-- --></p>
+<pre class="r"><code>#ggsave(&quot;Probability of congestion period demand.jpeg&quot;, dpi=600)
+
+CPDsumDT &lt;- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+
+
+CPDsumDT &lt;- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]</code></pre>
+</div>
+</div>
 <div id="merging-data" class="section level3">
-<h3><span class="header-section-number">11.5.4</span> Merging data</h3>
+<h3><span class="header-section-number">11.5.5</span> Merging data</h3>
 <pre class="r"><code>#setkey(SeasonAvgDT, season, obsHalfHour)
 #sc3dataDT &lt;- as.data.table(sc3data)
 #setkey(sc3dataDT, season, obsHalfHour)
@@ -4196,7 +4736,7 @@ myPlot</code></pre>
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">13</span> Runtime</h1>
-<p>Analysis completed in 52.8 seconds ( 0.88 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 56.23 seconds ( 0.94 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">14</span> R environment</h1>
@@ -4244,8 +4784,9 @@ myPlot</code></pre>
 ## [28] bookdown_0.7      tidyr_0.8.1       purrr_0.2.5      
 ## [31] reshape2_1.4.3    magrittr_1.5      scales_0.5.0     
 ## [34] backports_1.1.2   htmltools_0.3.6   assertthat_0.2.0 
-## [37] colorspace_1.3-2  labeling_0.3      stringi_1.1.7    
-## [40] lazyeval_0.2.1    munsell_0.4.3     crayon_1.3.4</code></pre>
+## [37] colorspace_1.3-2  labeling_0.3      utf8_1.1.3       
+## [40] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
+## [43] crayon_1.3.4</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
