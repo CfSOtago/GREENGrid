@@ -4165,24 +4165,134 @@ myPlot
 
 #ggsave("Probability of congestion period demand.jpeg", dpi=600)
 
-CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+
+#Calculating average demand kW
+#Heat Pump
+
+#Copying energy data
+CPDAvgDemHPDT <- copy(heatPumpProfileDT)
 
 
-CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+#Adjusting to per HH and kW
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps, keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, c("scaledGWh", "kW1") := NULL]
+
+#Deleting Spring and Summer
+CPDAvgDemHPDT <- CPDAvgDemHPDT[ !(CPDAvgDemHPDT$season %in% c("Spring", "Summer"))]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDAvgDemHPDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHP), size=1, colour = "blue") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Average heat pump demand at congestion periods") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='kW') +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+myPlot
+
+
+
+
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
 
 
 
 
 
+#Hot Water
+
+#Copying energy data
+CPDAvgDemHWDT <- copy(hotWaterProfileDT)
+
+
+#Adjusting to per HH and kW
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHhotWater, keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, c("scaledGWh", "kW1") := NULL]
+
+
+#Deleting Spring and Summer
+CPDAvgDemHWDT <- CPDAvgDemHWDT[ !(CPDAvgDemHWDT$season %in% c("Spring", "Summer"))]
+
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDAvgDemHWDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHW), size=1, colour = "blue") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Average hot water demand at congestion periods") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='kW') +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+myPlot
 
 
 
 
 
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
 
 
 ```
+#####Introducing prices
+```{r introducing prices and calculation on household level}
 
+AvgDemHP <- 0.5022484+1.2671683 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHPDT
+AvgDemHW <- 1.107271+1.342401 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHWDT
+
+#Introducing prices based on Aurora cost disclosure
+
+PS1 <- 0.3079 * 365
+PS2 <- 0.3387 * 365
+PS3 <- 0.3616 * 365
+PS4 <- 0.4698 * 365
+
+```
+
+```{r CPD charges calculation per household}
+
+#Heat pump $ per year
+
+AvgDemHP * PS1
+AvgDemHP * PS2
+AvgDemHP * PS3
+AvgDemHP * PS4
+
+#Hot water $ per year
+
+AvgDemHW * PS1
+AvgDemHW * PS2
+AvgDemHW * PS3
+AvgDemHW * PS4
+
+```
+```{r CPD charges calculation total New Zealand}
+
+#Heat pump $ per year
+
+AvgDemHP * PS1 * nzHHheatPumps
+AvgDemHP * PS2 * nzHHheatPumps
+AvgDemHP * PS3 * nzHHheatPumps
+AvgDemHP * PS4 * nzHHheatPumps
+
+#Hot water $ per year
+
+AvgDemHW * PS1 * nzHHhotWater
+AvgDemHW * PS2 * nzHHhotWater
+AvgDemHW * PS3 * nzHHhotWater
+AvgDemHW * PS4 * nzHHhotWater
+
+```
 ###Merging data
 ```{r merging sc3data}
 
