@@ -36,6 +36,11 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 # Set start time ----
 startTime <- proc.time()
 
+library(nzGREENGridDataR) # local utilities
+
+# Set parameters etc ----
+nzGREENGrid::setup()
+
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
@@ -79,7 +84,7 @@ if(localTest){
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) GREEN Grid Heat Pump Profiles, University of Otago: Dunedin, NZ.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) GREEN Grid `r params$circuitPattern` Profiles, University of Otago: Dunedin, NZ.
 
 \newpage
 
@@ -93,33 +98,27 @@ Report circulation:
 
 This report is intended to: 
 
- * load and clean the project electricity power data (Grid Spy)
- * select the Heat Pump circuits (via their labels)
- * build exploratory demand profiles
+ * load a data file containing pre-extracted `r params$circuitPattern` circuits (via string match on their circuit label) for the period `r dateFrom` to `r dateTo` (inclusive);
+ * build exploratory demand profiles for `r params$circuitPattern` circuits.
 
 ## Requirements:
 
- * cleaned and safe grid spy 1 minute data processed via https://git.soton.ac.uk/ba1e12/nzGREENGrid/blob/master/dataProcessing/processNZGGElecCons1minData.Rmd
+ * Cleaned and safe grid spy 1 minute data processed using the [nzGREENGridDataR package](https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy)
+ * `r params$circuitPattern` circuit data pre or newly extracted from the cleaned safe data using https://git.soton.ac.uk/ba1e12/nzGREENGrid/blob/master/dataProcessing/gridSpy/extractCleanGridSpy1minCircuits.R
 
 ## History
 
 Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid):
 
- * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master)
+ * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/profiles)
  * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
- 
+
 ## Support
 
-This work was supported by:
 
- * The [University of Otago](https://www.otago.ac.nz/)
- * The New Zealand [Ministry of Business, Innovation and Employment (MBIE)](http://www.mbie.govt.nz/)
- * [SPATIALEC](http://www.energy.soton.ac.uk/tag/spatialec/) - a [Marie Skłodowska-Curie Global Fellowship](http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm) based at the University of Otago’s [Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html) (2017-2019) & the University of Southampton's Sustainable Energy Research Group (2019-202).
+```{r generic support, child=ggParams$supportGenericRmd}
+```
  
-This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
-
-We do not 'support' the code but if you have a problem check the [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues) on our [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid) and if it doesn't already exist, open one. We might be able to fix it :-)
-
 
 # Load data files
 
@@ -158,25 +157,12 @@ knitr::kable(caption = "Example meta data for sample", head(metaDT))
 
 ## Grid Spy data
 
-In this section we load the cleaned data files from `r paste0(outPath,"data/")`. If we loaded all the data at once and then filtered out what we want we might run out of memory so we filter as we load. Set the filters here:
-
-```{r set filters, echo=TRUE}
-circuitPattern <- params$circuitPattern
-dateFrom <- params$dateFrom
-dateTo <- params$dateTo
-
-plotCaption <- paste0("Source: ", fpath,
-                      "\nCircuits: ", circuitPattern, " from ", dateFrom, " to ", dateTo)
-```
-
-So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.
-
 ```{r setFile}
 iFile <- paste0(params$iFile, ".gz") # don't forget .gz!
 #iFile <- paste0(iFile, ".gz")
 ```
 
-Loading: `r iFile` (needs to exist!)
+In this section we load the pre-extracted `r params$circuitPattern` data from `r dateFrom` to `r dateTo` from `r iFile`.
 
 ```{r load gridSpy data}
 # Loads pre-extracted circuit data using readr as the data is .csv.gz

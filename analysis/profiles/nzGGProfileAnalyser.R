@@ -2,7 +2,7 @@
 
 # Set parameters ----
 # If no file is found that matches a new one will be created and saved
-circuitPattern <- "Hot Water"
+circuitPattern <- "Heat Pump"
 dateFrom <- "2015-04-01"
 dateTo <- "2016-03-31"
 
