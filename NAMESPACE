@@ -2,11 +2,11 @@
 
 export(createDerivedFtF)
 export(createSafeFtF)
+export(extractCleanGridSpyCircuit)
 export(findParentDirectory)
-export(getCleanGridSpyCircuit)
-export(getCleanGridSpyData)
 export(getEVMap)
 export(inferLocationFtF)
+export(loadCleanGridSpyData)
 export(loadLibraries)
 export(reshapeEAEmbeddedGenDT)
 export(reshapeEAGenDT)

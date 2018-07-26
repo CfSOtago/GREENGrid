@@ -29,7 +29,8 @@ plotCaption <- paste0("Source: ", outPath,
                       "\nCircuits: ", circuitPattern, " from ", dateFrom, " to ", dateTo)
 
 fullFb <- 0 # switch on (1) or off (0) full feedback
-baTest <- 1 # test (1) or full (0) run?
+baTest <- 0 # test (1) or full (0) run?
+refresh <- 1 # refresh data even if it seems to already exsit
 
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
@@ -52,26 +53,29 @@ if(baTest == 1){
 # Code ----
 
 if(baTest){
-  msg <- paste0("Test run using reduced data from ", outPath)
+  msg <- paste0("#-> Test run using reduced data from ", outPath)
 } else {
-  msg <- paste0("Full run using all data from ", outPath)
+  msg <- paste0("#-> Full run using all data from ", outPath)
 }
 
 print(msg)
 
 fPath <- paste0(outPath, "data/")
 
-fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv")) # keep as .csv not .gz so can use fread to re-load
-iFile <- paste0(outPath, "dataExtracts/", fName)
+fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv"))
 
-if(file.exists(iFile)){
-  print(paste0(iFile, " exists so skipping.")) # prevents the file load in the function
-  print("=> You may need to check your circuit label pattern and filter settings?")
+exFile <- paste0(outPath, "dataExtracts/", fName)
+exFileTest <- paste0(exFile, ".gz")
+
+if(file.exists(exFileTest) & refresh == 0){
+  print(paste0(exFileTest, " exists and refresh = 0 so skipping.")) # prevents the file load in the function
+  print(paste0("=> You may need to check your circuit label pattern (",
+               circuitPattern ,") and date filter settings (",
+               dateFrom, " - ", dateTo, ") if this is not what you expected."))
 } else {
-  gs1MinDT <- nzGREENGrid::getCleanGridSpyCircuit(iFile, fPath, circuitPattern, dateFrom, dateTo)
-  print("Summary of data loaded")
-  print(summary(gs1MinDT))
-  print(paste0("Done - look for data in: ", iFile))
+  print(paste0(exFileTest, " does not exist & refresh == 1 so running extraction.")) # prevents the file load in the function
+  extractedDT <- nzGREENGrid::extractCleanGridSpyCircuit(fPath, exFile, circuitPattern, dateFrom, dateTo)
+  print(paste0("Done - look for data in: ", exFileTest))
 }
 
 t <- proc.time() - startTime
