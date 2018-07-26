@@ -21,7 +21,8 @@ sc3data <- cbind(sc3data, sc2data[,"GWhs4"])
 sc3data <- sc3data[, PumpandWater := GWh + GWhs4]
 
 #Renaming PumpandWater to depict the right y in the colorbar
-setnames(sc3data, old=c("PumpandWater"), new=c("GWh"))
+#setnames(sc3data, old=c("PumpandWater"), new=c("GWh")) #WARNING might not work properly
+EcoVaHHDT <- copy(Mergedsc0DT)#Works
 
 #Change the order in facet_grid()
 sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",

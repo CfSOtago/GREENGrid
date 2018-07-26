@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-18 11:39:40'
+date: 'Last run at: 2018-07-24 17:26:25'
 output:
   bookdown::html_document2:
     toc: true
@@ -130,21 +130,21 @@ skimr::skim(heatPumpProfileDT)
 ##  n obs: 5760 
 ##  n variables: 6 
 ## 
-## ── Variable type:character ────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:difftime ─────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:difftime ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##    variable missing complete    n    min        max     median n_unique
 ##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:integer ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n    mean     sd   p0    p25    p50     p75
 ##      nObs       0     5760 5760 2474.38 193.08 2150 2402.5 2517.5 2599.25
 ##  p100     hist
 ##  2688 ▅▁▁▁▁▇▁▅
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n   mean     sd     p0    p25    p50    p75
 ##     meanW       0     5760 5760 143.52 116.99  34.99  71.88 104.76 174.71
 ##   medianW       0     5760 5760  17.09  67.67   0      0      0      0   
@@ -171,7 +171,9 @@ myPlot
 <p class="caption">(\#fig:profilePlot)Heat pump profiles</p>
 </div>
 
-# Scaling method 1
+
+#Scaling
+##Scaling method 1
 
 Now draw a plot of what woud happen if we scaled this up to all NZ households?
 
@@ -195,7 +197,7 @@ myPlot
 <p class="caption">(\#fig:scaledUpPlots)Mean Load Heat Pumps by Season</p>
 </div>
 
-# Scaling method 2
+##Scaling method 2
 
 Alternative calculation method: Assuming EECA data is correct for heat pump value, 1) generating the percentage of total load (peroftotal) while telling data.table to create a new column with the calculation of the percentage. We then multiplied EECA's total GWh with the percentage
 
@@ -219,7 +221,7 @@ myPlot
 
 ![](heatPumpProfileAnalysis_files/figure-html/new calc-1.png)<!-- -->
 
-# Aggregation to half-hours
+#Aggregation to half-hours
 
 So far we have used data at the 1 minute level. This makes for difficulties in comparison with standared electricity sector half-hourly tariff periods etc. This section takes each scaling method, aggregates to half-hours as appropriate and re-plots.
 
@@ -327,7 +329,7 @@ skimr::skim(sumbranzGWh)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.63 NA 638.63 638.63 638.63 638.63
 ##    p100     hist
@@ -342,7 +344,7 @@ skimr::skim(totalGWH)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁
 ```
@@ -355,7 +357,7 @@ skimr::skim(diffbranzeeca)
 ## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -368,7 +370,7 @@ EECA total energy consumption by heat pumps for 2015 (totalGWH) <- 708GWh
 BRANZ 40% of owner-occupied households and 25% of rentals own heat pumps. Energy consumption based on BRANZ proportion, Census 2013 and GREENGris Grid Spy data (sumbranzGWh) <- 638GWh 
 
 
-# Yearly consumption
+#Yearly consumption
 We need the original data for this, currently the data basis is for an average day in each season.
 
 ```r
@@ -2070,7 +2072,7 @@ PricesDT <- PricesDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating tim
 SeasonAvgDT <- PricesDT[, .(meanprice = mean(`Price ($/MWh)`)), keyby = .(season, obsHalfHour, Region)]
 ```
 
-## Visualisation
+### Visualisation
 
 ```r
 SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
@@ -2079,26 +2081,3462 @@ SeasonAvgDT$season <- factor(SeasonAvgDT$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(SeasonAvgDT, aes(x = obsHalfHour)) +
   geom_line(aes(y=meanprice, color= Region), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Test") +
+  ggtitle("Wholesale electricity prices 01.09.2016-31.08.2017") +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='$/MWh') +
+  labs(x='Time of Day', y='NZD/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                          hms::as.hms("20:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/test plot-1.png)<!-- -->
+
+```r
+#ggsave("Mean wholesale prices $ per MWh by season.jpeg", dpi = 600)
+```
+
+## Calculations
+###Heat pump economic value 
+####Baseline value
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc0data <- heatPumpProfileDT
+sc0data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc0data <- sc0data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc0data <- sc0data[, Period := "Not Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc0data <- sc0data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc0data, season, obsHalfHour)
+
+Mergedsc0DT <- sc0data[SeasonAvgDT]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (meanprice)/1000000, 
+                           keyby = .(season, Region, obsHalfHour)]
+
+#Change the order in facet_grid()
+Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Costs baseline scenario time of day") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Cost in million NZD') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                          hms::as.hms("20:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero economic value2-1.png)<!-- -->
+
+```r
+#ggsave("Cost baseline scenario time of day.jpeg", dpi = 600)
+
+#Building season sum by period
+#Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
+                  # keyby = .(season, Region, Period)]
+```
+####Load curtailment to zero SC1
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc1data <- heatPumpProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc1data <- sc1data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc1DT <- sc1data[SeasonAvgDT]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                (MWh * (meanprice))),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+
+#Change the order in facet_grid()
+Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
                           hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
                           hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
 myPlot
 ```
 
-![](heatPumpProfileAnalysis_files/figure-html/test plot-1.png)<!-- -->
-#Test
-
-### Merging data SC3
+![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero economic value-1.png)<!-- -->
 
 ```r
-setkey(SeasonAvgDT, season, obsHalfHour)
-sc3dataDT <- as.data.table(sc3data)
-setkey(sc3dataDT, season, obsHalfHour)
+#Mergedsc1DT <- Mergedsc1DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
 
-MergedDT <- sc3dataDT[SeasonAvgDT]
+####Load curtailment of particular amount: SC2
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc2data <- heatPumpProfileDT
+sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc2data <- sc2data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc2data <- sc2data[, Period := "Not Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
+                                    Period == "Evening Peak", GWhs1*1000*0.5, GWhs1*1000)] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc2data, season, obsHalfHour)
+
+Mergedsc2DT <- sc2data[SeasonAvgDT]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                MWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+#Change the order in facet_grid()
+Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc2DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of particular amount by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic value of particular amount-1.png)<!-- -->
+
+```r
+#Mergedsc2DT <- Mergedsc2DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
+
+####Load shifting to prior time periods: SC3
+
+```r
+sc3data <- heatPumpProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+#Economic value starts::
+
+#Creating new column
+sc3data <- sc3data[, DiffOrigMWh := 0]
+#Calculating the amount added due to load shifting + converting to MWh
+sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0,
+                                           (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
+#Preparation for merging DTs
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc3data, season, obsHalfHour)
+
+#Merging
+Mergedsc3DT <- sc3data[SeasonAvgDT]
+
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                DiffOrigMWh * (meanprice),
+                                                DiffOrigMWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)]#WARNING DiffOrigMWh represents distinction between positive and negative already
+
+
+#Change the order in facet_grid()
+Mergedsc3DT$season <- factor(Mergedsc3DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Putting all values together and check!
+EcoVaHHDT <- copy(Mergedsc0DT)
+
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("Baseline"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc1DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc2DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc*0.5@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc3DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLs"))
+
+EcoVaHHDT <- EcoVaHHDT[, c("GWhs1", "MWh") := NULL]
+
+EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
+                 keyby = .(season, Region, obsHalfHour)]
+```
+####Visualisation heat pump
+
+```r
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC0DT$Period <- factor(EcoVaSumSC0DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)
+
+SavingsMillionNZD <- CostBaseline-CostBaseline
+SavingsPercent <- 0#Compared to Baseline
+
+SavingsMillionNZD
+```
+
+```
+## [1] 0
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC0DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0-1.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for heat pumps by period.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC0DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for heat pumps in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0-2.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for heat pumps in winter by period.jpeg", dpi = 600)                        
+```
+
+```r
+#Plots cost of load curtailment to zero, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := ifelse(Period == "Morning Peak" |
+                                                      Period == "Evening Peak", 0,
+                                                    `EcoVaLc@Peak`)]
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumDT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] -104.6247
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] -400625.8
+```
+
+```r
+#Visualisation
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for heat pumps.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for heat pumps in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for heat pumps in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots benefits when load is curtailed to zero 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC1DT <- EcoVaSumDT
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := ifelse(Period == "Off Peak 1" |
+                                                            Period == "Off Peak 2", 0,
+                                                          `EcoVaLc@Peak`*(-1))]#We want to disply savings
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for heat pumps.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for heat pumps in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for heat pumps in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots cost and benefits of load curtailment to 0.5, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Morning Peak" |
+                                                          Period == "Evening Peak",
+                                              (Baseline*0.5),`EcoVaLc*0.5@Peak`)]
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumDT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
+                                                                "Morning Peak",
+                                                                "Off Peak 2",
+                                                                "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] -104.6248
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] -400626.1
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for heat pumps.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for heat pumps in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for heat pumps in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots benefits when load is curtailed to 0.5 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC2DT <- EcoVaSumDT
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Off Peak 1"|
+                                                            Period == "Off Peak 2",0,
+                                 `EcoVaLc*0.5@Peak`*(-1))]#We want to disply savings
+
+
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots cost and benefits of load shifting, does not consider baseline but increases costs at off peaks
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+
+EcoVaSumDT <- EcoVaSumDT[, EcoSummary := ifelse(Period == "Off Peak 1" |
+                                               Period == "Off Peak 2",
+                                             Baseline + EcoVaLs, 0)]#It has to be zero 
+
+
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
+EcoVaSumSC3DT <- EcoVaSumDT[, (`EcoSummary` = sum(`EcoSummary`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+
+
+
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostLoadShif` <- sum(EcoVaSumDT$`EcoSummary`)
+
+SavingsMillionNZD <- CostBaseline - `CostLoadShif`
+SavingsPercent <- 1-(`CostLoadShif` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] -138.2058
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] -529213.6
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for heat pumps") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1-1.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for heat pumps.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for heat pumps in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1-2.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for heat pumps in winter.jpeg", dpi = 600)
+```
+###Hot water economic value
+####Baseline
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc0data <- hotWaterProfileDT
+sc0data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc0data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc0data <- sc0data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc0data <- sc0data[, Period := "Not Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc0data <- sc0data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc0data <- sc0data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc0data, season, obsHalfHour)
+
+Mergedsc0DT <- sc0data[SeasonAvgDT]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (meanprice), 
+                           keyby = .(season, Region, obsHalfHour)]
+
+#Change the order in facet_grid()
+Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Costs baseline scenario time of day for hot water") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Cost in NZD') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                          hms::as.hms("20:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/calculating baseline scenario SC0-1.png)<!-- -->
+
+```r
+#ggsave("Cost baseline scenario time of day.jpeg", dpi = 600)
+
+#Building season sum by period
+#Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
+                  # keyby = .(season, Region, Period)]
+```
+####Load curtailment to zero SC1
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc1data <- hotWaterProfileDT
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc1data <- sc1data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc1DT <- sc1data[SeasonAvgDT]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                (MWh * (meanprice))),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+
+#Change the order in facet_grid()
+Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+#myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
+#  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+#  theme(text = element_text(family = "Cambria")) +
+#  ggtitle("Economic value of load curtailment to zero by region") +
+#  facet_grid(season ~ .) +
+#  labs(x='Time of Day', y='Economic value $/MWh') +
+#  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                        #  hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                        #  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+#myPlot
+
+#Mergedsc1DT <- Mergedsc1DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
+####Load curtailment of particular amount SC2
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc2data <- hotWaterProfileDT
+sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc2data <- sc2data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc2data <- sc2data[, Period := "Not Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
+                                    Period == "Evening Peak", GWhs1*1000*0.5, GWhs1*1000)] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc2data, season, obsHalfHour)
+
+Mergedsc2DT <- sc2data[SeasonAvgDT]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                MWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+#Change the order in facet_grid()
+Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+#myPlot <- ggplot2::ggplot(Mergedsc2DT, aes(x = obsHalfHour)) +
+ # geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+ # theme(text = element_text(family = "Cambria")) +
+ # ggtitle("Economic value of particular amount by region") +
+ # facet_grid(season ~ .) +
+ # labs(x='Time of Day', y='Economic value $/MWh') +
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                         # hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                         # hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+#myPlot
+
+#Mergedsc2DT <- Mergedsc2DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
+####Load shifting to prior time periods: SC3
+
+```r
+sc3data <- hotWaterProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+#Economic value starts::
+
+#Creating new column
+sc3data <- sc3data[, DiffOrigMWh := 0]
+#Calculating the amount added due to load shifting + converting to MWh
+sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0,
+                                           (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
+#Preparation for merging DTs
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc3data, season, obsHalfHour)
+
+#Merging
+Mergedsc3DT <- sc3data[SeasonAvgDT]
+
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                DiffOrigMWh * (meanprice),
+                                                DiffOrigMWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)]#WARNING DiffOrigMWh represents distinction between positive and negative already
+
+
+#Change the order in facet_grid()
+Mergedsc3DT$season <- factor(Mergedsc3DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Putting all values together and check!
+EcoVaHHDT <- copy(Mergedsc0DT)
+
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("Baseline"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc1DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc2DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc*0.5@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc3DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLs"))
+
+EcoVaHHDT <- EcoVaHHDT[, c("GWhs1", "MWh") := NULL]
+
+EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
+                 keyby = .(season, Region, obsHalfHour)]
+```
+####Visualisation hot water
+
+```r
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC0DT$Period <- factor(EcoVaSumSC0DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)
+
+SavingsMillionNZD <- CostBaseline-CostBaseline
+SavingsPercent <- 0#Compared to Baseline
+
+SavingsMillionNZD
+```
+
+```
+## [1] 0
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC0DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for hot water") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for hot water by period.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC0DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for hot water in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for hot water in winter by period.jpeg", dpi = 600)                        
+```
+
+```r
+#Plots cost of load curtailment to zero, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := ifelse(Period == "Morning Peak" |
+                                                      Period == "Evening Peak", 0,
+                                                    `EcoVaLc@Peak`)]
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumDT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 588.9009
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.5144702
+```
+
+```r
+#Visualisation
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for hot water") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for hot water.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for hot water in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for hot water in winter.jpeg", dpi = 600)
+```
+
+
+```r
+#Plots benefits when load is curtailed to zero 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC1DT <- EcoVaSumDT
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := ifelse(Period == "Off Peak 1" |
+                                                            Period == "Off Peak 2", 0,
+                                                          `EcoVaLc@Peak`*(-1))]#We want to disply savings
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for hot water") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for hot water.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for hot water in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for hot water in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots cost and benefits of load curtailment to 0.5, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Morning Peak" |
+                                                          Period == "Evening Peak",
+                                              (Baseline*0.5),`EcoVaLc*0.5@Peak`)]
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumDT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
+                                                                "Morning Peak",
+                                                                "Off Peak 2",
+                                                                "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 294.4505
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.2572351
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for hot water") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for hot water.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for hot water in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for hot water in winter.jpeg", dpi = 600)
+```
+
+
+```r
+#Plots benefits when load is curtailed to 0.5 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC2DT <- EcoVaSumDT
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Off Peak 1"|
+                                                            Period == "Off Peak 2",0,
+                                 `EcoVaLc*0.5@Peak`*(-1))]#We want to disply savings
+
+
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for hot water") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for hot water.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for hot water in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for hot water in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots cost and benefits of load shifting, does not consider baseline but increases costs at off peaks
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+
+EcoVaSumDT <- EcoVaSumDT[, EcoSummary := ifelse(Period == "Off Peak 1" |
+                                               Period == "Off Peak 2",
+                                             Baseline + EcoVaLs, 0)]#It has to be zero 
+
+
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
+EcoVaSumSC3DT <- EcoVaSumDT[, (`EcoSummary` = sum(`EcoSummary`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+
+
+
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostLoadShif` <- sum(EcoVaSumDT$`EcoSummary`)
+
+SavingsMillionNZD <- CostBaseline - `CostLoadShif`
+SavingsPercent <- 1-(`CostLoadShif` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 62.69198
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.05476839
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for hot water") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1 hot water-1.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for hot water.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for hot water in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1 hot water-2.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for hot water in winter.jpeg", dpi = 600)
+```
+###Both appliances together
+
+```r
+#Defining peak and off-peak for heat pump and hot water seperately
+sc3data <- heatPumpProfileDT
+
+sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+
+
+sc32data <- hotWaterProfileDT
+
+sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+#Defining peak and off-peak periods
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Copying hot water consumption column into heat pump data table
+sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
+
+#Building sum of heat pump and hot water consumption
+sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
+```
+####Baseline
+
+```r
+#Economic evaluation begins
+sc3data <- sc3data[, MWh:=PumpandWater*fac1000] # Creating new column MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc3data, season, obsHalfHour)
+
+Mergedsc0DT <- sc3data[SeasonAvgDT]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
+
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (meanprice), 
+                           keyby = .(season, Region, obsHalfHour)]
+
+#Change the order in facet_grid()
+Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Costs baseline scenario time of day for hot water") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Cost in NZD') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                          hms::as.hms("20:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/calculating baseline scenario SC0 economic-1.png)<!-- -->
+
+```r
+#ggsave("Cost baseline scenario time of day.jpeg", dpi = 600)
+
+#Building season sum by period
+#Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
+                  # keyby = .(season, Region, Period)]
+```
+####Load curtailment to zero SC1
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc1data <- sc3data#WARNING PREVIOUS SECTION MUST BE EXECUTED TO REPRESENT CORRECT VALUES HERE WARNING
+
+
+
+sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc1data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc1data <- sc1data[, .(GWhs1 = sum(PumpandWater)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+
+#Economic evaluation begins
+sc1data <- sc1data[, MWh:=GWhs1*fac1000] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc1data, season, obsHalfHour)
+
+Mergedsc1DT <- sc1data[SeasonAvgDT]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := 0]
+
+Mergedsc1DT <- Mergedsc1DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                (MWh * (meanprice))),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+
+#Change the order in facet_grid()
+Mergedsc1DT$season <- factor(Mergedsc1DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising
+myPlot <- ggplot2::ggplot(Mergedsc1DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of load curtailment to zero by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/setting peak periods to zero economic value both appliances-1.png)<!-- -->
+
+```r
+#Mergedsc1DT <- Mergedsc1DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
+####Load curtailment of particular amount: SC2
+
+
+```r
+fac1000 <- 1000 # We need this conversion to display MWh as required by prices per MWh
+
+sc2data <- sc3data#WARNING PREVIOUS TWO CHUNKS MUST BE EXECUTED TO WORK PROPERLY HERE WARNING
+sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc2data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc2data <- sc2data[, .(GWhs1 = sum(PumpandWater)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc2data <- sc2data[, Period := "Not Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
+                                    Period == "Evening Peak", GWhs1*1000*0.5, GWhs1*1000)] # Creating new column GWh based on GWhs1 in MWh
+
+
+setkey(SeasonAvgDT, season, obsHalfHour)
+
+setkey(sc2data, season, obsHalfHour)
+
+Mergedsc2DT <- sc2data[SeasonAvgDT]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := 0]
+
+Mergedsc2DT <- Mergedsc2DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                (`MWh` * (-meanprice)),
+                                                MWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)] 
+
+#Change the order in facet_grid()
+Mergedsc2DT$season <- factor(Mergedsc2DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising only shifted consumption
+myPlot <- ggplot2::ggplot(Mergedsc2DT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Economic value of particular amount by region") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Economic value $/MWh') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),
+                          hms::as.hms("09:00:00"), hms::as.hms("12:00:00"),
+                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic value of particular amount both appliances-1.png)<!-- -->
+
+```r
+#Mergedsc2DT <- Mergedsc2DT[, .(EcoVal = sum(ecoValueHH)),
+                   #keyby = .(Region, season, Period)]
+```
+####Load shifting to prior time periods: SC3
+
+```r
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'medianW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'obsHourMin' then assigning NULL (deleting
+## it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'meanW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'nObs' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'sdW' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'scaledMWmethod1' then assigning NULL
+## (deleting it).
+```
+
+```
+## Warning in `[.data.table`(sc3data, , `:=`(c("medianW", "obsHourMin",
+## "meanW", : Adding new column 'EECApmMethod2' then assigning NULL (deleting
+## it).
+```
+
+```r
+sc3data <- sc3data[, .(GWhs1 = sum(PumpandWater)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
+                     obsHalfHour <= hms::as.hms("10:00:00"),
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
+                     obsHalfHour <= hms::as.hms("20:00:00"),
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
+                     obsHalfHour <= hms::as.hms("23:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
+                     obsHalfHour <= hms::as.hms("05:30:00"),
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
+                     obsHalfHour <= hms::as.hms("15:30:00"),
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- sc3data[season == "Autumn" & Period == "Morning Peak",
+                sum(GWhs1)]
+WiMP <- sc3data[season == "Winter" & Period == "Morning Peak",
+                sum(GWhs1)]
+SpMP <- sc3data[season == "Spring" & Period == "Morning Peak",
+                sum(GWhs1)]
+SuMP <- sc3data[season == "Summer" & Period == "Morning Peak",
+                sum(GWhs1)]
+
+AuEP <- sc3data[season == "Autumn" & Period == "Evening Peak",
+                sum(GWhs1)]
+WiEP <- sc3data[season == "Winter" & Period == "Evening Peak",
+                sum(GWhs1)]
+SpEP <- sc3data[season == "Spring" & Period == "Evening Peak",
+                sum(GWhs1)]
+SuEP <- sc3data[season == "Summer" & Period == "Evening Peak",
+                sum(GWhs1)]
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 1"])
+SpMPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 1"])
+SuMPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 1"])
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(sc3data[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(sc3data[season == "Winter" &
+                              Period == "Off Peak 2"])
+SpEPHalfHours <- nrow(sc3data[season == "Spring" &
+                              Period == "Off Peak 2"])
+SuEPHalfHours <- nrow(sc3data[season == "Summer" &
+                              Period == "Off Peak 2"])
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+distGWhOP1Sp <- SpMP/SpMPHalfHours
+distGWhOP1Su <- SuMP/SuMPHalfHours
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+distGWhOP2Sp <- SpEP/SpEPHalfHours
+distGWhOP2Su <- SuEP/SuEPHalfHours
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     GWhs1 + distGWhOP1Su]
+
+
+sc3data <- sc3data[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Au]
+sc3data <- sc3data[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Wi]
+sc3data <- sc3data[season == "Spring" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Sp]
+sc3data <- sc3data[season == "Summer" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     GWhs1 + distGWhOP2Su]
+
+
+#Setting missing values in peak periods to NULL
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Morning Peak",
+                                  0, GWhs3)]
+sc3data <- sc3data[, GWhs3:= ifelse(Period =="Evening Peak",
+                                  0, GWhs3)]
+#Economic value starts::
+
+#Creating new column
+sc3data <- sc3data[, DiffOrigMWh := 0]
+#Calculating the amount added due to load shifting + converting to MWh
+sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0,
+                                           (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
+#Preparation for merging DTs
+setkey(SeasonAvgDT, season, obsHalfHour)
+setkey(sc3data, season, obsHalfHour)
+
+#Merging
+Mergedsc3DT <- sc3data[SeasonAvgDT]
+
+Mergedsc3DT <- Mergedsc3DT[, ecoValueHH := ifelse(Period == "Morning Peak" | 
+                                                  Period == "Evening Peak",
+                                                DiffOrigMWh * (meanprice),
+                                                DiffOrigMWh * (meanprice)),
+                           keyby = .(season, Region, obsHalfHour)]#WARNING DiffOrigMWh represents distinction between positive and negative already
+
+
+#Change the order in facet_grid()
+Mergedsc3DT$season <- factor(Mergedsc3DT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Putting all values together and check!
+EcoVaHHDT <- copy(Mergedsc0DT)
+
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("Baseline"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc1DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc2DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLc*0.5@Peak"))
+
+EcoVaHHDT <- cbind(EcoVaHHDT, Mergedsc3DT[,"ecoValueHH"])
+setnames(EcoVaHHDT, old=c("ecoValueHH"), new=c("EcoVaLs"))
+
+EcoVaHHDT <- EcoVaHHDT[, c("GWhs1", "MWh") := NULL]
+```
+
+```
+## Warning in `[.data.table`(EcoVaHHDT, , `:=`(c("GWhs1", "MWh"), NULL)):
+## Adding new column 'GWhs1' then assigning NULL (deleting it).
+```
+
+```r
+EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
+                 keyby = .(season, Region, obsHalfHour)]
+```
+####Visualisation both aplliances
+
+```r
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC0DT$Period <- factor(EcoVaSumSC0DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)
+
+SavingsMillionNZD <- CostBaseline-CostBaseline
+SavingsPercent <- 0#Compared to Baseline
+
+SavingsMillionNZD
+```
+
+```
+## [1] 0
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC0DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for HP & HW") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for HP & HW by period.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC0DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Baseline scenario: Cost for HP & HW in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC0 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Baseline scenario: Cost for HP & HW in winter by period.jpeg", dpi = 600)                        
+```
+
+```r
+#Plots cost of load curtailment to zero, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := ifelse(Period == "Morning Peak" |
+                                                      Period == "Evening Peak", 0,
+                                                    `EcoVaLc@Peak`)]
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumDT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 745.4292
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.5302422
+```
+
+```r
+#Visualisation
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for HP & HW") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for HP & HW.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Cost for HP & HW in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 1 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
+```
+
+```r
+#Plots benefits when load is curtailed to zero 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC1DT <- EcoVaSumDT
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := ifelse(Period == "Off Peak 1" |
+                                                            Period == "Off Peak 2", 0,
+                                                          `EcoVaLc@Peak`*(-1))]#We want to disply savings
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, `EcoVaLc@Peak` := `EcoVaLc@Peak`/1000000]# Converting to million $
+EcoVaSumSC1DT <- EcoVaSumSC1DT[, (`EcoVaLc@Peak` = sum(`EcoVaLc@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for HP & HW") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for HP & HW.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment scenario: Savings at peak time-periods for HP & HW in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC1 2 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment scenario: Savings at peak time-periods for HP & HW in winter.jpeg", dpi = 600)
+```
+
+
+```r
+#Plots cost and benefits of load curtailment to 0.5, does not consider baseline
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Morning Peak" |
+                                                          Period == "Evening Peak",
+                                              (Baseline*0.5),`EcoVaLc*0.5@Peak`)]
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumDT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
+                                                                "Morning Peak",
+                                                                "Off Peak 2",
+                                                                "Evening Peak"))
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
+
+SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
+SavingsPercent <- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 372.7146
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.2651211
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for HP & HW") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for HP & HW.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Cost for HP & HW in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 1 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
+```
+
+
+```r
+#Plots benefits when load is curtailed to 0.5 
+
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+EcoVaSumSC2DT <- EcoVaSumDT
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Off Peak 1"|
+                                                            Period == "Off Peak 2",0,
+                                 `EcoVaLc*0.5@Peak`*(-1))]#We want to disply savings
+
+
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
+EcoVaSumSC2DT <- EcoVaSumSC2DT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
+
+
+EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+myPlot <- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for HP & HW") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for HP & HW.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load curtailment 0.5 scenario: Savings at peak time-periods for HP & HW in winter") +
+  labs(x='Period', y='Savings in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC2 2 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for HP & HW in winter.jpeg", dpi = 600)
+```
+
+
+```r
+#Plots cost and benefits of load shifting, does not consider baseline but increases costs at off peaks
+EcoVaSumDT <- copy(EcoVaHHDT)
+
+
+EcoVaSumDT <- EcoVaSumDT[, EcoSummary := ifelse(Period == "Off Peak 1" |
+                                               Period == "Off Peak 2",
+                                             Baseline + EcoVaLs, 0)]#It has to be zero 
+
+
+
+EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
+EcoVaSumSC3DT <- EcoVaSumDT[, (`EcoSummary` = sum(`EcoSummary`)), keyby = .(Region, season, Period)]
+
+EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Morning Peak",
+                                                    "Off Peak 2", "Evening Peak"))
+
+
+
+
+
+#Analysis
+CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+`CostLoadShif` <- sum(EcoVaSumDT$`EcoSummary`)
+
+SavingsMillionNZD <- CostBaseline - `CostLoadShif`
+SavingsPercent <- 1-(`CostLoadShif` / CostBaseline)
+
+SavingsMillionNZD
+```
+
+```
+## [1] 81.01424
+```
+
+```r
+SavingsPercent
+```
+
+```
+## [1] 0.05762743
+```
+
+```r
+myPlot <- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for HP & HW") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot 
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1 both appliances-1.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for HP & HW.jpeg", dpi = 600)
+
+myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
+                                 season %in% c("Winter")), aes(x = Period, fill = Region)) +
+  geom_bar(aes(y= V1), stat = "identity", position = "dodge") +
+  #geom_line(aes(y= V1)) +
+  theme(text = element_text(family = "Cambria")) +
+  facet_grid(season ~ .) +
+  ggtitle("Load shifting scenario: Cost for HP & HW in winter") +
+  labs(x='Period', y='Cost in million NZD') 
+  
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/economic visualisation SC3 1 both appliances-2.png)<!-- -->
+
+```r
+#ggsave("Load shifting scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
+```
+###CPD analysis
+
+
+```r
+CpdMinOrig  <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_whole.csv"
+
+
+print(paste0("Trying to load: ", CpdMinOrig))
+```
+
+```
+## [1] "Trying to load: /Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_whole.csv"
+```
+
+```r
+CPDMinDT <- data.table::as.data.table(readr::read_csv(CpdMinOrig)) # reading data
+```
+
+```
+## Parsed with column specification:
+## cols(
+##   DateTime = col_character(),
+##   month = col_integer(),
+##   CPDmin12 = col_integer(),
+##   CPDmin13 = col_integer(),
+##   CPDmin14 = col_double(),
+##   CPDmin15 = col_double(),
+##   CPDmin16 = col_integer()
+## )
+```
+
+```
+## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)
+```
+
+```
+## Warning: 76 parsing failures.
+## row # A tibble: 5 x 5 col     row col      expected               actual file                        expected   <int> <chr>    <chr>                  <chr>  <chr>                       actual 1  1093 CPDmin16 no trailing characters .6     '/Volumes/hum-csafe/Resear… file 2  1169 CPDmin16 no trailing characters .8     '/Volumes/hum-csafe/Resear… row 3  1173 CPDmin16 no trailing characters .2     '/Volumes/hum-csafe/Resear… col 4  1475 CPDmin16 no trailing characters .6     '/Volumes/hum-csafe/Resear… expected 5  1478 CPDmin16 no trailing characters .2     '/Volumes/hum-csafe/Resear…
+## ... ................. ... .......................................................................... ........ .......................................................................... ...... .......................................................................... .... .......................................................................... ... .......................................................................... ... .......................................................................... ........ ..........................................................................
+## See problems(...) for more details.
+```
+
+#### Time adjustments
+
+```r
+CPDMinDT <- CPDMinDT[, dateTimeStartUTC := lubridate::dmy_hm(`DateTime`)] # creating column based on orig. data
+CPDMinDT <- CPDMinDT[, dateTimeStart := lubridate::force_tz(dateTimeStartUTC, tz = "Pacific/Auckland")] # changing time to NZST
+CPDMinDT$dateTimeStartUTC <- NULL
+CPDMinDT <- CPDMinDT[, dstFlag := lubridate::dst(dateTimeStart)]
+
+CPDMinDT <- CPDMinDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating time column without date
+#CPDMinDT[, .(n = .N), keyby = .(month = lubridate::month(dateTimeStart), dstFlag)]# Daylight saving test
+```
+
+#### Defining seasons
+
+```r
+CPDMinDT <- CPDMinDT[, month := lubridate::month(dateTimeStart)]
+
+CPDMinDT <- CPDMinDT[month >= 5 & month <= 5, season := "Autumn"]
+CPDMinDT <- CPDMinDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+
+CPDMinDT <- CPDMinDT[, c("TestX", "dstFlag") :=NULL]
+```
+
+```
+## Warning in `[.data.table`(CPDMinDT, , `:=`(c("TestX", "dstFlag"), NULL)):
+## Adding new column 'TestX' then assigning NULL (deleting it).
+```
+#### Loop CPD mins by season
+#####Winter
+
+```r
+CPDMinDT[is.na(CPDMinDT)] <- 0
+CPDsumDT <- copy(CPDMinDT)
+CPDsumDT <- CPDsumDT[, c("month", "DateTime", "CPDmin12", "CPDmin13", "CPDmin14", "CPDmin15",
+                               "CPDmin16", "dateTimeStart", "WinterSumMin") := NULL]
+```
+
+```
+## Warning in `[.data.table`(CPDsumDT, , `:=`(c("month", "DateTime",
+## "CPDmin12", : Adding new column 'WinterSumMin' then assigning NULL
+## (deleting it).
+```
+
+```r
+CPDsumDT <- CPDsumDT[, . (Sum = 0), keyby = .(season, obsHalfHour)]
+
+#Winter sum by half hour
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("00:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW1 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("00:00:00"), CPDW1, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("00:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW2 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("00:30:00"), CPDW2, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("01:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW3 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("01:00:00"), CPDW3, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("01:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW4 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("01:30:00"), CPDW4, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("02:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW5 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("02:00:00"), CPDW5, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("02:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW6 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("02:30:00"), CPDW6, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("03:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW7 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("03:00:00"), CPDW7, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("03:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW8 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("03:30:00"), CPDW8, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("04:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW9 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("04:00:00"), CPDW9, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("04:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW10 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("04:30:00"), CPDW10, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("05:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW11 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("05:00:00"), CPDW11, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("05:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW12 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("05:30:00"), CPDW12, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("06:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW13 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("06:00:00"), CPDW13, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("06:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW14 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("06:30:00"), CPDW14, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("07:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW15 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("07:00:00"), CPDW15, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("07:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW16 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("07:30:00"), CPDW16, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("08:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW17 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("08:00:00"), CPDW17, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("08:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW18 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("08:30:00"), CPDW18, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("09:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW19 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("09:00:00"), CPDW19, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("09:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW20 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("09:30:00"), CPDW20, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("10:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW21 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("10:00:00"), CPDW21, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("10:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW22 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("10:30:00"), CPDW22, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("11:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW23 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("11:00:00"), CPDW23, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("11:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW24 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("11:30:00"), CPDW24, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("12:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW25 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("12:00:00"), CPDW25, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("12:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW26 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("12:30:00"), CPDW26, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("13:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW27 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("13:00:00"), CPDW27, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("13:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW28 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("13:30:00"), CPDW28, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("14:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW29 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("14:00:00"), CPDW29, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("14:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW30 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("14:30:00"), CPDW30, Sum)]
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("15:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW31 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("15:00:00"), CPDW31, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("15:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW32 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("15:30:00"), CPDW32, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("16:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW33 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("16:00:00"), CPDW33, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("16:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW34 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("16:30:00"), CPDW34, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("17:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW35 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("17:00:00"), CPDW35, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("17:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW36 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("17:30:00"), CPDW36, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("18:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW37 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("18:00:00"), CPDW37, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("18:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW38 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("18:30:00"), CPDW38, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("19:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW39 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("19:00:00"), CPDW39, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("19:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW40 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("19:30:00"), CPDW40, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("20:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW41 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("20:00:00"), CPDW41, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("20:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW42 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("20:30:00"), CPDW42, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("21:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW43 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("21:00:00"), CPDW43, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("21:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW44 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("21:30:00"), CPDW44, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("22:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW45 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("22:00:00"), CPDW45, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("22:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW46 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("22:30:00"), CPDW46, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("23:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW47 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("23:00:00"), CPDW47, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("23:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDW48 <- sum(CPDMinDT$WinterSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("23:30:00"), CPDW48, Sum)]
+```
+#####Autumn
+
+```r
+#Autumn 
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA1 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:00:00"), CPDA1, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA2 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:30:00"), CPDA2, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA3 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:00:00"), CPDA3, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA4 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:30:00"), CPDA4, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA5 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:00:00"), CPDA5, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA6 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:30:00"), CPDA6, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA7 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:00:00"), CPDA7, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA8 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:30:00"), CPDA8, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA9 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:00:00"), CPDA9, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA10 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:30:00"), CPDA10, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA11 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:00:00"), CPDA11, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA12 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:30:00"), CPDA12, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA13 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:00:00"), CPDA13, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA14 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:30:00"), CPDA14, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA15 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:00:00"), CPDA15, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA16 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:30:00"), CPDA16, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA17 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:00:00"), CPDA17, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA18 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:30:00"), CPDA18, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA19 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:00:00"), CPDA19, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA20 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:30:00"), CPDA20, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA21 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:00:00"), CPDA21, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA22 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:30:00"), CPDA22, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA23 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:00:00"), CPDA23, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA24 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:30:00"), CPDA24, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA25 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:00:00"), CPDA25, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA26 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:30:00"), CPDA26, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA27 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:00:00"), CPDA27, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA28 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:30:00"), CPDA28, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA29 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:00:00"), CPDA29, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA30 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:30:00"), CPDA30, Sum)]
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA31 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:00:00"), CPDA31, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA32 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:30:00"), CPDA32, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA33 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:00:00"), CPDA33, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA34 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:30:00"), CPDA34, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA35 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:00:00"), CPDA35, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA36 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:30:00"), CPDA36, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA37 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:00:00"), CPDA37, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA38 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:30:00"), CPDA38, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA39 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:00:00"), CPDA39, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA40 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:30:00"), CPDA40, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA41 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:00:00"), CPDA41, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA42 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:30:00"), CPDA42, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA43 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:00:00"), CPDA43, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA44 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:30:00"), CPDA44, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA45 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:00:00"), CPDA45, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA46 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:30:00"), CPDA46, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA47 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:00:00"), CPDA47, Sum)]
+
+
+CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
+CPDA48 <- sum(CPDMinDT$AutumnSumMin)
+CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:30:00"), CPDA48, Sum)]
+```
+####Calculation
+
+```r
+CPDsumDT <- CPDsumDT[, Probability := Sum/(5*90*24*60)]
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDsumDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=Probability), size=1, colour = "blue") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Probability of congestion period demand") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Probability') +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/CPD calc-1.png)<!-- -->
+
+```r
+#ggsave("Probability of congestion period demand.jpeg", dpi=600)
+
+CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+
+
+CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+```
+
+###Merging data
+
+```r
+#setkey(SeasonAvgDT, season, obsHalfHour)
+#sc3dataDT <- as.data.table(sc3data)
+#setkey(sc3dataDT, season, obsHalfHour)
+
+#MergedDT <- sc3dataDT[SeasonAvgDT]
 ```
 
 
@@ -2182,7 +5620,7 @@ MergedDT <- sc3dataDT[SeasonAvgDT]
 
 
 
-Analysis completed in 21.01 seconds ( 0.35 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 56.23 seconds ( 0.94 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 
@@ -2233,8 +5671,9 @@ Session info:
 ## [28] bookdown_0.7      tidyr_0.8.1       purrr_0.2.5      
 ## [31] reshape2_1.4.3    magrittr_1.5      scales_0.5.0     
 ## [34] backports_1.1.2   htmltools_0.3.6   assertthat_0.2.0 
-## [37] colorspace_1.3-2  labeling_0.3      stringi_1.1.7    
-## [40] lazyeval_0.2.1    munsell_0.4.3     crayon_1.3.4
+## [37] colorspace_1.3-2  labeling_0.3      utf8_1.1.3       
+## [40] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
+## [43] crayon_1.3.4
 ```
 
 # References
