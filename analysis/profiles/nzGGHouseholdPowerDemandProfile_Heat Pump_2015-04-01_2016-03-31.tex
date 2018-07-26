@@ -114,18 +114,19 @@
 }
 
 \setlength{\droptitle}{-2em}
+
   \title{NZ GREEN Grid Household Power Demand Profiles: Heat Pump}
-  \pretitle{\vspace{\droptitle}\centering\huge}
+    \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-\subtitle{Data extraction and preliminary plots}
+  \subtitle{Data extraction and preliminary plots}
   \author{Ben Anderson
 (\href{mailto:b.anderson@soton.ac.uk}{\nolinkurl{b.anderson@soton.ac.uk}},
 \texttt{@dataknut})}
-  \preauthor{\centering\large\emph}
+    \preauthor{\centering\large\emph}
   \postauthor{\par}
-  \predate{\centering\large\emph}
+      \predate{\centering\large\emph}
   \postdate{\par}
-  \date{Last run at: 2018-06-08 15:50:29}
+    \date{Last run at: 2018-07-26 16:11:49}
 
 
 \begin{document}
@@ -276,115 +277,111 @@ So we are looking for Heat Pump circuits between 2015-04-01 and
 2016-03-31. We do this by checking to see if the extract file has
 already been created. If so we load it. If not, we create it.
 
-The file we are looking for is: Heat
-Pump\_2015-04-01\_2016-03-31\_observations.csv
-
-\begin{verbatim}
-## [1] "/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv exists so re-loading..."
-## [1] "# Loaded 14,252,439 rows of data"
-\end{verbatim}
+Loading: /Volumes/hum-csafe/Research Projects/GREEN
+Grid/Clean\_data/safe/gridSpy/1min/dataExtracts/Heat
+Pump\_2015-04-01\_2016-03-31\_observations.csv.gz (needs to exist!)
 
 The following table summarises the Heat Pump data we have found.
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule
-\begin{minipage}[b]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
 hhID\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.24\columnwidth}\raggedright\strut
 r\_dateTime\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
-circuit\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
+circuitLabel\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+circuitID\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
 powerW\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
-obsHourMin\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Length:14250284\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Min. :2015-04-01 00:00:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Length:14250284\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Min. :2092\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Min. : -655.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+1st Qu.:2015-06-22 12:39:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+1st Qu.:2740\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 1st Qu.: 0.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Class :character\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Median :2015-09-16 13:12:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Median :4134\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Median : 0.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mode :character\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Mean :2015-09-21 08:00:39\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mean : 147.90\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Mean :3492\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Mean : 147.92\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+3rd Qu.:2015-12-17 17:52:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-3rd Qu.: 61.23\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+3rd Qu.:4186\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+3rd Qu.: 61.29\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Max. :2016-03-31 23:59:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Max. :4399\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Max. :27759.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
 \end{minipage}\tabularnewline
 \bottomrule
 \end{longtable}
 
-This table will have a large number (14,252,439) of obserations caused
+This table will have a large number (14,250,284) of obserations caused
 by the number of different circuit labels as shown by the following
 table.
 
@@ -393,38 +390,20 @@ table.
 Var1 & Freq\tabularnewline
 \midrule
 \endhead
-Bedroom \& Lounge Heat Pumps\$2741 & 526568\tabularnewline
-Downstairs (inc 1 Heat Pump)\$2212 & 526929\tabularnewline
-Heat Pump (x2) \& Lounge Power\$4166 & 338289\tabularnewline
-Heat Pump \& 2 x Bathroom Heat\$4171 & 525108\tabularnewline
-Heat Pump \& Bedroom 2\$2731 & 152669\tabularnewline
-Heat Pump \& Kitchen Appliances\$4186 & 526780\tabularnewline
-Heat Pump \& Lounge\$2590 & 519185\tabularnewline
-Heat Pump \& Misc\$2107 & 102188\tabularnewline
-Heat Pump \& Washing Machine\$2750 & 505042\tabularnewline
-Heat Pump\$2092 & 521843\tabularnewline
-Heat Pump\$2148 & 520028\tabularnewline
-Heat Pump\$2598 & 526797\tabularnewline
-Heat Pump\$2758 & 443936\tabularnewline
-Heat Pump\$2826 & 497806\tabularnewline
-Heat Pump\$4124 & 327974\tabularnewline
-Heat Pump\$4130 & 518179\tabularnewline
-Heat Pump\$4134 & 526771\tabularnewline
-Heat Pump\$4150 & 516242\tabularnewline
-Heat Pump\$4154 & 526850\tabularnewline
-Heat Pump\$4160 & 526110\tabularnewline
-Heat Pump\$4175 & 373722\tabularnewline
-Heat Pump\$4190 & 223824\tabularnewline
-Heat Pump\$4196 & 526785\tabularnewline
-Heat Pump\$4204 & 526878\tabularnewline
-Heat Pump\$4211 & 288838\tabularnewline
-Heat Pump\$4219 & 79085\tabularnewline
-Heat Pump\$4223 & 526677\tabularnewline
-Heat Pumps (2x) \& Power\$4232 & 486982\tabularnewline
-Heat Pumps (2x) \& Power\$4399 & 463994\tabularnewline
-Kitchen Appliances \& Heat Pump\$4140 & 526863\tabularnewline
-Theatre Heat Pump\$2740 & 526568\tabularnewline
-Upstairs Heat Pumps\$2211 & 526929\tabularnewline
+Bedroom \& Lounge Heat Pumps & 526528\tabularnewline
+Downstairs (inc 1 Heat Pump) & 526921\tabularnewline
+Heat Pump & 7996642\tabularnewline
+Heat Pump (x2) \& Lounge Power & 338280\tabularnewline
+Heat Pump \& 2 x Bathroom Heat & 525011\tabularnewline
+Heat Pump \& Bedroom 2 & 152664\tabularnewline
+Heat Pump \& Kitchen Appliances & 526778\tabularnewline
+Heat Pump \& Lounge & 519127\tabularnewline
+Heat Pump \& Misc & 102168\tabularnewline
+Heat Pump \& Washing Machine & 505028\tabularnewline
+Heat Pumps (2x) \& Power & 950927\tabularnewline
+Kitchen Appliances \& Heat Pump & 526863\tabularnewline
+Theatre Heat Pump & 526448\tabularnewline
+Upstairs Heat Pumps & 526899\tabularnewline
 \bottomrule
 \end{longtable}
 
@@ -472,62 +451,62 @@ If we do see any of these then we still have data cleaning work to do!
 hhID & sample & nObs & minDate & maxDate\tabularnewline
 \midrule
 \endhead
-rf\_28 & Unison & 79085 & 2015-04-01T00:00:00Z &
-2015-05-26T04:56:00Z\tabularnewline
-rf\_20 & Powerco & 102188 & 2015-04-01T00:00:00Z &
-2015-06-11T01:37:00Z\tabularnewline
-rf\_09 & Powerco & 152669 & 2015-04-01T00:00:00Z &
-2015-07-16T02:42:00Z\tabularnewline
-rf\_43 & Unison & 288838 & 2015-04-01T00:00:00Z &
-2015-10-18T17:29:00Z\tabularnewline
-rf\_41 & Unison & 223824 & 2015-04-01T00:00:00Z &
-2015-11-12T22:24:00Z\tabularnewline
-rf\_35 & Unison & 327974 & 2015-04-01T00:00:00Z &
-2015-11-14T21:00:00Z\tabularnewline
-rf\_40 & Unison & 338289 & 2015-04-01T00:00:00Z &
-2015-11-22T04:27:00Z\tabularnewline
-rf\_38 & Unison & 747444 & 2015-04-01T00:00:00Z &
-2015-12-26T08:55:00Z\tabularnewline
-rf\_08 & Powerco & 521843 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_10 & Powerco & 526797 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_11 & Powerco & 519185 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_13 & Powerco & 1053858 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_19 & Powerco & 1053136 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_21 & Powerco & 505042 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_25 & Powerco & 443936 & 2015-05-24T12:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_27 & Powerco & 497806 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_29 & Unison & 526780 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_31 & Unison & 526878 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_32 & Unison & 526785 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_33 & Unison & 526863 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_34 & Unison & 526677 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_36 & Unison & 516242 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_37 & Unison & 526771 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_42 & Unison & 518179 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_44 & Unison & 526850 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_45 & Unison & 526110 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_46 & Unison & 950976 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
-rf\_47 & Unison & 525108 & 2015-04-01T00:00:00Z &
-2016-03-31T23:59:00Z\tabularnewline
+rf\_28 & Unison & 79033 & 2015-04-01 00:00:00 & 2015-05-26
+04:56:00\tabularnewline
+rf\_20 & Powerco & 102168 & 2015-04-01 00:00:00 & 2015-06-11
+01:37:00\tabularnewline
+rf\_09 & Powerco & 152664 & 2015-04-01 00:00:00 & 2015-07-16
+02:42:00\tabularnewline
+rf\_43 & Unison & 288814 & 2015-04-01 00:00:00 & 2015-10-18
+17:29:00\tabularnewline
+rf\_41 & Unison & 223790 & 2015-04-01 00:00:00 & 2015-11-12
+22:24:00\tabularnewline
+rf\_35 & Unison & 327860 & 2015-04-01 00:00:00 & 2015-11-14
+21:00:00\tabularnewline
+rf\_40 & Unison & 338280 & 2015-04-01 00:00:00 & 2015-11-22
+04:27:00\tabularnewline
+rf\_38 & Unison & 747324 & 2015-04-01 00:00:00 & 2015-12-26
+08:55:00\tabularnewline
+rf\_08 & Powerco & 521724 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_10 & Powerco & 526678 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_11 & Powerco & 519127 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_13 & Powerco & 1053820 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_19 & Powerco & 1052976 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_21 & Powerco & 505028 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_25 & Powerco & 443888 & 2015-05-24 12:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_27 & Powerco & 497686 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_29 & Unison & 526778 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_31 & Unison & 526802 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_32 & Unison & 526665 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_33 & Unison & 526863 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_34 & Unison & 526557 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_36 & Unison & 516127 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_37 & Unison & 526651 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_42 & Unison & 518064 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_44 & Unison & 526737 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_45 & Unison & 525994 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_46 & Unison & 950927 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
+rf\_47 & Unison & 525011 & 2015-04-01 00:00:00 & 2016-03-31
+23:59:00\tabularnewline
 \bottomrule
 \end{longtable}
 
@@ -547,98 +526,98 @@ The following table summarises the Heat Pump data. Any surprises?
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule
-\begin{minipage}[b]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[b]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
 hhID\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.24\columnwidth}\raggedright\strut
 r\_dateTime\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
-circuit\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
+circuitLabel\strut
+\end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+circuitID\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
 powerW\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\raggedright\strut
-obsHourMin\strut
 \end{minipage}\tabularnewline
 \midrule
 \endhead
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Length:14250284\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Min. :2015-04-01 00:00:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Length:14250284\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Min. :2092\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Min. : -655.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Length:14252439\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+1st Qu.:2015-06-22 12:39:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+1st Qu.:2740\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 1st Qu.: 0.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Class :character\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Median :2015-09-16 13:12:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Median :4134\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Median : 0.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mode :character\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Mean :2015-09-21 08:00:39\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-Mean : 147.90\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Mean :3492\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+Mean : 147.92\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+3rd Qu.:2015-12-17 17:52:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-3rd Qu.: 61.23\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+3rd Qu.:4186\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
+3rd Qu.: 61.29\strut
 \end{minipage}\tabularnewline
-\begin{minipage}[t]{0.04\columnwidth}\raggedright\strut
+\begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright\strut
+Max. :2016-03-31 23:59:00\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+Max. :4399\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Max. :27759.00\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\raggedright\strut
-NA\strut
 \end{minipage}\tabularnewline
 \bottomrule
 \end{longtable}
@@ -709,12 +688,12 @@ This section shows a plot of mean profiles for each household by season.
 \endhead
 & Length:151200 & Length:151200 & Length:151200 & Min. :
 -2.422\tabularnewline
-& Class :character & Class :character & Class :character & 1st Qu.:
-12.347\tabularnewline
-& Mode :character & Mode :character & Mode :character & Median :
-58.538\tabularnewline
-& NA & NA & NA & Mean : 149.354\tabularnewline
-& NA & NA & NA & 3rd Qu.: 195.366\tabularnewline
+& Class :character & Class1:hms & Class :character & 1st Qu.:
+12.137\tabularnewline
+& Mode :character & Class2:difftime & Mode :character & Median :
+57.750\tabularnewline
+& NA & Mode :numeric & NA & Mean : 149.360\tabularnewline
+& NA & NA & NA & 3rd Qu.: 195.743\tabularnewline
 & NA & NA & NA & Max. :1778.669\tabularnewline
 \bottomrule
 \end{longtable}
@@ -770,7 +749,7 @@ by plotting error bars at +/- 1 s.d.
 \strut
 \end{minipage} & \begin{minipage}[b]{0.14\columnwidth}\raggedright\strut
 obsHourMin\strut
-\end{minipage} & \begin{minipage}[b]{0.14\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[b]{0.15\columnwidth}\raggedright\strut
 season\strut
 \end{minipage} & \begin{minipage}[b]{0.13\columnwidth}\raggedright\strut
 meanW\strut
@@ -787,7 +766,7 @@ sdW\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
 Length:5760\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Length:5760\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
 Min. : 34.99\strut
@@ -801,68 +780,68 @@ Min. :101.0\strut
 \begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
-Class :character\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+Class1:hms\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Class :character\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
-1st Qu.: 71.88\strut
+1st Qu.: 69.26\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
 1st Qu.: 0.00\strut
 \end{minipage} & \begin{minipage}[t]{0.11\columnwidth}\raggedright\strut
-1st Qu.:2402\strut
+1st Qu.:2401\strut
 \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
-1st Qu.:234.3\strut
+1st Qu.:224.7\strut
 \end{minipage}\tabularnewline
 \begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
-Mode :character\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+Class2:difftime\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 Mode :character\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
-Median :104.76\strut
+Median :104.83\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
 Median : 0.00\strut
 \end{minipage} & \begin{minipage}[t]{0.11\columnwidth}\raggedright\strut
-Median :2518\strut
+Median :2517\strut
 \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
-Median :298.6\strut
+Median :296.2\strut
 \end{minipage}\tabularnewline
 \begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
-NA\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+Mode :numeric\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
-Mean :143.52\strut
+Mean :143.53\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
-Mean : 17.09\strut
+Mean : 17.05\strut
 \end{minipage} & \begin{minipage}[t]{0.11\columnwidth}\raggedright\strut
 Mean :2474\strut
 \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
-Mean :329.8\strut
+Mean :329.1\strut
 \end{minipage}\tabularnewline
 \begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
-3rd Qu.:174.71\strut
+3rd Qu.:174.66\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
 3rd Qu.: 0.00\strut
 \end{minipage} & \begin{minipage}[t]{0.11\columnwidth}\raggedright\strut
-3rd Qu.:2599\strut
+3rd Qu.:2598\strut
 \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
-3rd Qu.:407.1\strut
+3rd Qu.:404.7\strut
 \end{minipage}\tabularnewline
 \begin{minipage}[t]{0.03\columnwidth}\raggedright\strut
 \strut
 \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
 NA\strut
-\end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+\end{minipage} & \begin{minipage}[t]{0.15\columnwidth}\raggedright\strut
 NA\strut
 \end{minipage} & \begin{minipage}[t]{0.13\columnwidth}\raggedright\strut
 Max. :613.89\strut
@@ -887,7 +866,7 @@ profiles for future re-use.
 
 \section{Runtime}\label{runtime}
 
-Analysis completed in 430.99 seconds ( 7.18 minutes) using
+Analysis completed in 157.62 seconds ( 2.63 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.5.0 (2018-04-23)
 running on x86\_64-apple-darwin15.6.0.
@@ -923,7 +902,7 @@ Session info:
 \begin{verbatim}
 ## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.5
+## Running under: macOS High Sierra 10.13.6
 ## 
 ## Matrix products: default
 ## BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
@@ -936,33 +915,30 @@ Session info:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] gdtools_0.1.7     rmarkdown_1.9     kableExtra_0.9.0  knitr_1.20       
-## [5] readr_1.1.1       ggplot2_2.2.1     dplyr_0.7.5       data.table_1.11.2
-## [9] nzGREENGrid_0.1.0
+## [1] kableExtra_0.9.0  knitr_1.20        readr_1.1.1       ggplot2_2.2.1    
+## [5] dplyr_0.7.5       data.table_1.11.4 rmarkdown_1.10    nzGREENGrid_0.1.0
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.17        svglite_1.2.1       lubridate_1.7.4    
-##  [4] lattice_0.20-35     prettyunits_1.0.2   assertthat_0.2.0   
-##  [7] rprojroot_1.3-2     digest_0.6.15       R6_2.2.2           
-## [10] cellranger_1.1.0    plyr_1.8.4          backports_1.1.2    
-## [13] acepack_1.4.1       evaluate_0.10.1     httr_1.3.1         
-## [16] highr_0.6           pillar_1.2.2        rlang_0.2.0        
-## [19] progress_1.1.2      lazyeval_0.2.1      readxl_1.1.0       
-## [22] rstudioapi_0.7      rpart_4.1-13        Matrix_1.2-14      
-## [25] checkmate_1.8.5     labeling_0.3        splines_3.5.0      
-## [28] stringr_1.3.1       foreign_0.8-70      htmlwidgets_1.2    
-## [31] munsell_0.4.3       tinytex_0.5         compiler_3.5.0     
-## [34] pkgconfig_2.0.1     base64enc_0.1-3     htmltools_0.3.6    
-## [37] nnet_7.3-12         tidyselect_0.2.4    tibble_1.4.2       
-## [40] gridExtra_2.3       htmlTable_1.11.2    Hmisc_4.1-1        
-## [43] viridisLite_0.3.0   grid_3.5.0          gtable_0.2.0       
-## [46] magrittr_1.5        scales_0.5.0        stringi_1.2.2      
-## [49] reshape2_1.4.3      bindrcpp_0.2.2      latticeExtra_0.6-28
-## [52] xml2_1.2.0          Formula_1.2-3       RColorBrewer_1.1-2 
-## [55] tools_3.5.0         glue_1.2.0          purrr_0.2.4        
-## [58] hms_0.4.2           survival_2.42-3     yaml_2.1.19        
-## [61] colorspace_1.3-2    cluster_2.0.7-1     rvest_0.3.2        
-## [64] bindr_0.1.1
+##  [1] tinytex_0.5       tidyselect_0.2.4  reshape2_1.4.3   
+##  [4] purrr_0.2.5       lattice_0.20-35   colorspace_1.3-2 
+##  [7] htmltools_0.3.6   viridisLite_0.3.0 yaml_2.1.19      
+## [10] utf8_1.1.4        rlang_0.2.1       pillar_1.2.3     
+## [13] glue_1.2.0        sp_1.3-1          readxl_1.1.0     
+## [16] bindrcpp_0.2.2    jpeg_0.1-8        bindr_0.1.1      
+## [19] plyr_1.8.4        stringr_1.3.1     cellranger_1.1.0 
+## [22] munsell_0.5.0     gtable_0.2.0      rvest_0.3.2      
+## [25] RgoogleMaps_1.4.2 mapproj_1.2.6     evaluate_0.10.1  
+## [28] labeling_0.3      highr_0.7         proto_1.0.0      
+## [31] Rcpp_0.12.17      geosphere_1.5-7   openssl_1.0.1    
+## [34] scales_0.5.0      backports_1.1.2   rjson_0.2.20     
+## [37] hms_0.4.2         png_0.1-7         digest_0.6.15    
+## [40] stringi_1.2.3     grid_3.5.0        rprojroot_1.3-2  
+## [43] cli_1.0.0         tools_3.5.0       magrittr_1.5     
+## [46] maps_3.3.0        lazyeval_0.2.1    tibble_1.4.2     
+## [49] crayon_1.3.4      pkgconfig_2.0.1   xml2_1.2.0       
+## [52] lubridate_1.7.4   assertthat_0.2.0  httr_1.3.1       
+## [55] rstudioapi_0.7    R6_2.2.2          ggmap_2.6.1      
+## [58] compiler_3.5.0
 \end{verbatim}
 
 \section*{References}\label{references}
