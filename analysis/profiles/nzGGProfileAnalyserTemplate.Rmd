@@ -3,6 +3,7 @@ params:
   circuitPattern: ""
   dateFrom: ""
   dateTo: ""
+  iFile: ""
 title: '`r paste0("NZ GREEN Grid Household Power Demand Profiles: ", params$circuitPattern)`'
 subtitle: 'Data extraction and preliminary plots'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
@@ -26,7 +27,7 @@ output:
 bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
 ---
 
-```{r setup, include=FALSE}
+```{r knitrSetup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
 ```
@@ -45,6 +46,19 @@ rmdLibs <- c("data.table", # data munching
 )
 # load them
 nzGREENGrid::loadLibraries(rmdLibs)
+
+# Local functions ---
+labelProfilePlot <- function(plot){
+  # adds neat labels to X axis
+  plot <- plot + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
+    scale_x_time(breaks = c(hms::as.hms("00:00:00"),
+                            hms::as.hms("04:00:00"), hms::as.hms("08:00:00"), 
+                            hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                            hms::as.hms("20:00:00"), hms::as.hms("24:00:00")))
+
+  return(plot)
+}
 ```
 
 \newpage
@@ -52,7 +66,7 @@ nzGREENGrid::loadLibraries(rmdLibs)
 # Status
 
 ```{r reportStatus, include = FALSE}
-if(baTest){
+if(localTest){
   msg <- paste0("Test run using reduced data from ", fpath)
 } else {
   msg <- paste0("Full run using all data from ", fpath)
@@ -158,16 +172,25 @@ plotCaption <- paste0("Source: ", fpath,
 So we are looking for `r circuitPattern` circuits between `r dateFrom` and `r dateTo`. We do this by checking to see if the extract file has already been created. If so we load it. If not, we create it.
 
 ```{r setFile}
-fName <- paste0(fName <- paste0(circuitPattern, "_", dateFrom, "_", dateTo, "_observations.csv"))
-iFile <- paste0(outPath, "dataExtracts/", fName)
+iFile <- paste0(params$iFile, ".gz") # don't forget .gz!
+#iFile <- paste0(iFile, ".gz")
 ```
 
-The file we are looking for is: `r fName`
+Loading: `r iFile` (needs to exist!)
 
 ```{r load gridSpy data}
-# checks if input file exists, if not creates it from files in fPath
-fPath <- paste0(outPath, "data/")
-gs1MinDT <- nzGREENGrid::getCleanGridSpyData(iFile, fPath, circuitPattern, dateFrom, dateTo)
+# Loads pre-extracted circuit data using readr as the data is .csv.gz
+gs1MinDT <- data.table::as.data.table(
+  readr::read_csv(iFile,
+                  col_types = cols(
+                        hhID = col_character(),
+                        r_dateTime = col_datetime(format = ""),
+                        circuitLabel = col_character(),
+                        circuitID = col_integer(),
+                        powerW = col_double() # <- crucial !!!
+                      )
+                  )
+)
 ```
 
 The following table summarises the `r circuitPattern` data we have found.
@@ -182,7 +205,7 @@ knitr::kable(caption = paste0("Summary of household grid spy data for: ", circui
 This table will have a large number (`r tidyNum(nrow(gs1MinDT))`) of obserations caused by the number of different circuit labels as shown by the following table.
 
 ```{r test circuit labels}
-t <- table(gs1MinDT$circuit)
+t <- table(gs1MinDT$circuitLabel)
 
 knitr::kable(caption = paste0("Counts of ", circuitPattern, " observations by label and household"), t)
 ```
@@ -335,6 +358,9 @@ gs1MinDT <- gs1MinDT[, season := ifelse(month == "Sep" |
 This section shows a plot of mean profiles for each household by season.
 
 ```{r profiles per household by season}
+# add onsHourMin
+gs1MinDT <- gs1MinDT[, obsHourMin := hms::as.hms(r_dateTime)]
+
 # create plot table
 plotDT <- gs1MinDT[!is.na(season), 
                      .(meanW = mean(powerW)), keyby = .(hhID, obsHourMin, season)]
@@ -345,7 +371,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = hhID))
   facet_grid(season ~ .) +
   labs(caption = paste0(plotCaption,"\nn households = ", nHHs),
        x = "Time of Day")
-myPlot
+labelProfilePlot(myPlot)
 
 # save the plot at high def
 plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_byHouseholdSeasonalProfilePlot.pdf")
@@ -398,7 +424,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = season
   facet_grid(season ~ .) +
   labs(caption = paste0(plotCaption,"\nn households = ", nHHs, "\nError bars = +/- 1 s.d."),
        x = "Time of Day")
-myPlot
+labelProfilePlot(myPlot)
 
 # save the plot at high def
 plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanSeasonalProfilePlot.pdf")
@@ -412,7 +438,7 @@ myPlot <- ggplot2::ggplot(plotDT, aes(y = medianW, x = obsHourMin, colour = seas
   facet_grid(season ~ .) +
   labs(caption = paste0(plotCaption,"\nn households = ", nHHs),
        x = "Time of Day")
-myPlot
+labelProfilePlot(myPlot)
 
 # save the plot at high def
 plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMedianSeasonalProfilePlot.pdf")
