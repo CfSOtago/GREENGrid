@@ -219,7 +219,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-07-24 17:26:25</em></h4>
+<h4 class="date"><em>Last run at: 2018-07-26 10:22:04</em></h4>
 
 </div>
 
@@ -4653,10 +4653,132 @@ myPlot</code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/CPD%20calc-1.png" /><!-- --></p>
 <pre class="r"><code>#ggsave(&quot;Probability of congestion period demand.jpeg&quot;, dpi=600)
 
-CPDsumDT &lt;- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT &lt;- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT &lt;- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+
+#Calculating average demand kW
+#Heat Pump
+
+#Copying energy data
+CPDAvgDemHPDT &lt;- copy(heatPumpProfileDT)
 
 
-CPDsumDT &lt;- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]</code></pre>
+#Adjusting to per HH and kW
+CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps, keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[, c(&quot;scaledGWh&quot;, &quot;kW1&quot;) := NULL]</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDAvgDemHPDT, , `:=`(c(&quot;scaledGWh&quot;, &quot;kW1&quot;),
+## NULL)): Adding new column &#39;scaledGWh&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDAvgDemHPDT, , `:=`(c(&quot;scaledGWh&quot;, &quot;kW1&quot;),
+## NULL)): Adding new column &#39;kW1&#39; then assigning NULL (deleting it).</code></pre>
+<pre class="r"><code>#Deleting Spring and Summer
+CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[ !(CPDAvgDemHPDT$season %in% c(&quot;Spring&quot;, &quot;Summer&quot;))]
+CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[, AvgDemHP := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot &lt;- ggplot2::ggplot(CPDAvgDemHPDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHP), size=1, colour = &quot;blue&quot;) +
+  theme(text = element_text(family = &quot;Cambria&quot;)) +
+  ggtitle(&quot;Average heat pump demand at congestion periods&quot;) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;kW&#39;) +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;),hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),
+                          hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), hms::as.hms(&quot;20:00:00&quot;)))
+
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/CPD%20calc-2.png" /><!-- --></p>
+<pre class="r"><code>CPDAvgDemHPDT &lt;- CPDAvgDemHPDT[, AvgDemHP := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
+
+
+
+
+
+#Hot Water
+
+#Copying energy data
+CPDAvgDemHWDT &lt;- copy(hotWaterProfileDT)
+
+
+#Adjusting to per HH and kW
+CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHhotWater, keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[, c(&quot;scaledGWh&quot;, &quot;kW1&quot;) := NULL]</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDAvgDemHWDT, , `:=`(c(&quot;scaledGWh&quot;, &quot;kW1&quot;),
+## NULL)): Adding new column &#39;scaledGWh&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(CPDAvgDemHWDT, , `:=`(c(&quot;scaledGWh&quot;, &quot;kW1&quot;),
+## NULL)): Adding new column &#39;kW1&#39; then assigning NULL (deleting it).</code></pre>
+<pre class="r"><code>#Deleting Spring and Summer
+CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[ !(CPDAvgDemHWDT$season %in% c(&quot;Spring&quot;, &quot;Summer&quot;))]
+
+CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[, AvgDemHW := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot &lt;- ggplot2::ggplot(CPDAvgDemHWDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHW), size=1, colour = &quot;blue&quot;) +
+  theme(text = element_text(family = &quot;Cambria&quot;)) +
+  ggtitle(&quot;Average hot water demand at congestion periods&quot;) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;kW&#39;) +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;),hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),
+                          hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), hms::as.hms(&quot;20:00:00&quot;)))
+
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/CPD%20calc-3.png" /><!-- --></p>
+<pre class="r"><code>CPDAvgDemHWDT &lt;- CPDAvgDemHWDT[, AvgDemHW := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]</code></pre>
+<div id="introducing-prices" class="section level5">
+<h5><span class="header-section-number">11.5.4.4.1</span> Introducing prices</h5>
+<pre class="r"><code>AvgDemHP &lt;- 0.5022484+1.2671683 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHPDT
+AvgDemHW &lt;- 1.107271+1.342401 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHWDT
+
+#Introducing prices based on Aurora cost disclosure
+
+PS1 &lt;- 0.3079 * 365
+PS2 &lt;- 0.3387 * 365
+PS3 &lt;- 0.3616 * 365
+PS4 &lt;- 0.4698 * 365</code></pre>
+<pre class="r"><code>#Heat pump $ per year
+
+AvgDemHP * PS1</code></pre>
+<pre><code>## [1] 198.8532</code></pre>
+<pre class="r"><code>AvgDemHP * PS2</code></pre>
+<pre><code>## [1] 218.745</code></pre>
+<pre class="r"><code>AvgDemHP * PS3</code></pre>
+<pre><code>## [1] 233.5347</code></pre>
+<pre class="r"><code>AvgDemHP * PS4</code></pre>
+<pre><code>## [1] 303.4143</code></pre>
+<pre class="r"><code>#Hot water $ per year
+
+AvgDemHW * PS1</code></pre>
+<pre><code>## [1] 275.3027</code></pre>
+<pre class="r"><code>AvgDemHW * PS2</code></pre>
+<pre><code>## [1] 302.8419</code></pre>
+<pre class="r"><code>AvgDemHW * PS3</code></pre>
+<pre><code>## [1] 323.3175</code></pre>
+<pre class="r"><code>AvgDemHW * PS4</code></pre>
+<pre><code>## [1] 420.0624</code></pre>
+<pre class="r"><code>#Heat pump $ per year
+
+AvgDemHP * PS1 * nzHHheatPumps</code></pre>
+<pre><code>## [1] 102412402</code></pre>
+<pre class="r"><code>AvgDemHP * PS2 * nzHHheatPumps</code></pre>
+<pre><code>## [1] 112656969</code></pre>
+<pre class="r"><code>AvgDemHP * PS3 * nzHHheatPumps</code></pre>
+<pre><code>## [1] 120273870</code></pre>
+<pre class="r"><code>AvgDemHP * PS4 * nzHHheatPumps</code></pre>
+<pre><code>## [1] 156262899</code></pre>
+<pre class="r"><code>#Hot water $ per year
+
+AvgDemHW * PS1 * nzHHhotWater</code></pre>
+<pre><code>## [1] 375486252</code></pre>
+<pre class="r"><code>AvgDemHW * PS2 * nzHHhotWater</code></pre>
+<pre><code>## [1] 413047072</code></pre>
+<pre class="r"><code>AvgDemHW * PS3 * nzHHhotWater</code></pre>
+<pre><code>## [1] 440973785</code></pre>
+<pre class="r"><code>AvgDemHW * PS4 * nzHHhotWater</code></pre>
+<pre><code>## [1] 572924459</code></pre>
+</div>
 </div>
 </div>
 <div id="merging-data" class="section level3">
@@ -4736,7 +4858,7 @@ CPDsumDT &lt;- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">13</span> Runtime</h1>
-<p>Analysis completed in 56.23 seconds ( 0.94 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 62.78 seconds ( 1.05 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">14</span> R environment</h1>
