@@ -5,7 +5,7 @@ params:
 title: 'Technical Potential of Demand Response'
 subtitle: 'Heat Pump Analysis'
 author: 'Carsten Dortans (xxx@otago.ac.nz)'
-date: 'Last run at: 2018-07-24 17:26:25'
+date: 'Last run at: 2018-07-26 10:22:04'
 output:
   bookdown::html_document2:
     toc: true
@@ -5523,12 +5523,257 @@ myPlot
 ```r
 #ggsave("Probability of congestion period demand.jpeg", dpi=600)
 
-CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
+#CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+
+#Calculating average demand kW
+#Heat Pump
+
+#Copying energy data
+CPDAvgDemHPDT <- copy(heatPumpProfileDT)
 
 
-CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
+#Adjusting to per HH and kW
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps, keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, c("scaledGWh", "kW1") := NULL]
 ```
 
+```
+## Warning in `[.data.table`(CPDAvgDemHPDT, , `:=`(c("scaledGWh", "kW1"),
+## NULL)): Adding new column 'scaledGWh' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(CPDAvgDemHPDT, , `:=`(c("scaledGWh", "kW1"),
+## NULL)): Adding new column 'kW1' then assigning NULL (deleting it).
+```
+
+```r
+#Deleting Spring and Summer
+CPDAvgDemHPDT <- CPDAvgDemHPDT[ !(CPDAvgDemHPDT$season %in% c("Spring", "Summer"))]
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDAvgDemHPDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHP), size=1, colour = "blue") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Average heat pump demand at congestion periods") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='kW') +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/CPD calc-2.png)<!-- -->
+
+```r
+CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
+
+
+
+
+
+#Hot Water
+
+#Copying energy data
+CPDAvgDemHWDT <- copy(hotWaterProfileDT)
+
+
+#Adjusting to per HH and kW
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHhotWater, keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, c("scaledGWh", "kW1") := NULL]
+```
+
+```
+## Warning in `[.data.table`(CPDAvgDemHWDT, , `:=`(c("scaledGWh", "kW1"),
+## NULL)): Adding new column 'scaledGWh' then assigning NULL (deleting it).
+```
+
+```
+## Warning in `[.data.table`(CPDAvgDemHWDT, , `:=`(c("scaledGWh", "kW1"),
+## NULL)): Adding new column 'kW1' then assigning NULL (deleting it).
+```
+
+```r
+#Deleting Spring and Summer
+CPDAvgDemHWDT <- CPDAvgDemHWDT[ !(CPDAvgDemHWDT$season %in% c("Spring", "Summer"))]
+
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := (CPDsumDT$Probability)*(kW)]
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDAvgDemHWDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=AvgDemHW), size=1, colour = "blue") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Average hot water demand at congestion periods") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='kW') +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+myPlot
+```
+
+![](heatPumpProfileAnalysis_files/figure-html/CPD calc-3.png)<!-- -->
+
+```r
+CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
+```
+#####Introducing prices
+
+```r
+AvgDemHP <- 0.5022484+1.2671683 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHPDT
+AvgDemHW <- 1.107271+1.342401 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHWDT
+
+#Introducing prices based on Aurora cost disclosure
+
+PS1 <- 0.3079 * 365
+PS2 <- 0.3387 * 365
+PS3 <- 0.3616 * 365
+PS4 <- 0.4698 * 365
+```
+
+
+```r
+#Heat pump $ per year
+
+AvgDemHP * PS1
+```
+
+```
+## [1] 198.8532
+```
+
+```r
+AvgDemHP * PS2
+```
+
+```
+## [1] 218.745
+```
+
+```r
+AvgDemHP * PS3
+```
+
+```
+## [1] 233.5347
+```
+
+```r
+AvgDemHP * PS4
+```
+
+```
+## [1] 303.4143
+```
+
+```r
+#Hot water $ per year
+
+AvgDemHW * PS1
+```
+
+```
+## [1] 275.3027
+```
+
+```r
+AvgDemHW * PS2
+```
+
+```
+## [1] 302.8419
+```
+
+```r
+AvgDemHW * PS3
+```
+
+```
+## [1] 323.3175
+```
+
+```r
+AvgDemHW * PS4
+```
+
+```
+## [1] 420.0624
+```
+
+```r
+#Heat pump $ per year
+
+AvgDemHP * PS1 * nzHHheatPumps
+```
+
+```
+## [1] 102412402
+```
+
+```r
+AvgDemHP * PS2 * nzHHheatPumps
+```
+
+```
+## [1] 112656969
+```
+
+```r
+AvgDemHP * PS3 * nzHHheatPumps
+```
+
+```
+## [1] 120273870
+```
+
+```r
+AvgDemHP * PS4 * nzHHheatPumps
+```
+
+```
+## [1] 156262899
+```
+
+```r
+#Hot water $ per year
+
+AvgDemHW * PS1 * nzHHhotWater
+```
+
+```
+## [1] 375486252
+```
+
+```r
+AvgDemHW * PS2 * nzHHhotWater
+```
+
+```
+## [1] 413047072
+```
+
+```r
+AvgDemHW * PS3 * nzHHhotWater
+```
+
+```
+## [1] 440973785
+```
+
+```r
+AvgDemHW * PS4 * nzHHhotWater
+```
+
+```
+## [1] 572924459
+```
 ###Merging data
 
 ```r
@@ -5620,7 +5865,7 @@ CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
 
 
 
-Analysis completed in 56.23 seconds ( 0.94 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
+Analysis completed in 62.78 seconds ( 1.05 minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.
 
 # R environment
 

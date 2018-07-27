@@ -212,6 +212,10 @@ head(heatPumpProfileDT)
 method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
                                   keyby = .(season, obsHalfHour)] # <- takes the mean for each category of half hour & season
 
+#Change the order in facet_grid()
+method1AggDT$season <- factor(method1AggDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
   geom_point(aes(y = meanMW)) +
   facet_grid(season ~ .) +
@@ -234,6 +238,10 @@ To do :-)
 # aggregate the percentage of GWh
 method2AggDT <- heatPumpProfileDT[, .(GWh = sum(EECApmMethod2)), 
                                   keyby = .(season, obsHalfHour)] # <- takes the sum for each category of half hour & season
+
+#Change the order in facet_grid()
+method2AggDT$season <- factor(method2AggDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
   geom_point(aes(y = GWh)) +
@@ -312,6 +320,9 @@ sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") &
 ### Visualising periods
 ```{r visualising peak/off-peak}
 
+#Change the order in facet_grid()
+sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=Period)) +
   geom_point(aes(y=GWh), size=0.5, alpha = 1) +
@@ -372,7 +383,9 @@ sc1data <- sc1data[, GWh:= ifelse(Period == "Evening Peak", 0, GWh )] # If Perio
 sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
 
 
-
+#Change the order in facet_grid()
+sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
@@ -421,7 +434,9 @@ sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", GWh*0.5, GWh )]
 
 
 
-
+#Change the order in facet_grid()
+sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=0.5) +
@@ -603,6 +618,10 @@ setnames(sc1data, old=c("GWhs3"), new=c("GWh"))
 
 #myPlot
 
+#Change the order in facet_grid()
+sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 #Visualising shifted and original consumption with labels in different colours
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWh, color="red"), size=0.5) +
@@ -686,6 +705,10 @@ method2AggDT <- hotWaterProfileDT[, .(GWh = sum(scaledGWh)),
 # check
 head(method2AggDT)
 
+#Change the order in facet_grid()
+method2AggDT$season <- factor(method2AggDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 
 myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, color=GWh)) +
   geom_line(aes(y=GWh), size=0.5) +
@@ -724,6 +747,10 @@ sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") &
 sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
                      obsHalfHour <= hms::as.hms("20:00:00"),
                    Period := "Evening Peak"]
+
+#Change the order in facet_grid()
+sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 #Visualisig peak periods
 
@@ -779,7 +806,9 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Evening Peak", 0, GWh )] # If Perio
 sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
 
 
-
+#Change the order in facet_grid()
+sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
@@ -828,7 +857,9 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Evening Peak", GWh * 0.5, GWh )] # 
 sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", GWh * 0.5, GWh )]
 
 
-
+#Change the order in facet_grid()
+sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
