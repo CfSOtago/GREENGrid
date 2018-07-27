@@ -63,7 +63,7 @@ extractCleanGridSpyCircuit <- function(fPath, exFile, circuitPattern, dateFrom, 
     dt$dateTime_orig <- NULL
     dt$TZ_orig <- NULL
     # filter on circuit label pattern and dates (inclusive)
-    filteredDT <- dt[circuitLabel %like% circuitPattern & # match circuitPattern
+    filteredDT <- dt[circuit %like% circuitPattern & # match circuitPattern
                        as.Date(r_dateTime) >= dateFrom & # filter by dateFrom
                        as.Date(r_dateTime) <= dateTo] # filter by dateTo
     print(paste0("#--> ", hh," : Found ", tidyNum(nrow(filteredDT)), " that match -> ", circuitPattern,
@@ -73,7 +73,7 @@ extractCleanGridSpyCircuit <- function(fPath, exFile, circuitPattern, dateFrom, 
     if(nrow(filteredDT) > 0){# if any matches...
       print("#--> Summary of extracted rows:")
       print(summary(filteredDT))
-      print(table(filteredDT$circuitLabel))
+      print(table(filteredDT$circuit))
       dataDT <- rbind(dataDT, filteredDT)
     }
   }
