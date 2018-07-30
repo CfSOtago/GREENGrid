@@ -86,10 +86,10 @@ This work is (c) `r lubridate::year(today())` the University of Southampton.
 
 ## History
 
-Code history is generally tracked via our github [repo](https://github.com/dataknut/nzGREENGridDataR):
+Code history is generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid/):
 
- * [Report history](https://github.com/dataknut/nzGREENGridDataR/commits/master/examples/testHouseholdPower.Rmd)
- * [General issues](https://github.com/dataknut/nzGREENGridDataR/issues)
+ * [Report history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/dataProcessing/gridSpy/testHouseholdPower_rf_38.Rmd)
+ * [General issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
  
 ## Requirements:
 
