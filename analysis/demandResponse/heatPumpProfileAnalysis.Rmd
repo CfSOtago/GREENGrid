@@ -3674,673 +3674,261 @@ myPlot
 ```
 ###CPD analysis
 
-```{r Loading CPD minutes 2012}
+```{r new approach}
+#Loading data
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
 
-CpdMinOrig  <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_whole.csv"
 
+#Binding data
+CpdMinAll <- rbind(CpdMinOrig12, CpdMinOrig13, CpdMinOrig14, CpdMinOrig15, CpdMinOrig16)
 
-print(paste0("Trying to load: ", CpdMinOrig))
 
-CPDMinDT <- data.table::as.data.table(readr::read_csv(CpdMinOrig)) # reading data
-```
+#Time and month adjustments
+CpdMinAll <- data.table::as.data.table(CpdMinAll)
+CpdMinAll <- CpdMinAll[, dateTime := lubridate::dmy_hm(DateTime, tz = "Pacific/Auckland")]
+CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
+CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
+CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
+CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
+CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
 
-#### Time adjustments
-```{r Time adjustments CPD}
-CPDMinDT <- CPDMinDT[, dateTimeStartUTC := lubridate::dmy_hm(`DateTime`)] # creating column based on orig. data
-CPDMinDT <- CPDMinDT[, dateTimeStart := lubridate::force_tz(dateTimeStartUTC, tz = "Pacific/Auckland")] # changing time to NZST
-CPDMinDT$dateTimeStartUTC <- NULL
-CPDMinDT <- CPDMinDT[, dstFlag := lubridate::dst(dateTimeStart)]
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin), 
+                          totalMins = .N * 30), 
+                      keyby = .(season, obsHalfHour)]
 
-CPDMinDT <- CPDMinDT[, obsHalfHour := hms::as.hms(dateTimeStart)] # creating time column without date
-#CPDMinDT[, .(n = .N), keyby = .(month = lubridate::month(dateTimeStart), dstFlag)]# Daylight saving test
-```
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
 
-#### Defining seasons
-```{r Defining seasons CPD}
 
-CPDMinDT <- CPDMinDT[, month := lubridate::month(dateTimeStart)]
+#Introducing prices
+PS1 <- 0.3079
+PS2 <- 0.3387
+PS3 <- 0.3616
+PS4 <- 0.4698
 
-CPDMinDT <- CPDMinDT[month >= 5 & month <= 5, season := "Autumn"]
-CPDMinDT <- CPDMinDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+#Adding prices to DT
+CpdSumDT <- CpdSumDT[, PS1 := PS1]
+CpdSumDT <- CpdSumDT[, PS2 := PS2]
+CpdSumDT <- CpdSumDT[, PS3 := PS3]
+CpdSumDT <- CpdSumDT[, PS4 := PS4]
 
-CPDMinDT <- CPDMinDT[, c("TestX", "dstFlag") :=NULL]
+#Loading and scaling heat pump load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps]
+HPprofileHHDT <- HPprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
 
-```
-#### Loop CPD mins by season
-#####Winter
-```{r probability winter}
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileHHDT, season, obsHalfHour)
+CpdMergedHPDT <- HPprofileHHDT[CpdSumDT]
 
-CPDMinDT[is.na(CPDMinDT)] <- 0
-CPDsumDT <- copy(CPDMinDT)
-CPDsumDT <- CPDsumDT[, c("month", "DateTime", "CPDmin12", "CPDmin13", "CPDmin14", "CPDmin15",
-                               "CPDmin16", "dateTimeStart", "WinterSumMin") := NULL]
-CPDsumDT <- CPDsumDT[, . (Sum = 0), keyby = .(season, obsHalfHour)]
+#Calculating mean half hour kW at congestion periods
+CpdMergedHPDT <- CpdMergedHPDT[, MeanConKw := meanHhkW * Probability]
 
-#Winter sum by half hour
+#sumAutCCPS1 <- sum(CpdMergedHPDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHPDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("00:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW1 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("00:00:00"), CPDW1, Sum)]
+#Claculating annual charges heat pump for one household
+sumPS1HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS1 * 365
+sumPS2HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS2 * 365
+sumPS3HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS3 * 365
+sumPS4HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS4 * 365
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("00:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW2 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("00:30:00"), CPDW2, Sum)]
+#Total New Zealand number
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("01:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW3 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("01:00:00"), CPDW3, Sum)]
+#Loading and scaling heat pump load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
+HPprofileHHDT <- HPprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("01:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW4 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("01:30:00"), CPDW4, Sum)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileHHDT, season, obsHalfHour)
+CpdMergedHPDT <- HPprofileHHDT[CpdSumDT]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("02:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW5 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("02:00:00"), CPDW5, Sum)]
+#Calculating mean half hour kW at congestion periods
+CpdMergedHPDT <- CpdMergedHPDT[, MeanConKw := meanHhkW * Probability]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("02:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW6 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("02:30:00"), CPDW6, Sum)]
+#sumAutCCPS1 <- sum(CpdMergedHPDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHPDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("03:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW7 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("03:00:00"), CPDW7, Sum)]
+#Claculating annual charges heat pump for one household
+sumtotalPS1HP <- ((sum(CpdMergedHPDT$MeanConKw)/2)* PS1 * 365)/1000000
+sumtotalPS2HP <- ((sum(CpdMergedHPDT$MeanConKw)/2)* PS2 * 365)/1000000
+sumtotalPS3HP <- ((sum(CpdMergedHPDT$MeanConKw)/2)* PS3 * 365)/1000000
+sumtotalPS4HP <- ((sum(CpdMergedHPDT$MeanConKw)/2)* PS4 * 365)/1000000
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("03:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW8 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("03:30:00"), CPDW8, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("04:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW9 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("04:00:00"), CPDW9, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("04:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW10 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("04:30:00"), CPDW10, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("05:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW11 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("05:00:00"), CPDW11, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("05:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW12 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("05:30:00"), CPDW12, Sum)]
+#Hot water
 
+#Loading and scaling heat pump load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHhotWater]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("06:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW13 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("06:00:00"), CPDW13, Sum)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileHHDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
 
+#Calculating mean half hour kW at congestion periods
+CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("06:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW14 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("06:30:00"), CPDW14, Sum)]
+#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
+#Claculating annual charges heat pump for one household
+sumPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365
+sumPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365
+sumPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365
+sumPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("07:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW15 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("07:00:00"), CPDW15, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("07:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW16 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("07:30:00"), CPDW16, Sum)]
 
+#------------------------
+#Total New Zealand number
+#Loading and scaling heat pump load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("08:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW17 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("08:00:00"), CPDW17, Sum)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileHHDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
 
+#Calculating mean half hour kW at congestion periods
+CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("08:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW18 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("08:30:00"), CPDW18, Sum)]
+#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
+#Claculating annual charges heat pump for one household
+sumtotalPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365/1000000
+sumtotalPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365/1000000
+sumtotalPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365/1000000
+sumtotalPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365/1000000
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("09:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW19 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("09:00:00"), CPDW19, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("09:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW20 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("09:30:00"), CPDW20, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("10:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW21 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("10:00:00"), CPDW21, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("10:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW22 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("10:30:00"), CPDW22, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("11:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW23 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("11:00:00"), CPDW23, Sum)]
 
+#Double check:
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("11:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW24 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("11:30:00"), CPDW24, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("12:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW25 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("12:00:00"), CPDW25, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("12:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW26 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("12:30:00"), CPDW26, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("13:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW27 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("13:00:00"), CPDW27, Sum)]
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
 
+CpdMinAll <- rbind(CpdMinOrig12, CpdMinOrig13, CpdMinOrig14, CpdMinOrig15, CpdMinOrig16)
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("13:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW28 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("13:30:00"), CPDW28, Sum)]
+CpdMinAll <- data.table::as.data.table(CpdMinAll)
+CpdMinAll <- CpdMinAll[, dateTime := lubridate::dmy_hm(DateTime, tz = "Pacific/Auckland")]
+CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
+CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
+CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
+CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
+CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("14:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW29 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("14:00:00"), CPDW29, Sum)]
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin), 
+                          totalMins = .N * 30), 
+                      keyby = .(season, obsHalfHour)]
 
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("14:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW30 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("14:30:00"), CPDW30, Sum)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("15:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW31 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("15:00:00"), CPDW31, Sum)]
 
+PS1 <- 0.3079
+PS2 <- 0.3387
+PS3 <- 0.3616
+PS4 <- 0.4698
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("15:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW32 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("15:30:00"), CPDW32, Sum)]
 
+CpdSumDT <- CpdSumDT[, PS1 := PS1]
+CpdSumDT <- CpdSumDT[, PS2 := PS2]
+CpdSumDT <- CpdSumDT[, PS3 := PS3]
+CpdSumDT <- CpdSumDT[, PS4 := PS4]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("16:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW33 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("16:00:00"), CPDW33, Sum)]
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, perHhkWh := ((scaledGWh)*1000*1000)/nzHHheatPumps]
+HPprofileHHDT <- HPprofileDT[, .(sumHhkWh = sum(perHhkWh)), keyby = .(season, obsHalfHour)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("16:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW34 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("16:30:00"), CPDW34, Sum)]
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+CpdMergedHPDT <- HPprofileHHDT[CpdSumDT]
 
+CpdMergedHPDT <- CpdMergedHPDT[, totalSumMins := sum(SumMins)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("17:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW35 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("17:00:00"), CPDW35, Sum)]
+CpdMergedHPDT <- CpdMergedHPDT[, sumMeanConKwh := sum(sumHhkWh * Probability)]
+CpdMergedHPDT <- CpdMergedHPDT[, CpdkW := sumMeanConKwh / (totalSumMins/60)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("17:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW36 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("17:30:00"), CPDW36, Sum)]
+0.06465411*PS1*365
 
+#Hot water double check
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("18:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW37 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("18:00:00"), CPDW37, Sum)]
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkWh := ((scaledGWh)*1000*1000)/nzHHhotWater]
+HWprofileHHDT <- HWprofileDT[, .(sumHhkWh = sum(perHhkWh)), keyby = .(season, obsHalfHour)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("18:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW38 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("18:30:00"), CPDW38, Sum)]
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileHHDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
 
+CpdMergedHWDT <- CpdMergedHWDT[, totalSumMins := sum(SumMins)]
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("19:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW39 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("19:00:00"), CPDW39, Sum)]
+CpdMergedHWDT <- CpdMergedHWDT[, sumMeanConKwh := sum(sumHhkWh * Probability)]
+CpdMergedHWDT <- CpdMergedHWDT[, CpdkW := sumMeanConKwh / (totalSumMins/60)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("19:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW40 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("19:30:00"), CPDW40, Sum)]
+0.08144702*PS1*365
 
+(0.08144702 + 0.0646541) *PS1*365
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("20:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW41 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("20:00:00"), CPDW41, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("20:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW42 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("20:30:00"), CPDW42, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("21:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW43 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("21:00:00"), CPDW43, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("21:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW44 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("21:30:00"), CPDW44, Sum)]
 
 
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("22:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW45 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("22:00:00"), CPDW45, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("22:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW46 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("22:30:00"), CPDW46, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("23:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW47 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("23:00:00"), CPDW47, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, WinterSumMin := ifelse(season == "Winter" & obsHalfHour == as.hms("23:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDW48 <- sum(CPDMinDT$WinterSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Winter" & obsHalfHour == as.hms("23:30:00"), CPDW48, Sum)]
-```
-#####Autumn
-```{r autumn sum}
-
-
-
-#Autumn 
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA1 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:00:00"), CPDA1, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA2 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("00:30:00"), CPDA2, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA3 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:00:00"), CPDA3, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA4 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("01:30:00"), CPDA4, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA5 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:00:00"), CPDA5, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA6 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("02:30:00"), CPDA6, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA7 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:00:00"), CPDA7, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA8 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("03:30:00"), CPDA8, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA9 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:00:00"), CPDA9, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA10 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("04:30:00"), CPDA10, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA11 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:00:00"), CPDA11, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA12 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("05:30:00"), CPDA12, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA13 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:00:00"), CPDA13, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA14 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("06:30:00"), CPDA14, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA15 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:00:00"), CPDA15, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA16 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("07:30:00"), CPDA16, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA17 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:00:00"), CPDA17, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA18 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("08:30:00"), CPDA18, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA19 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:00:00"), CPDA19, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA20 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("09:30:00"), CPDA20, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA21 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:00:00"), CPDA21, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA22 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("10:30:00"), CPDA22, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA23 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:00:00"), CPDA23, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA24 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("11:30:00"), CPDA24, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA25 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:00:00"), CPDA25, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA26 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("12:30:00"), CPDA26, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA27 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:00:00"), CPDA27, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA28 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("13:30:00"), CPDA28, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA29 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:00:00"), CPDA29, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA30 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("14:30:00"), CPDA30, Sum)]
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA31 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:00:00"), CPDA31, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA32 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("15:30:00"), CPDA32, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA33 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:00:00"), CPDA33, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA34 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("16:30:00"), CPDA34, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA35 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:00:00"), CPDA35, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA36 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("17:30:00"), CPDA36, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA37 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:00:00"), CPDA37, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA38 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("18:30:00"), CPDA38, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA39 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:00:00"), CPDA39, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA40 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("19:30:00"), CPDA40, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA41 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:00:00"), CPDA41, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA42 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("20:30:00"), CPDA42, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA43 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:00:00"), CPDA43, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA44 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("21:30:00"), CPDA44, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA45 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:00:00"), CPDA45, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA46 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("22:30:00"), CPDA46, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:00:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA47 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:00:00"), CPDA47, Sum)]
-
-
-CPDMinDT <- CPDMinDT[, AutumnSumMin := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:30:00"), CPDmin12+CPDmin13+CPDmin14+CPDmin15+CPDmin16, 0)]
-CPDA48 <- sum(CPDMinDT$AutumnSumMin)
-CPDsumDT <- CPDsumDT[, Sum := ifelse(season == "Autumn" & obsHalfHour == as.hms("23:30:00"), CPDA48, Sum)]
-
-```
-####Calculation
-```{r CPD calc}
-
-CPDsumDT <- CPDsumDT[, Probability := Sum/(5*90*24*60)]
 
 #Visualising CPD by season
-  myPlot <- ggplot2::ggplot(CPDsumDT, aes(x = obsHalfHour)) +
-  geom_line(aes(y=Probability), size=1, colour = "blue") +
-  theme(text = element_text(family = "Cambria")) +
-  ggtitle("Probability of congestion period demand") +
-  facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Probability') +
- # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
-                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
-
-myPlot
-
-#ggsave("Probability of congestion period demand.jpeg", dpi=600)
-
-#CPDsumDT <- CPDsumDT[, NumberMinutes := sum(Sum), keyby = .(season)]
-#CPDsumDT <- CPDsumDT[, SumProbability := sum(Probability), keyby = .(season)]
-
-#Calculating average demand kW
-#Heat Pump
-
-#Copying energy data
-CPDAvgDemHPDT <- copy(heatPumpProfileDT)
-
-
-#Adjusting to per HH and kW
-CPDAvgDemHPDT <- CPDAvgDemHPDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps, keyby = .(season, obsHalfHour)]
-CPDAvgDemHPDT <- CPDAvgDemHPDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
-CPDAvgDemHPDT <- CPDAvgDemHPDT[, c("scaledGWh", "kW1") := NULL]
-
-#Deleting Spring and Summer
-CPDAvgDemHPDT <- CPDAvgDemHPDT[ !(CPDAvgDemHPDT$season %in% c("Spring", "Summer"))]
-CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := (CPDsumDT$Probability)*(kW)]
-
-#Visualising CPD by season
-  myPlot <- ggplot2::ggplot(CPDAvgDemHPDT, aes(x = obsHalfHour)) +
-  geom_line(aes(y=AvgDemHP), size=1, colour = "blue") +
-  theme(text = element_text(family = "Cambria")) +
-  ggtitle("Average heat pump demand at congestion periods") +
-  facet_grid(season ~ .) +
-  labs(x='Time of Day', y='kW') +
- # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
-                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
-
-myPlot
-
-
-
-
-CPDAvgDemHPDT <- CPDAvgDemHPDT[, AvgDemHP := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
-
-
-
-
-
-#Hot Water
-
-#Copying energy data
-CPDAvgDemHWDT <- copy(hotWaterProfileDT)
-
-
-#Adjusting to per HH and kW
-CPDAvgDemHWDT <- CPDAvgDemHWDT[, kW := ((scaledGWh*2)*1000*1000)/nzHHhotWater, keyby = .(season, obsHalfHour)]
-CPDAvgDemHWDT <- CPDAvgDemHWDT[, .(kW = sum(kW)), keyby = .(season, obsHalfHour)]
-CPDAvgDemHWDT <- CPDAvgDemHWDT[, c("scaledGWh", "kW1") := NULL]
-
-
-#Deleting Spring and Summer
-CPDAvgDemHWDT <- CPDAvgDemHWDT[ !(CPDAvgDemHWDT$season %in% c("Spring", "Summer"))]
-
-CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := (CPDsumDT$Probability)*(kW)]
-
-#Visualising CPD by season
-  myPlot <- ggplot2::ggplot(CPDAvgDemHWDT, aes(x = obsHalfHour)) +
-  geom_line(aes(y=AvgDemHW), size=1, colour = "blue") +
+  myPlot <- ggplot2::ggplot(CpdSumDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=Probability, colour = season), size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Average hot water demand at congestion periods") +
-  facet_grid(season ~ .) +
   labs(x='Time of Day', y='kW') +
  # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
                           hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
 
-myPlot
-
-
-
-
-
-CPDAvgDemHWDT <- CPDAvgDemHWDT[, AvgDemHW := sum((CPDsumDT$Probability)*(kW)), keyby = .(season)]
-
-
+  
+  myPlot
+  
 ```
-#####Introducing prices
-```{r introducing prices and calculation on household level}
-
-AvgDemHP <- 0.5022484+1.2671683 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHPDT
-AvgDemHW <- 1.107271+1.342401 #Sum heat pump CPD demand during both seasons WARNING UPDATE from CPDAvdDemHWDT
-
-#Introducing prices based on Aurora cost disclosure
-
-PS1 <- 0.3079 * 365
-PS2 <- 0.3387 * 365
-PS3 <- 0.3616 * 365
-PS4 <- 0.4698 * 365
-
-```
-
-```{r CPD charges calculation per household}
-
-#Heat pump $ per year
-
-AvgDemHP * PS1
-AvgDemHP * PS2
-AvgDemHP * PS3
-AvgDemHP * PS4
-
-#Hot water $ per year
-
-AvgDemHW * PS1
-AvgDemHW * PS2
-AvgDemHW * PS3
-AvgDemHW * PS4
-
-```
-```{r CPD charges calculation total New Zealand}
-
-#Heat pump $ per year
-
-AvgDemHP * PS1 * nzHHheatPumps
-AvgDemHP * PS2 * nzHHheatPumps
-AvgDemHP * PS3 * nzHHheatPumps
-AvgDemHP * PS4 * nzHHheatPumps
-
-#Hot water $ per year
-
-AvgDemHW * PS1 * nzHHhotWater
-AvgDemHW * PS2 * nzHHhotWater
-AvgDemHW * PS3 * nzHHhotWater
-AvgDemHW * PS4 * nzHHhotWater
-
-```
-###Merging data
-```{r merging sc3data}
-
-#setkey(SeasonAvgDT, season, obsHalfHour)
-#sc3dataDT <- as.data.table(sc3data)
-#setkey(sc3dataDT, season, obsHalfHour)
-
-#MergedDT <- sc3dataDT[SeasonAvgDT]
-
-
-```
-
-
-
-
-
-
 
 
 
