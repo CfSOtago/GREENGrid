@@ -59,7 +59,7 @@ if(userName == "ben"){
   ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/") # <- dropbox
 } 
 if(userName == "carsten.dortans"){
-  ggParams$dataLoc <- path.expand("~/Dropbox/Carsten_MA/ggData/profiles/") # <- dropbox
+  ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/") # <- server
 }
 ```
 
@@ -219,9 +219,10 @@ method1AggDT$season <- factor(method1AggDT$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(method1AggDT, aes(x = obsHalfHour, colour = season)) +
   geom_point(aes(y = meanMW)) +
   facet_grid(season ~ .) +
+  theme(text = element_text(family = "Cambria")) +
   labs(x='Time of Day', y='Mean MW') +
-  scale_x_time(breaks = c(hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
 
 myPlot
 ```
@@ -248,8 +249,9 @@ myPlot <- ggplot2::ggplot(method2AggDT, aes(x = obsHalfHour, colour=GWh)) +
   ggtitle("Total New Zealand half hour heat pump energy consumption by season for 2015") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"), hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-                          hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  theme(text = element_text(family = "Cambria")) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) +
 scale_colour_gradient(low= "green", high="red")
 
 myPlot
@@ -298,6 +300,23 @@ Steps:
 
 ```{r defining peak/off-peak}
 
+MPS <- hms::as.hms("06:00:00")
+MPE <- hms::as.hms("10:00:00")
+
+EPS <- hms::as.hms("17:00:00")
+EPE <- hms::as.hms("21:00:00")
+
+OP1S <- hms::as.hms("21:30:00")
+OP1E <- hms::as.hms("23:30:00")
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:30:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:30:00")
+
+
+
 sc1data <- heatPumpProfileDT
 sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
             "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
@@ -305,15 +324,28 @@ sc1data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 sc1data <- sc1data[, .(GWh = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
+
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 ```
 
 
@@ -325,14 +357,17 @@ sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=Period)) +
-  geom_point(aes(y=GWh), size=0.5, alpha = 1) +
+  geom_point(aes(y=GWh), size=1, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total heat pump energy consumption by time-period") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_y_continuous(breaks = c(3, 6, 9, 12)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak"))+
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
   #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
@@ -364,13 +399,25 @@ sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)),
 
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 sc1data <- sc1data[, GWh:=GWhs1] # Creating new column GWh based on GWhs1
 
@@ -395,8 +442,8 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(3, 6, 9, 12)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
@@ -418,13 +465,25 @@ sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)),
 
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 sc1data <- sc1data[, GWh:=GWhs1] # Creating new column GWh based on GWhs1
 
@@ -478,24 +537,24 @@ sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Building the sum of each peak period by season
@@ -740,13 +799,25 @@ sc2data <- method2AggDT
 
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 #Change the order in facet_grid()
 sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
@@ -790,13 +861,25 @@ sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)),
 
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 sc2data <- sc2data[, GWh:=GWhs2] # Creating new column GWh based on GWhs2
 
@@ -841,13 +924,25 @@ sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)),
 
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 sc2data <- sc2data[, GWh:=GWhs2] # Creating new column GWh based on GWhs2
 
@@ -905,24 +1000,24 @@ sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 #Defining peak and off-peak periods
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Building the sum of each peak period by season
@@ -1081,13 +1176,25 @@ sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)),
 
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 
 sc32data <- hotWaterProfileDT
@@ -1097,13 +1204,25 @@ sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)),
 
 sc32data <- sc32data[, Period := "Not Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc32data <- sc32data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc32data <- sc32data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc32data <- sc32data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 #Copying hot water consumption column into heat pump data table
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
@@ -1171,13 +1290,25 @@ sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)),
 
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 
 sc32data <- hotWaterProfileDT
@@ -1187,13 +1318,25 @@ sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)),
 
 sc32data <- sc32data[, Period := "Not Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc32data <- sc32data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc32data <- sc32data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc32data <- sc32data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 #Copying hot water consumption column into heat pump data table
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
@@ -1240,12 +1383,12 @@ sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)),
 
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
 
@@ -1256,13 +1399,25 @@ sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)),
 
 sc32data <- sc32data[, Period := "Not Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc32data <- sc32data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc32data <- sc32data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
+
+sc32data <- sc32data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc32data <- sc32data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
 
 #Copying hot water consumption column into heat pump data table
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
@@ -1318,24 +1473,24 @@ sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
 #Defining peak and off-peak periods
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -1352,24 +1507,24 @@ sc4data <- sc4data[, .(GWhHW = sum(scaledGWh)),
 
 sc4data <- sc4data[, Period := "Not Peak"]
 
-sc4data <- sc4data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc4data <- sc4data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc4data <- sc4data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc4data <- sc4data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc4data <- sc4data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc4data <- sc4data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc4data <- sc4data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc4data <- sc4data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc4data <- sc4data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc4data <- sc4data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -1618,24 +1773,24 @@ sc0data <- sc0data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc0data <- sc0data[, Period := "Not Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc0data <- sc0data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc0data <- sc0data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -1673,7 +1828,7 @@ myPlot
 
 #Building season sum by period
 #Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
-                  # keyby = .(season, Region, Period)]
+                   #keyby = .(season, Region, Period)]
 ```
 ####Load curtailment to zero SC1
 
@@ -1691,24 +1846,24 @@ sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -1768,24 +1923,24 @@ sc2data <- sc2data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
@@ -1844,24 +1999,24 @@ sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Building the sum of each peak period by season
@@ -2002,7 +2157,7 @@ EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
 
 EcoVaSumDT <- copy(EcoVaHHDT)
 
-EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline]# Converting to million $
 EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
 
 
@@ -2056,7 +2211,7 @@ EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Mo
                                                     "Off Peak 2", "Evening Peak"))
 
 #Analysis
-CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+CostBaseline <- sum(EcoVaSumDT$Baseline)
 `CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
 
 SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
@@ -2135,7 +2290,7 @@ EcoVaSumDT <- copy(EcoVaHHDT)
 
 EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := ifelse(Period == "Morning Peak" |
                                                           Period == "Evening Peak",
-                                              (Baseline*0.5),`EcoVaLc*0.5@Peak`)]
+                                              (Baseline*0.5)*1000000,`EcoVaLc*0.5@Peak`)]
 
 EcoVaSumDT <- EcoVaSumDT[, `EcoVaLc*0.5@Peak` := `EcoVaLc*0.5@Peak`/1000000]# Converting to million $
 EcoVaSumSC2DT <- EcoVaSumDT[, (`EcoVaLc*0.5@Peak` = sum(`EcoVaLc*0.5@Peak`)), keyby = .(Region, season, Period)]
@@ -2146,7 +2301,7 @@ EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
                                                                 "Evening Peak"))
 
 #Analysis
-CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+
 `CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
 
 SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
@@ -2230,11 +2385,11 @@ EcoVaSumDT <- copy(EcoVaHHDT)
 
 EcoVaSumDT <- EcoVaSumDT[, EcoSummary := ifelse(Period == "Off Peak 1" |
                                                Period == "Off Peak 2",
-                                             Baseline + EcoVaLs, 0)]#It has to be zero 
+                                             Baseline + (EcoVaLs/1000000), 0)]#It has to be zero 
 
 
 
-EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
+#EcoVaSumDT <- EcoVaSumDT[, `EcoSummary` := `EcoSummary`/1000000]# Converting to million $
 EcoVaSumSC3DT <- EcoVaSumDT[, (`EcoSummary` = sum(`EcoSummary`)), keyby = .(Region, season, Period)]
 
 EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Morning Peak",
@@ -2245,7 +2400,7 @@ EcoVaSumSC3DT$Period <- factor(EcoVaSumSC3DT$Period, levels = c("Off Peak 1","Mo
 
 
 #Analysis
-CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+CostBaseline <- sum(EcoVaSumDT$Baseline)
 `CostLoadShif` <- sum(EcoVaSumDT$`EcoSummary`)
 
 SavingsMillionNZD <- CostBaseline - `CostLoadShif`
@@ -2296,24 +2451,24 @@ sc0data <- sc0data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc0data <- sc0data[, Period := "Not Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc0data <- sc0data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc0data <- sc0data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc0data <- sc0data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc0data <- sc0data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -2369,24 +2524,24 @@ sc1data <- sc1data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -2444,24 +2599,24 @@ sc2data <- sc2data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
@@ -2519,24 +2674,24 @@ sc3data <- sc3data[, .(GWhs1 = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Building the sum of each peak period by season
@@ -2968,24 +3123,24 @@ sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)),
 #Defining peak and off-peak periods
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -2998,24 +3153,24 @@ sc32data <- sc32data[, .(GWhHW = sum(scaledGWh)),
 
 #Defining peak and off-peak periods
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc32data <- sc32data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc32data <- sc32data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc32data <- sc32data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc32data <- sc32data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc32data <- sc32data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc32data <- sc32data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Copying hot water consumption column into heat pump data table
@@ -3082,24 +3237,24 @@ sc1data <- sc1data[, .(GWhs1 = sum(PumpandWater)),
 #Defining peak and off-peak periods
 sc1data <- sc1data[, Period := "Not Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc1data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 
@@ -3158,24 +3313,24 @@ sc2data <- sc2data[, .(GWhs1 = sum(PumpandWater)),
 #Defining peak and off-peak periods
 sc2data <- sc2data[, Period := "Not Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc2data <- sc2data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc2data <- sc2data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc1data <- sc2data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc1data <- sc2data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc2data <- sc2data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc2data <- sc2data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 sc2data <- sc2data[, MWh:= ifelse(Period == "Morning Peak" |
@@ -3233,24 +3388,24 @@ sc3data <- sc3data[, .(GWhs1 = sum(PumpandWater)),
 #Defining peak and off-peak periods
 sc3data <- sc3data[, Period := "Not Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("06:00:00") & 
-                     obsHalfHour <= hms::as.hms("10:00:00"),
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
                    Period := "Morning Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("16:00:00") & 
-                     obsHalfHour <= hms::as.hms("20:00:00"),
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
                    Period := "Evening Peak"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("20:30:00") & 
-                     obsHalfHour <= hms::as.hms("23:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("00:00:00") & 
-                     obsHalfHour <= hms::as.hms("05:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
                    Period := "Off Peak 1"]
 
-sc3data <- sc3data[obsHalfHour >= hms::as.hms("10:30:00") & 
-                     obsHalfHour <= hms::as.hms("15:30:00"),
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
 #Building the sum of each peak period by season
@@ -3697,8 +3852,9 @@ CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
 CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
 
 #Calculating Probability
-CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin), 
-                          totalMins = .N * 30), 
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin), # /5??
+                          count = .N, # Counts number of particular half hour in season all years
+                          totalMins = .N * 30), # sum=29520 * 30??
                       keyby = .(season, obsHalfHour)]
 
 CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
@@ -3738,8 +3894,100 @@ sumPS2HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS2 * 365
 sumPS3HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS3 * 365
 sumPS4HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS4 * 365
 
-#Total New Zealand number
 
+#Hot water
+
+#Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHhotWater]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileHHDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
+
+#Calculating mean half hour kW at congestion periods
+CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
+
+#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
+
+#Claculating annual charges heat pump for one household
+sumPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365
+sumPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365
+sumPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365
+sumPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365
+
+
+#Both appliances together
+#Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHhotWater]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkWHW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Loading and scaling heat pump load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps]
+HPprofileHHDT <- HPprofileDT[, .(meanHhkWHP = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Preparing for merging
+setkey(HWprofileHHDT, season, obsHalfHour)
+setkey(HPprofileHHDT, season, obsHalfHour)
+HPandHWDT <- HWprofileHHDT[HPprofileHHDT]
+
+#Building sum of load
+HPandHWDT <- HPandHWDT[, meanHhkW := sum(meanHhkWHW + meanHhkWHP), keyby = .(season, obsHalfHour)]
+HPandHWDT <- HPandHWDT[, c("meanHhkWHW", "meanHhkWHP") := NULL]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPandHWDT, season, obsHalfHour)
+CpdMergedHPandHWDT <- HPandHWDT[CpdSumDT]
+
+#Calculating mean half hour kW at congestion periods
+CpdMergedHPandHWDT <- CpdMergedHPandHWDT[, MeanConKw := meanHhkW * Probability]
+
+#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
+
+#Claculating annual charges heat pump for one household
+sumPS1HPandHW <- (sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS1 * 365
+sumPS2HPandHW <- (sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS2 * 365
+sumPS3HPandHW <- (sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS3 * 365
+sumPS4HPandHW <- (sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS4 * 365
+
+
+
+#------------------------------------------------------------
+#Total New Zealand number hot water
+#Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileHHDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
+
+#Calculating mean half hour kW at congestion periods
+CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
+
+#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
+#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
+
+#Claculating annual charges heat pump for one household
+sumtotalPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365/1000000
+sumtotalPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365/1000000
+sumtotalPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365/1000000
+sumtotalPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365/1000000
+
+
+
+
+
+#Total New Zealand number heat pump
 #Loading and scaling heat pump load
 HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
 HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
@@ -3767,151 +4015,42 @@ sumtotalPS4HP <- ((sum(CpdMergedHPDT$MeanConKw)/2)* PS4 * 365)/1000000
 
 
 
-#Hot water
-
-#Loading and scaling heat pump load
-HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
-HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHhotWater]
-HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
-
-#Preparing for merging
-setkey(CpdSumDT, season, obsHalfHour)
-setkey(HWprofileHHDT, season, obsHalfHour)
-CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
-
-#Calculating mean half hour kW at congestion periods
-CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
-
-#sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
-#sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
-
-#Claculating annual charges heat pump for one household
-sumPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365
-sumPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365
-sumPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365
-sumPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365
-
-
-
-
-#------------------------
-#Total New Zealand number
-#Loading and scaling heat pump load
+#Total New Zealand number both appliances together
+#Loading and scaling hot water load
 HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
 HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
-HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+HWprofileHHDT <- HWprofileDT[, .(meanHhkWHW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Loading and scaling heat pump load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)]
+HPprofileHHDT <- HPprofileDT[, .(meanHhkWHP = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+
+#Preparing for merging
+setkey(HWprofileHHDT, season, obsHalfHour)
+setkey(HPprofileHHDT, season, obsHalfHour)
+HPandHWDT <- HWprofileHHDT[HPprofileHHDT]
+
+#Building sum of load
+HPandHWDT <- HPandHWDT[, meanHhkW := sum(meanHhkWHW + meanHhkWHP), keyby = .(season, obsHalfHour)]
+HPandHWDT <- HPandHWDT[, c("meanHhkWHW", "meanHhkWHP") := NULL]
 
 #Preparing for merging
 setkey(CpdSumDT, season, obsHalfHour)
-setkey(HWprofileHHDT, season, obsHalfHour)
-CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
+setkey(HPandHWDT, season, obsHalfHour)
+CpdMergedHPandHWDT <- HPandHWDT[CpdSumDT]
 
 #Calculating mean half hour kW at congestion periods
-CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
+CpdMergedHPandHWDT <- CpdMergedHPandHWDT[, MeanConKw := meanHhkW * Probability]
 
 #sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
 #sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
 #Claculating annual charges heat pump for one household
-sumtotalPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365/1000000
-sumtotalPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365/1000000
-sumtotalPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365/1000000
-sumtotalPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365/1000000
-
-
-
-
-
-
-
-#Double check:
-
-
-
-
-
-
-
-CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
-CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
-CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
-CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
-CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
-
-CpdMinAll <- rbind(CpdMinOrig12, CpdMinOrig13, CpdMinOrig14, CpdMinOrig15, CpdMinOrig16)
-
-CpdMinAll <- data.table::as.data.table(CpdMinAll)
-CpdMinAll <- CpdMinAll[, dateTime := lubridate::dmy_hm(DateTime, tz = "Pacific/Auckland")]
-CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
-CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
-CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
-CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
-CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
-
-
-CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin), 
-                          totalMins = .N * 30), 
-                      keyby = .(season, obsHalfHour)]
-
-CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
-
-
-
-PS1 <- 0.3079
-PS2 <- 0.3387
-PS3 <- 0.3616
-PS4 <- 0.4698
-
-
-CpdSumDT <- CpdSumDT[, PS1 := PS1]
-CpdSumDT <- CpdSumDT[, PS2 := PS2]
-CpdSumDT <- CpdSumDT[, PS3 := PS3]
-CpdSumDT <- CpdSumDT[, PS4 := PS4]
-
-HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
-HPprofileDT <- HPprofileDT[, perHhkWh := ((scaledGWh)*1000*1000)/nzHHheatPumps]
-HPprofileHHDT <- HPprofileDT[, .(sumHhkWh = sum(perHhkWh)), keyby = .(season, obsHalfHour)]
-
-
-setkey(CpdSumDT, season, obsHalfHour)
-setkey(HPprofileDT, season, obsHalfHour)
-CpdMergedHPDT <- HPprofileHHDT[CpdSumDT]
-
-CpdMergedHPDT <- CpdMergedHPDT[, totalSumMins := sum(SumMins)]
-
-CpdMergedHPDT <- CpdMergedHPDT[, sumMeanConKwh := sum(sumHhkWh * Probability)]
-CpdMergedHPDT <- CpdMergedHPDT[, CpdkW := sumMeanConKwh / (totalSumMins/60)]
-
-
-0.06465411*PS1*365
-
-#Hot water double check
-
-HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
-HWprofileDT <- HWprofileDT[, perHhkWh := ((scaledGWh)*1000*1000)/nzHHhotWater]
-HWprofileHHDT <- HWprofileDT[, .(sumHhkWh = sum(perHhkWh)), keyby = .(season, obsHalfHour)]
-
-
-setkey(CpdSumDT, season, obsHalfHour)
-setkey(HWprofileHHDT, season, obsHalfHour)
-CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
-
-CpdMergedHWDT <- CpdMergedHWDT[, totalSumMins := sum(SumMins)]
-
-CpdMergedHWDT <- CpdMergedHWDT[, sumMeanConKwh := sum(sumHhkWh * Probability)]
-CpdMergedHWDT <- CpdMergedHWDT[, CpdkW := sumMeanConKwh / (totalSumMins/60)]
-
-
-0.08144702*PS1*365
-
-(0.08144702 + 0.0646541) *PS1*365
-
-
-
-
-
-
-
+sumPS1HPandHW <- ((sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS1 * 365)/1000000
+sumPS2HPandHW <- ((sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS2 * 365)/1000000
+sumPS3HPandHW <- ((sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS3 * 365)/1000000
+sumPS4HPandHW <- ((sum(CpdMergedHPandHWDT$MeanConKw)/2)* PS4 * 365)/1000000
 
 
 
@@ -3919,14 +4058,47 @@ CpdMergedHWDT <- CpdMergedHWDT[, CpdkW := sumMeanConKwh / (totalSumMins/60)]
   myPlot <- ggplot2::ggplot(CpdSumDT, aes(x = obsHalfHour)) +
   geom_line(aes(y=Probability, colour = season), size=1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Average hot water demand at congestion periods") +
-  labs(x='Time of Day', y='kW') +
+  ggtitle("Probability of congestion time-periods by season") +
+  labs(x='Time of Day', y='Probability') +
+  facet_grid(season ~ .) +
  # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
                           hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
 
   
   myPlot
+  
+ #ggsave("Probability of congestion time-periods by season.jpeg", dpi = 600)
+ 
+ 
+ 
+ 
+ #Further visualisation
+ 
+ CPDVisual <- copy(CpdSumDT)
+ CPDVisual <- CPDVisual[, SumMins := (SumMins/5)/60]
+ 
+ #Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDVisual, aes(x = obsHalfHour, fill = season)) +
+  geom_bar(aes(y=SumMins), stat = "identity", position = "dodge") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Sum of average amount of congestion time-periods by season") + 
+  #How many hours per half hour during 2012-2016 average
+  labs(x='Time of Day', y='Hours ') +
+  facet_grid(season ~ .) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+  
+  myPlot
+  #ggsave("Sum of average amount of congestion time-periods by season.jpeg", dpi = 600)
+  
+ CPDVisual <- copy(CpdSumDT)
+ CPDVisual <- CPDVisual[, SumMins := (SumMins/5)/60]
+ CPDVisual <- CPDVisual[, SumHours := ifelse(season == "Autumn" |
+                                                  season == "Winter", sum(SumMins),0),
+                        keyby = .(season)]
+ CPDVisual$SumHours
   
 ```
 
