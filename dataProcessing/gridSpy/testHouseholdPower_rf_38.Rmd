@@ -38,24 +38,25 @@ startTime <- proc.time()
 
 
 # Load nzGREENGrid package ----
-library(nzGREENGridDataR) # local utilities
+library(nzGREENGrid) # local utilities
 
-nzGREENGridDataR::setup()
+nzGREENGrid::setup()
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
              "lubridate", # date & time stuff
              "ggplot2", # for fancy graphs
+             "plotly", # interactive charts - good for data checking
              "readr", # for reading & parsing .csv files
              "knitr" # for kable
 )
 # load them
-nzGREENGridDataR::loadLibraries(rmdLibs)
+nzGREENGrid::loadLibraries(rmdLibs)
 
 # Local parameters ----
 # change this to suit your data location & to use a different household
-gsFile <- paste0(ggrParams$dataLoc, "Clean_data/safe/gridSpy/1min/data/", params$hhID,"_all_1min_data.csv.gz")
-hhFile <- paste0(ggrParams$dataLoc, "Clean_data/safe/survey/ggHouseholdAttributes.csv")
+gsFile <- paste0(ggParams$dataLoc, "Clean_data/safe/gridSpy/1min/data/", params$hhID,"_all_1min_data.csv.gz")
+hhFile <- paste0(ggParams$dataLoc, "Clean_data/safe/survey/ggHouseholdAttributes.csv")
 
 # Local functions ----
 
@@ -72,14 +73,14 @@ hhFile <- paste0(ggrParams$dataLoc, "Clean_data/safe/survey/ggHouseholdAttribute
  
 ## License
 
-```{r ccby license, child=ggrParams$licenseCCBY}
+```{r ccby license, child=ggParams$licenseCCBY}
 ```
  
 ## Citation
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r lubridate::year(today())`) `r params$title` `r paste0(params$subtitle, params$hhID)` `r ggrParams$pubLoc`.
+ * Anderson, B. (`r lubridate::year(today())`) `r params$title` `r paste0(params$subtitle, params$hhID)` `r ggParams$pubLoc`.
 
 This work is (c) `r lubridate::year(today())` the University of Southampton.
 
@@ -96,14 +97,14 @@ This report uses the safe version of the grid spy 1 minute data which has been p
 
 ## Support
 
-```{r generic support, child=ggrParams$supportGeneric}
+```{r generic support, child=ggParams$supportGeneric}
 ```
  
 \newpage
 
 # Introduction
 
-```{r generic sample, child=ggrParams$sampleGeneric}
+```{r generic sample, child=ggParams$sampleGeneric}
 ```
  
 This report provides summary analysis of one household as an example.
@@ -115,39 +116,46 @@ The data used to generate this report is:
  * `r gsFile`
  * `r hhFile`
 
-```{r loadAllData}
+```{r hhData}
 hhDT <- data.table::as.data.table(readr::read_csv(hhFile)) # load hh data
 
 t <- hhDT[hhID == params$hhID]
 
-knitr::kable(caption = paste0("Summary of household data for", params$hhID), t)
+knitr::kable(t, 
+             booktabs = TRUE,
+             caption = paste0("Summary of household data for", params$hhID))
 
+# Guide to markdown cross-refs: https://bookdown.org/yihui/rmarkdown/bookdown-markdown.html#bookdown-markdown
+```
+
+Table \@ref(tab:hhData) shows household attributes such as how many people live in this household.
+
+```{r gsData}
 gsDT <- data.table::as.data.table(readr::read_csv(gsFile, 
                                                   col_types = cols(hhID = col_character(),
                                                                    dateTime_orig = col_character(), # <- this is crucial otherwise readr attempts to parse this as a dateTime and FAILS (see https://github.com/dataknut/nzGREENGridDataR/issues/2)
                                                                    TZ_orig = col_character(),
                                                                    r_dateTime = col_datetime(format = ""),
                                                                    circuit = col_character(),
-                                                                   powerW = col_double()
+                                                                   powerW = col_double() # <- also crucial otherwise readr seems to assume an integer
                                                                    )
                                                   )
                                   ) # load gs data
 
 t <- summary(gsDT)
 
-knitr::kable(caption = paste0("Summary of grid spy data for", params$hhID), t)
+knitr::kable(t, caption = paste0("Summary of grid spy data for", params$hhID))
 
 gsDT <- gsDT[, month := lubridate::month(r_dateTime, label = TRUE)]
 gsDT <- gsDT[, year := lubridate::year(r_dateTime)]
 gsDT <- gsDT[, obsHour := lubridate::hour(r_dateTime)]
 gsDT <- gsDT[, obsDate := lubridate::date(r_dateTime)]
 gsDT <- gsDT[, obsTime := hms::as.hms(r_dateTime)]
-
 ```
 
-The first table shows household attributes such as how many people live in this household.
+Table \@ref(tab:gsData) shows a summary of the grid spy 1 minute power data. 
 
-The second table shows a summary of the grid spy 1 minute power data. Note that:
+Note that:
 
  * the original dataTime (`dateTime_orig`) and TZ (`TZ_orig`) have been retained so that the user can check for parsing errors (see https://github.com/dataknut/nzGREENGridDataR/issues/2) if required;
  * r_datetime is the correct dateTime of each observation in UTC and will have loaded as your local timezone. If you are conducting this analysis outside NZ then you will get strange results until you use [lubridate](https://lubridate.tidyverse.org/) to tell R to use tz = "Pacific/Auckland" with this variable;
@@ -197,9 +205,10 @@ myPlot +
 ```{r checkMonth}
 testDT <- gsDT[month == "Oct" & year == "2016"]
 plotDT <- testDT[, .(meanW = mean(powerW)), keyby = .(obsDate, obsTime, circuit)]
-ggplot2::ggplot(plotDT, aes(x = obsTime, y = meanW, colour = circuit)) + 
-  geom_line() + 
-  facet_wrap(obsDate ~ .)
+
+myPlot <- ggplot2::ggplot(plotDT, aes(x = obsTime, y = meanW, colour = circuit)) + 
+  geom_line() +
+  facet_wrap(. ~ obsDate)
 ```
 
 # Runtime

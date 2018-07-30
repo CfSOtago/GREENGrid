@@ -13,8 +13,6 @@ The code in this folder is intended to use the 'safe' gridSpy data created using
 
  * /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/
 
-Access to this version of the 'safe' data is also controlled by the [NZ GREEN Grid project administrator](mailto:jane.wilcox@otago.ac.nz?subject=Access to GREEN Grid 'safe' data (via git.soton readme)).
-
 The 'safe' data files have 4 columns:
 
  * hhID: household id
@@ -35,7 +33,7 @@ Each file has data for one household and there should be one file per household 
 
 ## Available code
 
- * extractCleanGridSpy1minData.R - extracts observations from the cleaned data in /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/data/ which match a given `circuitLabel` and lie between `dateFrom` and `dateTo` (two dates) and saves them to /hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/dataExtracts/. This has been tested on `Heat Pump`, `Hot Water` and `Lighting` - see the saved data files. It does not generate a fancy report.
+ * testHouseholdPower.Rmd - loads & tests safe grid spy data for a given household
 
 
 ## Running the code
