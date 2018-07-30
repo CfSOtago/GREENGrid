@@ -5,7 +5,6 @@ params:
   dateTo: ""
   iFile: ""
 title: '`r paste0("NZ GREEN Grid Household Power Demand Profiles: ", params$circuitPattern, " (", params$dateFrom, " to ", params$dateTo, ")")`'
-subtitle: 'Data extraction and preliminary plots'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
@@ -72,33 +71,48 @@ plotCaption <- paste0("Data source: ", fpath,
 
 \newpage
 
-# Status
+# About
 
-```{r reportStatus, include = FALSE}
-if(localTest){
-  msg <- paste0("Test run using reduced data from ", fpath)
-} else {
-  msg <- paste0("Full run using all data from ", fpath)
-}
+## Report circulation:
+
+ * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
+
+## License
+
+```{r ccby license, child=ggParams$licenseCCBY}
 ```
-
-`r msg`
-
-# Citation
+ 
+## Citation
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) GREEN Grid `r params$circuitPattern` Profiles, University of Otago: Dunedin, NZ.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) `r paste0("NZ GREEN Grid Household Power Demand Profiles: ", params$circuitPattern, " (", params$dateFrom, " to ", params$dateTo, ")")`, University of Otago: Dunedin, NZ.
 
+This work is (c) `r lubridate::year(today())` the University of Southampton.
+
+## History
+
+Code history is generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid/):
+
+ * [Report history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/ggDemandProfiles/nzGGProfileAnalyserTemplate.Rmd)
+ * [General issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
+ 
+## Requirements:
+
+ * Cleaned and safe grid spy 1 minute data processed using the [nzGREENGridDataR package](https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy)
+ * `r params$circuitPattern` circuit data pre or newly extracted from the cleaned safe data using https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy/extractCleanGridSpy1minCircuits.R
+
+## Support
+
+```{r generic support, child=ggParams$supportGeneric}
+```
+ 
 \newpage
 
 # Introduction
 
-Report circulation:
-
- * Restricted to: [NZ GREEN Grid](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html) project partners and contractors.
-
-## Purpose
+```{r generic sample, child=ggParams$sampleGeneric}
+```
 
 This report is intended to: 
 
@@ -106,28 +120,9 @@ This report is intended to:
  * build and plot exploratory demand profiles for `r params$circuitPattern` circuits;
  * save aggregated demand profiles for `r params$circuitPattern` circuits to `r paste0(outPath, "profiles/")`.
 
-## Requirements:
-
- * Cleaned and safe grid spy 1 minute data processed using the [nzGREENGridDataR package](https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy)
- * `r params$circuitPattern` circuit data pre or newly extracted from the cleaned safe data using https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy/extractCleanGridSpy1minCircuits.R
-
-## History
-
-Generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid):
-
- * [history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/profiles)
- * [issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
-
-## Support
-
-
-```{r generic support, child=ggParams$supportGenericRmd}
-```
- 
-
 # Load data files
 
-## Grid Spy metadata
+## Household attribute data
 
 In this section we load metadata from `r ggParams$hhAttributes` to link to the power data.
 
@@ -180,11 +175,30 @@ t <- gs1MinDT[, .(nCircuits = uniqueN(circuit)), keyby = .(hhID)]
 knitr::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
 ```
 
+### Re-coding re-used monitors
+
+The following table shows the grid spy monitors which were re-used together with their dates.
+
+```{r testReuse}
+t <- hhAttributesDT[!is.na(notes), .(notes = unique(notes)), keyby = .(hhID, newID, r_stopDate)]
+
+knitr::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
+```
+
+In order to correctly link household attribute and grid spy data we therefore need to set newID in the `r circuitPattern` data for the appropriate dates.
+
+```{r addNewID}
+# set merge keys
+setkey(hhAttributesDT, hhID)
+setkey(gs1MinDT, hhID)
+
+# foreach hhID in hhAttributes
+# if !is.na(stopped)
+
+```
 
 
 ## Test `r circuitPattern` data
-
-This section tests the availability of `r circuitPattern` data by replicating the standard data quality checks used for the whole [gridSpy dataset](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/gridSpy).
 
 Figure \@ref(fig:nObsTile) shows loaded data observation plots - just to confirm what `r circuitPattern` data we have. 
 
@@ -325,9 +339,9 @@ gs1MinDT <- gs1MinDT[, season := ifelse(month == "Sep" |
 
 ## Profile plots: means per household
 
-This section shows a plot of mean profiles for each household by season.
+Figure \@ref{fig:meanHhPlot} shows the mean power for circuits containing "`r circuitPattern`" by season.
 
-```{r profiles per household by season}
+```{r meanHhPlot, fig.cap="Mean power demand (W) per household", fig.height=6}
 # add onsHourMin
 gs1MinDT <- gs1MinDT[, obsHourMin := hms::as.hms(r_dateTime)]
 
@@ -348,7 +362,11 @@ plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dat
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
+```
 
+Finally we save the seasonal per-household profiles for future re-use.
+
+```{r save household profiles}
 # save the profiles for future use ----
 ofile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_byHouseholdSeasonalProfiles.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
@@ -372,7 +390,9 @@ Note that the code saves a high definition version of the plot and the profiles 
 
 This section shows a plot of mean and median profiles across all household by season. The mean profile also shows the level of variance by plotting error bars at +/- 1 s.d.
 
-```{r overall profiles by season}
+Figure \@ref{fig:meanPlot} shows the mean power for circuits containing "`r circuitPattern`" by season.
+
+```{r meanPlot, fig.cap="Mean power profiles (with 95% CI)", fig.height=6}
 # create plot table
 plotDT <- gs1MinDT[!is.na(season), 
                      .(meanW = mean(powerW),
@@ -381,21 +401,67 @@ plotDT <- gs1MinDT[!is.na(season),
                        sdW = sd(powerW)), keyby = .(obsHourMin, season)]
 
 # mean plot ----
+# basic version (mean line only)
 myPlot <- ggplot2::ggplot(plotDT, aes(y = meanW, x = obsHourMin, colour = season)) +
-  #geom_ribbon(aes(ymin = meanW - sdW, ymax = meanW + sdW, fill = season),alpha = 0.2) +
-  geom_errorbar(aes(ymin = meanW - sdW, ymax = meanW + sdW, colour = season), width = 0.4, alpha = 0.2) +
-  geom_point() +
-  facet_grid(season ~ .) +
-  labs(caption = paste0(plotCaption,"\nn households = ", nHHs, "\nError bars = +/- 1 s.d."),
+  labs(caption = paste0(plotCaption,"\nn households = ", nHHs),
        x = "Time of Day")
-labelProfilePlot(myPlot)
+
+labelProfilePlot(myPlot + geom_line())
 
 # save the plot at high def
 plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanSeasonalProfilePlot.pdf")
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
+```
 
+Figure \@ref{fig:meanPlotSD} plot adds +/1 1 standard deviation to show the degree of variation/uncertainty.
+
+> NB: this erroneously assumes a normal distribution
+
+```{r meanPlotSD, fig.cap="Mean power profiles (with +/- 1 SD)", fig.height=6}
+
+# add error bars and so need to facet
+labelProfilePlot(myPlot + geom_errorbar(aes(ymin = meanW - sdW, ymax = meanW + sdW, 
+                                            colour = season), 
+                                        width = 0.4, alpha = 0.2) +
+                   facet_grid(season ~ .) +
+                   geom_point() +
+                   labs( caption = paste0(plotCaption,"\nn households = ", nHHs,
+                                                 "\nError bars = +/- 1 S.D."))
+                 )
+
+# save the plot at high def
+plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanSDSeasonalProfilePlot.pdf")
+ggplot2::ggsave(plotFile,
+                height = 10, width = 8, dpi = 400)
+print(paste0("Saving plot to ", plotFile))
+```
+
+Figure \@ref{fig:meanPlotCI} plot adds 95% confidence intervals to show the degree of variation/uncertainty. Due to the highly skewed nature of the power demand data, this is implemented using the ggplot2 `mean_cl_boot()` summary function. This is an implementation of [smean.cl.boot](https://www.rdocumentation.org/packages/Hmisc/versions/4.1-1/topics/smean.sd), a "basic nonparametric bootstrap for obtaining confidence limits for the population mean without assuming normality" [source](https://stackoverflow.com/questions/17414565/interpretation-of-stat-summary-mean-cl-boot-at-ggplot2).
+
+```{r meanPlotCI, fig.cap="Mean power profiles (with 95% CI)"}
+# 95% CI as a variance indicator
+# uses mean_cl_boot() so does not need to assume normality
+# slow as uses bootstrap
+
+# add error bars
+labelProfilePlot(ggplot(gs1MinDT, aes(x = obsHourMin, colour = season, y = powerW)) + stat_summary(fun.data = "mean_cl_boot") +
+                   geom_point() +
+                   labs( caption = paste0(plotCaption,"\nn households = ", nHHs,
+                                                 "\nError bars = 95% CI"))
+                 )
+
+# save the plot at high def
+plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallMeanCISeasonalProfilePlot.pdf")
+ggplot2::ggsave(plotFile,
+                height = 10, width = 8, dpi = 400)
+print(paste0("Saving plot to ", plotFile))
+```
+
+Figure \@ref{fig:medianPlot} shows the median for the same combinations of data.
+
+```{r medianPlot, fig.cap="Median power plot"}
 # median plot ----
 myPlot <- ggplot2::ggplot(plotDT, aes(y = medianW, x = obsHourMin, colour = season)) +
   geom_point() +
@@ -409,7 +475,11 @@ plotFile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dat
 ggplot2::ggsave(plotFile,
                 height = 10, width = 8, dpi = 400)
 print(paste0("Saving plot to ", plotFile))
+```
 
+Finally we save the seasonal aggregates for future re-use.
+
+```{r saveSeasonalAggregates}
 # save the profiles for future use ----
 ofile <- paste0(outPath, "profiles/", circuitPattern, "_", dateFrom, "_", dateTo, "_overallSeasonalProfiles.csv")
 print(paste0("Saving profile data used to build this plot to: ", ofile, "..."))
@@ -429,8 +499,17 @@ The difference between the mean and median plots is instructive - it suggests th
 
 The plots could be repeated or re-facted e.g. by household size.
 
-As before, the code saves a high definition version of the plot and the profiles for future re-use.
- 
+As before, the code saves a high definition version of the plot.
+
+## Profile plots: overall household mean by household size.
+
+Figure \@ref{fig:meanPlot} shows the mean power for circuits containing "`r circuitPattern`" by season and presenceo f children. This uses the newID to correctly link all household attribute data to the grid spy data.
+
+```{r meanPlotHHSize, fig.cap="Mean power profiles by household size", fig.height=6}
+# create plot table
+
+```
+
 # Runtime
 
 
