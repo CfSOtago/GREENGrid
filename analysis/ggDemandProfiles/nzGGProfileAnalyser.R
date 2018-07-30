@@ -54,5 +54,5 @@ if(fileExists){
 rmarkdown::render(input = "analysis/ggDemandProfiles/nzGGProfileAnalyserTemplate.Rmd",
                   output_format = "pdf_document",
                   params = list(circuitPattern = circuitPattern, dateFrom = dateFrom, dateTo = dateTo, iFile = iFile),
-                  output_file = paste0("nzGGHouseholdPowerDemandProfile_",
+                  output_file = paste0(outPath,"profiles/nzGGHouseholdPowerDemandProfile_",
                                        circuitPattern, "_", dateFrom, "_", dateTo, ".pdf"))

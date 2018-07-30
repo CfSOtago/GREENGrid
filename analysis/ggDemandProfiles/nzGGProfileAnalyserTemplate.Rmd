@@ -9,13 +9,13 @@ subtitle: 'Data extraction and preliminary plots'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  pdf_document:
+  pdf_document2:
     fig_caption: yes
     keep_tex: yes
     number_sections: yes
     toc: yes
     toc_depth: 2
-  html_document:
+  html_document2:
     code_folding: hide
     fig_caption: true
     keep_md: true
