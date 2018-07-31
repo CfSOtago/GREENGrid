@@ -1,6 +1,6 @@
 ---
 params:
-  hhID: "rf_38" # <- change this to switch household. That's it :-)
+  hhID: "" 
   title: 'NZ GREEN Grid project example:'
   subtitle: 'Testing power demand: '
 title: '`r params$title`'
@@ -8,11 +8,6 @@ subtitle: '`r paste0(params$subtitle, params$hhID)`'
 author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::pdf_document2:
-    fig_caption: yes
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
   bookdown::html_document2:
     code_folding: hide
     fig_caption: yes
@@ -22,6 +17,11 @@ output:
     toc: yes
     toc_depth: 2
     toc_float: TRUE
+  bookdown::pdf_document2:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
@@ -36,7 +36,6 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 # Set start time ----
 startTime <- proc.time()
 
-
 # Load nzGREENGrid package ----
 library(nzGREENGrid) # local utilities
 
@@ -48,6 +47,8 @@ rmdLibs <- c("data.table", # data munching
              "ggplot2", # for fancy graphs
              "plotly", # interactive charts - good for data checking
              "readr", # for reading & parsing .csv files
+             "hms", # for hms coding
+             "kableExtra", # for fancy tables
              "knitr" # for kable
 )
 # load them
@@ -121,16 +122,19 @@ hhDT <- data.table::as.data.table(readr::read_csv(hhFile)) # load hh data
 
 t <- hhDT[hhID == params$hhID]
 
-knitr::kable(t, 
+kableExtra::kable(t, 
              booktabs = TRUE,
-             caption = paste0("Summary of household data for", params$hhID))
+             caption = paste0("Summary of household data for", params$hhID)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), font_size = 9)
 
 # Guide to markdown cross-refs: https://bookdown.org/yihui/rmarkdown/bookdown-markdown.html#bookdown-markdown
 ```
 
 Table \@ref(tab:hhData) shows household attributes such as how many people live in this household.
 
-```{r gsData}
+Table \@ref(tab:gsData) shows the initial grid spy 1 minute power data. 
+
+```{r gsData, fig.cap="Example of grid spy data loaded"}
 gsDT <- data.table::as.data.table(readr::read_csv(gsFile, 
                                                   col_types = cols(hhID = col_character(),
                                                                    dateTime_orig = col_character(), # <- this is crucial otherwise readr attempts to parse this as a dateTime and FAILS (see https://github.com/dataknut/nzGREENGridDataR/issues/2)
@@ -141,28 +145,35 @@ gsDT <- data.table::as.data.table(readr::read_csv(gsFile,
                                                                    )
                                                   )
                                   ) # load gs data
-
-t <- summary(gsDT)
-
-knitr::kable(t, caption = paste0("Summary of grid spy data for", params$hhID))
-
-gsDT <- gsDT[, month := lubridate::month(r_dateTime, label = TRUE)]
-gsDT <- gsDT[, year := lubridate::year(r_dateTime)]
-gsDT <- gsDT[, obsHour := lubridate::hour(r_dateTime)]
-gsDT <- gsDT[, obsDate := lubridate::date(r_dateTime)]
-gsDT <- gsDT[, obsTime := hms::as.hms(r_dateTime)]
+t <- head(gsDT)
+kableExtra::kable(t, caption = paste0("Summary of grid spy data for", params$hhID)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), font_size = 9)
 ```
-
-Table \@ref(tab:gsData) shows a summary of the grid spy 1 minute power data. 
 
 Note that:
 
  * the original dataTime (`dateTime_orig`) and TZ (`TZ_orig`) have been retained so that the user can check for parsing errors (see https://github.com/dataknut/nzGREENGridDataR/issues/2) if required;
- * r_datetime is the correct dateTime of each observation in UTC and will have loaded as your local timezone. If you are conducting this analysis outside NZ then you will get strange results until you use [lubridate](https://lubridate.tidyverse.org/) to tell R to use tz = "Pacific/Auckland" with this variable;
+ * r_dateTime loads as UTC by default so we need to re-timezone it to NZ time before deriving any other times and dates.
+
+```{r gsDataFix, fig.cap="Summary of grid spy data loaded", echo=TRUE}
+# r_dateTime will have loaded as UTC (if you don't believe me, check :-)
+gsDT <- gsDT[, r_dateTime := with_tz(r_dateTime, tzone = "Pacific/Auckland")]
+t <- head(gsDT)
+gsDT <- gsDT[, obsDate := lubridate::date(r_dateTime)]
+gsDT <- gsDT[, obsTime := hms::as.hms(r_dateTime)]
+kableExtra::kable(t, caption = paste0("Summary of grid spy data for", params$hhID, "tz corrected")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), font_size = 9)
+
+gsDT <- gsDT[, month := lubridate::month(r_dateTime, label = TRUE)]
+gsDT <- gsDT[, year := lubridate::year(r_dateTime)]
+
+
+```
+
 
 # Plot monthly power profiles
 
-This section plots overall mean power (W) per minute per month for each circuit to show:
+Figure \@ref(fig:plotProfiles) shows plots overall mean power (W) per minute per month for each circuit to show:
 
  * patterns of missing data (no lines)
  * patterns of consumption
@@ -200,15 +211,65 @@ myPlot +
   geom_vline(xintercept = timeBreaks, alpha = vLineAlpha, colour = vLineCol)
 ```
 
-## Testing specific months using plotly
+Figure \@ref(fig:plotProfiles) in rf_38 seems to indicate some potential time of day mis-alignments in late 2016. We suspect these may be due to incorrect date formats.
 
-```{r checkMonth}
-testDT <- gsDT[month == "Oct" & year == "2016"]
-plotDT <- testDT[, .(meanW = mean(powerW)), keyby = .(obsDate, obsTime, circuit)]
+Figure \@ref(fig:dateCheck) checks the original date format by month and year.
 
-myPlot <- ggplot2::ggplot(plotDT, aes(x = obsTime, y = meanW, colour = circuit)) + 
-  geom_line() +
-  facet_wrap(. ~ obsDate)
+```{r dateCheck}
+plotDT <- gsDT[, .(nObs = .N), keyby = .(TZ_orig, month, year, obsTime)]
+ggplot(plotDT, aes(x = obsTime, colour = TZ_orig, y = nObs)) + 
+  geom_line() + 
+  facet_grid(month ~ as.factor(year)) +
+  theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust = 0.5))
+```
+
+Figure \@ref(fig:plotlyProfiles) repeats the original power demand analysis but just for the few 'doubtful' months so that we can check and also compare with another household where we do not see this (e.g. rf_06). It uses plotly to generate an interactive plot (html only).
+
+```{r selectMonth}
+testDT <- gsDT[month == "Oct" & year == 2016 | month == "Nov" & year == 2016 |
+                 month == "Dec" & year == 2016 | 
+                 month == "Jan" & year == 2017]
+
+t <- head(testDT[obsTime > hms::as.hms("02:00:00")], 10)
+
+kableExtra::kable(caption = "First 10 lines of selected data", t) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), font_size = 9)
+```
+
+```{r plotlyProfiles, fig.height=8}
+plotDT <- testDT[, .(meanW = mean(powerW)), keyby = .(circuit, month, year, obsTime)
+             ] # aggregate by circuit to preserve unique circuit labels in households 
+# (e.g. rf_46) where names are re-used but with different ids. see ?fixCircuitLabels_rf_46
+
+myPlot <- ggplot2::ggplot(plotDT, aes(x = obsTime, y = meanW/1000, colour = circuit)) +
+  geom_line() + 
+  facet_grid(month  ~ year) + 
+  theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  theme(legend.position = "bottom") + 
+  labs(title = paste0("Montly mean power profiles by circuit plot: ", params$hhID),
+       y = "Mean kW", 
+       caption = paste0("gridSpy data from ", min(gsDT$r_dateTime), 
+                        " to ", max(gsDT$r_dateTime),
+                        "\nobsTime = Pacific/Auckland"))
+
+myPLot <- myPlot + 
+  scale_x_time(breaks = timeBreaks) +
+  geom_vline(xintercept = timeBreaks, alpha = vLineAlpha, colour = vLineCol)
+
+plotly::ggplotly(myPlot)
+```
+
+
+Figure \@ref(fig:checkDoubtfulDates) repeats the earlier analysis but shows just the 'doubtful' months. If the plots do not show multiple date formats then it seems unlikely there is an issue.
+
+
+```{r checkDoubtfulDates}
+plotDT <- testDT[, .(nObs = .N), keyby = .(TZ_orig, month, year, obsTime)]
+ggplot(plotDT, aes(x = obsTime, colour = TZ_orig, y = nObs)) + 
+  geom_line() + 
+  facet_grid(month ~ as.factor(year)) +
+  theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust = 0.5))
 ```
 
 # Runtime
