@@ -838,8 +838,8 @@ myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, color=Period)) +
 
 myPlot
 
-#ggsave("Total New Zealand hot water energy consumption by time-period.jpeg",
-       #dpi = 600)
+ggsave("Total New Zealand hot water energy consumption by time-period.jpeg",
+       dpi = 600)
 
 #Potential load curtailment by season
 
@@ -1230,6 +1230,9 @@ sc3data <- cbind(sc3data, sc32data[,"GWhHW"])
 #Building sum of heat pump and hot water consumption
 sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW]
 
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 #Visualising peak ond off-peak
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
   geom_point(aes(y=PumpandWater), size=0.5, alpha = 1) +
@@ -1238,8 +1241,10 @@ myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
   #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
@@ -3874,7 +3879,7 @@ CpdSumDT <- CpdSumDT[, PS4 := PS4]
 
 #Loading and scaling heat pump load
 HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
-HPprofileDT <- HPprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHheatPumps]
+HPprofileDT <- HPprofileDT[, perHhkW := (((scaledGWh*60)*1000*1000)/nzHHheatPumps)/90] ###########WARNING per day
 HPprofileHHDT <- HPprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
 
 #Preparing for merging
@@ -3884,6 +3889,7 @@ CpdMergedHPDT <- HPprofileHHDT[CpdSumDT]
 
 #Calculating mean half hour kW at congestion periods
 CpdMergedHPDT <- CpdMergedHPDT[, MeanConKw := meanHhkW * Probability]
+CpdMergedHPDT <- CpdMergedHPDT[, Result := sum(MeanConKw), keyby = .(season)]
 
 #sumAutCCPS1 <- sum(CpdMergedHPDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
 #sumWinterCCPS1 <- sum(CpdMergedHPDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
@@ -3898,26 +3904,39 @@ sumPS4HP <- (sum(CpdMergedHPDT$MeanConKw)/2)* PS4 * 365
 #Hot water
 
 #Loading and scaling hot water load
+
 HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
-HWprofileDT <- HWprofileDT[, perHhkW := ((scaledGWh*2)*1000*1000)/nzHHhotWater]
-HWprofileHHDT <- HWprofileDT[, .(meanHhkW = mean(perHhkW)), keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour
 
 #Preparing for merging
 setkey(CpdSumDT, season, obsHalfHour)
-setkey(HWprofileHHDT, season, obsHalfHour)
-CpdMergedHWDT <- HWprofileHHDT[CpdSumDT]
+setkey(HWprofileDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
 
 #Calculating mean half hour kW at congestion periods
-CpdMergedHWDT <- CpdMergedHWDT[, MeanConKw := meanHhkW * Probability]
+CpdMergedHWDT <- CpdMergedHWDT[, ConKw := kWperHh * Probability]
+#CpdMergedHWDT <- CpdMergedHWDT[, Result := sum(MeanConKw), keyby = .(season)]
 
 #sumAutCCPS1 <- sum(CpdMergedHWDT[season == "Autumn"]$MeanConKw) * assumeDaysPerSeason * PS1
 #sumWinterCCPS1 <- sum(CpdMergedHWDT[season == "Winter"]$MeanConKw) * assumeDaysPerSeason * PS1
 
 #Claculating annual charges heat pump for one household
-sumPS1HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS1 * 365
-sumPS2HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS2 * 365
-sumPS3HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS3 * 365
-sumPS4HW <- (sum(CpdMergedHWDT$MeanConKw)/2)* PS4 * 365
+CpdMergedHWDT <- CpdMergedHWDT[, CPDdemAut := ifelse(season == "Autumn", ConKw, 0)]
+CpdMergedHWDT <- CpdMergedHWDT[, CPDdemWin := ifelse(season == "Winter", ConKw, 0)]
+
+sumCPDdemHWAut <- (sum(CpdMergedHWDT$CPDdemAut))
+sumCPDdemHWWin <- (sum(CpdMergedHWDT$CPDdemWin))
+sumCPDdemTotal <- sumCPDdemAut + sumCPDdemHWWin
+
+sumPS1HW <- ((sumCPDdemHWWin / sumCPDdemTotal) + (sumCPDdemHWAut / sumCPDdemTotal)) * PS1 * 365
+sumPS2HW <- ((sumCPDdemHWWin / sumCPDdemTotal) + (sumCPDdemHWAut / sumCPDdemTotal)) * PS2 * 365
+sumPS3HW <- ((sumCPDdemHWWin / sumCPDdemTotal) + (sumCPDdemHWAut / sumCPDdemTotal)) * PS3 * 365
+sumPS4HW <- ((sumCPDdemHWWin / sumCPDdemTotal) + (sumCPDdemHWAut / sumCPDdemTotal)) * PS4 * 365
+
+
 
 
 #Both appliances together
