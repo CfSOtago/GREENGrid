@@ -3833,6 +3833,363 @@ myPlot
 #ggsave("Load shifting scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
 ```
 ###CPD analysis
+```{r Michael's approach}
+
+#Hot water
+#Loading data
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
+
+
+#Binding data
+CpdMinAll <- rbind(CpdMinOrig12, CpdMinOrig13, CpdMinOrig14, CpdMinOrig15, CpdMinOrig16)
+
+
+#Time and month adjustments
+CpdMinAll <- data.table::as.data.table(CpdMinAll)
+CpdMinAll <- CpdMinAll[, dateTime := lubridate::dmy_hm(DateTime, tz = "Pacific/Auckland")]
+CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
+CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
+CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
+CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
+CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
+
+
+#Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHh * Probability]
+AvgHWCpdDem <- sum(CpdMergedHWDT$AvgDemCPD)
+
+#Introducing prices
+PS1 <- 0.3079
+PS2 <- 0.3387
+PS3 <- 0.3616
+PS4 <- 0.4698
+
+#Adding prices to DT
+CpdSumDT <- CpdSumDT[, PS1 := PS1]
+CpdSumDT <- CpdSumDT[, PS2 := PS2]
+CpdSumDT <- CpdSumDT[, PS3 := PS3]
+CpdSumDT <- CpdSumDT[, PS4 := PS4]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(CpdMergedHWDT, season, obsHalfHour)
+CpdMergedHWDT <- CpdMergedHWDT[CpdSumDT]
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDem * PS1 * 365
+sumPS2HW <- AvgHWCpdDem * PS2 * 365
+sumPS3HW <- AvgHWCpdDem * PS3 * 365
+sumPS4HW <- AvgHWCpdDem * PS4 * 365
+
+
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CpdSumDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=Probability, colour = season), size=1) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Probability of congestion time-periods by season") +
+  labs(x='Time of Day', y='Probability') +
+  facet_grid(season ~ .) +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+  
+  myPlot
+  
+ #ggsave("Probability of congestion time-periods by season.jpeg", dpi = 600)
+
+
+  
+  
+  
+  
+  
+  #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000)/nzHHheatPumps)/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHh * Probability]
+AvgHPCpdDem <- sum(CpdMergedHPDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDem * PS1 * 365
+sumPS2HP <- AvgHPCpdDem * PS2 * 365
+sumPS3HP <- AvgHPCpdDem * PS3 * 365
+sumPS4HP <- AvgHPCpdDem * PS4 * 365
+
+
+
+
+
+
+#Both appliances together
+
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000)/nzHHheatPumps)/90]#kW per household and half hour for the whole 90 day season
+
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
+
+HPHWprofileDT <- copy(HWprofileDT)
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := kWperHh + (HPprofileDT$kWperHh)]
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPHWprofileDT, season, obsHalfHour)
+CpdMergedHPHWDT <- HPHWprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHPHWDT <- CpdMergedHPHWDT[, AvgDemCPD := kWperHhSum * Probability]
+AvgHPHWCpdDem <- sum(CpdMergedHPHWDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HPHW <- AvgHPHWCpdDem * PS1 * 365
+sumPS2HPHW <- AvgHPHWCpdDem * PS2 * 365
+sumPS3HPHW <- AvgHPHWCpdDem * PS3 * 365
+sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365
+
+#------------------------------------------------------------------------------
+
+#Total New Zealand number: Must be run seperately to the previous one. Same variable names in results
+
+
+#Hot water
+#Loading data
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
+
+
+#Binding data
+CpdMinAll <- rbind(CpdMinOrig12, CpdMinOrig13, CpdMinOrig14, CpdMinOrig15, CpdMinOrig16)
+
+
+#Time and month adjustments
+CpdMinAll <- data.table::as.data.table(CpdMinAll)
+CpdMinAll <- CpdMinAll[, dateTime := lubridate::dmy_hm(DateTime, tz = "Pacific/Auckland")]
+CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
+CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
+CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
+CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
+CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
+
+
+#Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHh * Probability]
+AvgHWCpdDem <- sum(CpdMergedHWDT$AvgDemCPD)
+
+#Introducing prices
+PS1 <- 0.3079
+PS2 <- 0.3387
+PS3 <- 0.3616
+PS4 <- 0.4698
+
+#Adding prices to DT
+CpdSumDT <- CpdSumDT[, PS1 := PS1]
+CpdSumDT <- CpdSumDT[, PS2 := PS2]
+CpdSumDT <- CpdSumDT[, PS3 := PS3]
+CpdSumDT <- CpdSumDT[, PS4 := PS4]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(CpdMergedHWDT, season, obsHalfHour)
+CpdMergedHWDT <- CpdMergedHWDT[CpdSumDT]
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDem * PS1 * 365/1000000
+sumPS2HW <- AvgHWCpdDem * PS2 * 365/1000000
+sumPS3HW <- AvgHWCpdDem * PS3 * 365/1000000
+sumPS4HW <- AvgHWCpdDem * PS4 * 365/1000000
+
+
+
+  
+  
+  
+  
+  
+  #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHh * Probability]
+AvgHPCpdDem <- sum(CpdMergedHPDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDem * PS1 * 365/1000000
+sumPS2HP <- AvgHPCpdDem * PS2 * 365/1000000
+sumPS3HP <- AvgHPCpdDem * PS3 * 365/1000000
+sumPS4HP <- AvgHPCpdDem * PS4 * 365/1000000
+
+
+
+
+
+
+#Both appliances together
+
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HPHWprofileDT <- copy(HWprofileDT)
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := kWperHh + (HPprofileDT$kWperHh)]
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPHWprofileDT, season, obsHalfHour)
+CpdMergedHPHWDT <- HPHWprofileDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedHPHWDT <- CpdMergedHPHWDT[, AvgDemCPD := kWperHhSum * Probability]
+AvgHPHWCpdDem <- sum(CpdMergedHPHWDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HPHW <- AvgHPHWCpdDem * PS1 * 365/1000000
+sumPS2HPHW <- AvgHPHWCpdDem * PS2 * 365/1000000
+sumPS3HPHW <- AvgHPHWCpdDem * PS3 * 365/1000000
+sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365/1000000
+
+
+
+#Further visualisation
+
+ CPDVisual <- copy(CpdSumDT)
+ CPDVisual <- CPDVisual[, SumMins := (SumMins)/60]
+ 
+ #Visualising CPD by season
+  myPlot <- ggplot2::ggplot(CPDVisual, aes(x = obsHalfHour, fill = season)) +
+  geom_bar(aes(y=SumMins), stat = "identity", position = "dodge") +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Sum of average amount of congestion time-periods by season") + 
+  #How many hours per half hour during 2012-2016 average
+  labs(x='Time of Day', y='Hours ') +
+  facet_grid(season ~ .) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00")))
+
+  
+  myPlot
+  #ggsave("Sum of average amount of congestion time-periods by season.jpeg", dpi = 600)
+  
+ CPDVisual <- copy(CpdSumDT)
+ CPDVisual <- CPDVisual[, SumHours := ifelse(season == "Autumn" |
+                                                  season == "Winter", sum(SumMins)/60,0),
+                        keyby = .(season)]
+ CPDVisual$SumHours
+
+
+```
 
 ```{r new approach}
 #Loading data
