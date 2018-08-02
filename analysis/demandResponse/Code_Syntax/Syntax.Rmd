@@ -40,9 +40,31 @@ PricesDT[, .(n = .N), keyby = .(month = lubridate::month(dateTimeStart), dstFlag
 testlabel <- c("00:00", "03:00", "09:00", "12:00", "15:00", "18:00", "21:00")
 
   scale_x_discrete(labels=testlabel)
+  
+  
+  
+  
+  
+  
 
 
 
+sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+
+scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
+
+
+
+scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+
+
+
+theme(text = element_text(family = "Cambria")) +
 
 
 
