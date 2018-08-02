@@ -359,7 +359,7 @@ sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=Period)) +
   geom_point(aes(y=GWh), size=1, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump energy consumption by time-period") +
+  ggtitle("Total heat pump energy consumption per day by time-period") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
@@ -373,7 +373,7 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, color=Period)) +
 myPlot
 
 #ggsave("Total heat pump energy consumption by time-period for 2015.jpeg",
-       #dpi=600)
+#       dpi=600)
 ```
 
 ### Potential load curtailment output by period in GWh
@@ -433,15 +433,15 @@ sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
 #Change the order in facet_grid()
 sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
-
+#setnames(sc1data, old=c("GWh"), new=c("MWh"))
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total heat pump load curtailment in peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_y_continuous(breaks = c(3, 6, 9, 12)) +
+  #scale_y_continuous(breaks = c(3, 6, 9, 12)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
   hms::as.hms("20:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
@@ -449,7 +449,7 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
 myPlot
   
 #ggsave("Total heat pump load curtailment in peak time-periods by season.jpeg",
-       #dpi=600) 
+     # dpi=600) 
 
 ```
 ##Load curtailment of particular amount: SC2
@@ -496,22 +496,23 @@ sc1data <- sc1data[, GWh:= ifelse(Period == "Morning Peak", GWh*0.5, GWh )]
 #Change the order in facet_grid()
 sc1data$season <- factor(sc1data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
+#setnames(sc1data, old=c("GWh"), new=c("MWh"))
 
 myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump load curtailment in peak time-periods by season 50%") +
+  ggtitle("Total heat pump load per curtailment in peak time-periods by season 50%") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(3, 6, 9, 12)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
 
-#ggsave("Total heat pump load curtailment in peak time-periods by season 50.jpeg",
-      # dpi=600) 
+#ggsave("Total heat pump 0.5 load curtailment in peak time-periods by season.jpeg",
+    #  dpi=600) 
 ```
 ###Potential load curtailment based on percentage curtailed
 ```{r Potential load curtialment in GWh of percentage curtailment}
@@ -686,21 +687,21 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWh, color="red"), size=0.5) +
   geom_line(aes(y=GWhs1, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015") +
+  ggtitle("Original and shifted New Zealand per day half hour heat pump energy consumption by season for 2015") +
   scale_colour_manual(name = element_blank(), 
          values =c('red'='red','blue'='blue'), labels = c('Original consumption',
                   'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_y_continuous(breaks = c(4, 8, 12, 16)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+ scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+ scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00")))  
   #scale_color_gradient(low= "green", high="red")
 
 myPlot
 
 #ggsave("Original and shifted New Zealand half hour heat pump energy consumption by season for 2015.jpeg",
-      # dpi=600)
+     #  dpi=600)
 
 ```
 #Technical potential of demand response: Scenarios for hot water data
@@ -822,24 +823,27 @@ sc2data <- sc2data[obsHalfHour >= OP2S &
 #Change the order in facet_grid()
 sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
+#setnames(sc2data, old=c("GWh"), new=c("MWh"))
 
 #Visualisig peak periods
 
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, color=Period)) +
-  geom_point(aes(y=GWh), size=0.5, alpha = 1) +
+  geom_point(aes(y=GWh), size=1, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total New Zealand hot water energy consumption by time-period") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),      hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00")))  
   #scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
 
-ggsave("Total New Zealand hot water energy consumption by time-period.jpeg",
-       dpi = 600)
+#ggsave("Total New Zealand per day hot water energy consumption by time-period.jpeg",
+#       dpi = 600)
 
 #Potential load curtailment by season
 
@@ -892,23 +896,23 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", 0, GWh )]
 #Change the order in facet_grid()
 sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
-
+#setnames(sc2data, old=c("GWh"), new=c("MWh"))
 
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total hot water load curtailment in peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
 
  #ggsave("Total hot water load curtailment in peak time-periods by season.jpeg",
-      #  dpi = 600)
+        #dpi = 600)
 
 ```
 ##Load curtailment of particular amount (50%): SC2
@@ -955,23 +959,23 @@ sc2data <- sc2data[, GWh:= ifelse(Period == "Morning Peak", GWh * 0.5, GWh )]
 #Change the order in facet_grid()
 sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
-
+#setnames(sc2data, old=c("GWh"), new=c("MWh"))
 
 myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("50 per cent hot water load curtailment at peak time-periods by season") +
+  ggtitle("50 per cent per day hot water load curtailment at peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00")))  +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
 
 #ggsave("50 per cent hot water load curtailment at peak time-periods by season.jpeg",
-       #dpi = 600)
+ #      dpi = 600)
 
 ```
 ###Potential load curtailment based on percentage
@@ -1141,6 +1145,9 @@ setnames(sc2data, old=c("GWhs2"), new=c("GWh"))
 
 #myPlot
 
+sc2data$season <- factor(sc2data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 #Visualising shifted and original consumption two colours
   myPlot <- ggplot2::ggplot(sc2data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWh, color="red"), size=0.5) +
@@ -1153,8 +1160,8 @@ setnames(sc2data, old=c("GWhs2"), new=c("GWh"))
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(10, 20, 30, 40)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) 
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
  
 
 myPlot
@@ -1235,7 +1242,7 @@ sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
 
 #Visualising peak ond off-peak
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, color=Period)) +
-  geom_point(aes(y=PumpandWater), size=0.5, alpha = 1) +
+  geom_point(aes(y=PumpandWater), size=1, alpha = 1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total consumption heat pump and hot water by season") +
   facet_grid(season ~ .) +
@@ -1356,17 +1363,20 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", 0, PumpandW
 
 
 
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 
 
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = PumpandWater, color=PumpandWater)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total heat pump and hot water load curtailment in peak time-periods by season") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
@@ -1438,16 +1448,19 @@ sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Morning Peak", PumpandWate
 #Renaming PumpandWater to depict the right y in the colorbar
 setnames(sc3data, old=c("PumpandWater"), new=c("GWh"))
 
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
 
 myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
-  geom_line(size=0.5) +
+  geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Total heat pump and hot water 50 per cent load curtailment") +
+  ggtitle("Total per day heat pump and hot water 50 per cent load curtailment") +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00"))) +
+ scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00")))  +
   scale_colour_gradient(low= "green", high="red", guide = "colorbar")
 
 myPlot
@@ -1679,12 +1692,12 @@ sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Heat pump and hot water appliances together in GWh") +
   scale_colour_manual(name = element_blank(), 
-         values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Orig. HW', 'Orig. HP & HW', 'Orig. HP', 'Shif. HP & HW')) +
+        values = c('red'='red','blue'='blue', 'green'='green', 'black'='black'), labels = c('Orig. HW', 'Orig. HP & HW', 'Orig. HP', 'Shif. HP & HW')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  scale_y_continuous(breaks = c(20, 40, 60, 80)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("03:00:00"), hms::as.hms("06:00:00"),       hms::as.hms("09:00:00"), hms::as.hms("12:00:00"), 
-  hms::as.hms("15:00:00"), hms::as.hms("18:00:00"), hms::as.hms("21:00:00")))
+  #scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  hms::as.hms("20:00:00"))) 
 
 
 
@@ -1819,7 +1832,7 @@ Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
 
 #Visualising
 myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
-  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Costs baseline scenario time of day") +
   facet_grid(season ~ .) +
@@ -2243,11 +2256,11 @@ myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
   #geom_line(aes(y= V1)) +
   theme(text = element_text(family = "Cambria")) +
   facet_grid(season ~ .) +
-  ggtitle("Load curtailment scenario: Cost for heat pumps in winter") +
+  ggtitle("Load curtailment scenario: Cost per day for heat pumps in winter") +
   labs(x='Period', y='Cost in million NZD') 
   
 myPlot
-#ggsave("Load curtailment scenario: Cost for heat pumps in winter.jpeg", dpi = 600)
+#ggsave("Load curtailment scenario: Cost per day for heat pumps in winter.jpeg", dpi = 600)
 ```
 ```{r economic visualisation SC1 2}
 #Plots benefits when load is curtailed to zero 
@@ -2488,7 +2501,7 @@ Mergedsc0DT <- sc0data[SeasonAvgDT]
 
 Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
 
-Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := MWh * (meanprice), 
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := (MWh * (meanprice)/1000000), 
                            keyby = .(season, Region, obsHalfHour)]
 
 #Change the order in facet_grid()
@@ -2497,17 +2510,17 @@ Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
 
 #Visualising
 myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
-  geom_point(aes(y=ecoValueHH, color= Region), size=1.5) +
+  geom_point(aes(y=ecoValueHH, color= Region), size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Costs baseline scenario time of day for hot water") +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Cost in NZD') +
+  labs(x='Time of Day', y='Cost in million NZD') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
                           hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
                           hms::as.hms("20:00:00")))
 myPlot
 
-#ggsave("Cost baseline scenario time of day.jpeg", dpi = 600)
+#ggsave("Cost per day baseline scenario time of day.jpeg", dpi = 600)
 
 #Building season sum by period
 #Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
@@ -2837,7 +2850,7 @@ EcoVaHHDT <- EcoVaHHDT[, meanprice := meanprice + 0,
 
 EcoVaSumDT <- copy(EcoVaHHDT)
 
-EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline/1000000]# Converting to million $
+EcoVaSumDT <- EcoVaSumDT[, Baseline := Baseline]# Converting to million $
 EcoVaSumSC0DT <- EcoVaSumDT[, (Baseline = sum(Baseline)), keyby = .(Region, season, Period)]
 
 
@@ -2891,7 +2904,7 @@ EcoVaSumSC1DT$Period <- factor(EcoVaSumSC1DT$Period, levels = c("Off Peak 1","Mo
                                                     "Off Peak 2", "Evening Peak"))
 
 #Analysis
-CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+CostBaseline <- sum(EcoVaSumDT$Baseline)
 `CostEcoVaLc@Peak` <- sum(EcoVaSumDT$`EcoVaLc@Peak`)
 
 SavingsMillionNZD <- CostBaseline - `CostEcoVaLc@Peak`
@@ -2982,7 +2995,7 @@ EcoVaSumSC2DT$Period <- factor(EcoVaSumSC2DT$Period, levels = c("Off Peak 1",
                                                                 "Evening Peak"))
 
 #Analysis
-CostBaseline <- sum(EcoVaSumDT$Baseline)/1000000
+CostBaseline <- sum(EcoVaSumDT$Baseline)
 `CostEcoVaLc*0.5@Peak` <- sum(EcoVaSumDT$`EcoVaLc*0.5@Peak`)
 
 SavingsMillionNZD <- CostBaseline - `CostEcoVaLc*0.5@Peak`
