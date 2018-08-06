@@ -66,7 +66,7 @@ scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
 
 theme(text = element_text(family = "Cambria")) +
 
-
+setnames(sc1data, old=c("GWh"), new=c("MWh"))
 
 
 

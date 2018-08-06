@@ -4204,8 +4204,978 @@ sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365/1000000
 ```
 
 
+```{r CPD with scenarios one household}
+
+#Heat Pump
+
+#SC1 per household
+
+ #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHheatPumps/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HPprofileDT <- HPprofileDT[, Period := "Not Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPprofileDT <- HPprofileDT[, kWperHhSC1 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHhSC1 * Probability]
+AvgHPCpdDemSC1 <- sum(CpdMergedHPDT$AvgDemCPD)
 
 
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDemSC1 * PS1 * 365
+sumPS2HP <- AvgHPCpdDemSC1 * PS2 * 365
+sumPS3HP <- AvgHPCpdDemSC1 * PS3 * 365
+sumPS4HP <- AvgHPCpdDemSC1 * PS4 * 365
+
+#______________________________________________________________________
+
+#SC1 total NZ
+
+ #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HPprofileDT <- HPprofileDT[, Period := "Not Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPprofileDT <- HPprofileDT[, kWperHhSC1 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHhSC1 * Probability]
+AvgHPCpdDemSC1 <- sum(CpdMergedHPDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDemSC1 * PS1 * 365/1000000
+sumPS2HP <- AvgHPCpdDemSC1 * PS2 * 365/1000000
+sumPS3HP <- AvgHPCpdDemSC1 * PS3 * 365/1000000
+sumPS4HP <- AvgHPCpdDemSC1 * PS4 * 365/1000000
+
+#______________________________________________________________________-
+
+#Heat Pump
+
+#SC2 per household
+
+ #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHheatPumps/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HPprofileDT <- HPprofileDT[, Period := "Not Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPprofileDT <- HPprofileDT[, kWperHhSC2 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0.5, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHhSC2 * Probability]
+AvgHPCpdDemSC2 <- sum(CpdMergedHPDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDemSC2 * PS1 * 365
+sumPS2HP <- AvgHPCpdDemSC2 * PS2 * 365
+sumPS3HP <- AvgHPCpdDemSC2 * PS3 * 365
+sumPS4HP <- AvgHPCpdDemSC2 * PS4 * 365
+
+
+
+#______________________________________________________________________
+
+#SC2 total NZ
+
+ #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHheatPumps/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HPprofileDT <- HPprofileDT[, Period := "Not Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPprofileDT <- HPprofileDT[, kWperHhSC2 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0.5, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHhSC2 * Probability]
+AvgHPCpdDemSC2 <- sum(CpdMergedHPDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDemSC2 * PS1 * 365
+sumPS2HP <- AvgHPCpdDemSC2 * PS2 * 365
+sumPS3HP <- AvgHPCpdDemSC2 * PS3 * 365
+sumPS4HP <- AvgHPCpdDemSC2 * PS4 * 365
+
+#____________________________________________________________________________________
+
+
+
+#SC3 per household & total (just adjust line 4461 to get the individual or total charge)
+
+ #Heat pump
+  #Loading and scaling hot water load
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHheatPumps/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+
+#Defining peak and off-peak periods
+
+HPprofileDT <- HPprofileDT[, Period := "Not Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPprofileDT <- HPprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP <- HPprofileDT[season == "Autumn" & Period == "Morning Peak",
+                sum(kWperHh)]
+WiMP <- HPprofileDT[season == "Winter" & Period == "Morning Peak",
+                sum(kWperHh)]
+
+
+AuEP <- HPprofileDT[season == "Autumn" & Period == "Evening Peak",
+                sum(kWperHh)]
+WiEP <- HPprofileDT[season == "Winter" & Period == "Evening Peak",
+                sum(kWperHh)]
+
+        
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours <- nrow(HPprofileDT[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours <- nrow(HPprofileDT[season == "Winter" &
+                              Period == "Off Peak 1"])
+
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours <- nrow(HPprofileDT[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours <- nrow(HPprofileDT[season == "Winter" &
+                              Period == "Off Peak 2"])
+
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au <- AuMP/AuMPHalfHours
+distGWhOP1Wi <- WiMP/WiMPHalfHours
+
+
+distGWhOP2Au <- AuEP/AuEPHalfHours
+distGWhOP2Wi <- WiEP/WiEPHalfHours
+
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+HPprofileDT <- HPprofileDT[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     kWperHh + distGWhOP1Au]
+HPprofileDT <- HPprofileDT[season == "Winter" &
+                     Period == "Off Peak 1", GWhs3 :=
+                     kWperHh + distGWhOP1Wi]
+
+
+
+HPprofileDT <- HPprofileDT[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     kWperHh + distGWhOP2Au]
+HPprofileDT <- HPprofileDT[season == "Winter" &
+                     Period == "Off Peak 2", GWhs3 :=
+                     kWperHh + distGWhOP2Wi]
+
+
+
+#Setting missing values in peak periods to NULL
+HPprofileDT <- HPprofileDT[, kWperHhSC3:= ifelse(Period =="Morning Peak" |
+                                                   Period == "Evening Peak",
+                                  0, GWhs3)]
+
+
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPprofileDT, season, obsHalfHour)
+
+CpdMergedHPDT <- HPprofileDT[CpdSumDT]
+CpdMergedHPDT <- CpdMergedHPDT[, AvgDemCPD := kWperHhSC3 * Probability]
+AvgHPCpdDemSC3 <- sum(CpdMergedHPDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HP <- AvgHPCpdDemSC3 * PS1 * 365
+sumPS2HP <- AvgHPCpdDemSC3 * PS2 * 365
+sumPS3HP <- AvgHPCpdDemSC3 * PS3 * 365
+sumPS4HP <- AvgHPCpdDemSC3 * PS4 * 365
+
+
+```
+
+
+
+
+```{r CPD with scenarios for hot water}
+
+#Hot water
+
+#SC1 per household
+
+ #Hot water
+  #Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHhotWater/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HWprofileDT <- HWprofileDT[, Period := "Not Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HWprofileDT <- HWprofileDT[, kWperHhSC1 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHhSC1 * Probability]
+AvgHWCpdDemSC1 <- sum(CpdMergedHWDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDemSC1 * PS1 * 365
+sumPS2HW <- AvgHWCpdDemSC1 * PS2 * 365
+sumPS3HW <- AvgHWCpdDemSC1 * PS3 * 365
+sumPS4HW <- AvgHWCpdDemSC1 * PS4 * 365
+
+#______________________________________________________________________
+
+#SC1 total NZ
+
+ #Hot water
+  #Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HWprofileDT <- HWprofileDT[, Period := "Not Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HWprofileDT <- HWprofileDT[, kWperHhSC1 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHhSC1 * Probability]
+AvgHWCpdDemSC1 <- sum(CpdMergedHWDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDemSC1 * PS1 * 365/1000000
+sumPS2HW <- AvgHWCpdDemSC1 * PS2 * 365/1000000
+sumPS3HW <- AvgHWCpdDemSC1 * PS3 * 365/1000000
+sumPS4HW <- AvgHWCpdDemSC1 * PS4 * 365/1000000
+
+
+#___________________________________________________________________
+
+#Hot water
+
+#SC2 (per household)adjust /nzHeatpumps and /1000000 further down for total number
+
+ #Hot water
+  #Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHhotWater/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+HWprofileDT <- HWprofileDT[, Period := "Not Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HWprofileDT <- HWprofileDT[, kWperHhSC1 := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHh*0.5, kWperHh)]
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHhSC1 * Probability]
+AvgHWCpdDemSC2 <- sum(CpdMergedHWDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDemSC2 * PS1 * 365
+sumPS2HW <- AvgHWCpdDemSC2 * PS2 * 365
+sumPS3HW <- AvgHWCpdDemSC2 * PS3 * 365
+sumPS4HW <- AvgHWCpdDemSC2 * PS4 * 365
+
+#________________________________________________________________________
+
+
+
+
+
+# SC3 hot water (adjust number of hot water installations and /1000000 further down)
+
+ #Hot water
+  #Loading and scaling hot water load
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+#Calculating average kW at congestion periods per household
+
+
+
+#Defining peak and off-peak periods
+HWprofileDT <- HWprofileDT[, Period := "Not Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HWprofileDT <- HWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP2 <- HWprofileDT[season == "Autumn" & Period == "Morning Peak",
+                sum(kWperHh)]
+WiMP2 <- HWprofileDT[season == "Winter" & Period == "Morning Peak",
+                sum(kWperHh)]
+
+
+AuEP2 <- HWprofileDT[season == "Autumn" & Period == "Evening Peak",
+                sum(kWperHh)]
+WiEP2 <- HWprofileDT[season == "Winter" & Period == "Evening Peak",
+                sum(kWperHh)]
+
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours2 <- nrow(HWprofileDT[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours2 <- nrow(HWprofileDT[season == "Winter" &
+                              Period == "Off Peak 1"])
+
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours2 <- nrow(HWprofileDT[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours2 <- nrow(HWprofileDT[season == "Winter" &
+                              Period == "Off Peak 2"])
+
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au2 <- AuMP2/AuMPHalfHours2
+distGWhOP1Wi2 <- WiMP2/WiMPHalfHours2
+
+
+distGWhOP2Au2 <- AuEP2/AuEPHalfHours2
+distGWhOP2Wi2 <- WiEP2/WiEPHalfHours2
+
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+HWprofileDT <- HWprofileDT[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     kWperHh + distGWhOP1Au2]
+HWprofileDT <- HWprofileDT[season == "Winter" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     kWperHh + distGWhOP1Wi2]
+
+
+HWprofileDT <- HWprofileDT[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     kWperHh + distGWhOP2Au2]
+HWprofileDT <- HWprofileDT[season == "Winter" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     kWperHh + distGWhOP2Wi2]
+
+
+
+#Setting missing values in peak periods to NULL
+HWprofileDT <- HWprofileDT[, GWhs4:= ifelse(Period =="Morning Peak",
+                                  0, GWhs4)]
+HWprofileDT <- HWprofileDT[, GWhs4:= ifelse(Period =="Evening Peak",
+                                  0, GWhs4)]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HWprofileDT, season, obsHalfHour)
+
+CpdMergedHWDT <- HWprofileDT[CpdSumDT]
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := GWhs4 * Probability]
+AvgHWCpdDemSC2 <- sum(CpdMergedHWDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDemSC2 * PS1 * 365/1000000
+sumPS2HW <- AvgHWCpdDemSC2 * PS2 * 365/1000000
+sumPS3HW <- AvgHWCpdDemSC2 * PS3 * 365/1000000
+sumPS4HW <- AvgHWCpdDemSC2 * PS4 * 365/1000000
+
+```
+
+
+```{r CPD scenario analysis both appliances together}
+
+# SC1
+
+#Both appliances together
+
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHheatPumps/90]#kW per household and half hour for the whole 90 day season
+
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/nzHHhotWater/90]#kW per household and half hour for the whole 90 day season
+
+HPHWprofileDT <- copy(HWprofileDT)
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := kWperHh + (HPprofileDT$kWperHh)]
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+
+#Calculating average kW at congestion periods per household
+HPHWprofileDT <- HPHWprofileDT[, Period := "Not Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHhSum*0, kWperHhSum)]
+
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPHWprofileDT, season, obsHalfHour)
+CpdMergedHPHWDT <- HPHWprofileDT[CpdSumDT]
+
+CpdMergedHPHWDT <- CpdMergedHPHWDT[, AvgDemCPD := kWperHhSum * Probability]
+AvgHPHWCpdDem <- sum(CpdMergedHPHWDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HPHW <- AvgHPHWCpdDem * PS1 * 365/1000000
+sumPS2HPHW <- AvgHPHWCpdDem * PS2 * 365/1000000
+sumPS3HPHW <- AvgHPHWCpdDem * PS3 * 365/1000000
+sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365/1000000
+
+
+
+#__________________________________________________________
+
+#SC2 Both appliances together
+
+
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HPHWprofileDT <- copy(HWprofileDT)
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := kWperHh + (HPprofileDT$kWperHh)]
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+
+#Calculating average kW at congestion periods per household
+HPHWprofileDT <- HPHWprofileDT[, Period := "Not Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := ifelse(Period == "Morning Peak" | Period == "Evening Peak",
+                                             kWperHhSum*0.5, kWperHhSum)]
+
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPHWprofileDT, season, obsHalfHour)
+CpdMergedHPHWDT <- HPHWprofileDT[CpdSumDT]
+
+CpdMergedHPHWDT <- CpdMergedHPHWDT[, AvgDemCPD := kWperHhSum * Probability]
+AvgHPHWCpdDem <- sum(CpdMergedHPHWDT$AvgDemCPD)
+  
+
+#Claculating annual charges hot water for one household
+sumPS1HPHW <- AvgHPHWCpdDem * PS1 * 365/1000000
+sumPS2HPHW <- AvgHPHWCpdDem * PS2 * 365/1000000
+sumPS3HPHW <- AvgHPHWCpdDem * PS3 * 365/1000000
+sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365/1000000
+
+#_____________________________________________________________________________
+
+#SC3 Both appliances together
+
+HPprofileDT <- heatPumpProfileDT[ !(season %in% c("Spring", "Summer"))]
+HPprofileDT <- HPprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HPprofileDT <- HPprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HWprofileDT <- hotWaterProfileDT[ !(season %in% c("Spring", "Summer"))]
+HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
+                           keyby = .(season, obsHalfHour)]
+HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
+                                                2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
+
+HPHWprofileDT <- copy(HWprofileDT)
+HPHWprofileDT <- HPHWprofileDT[, kWperHhSum := kWperHh + (HPprofileDT$kWperHh)]
+
+#Calculating Probability
+CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
+CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
+                          
+
+CpdSumDT <- CpdSumDT[, Probability := SumMins / totalMins]
+
+
+#Calculating average kW at congestion periods per household
+#Defining peak and off-peak periods
+HPHWprofileDT <- HPHWprofileDT[, Period := "Not Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+HPHWprofileDT <- HPHWprofileDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+#Building the sum of each peak period by season
+AuMP2 <- HPHWprofileDT[season == "Autumn" & Period == "Morning Peak",
+                sum(kWperHhSum)]
+WiMP2 <- HPHWprofileDT[season == "Winter" & Period == "Morning Peak",
+                sum(kWperHhSum)]
+
+
+AuEP2 <- HPHWprofileDT[season == "Autumn" & Period == "Evening Peak",
+                sum(kWperHhSum)]
+WiEP2 <- HPHWprofileDT[season == "Winter" & Period == "Evening Peak",
+                sum(kWperHhSum)]
+
+
+
+#Counting number of rows that will be associated to spread the Morning Peak
+AuMPHalfHours2 <- nrow(HPHWprofileDT[season == "Autumn" &
+                              Period == "Off Peak 1"])
+WiMPHalfHours2 <- nrow(HPHWprofileDT[season == "Winter" &
+                              Period == "Off Peak 1"])
+
+
+#Counting number of rows that will be associated to spread the Evening Peak
+AuEPHalfHours2 <- nrow(HPHWprofileDT[season == "Autumn" &
+                              Period == "Off Peak 2"])
+WiEPHalfHours2 <- nrow(HPHWprofileDT[season == "Winter" &
+                              Period == "Off Peak 2"])
+
+
+#Calculating the proportion that each row will take on to spread the GWhs
+distGWhOP1Au2 <- AuMP2/AuMPHalfHours2
+distGWhOP1Wi2 <- WiMP2/WiMPHalfHours2
+
+
+distGWhOP2Au2 <- AuEP2/AuEPHalfHours2
+distGWhOP2Wi2 <- WiEP2/WiEPHalfHours2
+
+
+
+
+#Adding amount of spreaded peak consumption to off-peak periods
+HPHWprofileDT <- HPHWprofileDT[season == "Autumn" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     kWperHhSum + distGWhOP1Au2]
+HPHWprofileDT <- HPHWprofileDT[season == "Winter" &
+                     Period == "Off Peak 1", GWhs4 :=
+                     kWperHhSum + distGWhOP1Wi2]
+
+
+HPHWprofileDT <- HPHWprofileDT[season == "Autumn" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     kWperHhSum + distGWhOP2Au2]
+HPHWprofileDT <- HPHWprofileDT[season == "Winter" &
+                     Period == "Off Peak 2", GWhs4 :=
+                     kWperHhSum + distGWhOP2Wi2]
+
+
+
+#Setting missing values in peak periods to NULL
+HPHWprofileDT <- HPHWprofileDT[, GWhs4:= ifelse(Period =="Morning Peak",
+                                  0, GWhs4)]
+HPHWprofileDT <- HPHWprofileDT[, GWhs4:= ifelse(Period =="Evening Peak",
+                                  0, GWhs4)]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(HPHWprofileDT, season, obsHalfHour)
+
+CpdMergedHWDT <- HPHWprofileDT[CpdSumDT]
+CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := GWhs4 * Probability]
+AvgHWHPCpdDemSC2 <- sum(CpdMergedHWDT$AvgDemCPD)
+
+
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWHPCpdDemSC2 * PS1 * 365/1000000
+sumPS2HW <- AvgHWHPCpdDemSC2 * PS2 * 365/1000000
+sumPS3HW <- AvgHWHPCpdDemSC2 * PS3 * 365/1000000
+sumPS4HW <- AvgHWHPCpdDemSC2 * PS4 * 365/1000000
+
+
+
+
+
+
+
+
+
+
+```
 
 #MyPlot example
 ```{r scenario load curtailment}
