@@ -8386,6 +8386,97 @@ sumPS4HW <- AvgHWHPCpdDemSC2 * PS4 * 365
 
 
 ```
+
+#Grid generation
+```{r loading summer data}
+
+Generationdata  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/Monthly extract/2018_01_07.csv")
+
+
+#Time and month adjustments
+GenDT <- data.table::as.data.table(Generationdata)
+GenDT <- GenDT[, Period.start := lubridate::dmy_hm(Period.start, tz = "Pacific/Auckland")]
+GenDT <- GenDT[, year := lubridate::year(Period.start)]
+GenDT <- GenDT[, obsHalfHour := hms::as.hms(Period.start)]
+GenDT <- GenDT[, month := lubridate::month(Period.start)]
+GenDT <- GenDT[month == 1, season := "Summer"]
+GenDT <- GenDT[month == 7, season := "Winter"]
+
+GenDT <- GenDT[, Period.start := NULL]
+GenDT <- GenDT[, Period.end := NULL]
+
+GenDT <- GenDT[, GWh := GWh * 3]#Scaling up for whole season
+
+```
+##Running scenarios
+```{r running scenarios with generation data}
+
+#Determining electricity generation during peak time-periods
+
+
+MPS <- hms::as.hms("06:00:00")
+MPE <- hms::as.hms("10:00:00")
+
+EPS <- hms::as.hms("17:00:00")
+EPE <- hms::as.hms("21:00:00")
+
+OP1S <- hms::as.hms("21:30:00")
+OP1E <- hms::as.hms("23:30:00")
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:30:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:30:00")
+
+
+
+sc1data <- GenDT
+
+sc1data <- sc1data[, .(GWh1 = sum(GWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+sc1data <- sc1data[, Period := "Not Peak"]
+
+sc1data <- sc1data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+sc1data <- sc1data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+sc1data <- sc1data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc1data <- sc1data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+
+
+#Change the order in facet_grid()
+sc1data$season <- factor(sc1data$season, levels = c("Summer",
+                                                    "Winter"))
+
+
+sc1data <- sc1data[, .(PotCur = sum(GWh1)),
+                   keyby = .(season, Period)]
+sc1data
+
+
+
+
+
+```
+
 #MyPlot example
 ```{r scenario load curtailment}
 
