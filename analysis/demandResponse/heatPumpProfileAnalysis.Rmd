@@ -55,11 +55,11 @@ sysInfo <- Sys.info()
 userName <- sysInfo[[7]] # need this to then set the data location correctly
 
 if(userName == "ben"){
-  #ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles") # <- HPS
+  #ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles") # <- HPS
   ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/") # <- dropbox
 } 
 if(userName == "carsten.dortans"){
-  ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/Clean_data/safe/gridSpy/1min/profiles/") # <- server
+  ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/") # <- server
 }
 ```
 
@@ -1173,7 +1173,7 @@ myPlot
 #Technical potential of demand response: Scenarios for refrigeration data
 
 ##Load curtailment to zero
-```{r load curtialment to zero all three appliances}
+```{r load curtialment to zero all three appliances 1}
 
 totalGWH<-2074 #EECA fro refrigeration in 2015
 nzHouseholds <- 1004329 + 453135
@@ -1234,7 +1234,7 @@ myPlot
 ```
 ###Potential load curtailment
 
-```{r potential heat pump, hot water, refrigeration energy curtailment}
+```{r potential heat pump, hot water, refrigeration energy curtailment1}
 
 
 sc5data <- sc5data[, .(PotCur = sum(GWhREF)),
@@ -1286,8 +1286,6 @@ sc5data <- sc5data[, GWhREF:= ifelse(Period == "Evening Peak"|Period== "Morning 
 
 
 
-sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
-                                                    "Autumn", "Winter"))
 
 #Renaming PumpandWater to depict the right y in the colorbar
 setnames(sc5data, old=c("GWhREF"), new=c("GWh"))
@@ -1309,7 +1307,7 @@ myPlot
 
 ```
 ##Load curtailment of particular amount
-```{r load curtialmentall three appliances of particular amount}
+```{r load curtialmentall three appliances of particular amount1}
 #Defining peak and off-peak for heat pump and hot water seperately
 
 sc5data <- refrigerationProfileDT
@@ -1877,7 +1875,7 @@ sc3data
 
 ```
 ##Load shifting to prior times: SC3
-```{r hp and hw load shifting}
+```{r hp and hw load shifting1}
 
 sc3data <- heatPumpProfileDT
 sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
@@ -2776,7 +2774,7 @@ myPlot
 ## Reading original data
 ```{r Loading wholesale prices}
 
-WholesalePrices  <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Wholesale_Prices/Wholesale_16-17_clean.csv"
+WholesalePrices  <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Wholesale_Prices/Wholesale_16-17_clean.csv"
 
 
 print(paste0("Trying to load: ", WholesalePrices))
@@ -3259,7 +3257,7 @@ myPlot
 #ggsave("Baseline scenario: Cost for heat pumps in winter by period.jpeg", dpi = 600)                        
 
 ```
-```{r economic visualisation SC1 1}
+```{r 1 economic visualisation SC1 1}
 #Plots cost of load curtailment to zero, does not consider baseline
 EcoVaSumDT <- copy(EcoVaHHDT)
 
@@ -3306,7 +3304,7 @@ myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
 myPlot
 #ggsave("Load curtailment scenario: Cost per day for heat pumps in winter.jpeg", dpi = 600)
 ```
-```{r economic visualisation SC1 2}
+```{r 1 economic visualisation SC1 2}
 #Plots benefits when load is curtailed to zero 
 
 EcoVaSumDT <- copy(EcoVaHHDT)
@@ -3345,7 +3343,7 @@ myPlot <- ggplot2::ggplot(subset(EcoVaSumSC1DT,
 myPlot
 #ggsave("Load curtailment scenario: Savings at peak time-periods for heat pumps in winter.jpeg", dpi = 600)
 ```
-```{r economic visualisation SC2 1}
+```{r 1 economic visualisation SC2 1}
 
 #Plots cost and benefits of load curtailment to 0.5, does not consider baseline
 EcoVaSumDT <- copy(EcoVaHHDT)
@@ -3397,7 +3395,7 @@ myPlot
 
 #ggsave("Load curtailment 0.5 scenario: Cost for heat pumps in winter.jpeg", dpi = 600)
 ```
-```{r economic visualisation SC2 2}
+```{r 1 economic visualisation SC2 2}
 
 #Plots benefits when load is curtailed to 0.5 
 
@@ -3439,7 +3437,7 @@ myPlot <- ggplot2::ggplot(subset(EcoVaSumSC2DT,
 myPlot
 #ggsave("Load curtailment 0.5 scenario: Savings at peak time-periods for heat pumps in winter.jpeg", dpi = 600)
 ```
-```{r  economic visualisation SC3 1}
+```{r  1 economic visualisation SC3 1}
 
 #Plots cost and benefits of load shifting, does not consider baseline but increases costs at off peaks
 EcoVaSumDT <- copy(EcoVaHHDT)
@@ -6348,11 +6346,11 @@ myPlot
 
 #Hot water
 #Loading data
-CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
-CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
-CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
-CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
-CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2016.csv")
 
 
 #Binding data
@@ -6613,11 +6611,11 @@ sumPS4HPHW <- AvgHPHWCpdDem * PS4 * 365
 
 #Hot water
 #Loading data
-CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2012.csv")
-CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2013.csv")
-CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2014.csv")
-CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2015.csv")
-CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/Aurora_CPD/Edited_2016.csv")
+CpdMinOrig12  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2012.csv")
+CpdMinOrig13  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2013.csv")
+CpdMinOrig14  <-read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2014.csv")
+CpdMinOrig15  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2015.csv")
+CpdMinOrig16  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/Aurora_CPD/Edited_2016.csv")
 
 
 #Binding data
@@ -8390,7 +8388,7 @@ sumPS4HW <- AvgHWHPCpdDemSC2 * PS4 * 365
 #Grid generation
 ```{r loading summer data}
 
-Generationdata  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/Monthly extract/2018_01_07.csv")
+Generationdata  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/Monthly extract/2018_01_07.csv")
 
 
 #Time and month adjustments
