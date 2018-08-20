@@ -144,7 +144,7 @@ iFile <- paste0(params$iFile, ".gz") # don't forget .gz!
 In this section we load the pre-extracted `r params$circuitPattern` data from `r dateFrom` to `r dateTo` from `r iFile`.
 
 ```{r load gridSpy data}
-# Loads pre-extracted circuit data using readr as the data is .csv.gz
+# Loads pre-extracted circuit data using readr as the data is .csv.gz
 gs1MinDT <- data.table::as.data.table(
   readr::read_csv(iFile,
                   col_types = cols(
@@ -178,17 +178,17 @@ kableExtra::kable(caption = paste0("Counts of ", circuitPattern, " labels by hou
 The following table shows the grid spy monitors which were re-used together with their dates.
 
 ```{r testReuse}
-t <- hhAttributesDT[!is.na(notes), .(notes = unique(notes)), keyby = .(hhID, newID, r_stopDate)]
+t <- hhAttributesDT[!is.na(notes), .(notes = unique(notes)), keyby = .(hhID, linkID, r_stopDate)]
 
 kableExtra::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
 ```
 
-In order to correctly link household attribute and grid spy data we therefore need to set newID in the `r circuitPattern` data for the appropriate dates.
+In order to correctly link household attribute and grid spy data we therefore need to set linkID in the `r circuitPattern` data for the appropriate dates.
 
-```{r addNewID}
+```{r addlinkID}
 # set merge keys
-setkey(hhAttributesDT, hhID)
-setkey(gs1MinDT, hhID)
+setkey(hhAttributesDT, linkID)
+setkey(gs1MinDT, linkID)
 
 # foreach hhID in hhAttributes
 # if !is.na(stopped)
@@ -202,12 +202,12 @@ Figure \@ref(fig:nObsTile) shows loaded data observation plots - just to confirm
 
 ```{r nObsTile, fig.cap="Number of observations per household per day"}
 
-plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(hhID, date = as.Date(r_dateTime))]
-setkey(plotDT, hhID)
+plotDT <- gs1MinDT[, .(nObs = uniqueN(r_dateTime)), keyby = .(linkID, date = as.Date(r_dateTime))]
+setkey(plotDT, linkID)
 
 dt <- merge(plotDT, hhAttributesDT, allow.cartesian=TRUE) # not sure why we need to do this - shouldn't be duplicate hhIDs?
 
-myPlot <- ggplot2::ggplot(dt, aes( x = as.Date(date), y = hhID, 
+myPlot <- ggplot2::ggplot(dt, aes( x = as.Date(date), y = linkID, 
                                fill = nObs)) +
   geom_tile() +
   scale_fill_gradient(low = "red", high = "green") +
@@ -231,7 +231,7 @@ Figure \@ref(fig:nObsPoint) shows the same data but as a dot plot to highlight t
 # point plot ----
 myPlot <- ggplot2::ggplot(dt[!is.na(nObs)], aes( x = date, 
                                y = nObs, 
-                               colour = hhID)) +
+                               colour = linkID)) +
   geom_point() +
   #facet_wrap(sample ~ .) +
   scale_x_date(date_labels = "%Y %b", date_breaks = "2 months") +
@@ -505,7 +505,7 @@ As before, the code saves a high definition version of the plot.
 
 ## Profile plots: overall household mean by household size.
 
-Figure \@ref{fig:meanPlot} shows the mean power for circuits containing "`r circuitPattern`" by season and presenceo f children. This uses the newID to correctly link all household attribute data to the grid spy data.
+Figure \@ref{fig:meanPlot} shows the mean power for circuits containing "`r circuitPattern`" by season and presenceo f children. This uses the linkID to correctly link all household attribute data to the grid spy data.
 
 ```{r meanPlotHHSize, fig.cap="Mean power profiles by household size", fig.height=6}
 # create plot table
