@@ -19,7 +19,7 @@ output:
     toc_depth: 2
     keep_md: TRUE
     self_contained: no
-bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
@@ -33,13 +33,13 @@ knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 # Set start time ----
 startTime <- proc.time()
 
-library(nzGREENGrid)
+library(GREENGrid)
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
              "ggplot2", # for fancy graphs
-             "lubridate", # date & time processing
+             "lubridate", # date & time processing
              "readr", # writing to files
              "Hmisc", # describe
              "codebook", # codebook
@@ -47,10 +47,10 @@ rmdLibs <- c("data.table", # data munching
              "knitr" # for kable
 )
 # load them
-nzGREENGrid::loadLibraries(rmdLibs)
+loadLibraries(rmdLibs)
 
 # run gg set up
-nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
+GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
 ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
@@ -92,7 +92,7 @@ This report is intended to:
  
 Specific history of this code:
 
- * https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/ev
+ * https://github.com/CfSOtago/GREENGrid/tree/master/analysis/ev
 
 ## Support
 
@@ -188,7 +188,7 @@ R packages used:
  * readr - for csv reading/writing [@readr]
  * Hmisc - for describe [@Hmisc]
  * knitr - to create this document & neat tables [@knitr]
- * nzGREENGrid - for local NZ GREEN Grid project utilities
+ * GREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:
 

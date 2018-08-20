@@ -23,7 +23,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 2
-bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r knitrSetup, include=FALSE}
@@ -35,10 +35,10 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 # Set start time ----
 startTime <- proc.time()
 
-library(nzGREENGridDataR) # local utilities
+library(GREENGridData) # local utilities
 
 # Set parameters etc ----
-nzGREENGrid::setup()
+GREENGrid::setup()
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
@@ -49,7 +49,7 @@ rmdLibs <- c("data.table", # data munching
              "kableExtra" # for extra kable
 )
 # load them
-nzGREENGrid::loadLibraries(rmdLibs)
+loadLibraries(rmdLibs)
 
 # Local functions ---
 labelProfilePlot <- function(plot){
@@ -92,15 +92,14 @@ This work is (c) `r lubridate::year(today())` the University of Southampton.
 
 ## History
 
-Code history is generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid/):
+Code history is generally tracked via our git.soton [repo](https://github.com/CfSOtago/GREENGrid):
 
- * [Report history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/ggDemandProfiles/nzGGProfileAnalyserTemplate.Rmd)
- * [General issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
+ * [Report history](https://github.com/CfSOtago/GREENGrid/commits/master/analysis/ggDemandProfiles)
  
 ## Requirements:
 
- * Cleaned and safe grid spy 1 minute data processed using the [nzGREENGridDataR package](https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy)
- * `r params$circuitPattern` circuit data pre or newly extracted from the cleaned safe data using https://github.com/dataknut/nzGREENGridDataR/tree/master/dataProcessing/gridSpy/extractCleanGridSpy1minCircuits.R
+ * Cleaned and safe grid spy 1 minute data processed using the [nzGREENGridDataR package](https://github.com/CfSOtago/GREENGridData/tree/master/dataProcessing/gridSpy)
+ * `r params$circuitPattern` circuit data pre or newly extracted from the cleaned safe data using https://github.com/CfSOtago/GREENGridData/commits/master/examples/extractCleanGridSpy1minCircuits.R
 
 ## Support
 
@@ -537,7 +536,7 @@ R packages used:
  * dplyr - for select and contains [@dplyr]
  * progress - for progress bars [@progress]
  * knitr - to create this document & neat tables [@knitr]
- * nzGREENGrid - for local NZ GREEN Grid project utilities
+ * GREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:
 

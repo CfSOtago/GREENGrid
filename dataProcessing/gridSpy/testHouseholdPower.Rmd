@@ -22,7 +22,7 @@ output:
     number_sections: yes
     toc: yes
     toc_depth: 2
-bibliography: '`r path.expand("~/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r knitrSetup, include=FALSE}
@@ -37,9 +37,9 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 startTime <- proc.time()
 
 # Load nzGREENGrid package ----
-library(nzGREENGrid) # local utilities
+library(GREENGrid) # local utilities
 
-nzGREENGrid::setup()
+GREENGrid::setup()
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
@@ -52,7 +52,7 @@ rmdLibs <- c("data.table", # data munching
              "knitr" # for kable
 )
 # load them
-nzGREENGrid::loadLibraries(rmdLibs)
+loadLibraries(rmdLibs)
 
 # Local parameters ----
 # change this to suit your data location & to use a different household
@@ -87,14 +87,11 @@ This work is (c) `r lubridate::year(today())` the University of Southampton.
 
 ## History
 
-Code history is generally tracked via our git.soton [repo](https://git.soton.ac.uk/ba1e12/nzGREENGrid/):
-
- * [Report history](https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/dataProcessing/gridSpy/testHouseholdPower_rf_38.Rmd)
- * [General issues](https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues)
+ * [Report history](hhttps://github.com/CfSOtago/GREENGrid/tree/master/dataProcessing/gridSpy)
  
 ## Requirements:
 
-This report uses the safe version of the grid spy 1 minute data which has been processed using https://github.com/dataknut/nzGREENGridDataR/blob/master/dataProcessing/gridSpy/processGridSpy1mData.R.
+This report uses the safe version of the grid spy 1 minute data which has been processed using https://github.com/CfSOtago/GREENGridData/tree/master/dataProcessing/gridSpy.
 
 ## Support
 
@@ -137,7 +134,7 @@ Table \@ref(tab:gsData) shows the initial grid spy 1 minute power data.
 ```{r gsData, fig.cap="Example of grid spy data loaded"}
 gsDT <- data.table::as.data.table(readr::read_csv(gsFile, 
                                                   col_types = cols(hhID = col_character(),
-                                                                   dateTime_orig = col_character(), # <- this is crucial otherwise readr attempts to parse this as a dateTime and FAILS (see https://github.com/dataknut/nzGREENGridDataR/issues/2)
+                                                                   dateTime_orig = col_character(), # <- this is crucial otherwise readr attempts to parse this as a dateTime and FAILS (see https://github.com/CfSOtago/GREENGridData/issues/22)
                                                                    TZ_orig = col_character(),
                                                                    r_dateTime = col_datetime(format = ""),
                                                                    circuit = col_character(),
@@ -152,7 +149,7 @@ kableExtra::kable(t, caption = paste0("Summary of grid spy data for", params$hhI
 
 Note that:
 
- * the original dataTime (`dateTime_orig`) and TZ (`TZ_orig`) have been retained so that the user can check for parsing errors (see https://github.com/dataknut/nzGREENGridDataR/issues/2) if required;
+ * the original dataTime (`dateTime_orig`) and TZ (`TZ_orig`) have been retained so that the user can check for parsing errors (see https://github.com/CfSOtago/GREENGridData/issues/2) if required;
  * r_dateTime loads as UTC by default so we need to re-timezone it to NZ time before deriving any other times and dates.
 
 ```{r gsDataFix, fig.cap="Summary of grid spy data loaded", echo=TRUE}
@@ -293,7 +290,8 @@ R packages used:
  * ggplot2 - for slick graphics [@ggplot2]
  * readr - for csv reading/writing [@readr]
  * knitr - to create this document & neat tables [@knitr]
- * nzGREENGridDataR - for local NZ GREEN Grid project utilities
+ * GREENGrid - for local NZ GREEN Grid project utilities
+ * GREENGridData - for local NZ GREEN Grid project data utilities
 
 Session info:
 

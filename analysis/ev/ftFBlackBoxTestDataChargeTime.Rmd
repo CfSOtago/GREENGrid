@@ -11,7 +11,7 @@ output:
   bookdown::html_document2:
     toc: true
     toc_float: true
-bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
@@ -25,7 +25,7 @@ options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to
 # Set start time ----
 startTime <- proc.time()
 
-library(nzGREENGrid)
+library(GREENGrid)
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
@@ -34,10 +34,10 @@ rmdLibs <- c("data.table", # data munching
              "knitr" # for kable
 )
 # load them
-nzGREENGrid::loadLibraries(rmdLibs)
+loadLibraries(rmdLibs)
 
 # run gg set up
-nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
+GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
 ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
@@ -51,7 +51,7 @@ If you wish to use any of the material from this report please cite as:
 
  * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) _`r params$title`: `r params$subtitle`_, `r ggParams$pubLoc`.
 
-This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton. Re-use is governed by [this license](https://git.soton.ac.uk/ba1e12/nzGREENGrid/blob/master/LICENSE).
+This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton. Re-use is governed by [this license](https://github.com/CfSOtago/GREENGrid/blob/master/LICENSE).
 
 \newpage
 
@@ -93,7 +93,7 @@ Specific history of this code:
  
 ## Notes
 
-This document was created using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`. Some of the R code has been included where used for information and reference purposes. Full code is [available](https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/ev) as noted above.
+This document was created using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`. Some of the R code has been included where used for information and reference purposes. Full code is [available](https://github.com/CfSOtago/GREENGrid/tree/master/analysis/ev) as noted above.
 
 # Load and check data
 
@@ -109,7 +109,7 @@ In this section we load and describe the data from `r ggParams$ftfFile`. First w
 ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
 ```
 
-That loaded `r nzGREENGrid::tidyNum(nrow(ftfDT))` observations.
+That loaded `r tidyNum(nrow(ftfDT))` observations.
 
 ## Create derived variables
 
@@ -117,7 +117,7 @@ Next we create some useful derived variables. Errors may be 'odd' dates and time
 
 ```{r process ftf data, echo = TRUE}
 # create derived variables
-ftfDT <- nzGREENGrid::createDerivedFtF(ftfDT)
+ftfDT <- createDerivedFtF(ftfDT)
 
 t <- ftfDT[is.na(rDate), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
@@ -155,7 +155,7 @@ Figure \@ref(fig:mapAllLocations) maps the location of a subset of the observati
 ```{r mapAllLocations, fig.cap="Map of all observations coloured by speed"}
 # draw map of all GPS locations
 
-evMap <- nzGREENGrid::getEVMap(ftfDT)
+evMap <- getEVMap(ftfDT)
 
 evMap + scale_colour_gradient(low = "blue", high = "red")
 ```
@@ -165,7 +165,7 @@ To avoid any risk of such disclosure we next infer a very coarse geo-location at
 Note that this does not necessarily render this dataset _safe_ ([anonymised](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation)) as there may well be other variables that provide sufficient information either on their own or together which would [enable identification](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation) of the car and it's owner.
 
 ```{r inferLoc, fig.cap="Check inferred location", echo=TRUE}
-ftfDT <- nzGREENGrid::inferLocationFtF(ftfDT)
+ftfDT <- inferLocationFtF(ftfDT)
 
 plotDT <- ftfDT[, .(nObs = .N), 
                 keyby = .(geoLoc, obsHour, rDow)]
@@ -188,7 +188,7 @@ Next we remove the following variables as they are potentially disclosive:
  
 ```{r makeSafe}
 # do analysis on safe version
-ftfSafeDT <- nzGREENGrid::createSafeFtF(ftfDT)
+ftfSafeDT <- createSafeFtF(ftfDT)
 ```
 
 
@@ -321,7 +321,7 @@ R packages used:
  * readr - for csv reading/writing [@readr]
  * openssl - for hashing `Reg No` [@openssl]
  * knitr - to create this document & neat tables [@knitr]
- * nzGREENGrid - for local NZ GREEN Grid project utilities
+ * GREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:
 

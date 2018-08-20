@@ -26,7 +26,7 @@
 #'
 #'
 extractCleanGridSpyCircuit <- function(fPath, exFile, circuitPattern, dateFrom, dateTo) {
-  # check files to load
+  # check files to load
   fPattern <- "*.csv.gz"
   print(paste0("#-> Looking for data using pattern = ", fPattern, " in ", fPath, " - could take a while..."))
   #> Get the file list as a data.table ----

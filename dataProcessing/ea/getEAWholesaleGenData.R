@@ -8,7 +8,7 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 
 
 # Load libraries ----
-library(nzGREENGrid) # load this first - you will need to download & install it locally from this repo
+library(GREENGrid) # load this first - you will need to download & install it locally from this repo
 
 # Packages needed in this .Rmd file ----
 reqLibs <- c("data.table", # data munching
@@ -18,9 +18,10 @@ reqLibs <- c("data.table", # data munching
              "skimr" # for skim
 )
 # load them
-nzGREENGrid::loadLibraries(reqLibs)
+loadLibraries(reqLibs)
 
 # Parameters ----
+GREENGrid::setup()
 
 local <- 0 # set to 1 for local file storage (see below)
 refresh <- 0 # set to 1 to try to download all files even if we have them
@@ -39,8 +40,8 @@ months <- seq(1,12,1) # change these to restrict or extend the file search
 cleanEA <- function(df){
   # takes a df, cleans & returns a dt
   dt <- data.table::as.data.table(df) # make dt
-  dt <- nzGREENGrid::reshapeEAGenDT(dt) # make long
-  dt <- nzGREENGrid::setEAGenTimePeriod(dt) # set time periods to something intelligible as rTime
+  dt <- reshapeEAGenDT(dt) # make long
+  dt <- setEAGenTimePeriod(dt) # set time periods to something intelligible as rTime
   dt <- dt[, rDate := as.Date(Trading_date)] # fix the dates so R knows what they are
   dt <- dt[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
   return(dt)

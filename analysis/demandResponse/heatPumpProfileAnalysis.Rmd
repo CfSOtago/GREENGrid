@@ -16,7 +16,7 @@ output:
   bookdown::pdf_document2:
     toc: true
     toc_depth: 2
-bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r knitrSetup, include=FALSE}
@@ -30,23 +30,23 @@ knitr::opts_chunk$set(echo = TRUE) # by default turn off code echo
 # Set start time ----
 startTime <- proc.time()
 
-library(nzGREENGrid)
+library(GREENGrid)
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
              "ggplot2", # for fancy graphs
-             "lubridate", # date & time processing
+             "lubridate", # date & time processing
              "readr", # writing to files
              "hms", # manipulate h:m:s
              "skimr", # for skim
              "knitr" # for kable
 )
 # load them
-nzGREENGrid::loadLibraries(rmdLibs)
+loadLibraries(rmdLibs)
 
 
 # run gg set up
-nzGREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
+GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
 
@@ -99,7 +99,7 @@ This report is intended to:
  
 Specific history of this code:
 
- * https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse
+ * https://github.com/CfSOtago/GREENGrid/commits/master/analysis/demandResponse/
 
 ## Support
 
@@ -8565,7 +8565,7 @@ R packages used:
  * readr - for csv reading/writing [@readr]
  * skimr - for skim [@skimr]
  * knitr - to create this document & neat tables [@knitr]
- * nzGREENGrid - for local NZ GREEN Grid project utilities
+ * GREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:
 

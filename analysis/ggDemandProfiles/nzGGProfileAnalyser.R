@@ -7,7 +7,7 @@ dateFrom <- "2015-04-01"
 dateTo <- "2016-03-31"
 
 # Load packages ----
-library(nzGREENGrid) # gg utilities
+library(GREENGrid) # gg utilities
 library(rmarkdown)
 
 # Local parameters ----
@@ -17,7 +17,7 @@ localTest <- 0 # test on local data source (1) or full HPS (0) data?
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
 
-projLoc <- findParentDirectory("nzGREENGrid")
+projLoc <- findParentDirectory("GREENGrid")
 
 # Local functions ----
 
@@ -30,7 +30,7 @@ if(localTest == 1){
   # HPS data source
   dPath <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS
   fpath <- paste0(dPath,"_RAW DATA/GridSpyData/") # location of data
-  outPath <- paste0(dPath, "Clean_data/safe/gridSpy/1min/") # place to save them
+  outPath <- paste0(dPath, "cleanData/safe/gridSpy/1min/") # place to save them
 }
 
 # test to see if the file we need exists
@@ -46,7 +46,7 @@ if(fileExists){
   print(paste0(iFile, " does not exist, running extraction..."))
   # iFile does not exist so need to create it
   fPath <- paste0(outPath, "data/")
-  nzGREENGrid::extractCleanGridSpyCircuit(fPath, iFile, circuitPattern, dateFrom, dateTo)
+  extractCleanGridSpyCircuit(fPath, iFile, circuitPattern, dateFrom, dateTo)
   print(paste0("Done - look for data in: ", iFile))
 }
 
