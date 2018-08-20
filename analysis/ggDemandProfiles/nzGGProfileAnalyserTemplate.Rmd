@@ -28,7 +28,6 @@ bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`
 
 ```{r knitrSetup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
-options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
 ```
 
 ```{r codeSetup, include=FALSE}
@@ -45,7 +44,7 @@ rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
              "ggplot2", # for fancy graphs
              "readr", # writing to files
-             "knitr", # for kable
+             "lubridate", # for today
              "kableExtra" # for extra kable
 )
 # load them
@@ -132,7 +131,7 @@ hhAttributesDT <- data.table::fread(ggParams$hhAttributes)
 
 setkey(hhAttributesDT, hhID)
 
-knitr::kable(caption = "Example household attribute data for sample", head(hhAttributesDT))
+kableExtra::kable(caption = "Example household attribute data for sample", head(hhAttributesDT))
 ```
 
 ## Grid Spy data
@@ -163,7 +162,7 @@ The following table shows the range of different circuit labels that have been i
 ```{r test circuit labels}
 t <- table(gs1MinDT$circuit)
 
-knitr::kable(caption = paste0("Counts of ", circuitPattern, " observations by label"), t)
+kableExtra::kable(caption = paste0("Counts of ", circuitPattern, " observations by label"), t)
 ```
 
 Note that some households may have more than one `r circuitPattern` circuit as the following table indicates.
@@ -171,7 +170,7 @@ Note that some households may have more than one `r circuitPattern` circuit as t
 ```{r test household circuits}
 t <- gs1MinDT[, .(nCircuits = uniqueN(circuit)), keyby = .(hhID)]
 
-knitr::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
+kableExtra::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
 ```
 
 ### Re-coding re-used monitors
@@ -181,7 +180,7 @@ The following table shows the grid spy monitors which were re-used together with
 ```{r testReuse}
 t <- hhAttributesDT[!is.na(notes), .(notes = unique(notes)), keyby = .(hhID, newID, r_stopDate)]
 
-knitr::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
+kableExtra::kable(caption = paste0("Counts of ", circuitPattern, " labels by household"), t)
 ```
 
 In order to correctly link household attribute and grid spy data we therefore need to set newID in the `r circuitPattern` data for the appropriate dates.
@@ -264,7 +263,7 @@ dt <- mergedDT[, .(nObs = .N,
              maxDate = max(r_dateTime, na.rm = TRUE)),
          keyby = .(hhID, sample)]
 
-knitr::kable(caption = paste0("Summary observation stats by hhID (sorted by date last heard from) for: ", circuitPattern), dt)
+kableExtra::kable(caption = paste0("Summary observation stats by hhID (sorted by date last heard from) for: ", circuitPattern), dt)
 ```
 
 Finally we show the total number of households which we think we have `r circuitPattern` data for.
@@ -293,7 +292,7 @@ The following table summarises the `r circuitPattern` data. Any surprises?
 
 ```{r summary of cols, echo = TRUE}
 t <- summary(gs1MinDT)
-knitr::kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
+kableExtra::kable(caption = paste0("Summary of ", circuitPattern, " circuits"), t)
 
 ```
 
@@ -377,7 +376,7 @@ print(paste0("Gzipped ", ofile))
 
 t <- summary(plotDT)
 
-knitr::kable(caption = paste0("Summary of household level mean profiles for ", circuitPattern),
+kableExtra::kable(caption = paste0("Summary of household level mean profiles for ", circuitPattern),
              t)
 ```
 
@@ -494,7 +493,7 @@ print(paste0("Gzipped ", ofile))
 
 t <- summary(plotDT)
 
-knitr::kable(caption = paste0("Summary of overall profiles for ", circuitPattern),
+kableExtra::kable(caption = paste0("Summary of overall profiles for ", circuitPattern),
              t)
 ```
 
@@ -535,7 +534,7 @@ R packages used:
  * readr - for csv reading/writing [@readr]
  * dplyr - for select and contains [@dplyr]
  * progress - for progress bars [@progress]
- * knitr - to create this document & neat tables [@knitr]
+ * kableExtra - to create this document & neat tables [@knitr]
  * GREENGrid - for local NZ GREEN Grid project utilities
 
 Session info:

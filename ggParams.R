@@ -5,7 +5,7 @@ ggParams$projLoc <- findParentDirectory("GREENGrid")
 ggParams$dataLoc <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HPS by default
 
 ggParams$gsMasterFile <- "~/Syncplicity Folders/Green Grid Project Management Folder/Gridspy/Master list of Gridspy units.xlsx"
-ggParams$hhAttributes <- paste0(ggParams$dataLoc, "cleanData/safe/survey/ggHouseholdAttributes.csv")
+ggParams$hhAttributes <- paste0(ggParams$dataLoc, "cleanData/safe/survey/ggHouseholdAttributesSafe.csv")
 
 # Rmd includes
 ggParams$historyGenericRmd <- paste0(ggParams$projLoc, "/includes/historyGeneric.Rmd")
