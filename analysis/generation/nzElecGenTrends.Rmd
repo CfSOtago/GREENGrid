@@ -6,7 +6,7 @@ output:
   bookdown::pdf_document2: default
   bookdown::html_document2:
     self_contained: no
-bibliography: '`r paste0(nzGREENGrid::findParentDirectory("nzGREENGrid"), "/bibliography.bib")`'
+bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
 ---
 
 ```{r knitrSetup, include=FALSE}

@@ -1,4 +1,4 @@
-Package: nzGREENGrid
+Package: GREENGrid
 Type: Package
 Title: Collection of functions, scripts and RMarkdown for NZ GREEN Grid project data processing and analysis
 Version: 0.1.0

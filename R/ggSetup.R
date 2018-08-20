@@ -8,6 +8,6 @@
 #' @export
 #'
 setup <- function(){
-  pLoc <- nzGREENGrid::findParentDirectory("nzGREENGrid") # R project location
+  pLoc <- findParentDirectory("GREENGrid") # R project location
   source(paste0(pLoc, "/ggParams.R"))
 }
