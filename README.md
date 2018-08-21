@@ -1,4 +1,4 @@
-# NZ GREEN Grid
+# Renewable Energy and the Smart Grid (GREEN Grid)
 
 Repo supporting a wide range of analysis for the [NZ GREEN Grid project](https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html).
 
