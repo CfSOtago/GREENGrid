@@ -6390,7 +6390,7 @@ CpdMergedHWDT <- HWprofileDT[CpdSumDT]
 CpdMergedHWDT <- CpdMergedHWDT[, AvgDemCPD := kWperHh * Probability]
 AvgHWCpdDem <- sum(CpdMergedHWDT$AvgDemCPD)
 
-#Introducing prices
+#Introducing prices #Using Frankton GXP of Aurora CPD pricing (lowest charges)
 PS1 <- 0.3079
 PS2 <- 0.3387
 PS3 <- 0.3616
