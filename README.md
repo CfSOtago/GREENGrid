@@ -15,6 +15,8 @@ This repo follows the structure of an [R package](https://github.com/ropensci/rr
      + `install.packages("devtools")` and then
      + `devtools::install_github("CfSOtago/GREENGrid")`
 
+If you are using the household electricity demand data you may also need to [install our data package](https://cfsotago.github.io/GREENGridData/) using `devtools::install_github("CfSOtago/GREENGridData")`.
+
 ## Funding support
 
 The development of the code in this repo has been supported by:
