@@ -1288,7 +1288,7 @@ sc5data <- sc5data[, GWhREF:= ifelse(Period == "Evening Peak"|Period== "Morning 
 
 
 #Renaming PumpandWater to depict the right y in the colorbar
-setnames(sc5data, old=c("GWhREF"), new=c("GWh"))
+setnames(sc5data, old=c("GWhREF"), new=c("MWh"))
 
 myPlot <- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
   geom_line(size=1) +
@@ -1303,7 +1303,7 @@ myPlot <- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
 
 myPlot
 
-#ggsave("Total refrigeration curtailment in peak time-periods by season.jpeg", dpi = 600)
+#ggsave("Per_DayTotal refrigeration curtailment in peak time-periods by season.jpeg", dpi = 600)
 
 ```
 ##Load curtailment of particular amount
