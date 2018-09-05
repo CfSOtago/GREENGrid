@@ -5717,7 +5717,7 @@ myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
   hms::as.hms("20:00:00"))) 
 myPlot
 
-#ggsave("Cost baseline scenario time of day.jpeg", dpi = 600)
+#ggsave("ALLTHREE_PerDayCost baseline scenario time of day all three.jpeg", dpi = 600)
 
 #Building season sum by period
 #Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
@@ -6010,7 +6010,7 @@ sc3data <- sc3data[, DiffOrigMWh := 0]
 sc3data <- sc3data[, DiffOrigMWh := ifelse(GWhs3 > 0,
                                            (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
 
-sc3data <- sc3data[, DiffOrigMWh := DiffOrigMWh / 5]
+sc3data <- sc3data[, DiffOrigMWh := DiffOrigMWh /5]
                      
 #Preparation for merging DTs
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -6323,7 +6323,7 @@ myPlot <- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
   labs(x='Period', y='Cost in million NZD') 
   
 myPlot 
-#ggsave("Load shifting scenario: Cost for HP & HW.jpeg", dpi = 600)
+#ggsave("ALLTHREE_Seasonal_Load shifting scenario: Cost for HP & HW.jpeg", dpi = 600)
 
 myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
                                  season %in% c("Winter")), aes(x = Period, fill = Region)) +
@@ -6335,7 +6335,7 @@ myPlot <- ggplot2::ggplot(subset(EcoVaSumSC3DT,
   labs(x='Period', y='Cost in million NZD') 
   
 myPlot
-#ggsave("Load shifting scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
+#ggsave("ALLTHREE_Seasonal_Load shifting scenario: Cost for HP & HW in winter.jpeg", dpi = 600)
 ```
 
 
