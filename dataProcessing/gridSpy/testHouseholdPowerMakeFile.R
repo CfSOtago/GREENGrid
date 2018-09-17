@@ -32,11 +32,11 @@ hhID <- "rf_06"  # <- change this to run over a different household
 startTime <- proc.time()
 print(paste0("#-- Rebuilding report for: ", hhID, "--#"))
 # run the report .Rmd and render to pdf
-rmdFile <- paste0(ggParams$projLoc, "/dataProcessing/gridSpy/testHouseholdPower.Rmd")
+rmdFile <- paste0(ggParams$repoLoc, "/dataProcessing/gridSpy/testHouseholdPower.Rmd")
 rmarkdown::render(input = rmdFile,
                   output_format = "html_document",
                   params = list(hhID = hhID),
-                  output_file = paste0(ggParams$projLoc,"/dataProcessing/gridSpy/", hhID, "_gridSpy1mProcessingReport.html")
+                  output_file = paste0(ggParams$repoLoc,"/dataProcessing/gridSpy/", hhID, "_gridSpy1mProcessingReport.html")
 )
 print(paste0("#-- Finished rebuilding report for: ", hhID, "--#"))
 t <- proc.time() - startTime

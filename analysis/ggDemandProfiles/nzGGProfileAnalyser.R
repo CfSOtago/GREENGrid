@@ -17,7 +17,7 @@ localTest <- 0 # test on local data source (1) or full HPS (0) data?
 b2Kb <- 1024 #http://whatsabyte.com/P1/byteconverter.htm
 b2Mb <- 1048576
 
-projLoc <- findParentDirectory("GREENGrid")
+repoLoc <- findParentDirectory("GREENGrid")
 
 # Local functions ----
 
