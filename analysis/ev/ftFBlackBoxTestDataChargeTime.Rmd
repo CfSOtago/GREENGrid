@@ -34,13 +34,16 @@ rmdLibs <- c("data.table", # data munching
              "knitr" # for kable
 )
 # load them
-loadLibraries(rmdLibs)
+GREENGrid::loadLibraries(rmdLibs)
 
 # run gg set up
 GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
-# Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/flipTheFleet/")
+# Local paramaters ----
+dIPath <- paste0(ggParams$dataLoc, "externalData/flipTheFleet/")
+dOPath <- paste0(ggParams$dataLoc, "cleanData/flipTheFleet/")
+
+dFile <- "EVBlackBox export 2018-06-10-233146" # edit to suit. This will also be the name of the saved 'safe' version.
 ```
 
 \newpage
@@ -100,13 +103,13 @@ This document was created using [knitr](https://cran.r-project.org/package=knitr
 ## Load data
 
 ```{r set fileName}
-ggParams$ftfFile <- paste0(ggParams$dataLoc, "EVBlackBox export 2018-06-10-233146.csv")
+fileToLoad <- paste0(dIPath, dFile, ".csv")
 ```
 
 In this section we load and describe the data from `r ggParams$ftfFile`. First we load the data.
 
 ```{r load ftf data, echo=TRUE}
-ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
+ftfDT <- data.table::as.data.table(readr::read_csv(fileToLoad))
 ```
 
 That loaded `r tidyNum(nrow(ftfDT))` observations.
@@ -189,6 +192,11 @@ Next we remove the following variables as they are potentially disclosive:
 ```{r makeSafe}
 # do analysis on safe version
 ftfSafeDT <- createSafeFtF(ftfDT)
+
+# save it for re-use ----
+safeOut <- paste0(dOPath, dFile, "_safe.csv")
+data.table::fwrite(ftfSafeDT, safeOut)
+GREENGrid::gzipFile(safeOut)
 ```
 
 
