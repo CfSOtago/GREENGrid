@@ -11,12 +11,12 @@ output:
   bookdown::html_document2:
     toc: true
     toc_float: true
-bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
-options(knitr.table.format = 'markdown') # try to fix the tables issue (seems to be pushing html into latex)
+
 ```
 
 ```{r codeSetup, include=FALSE}
@@ -40,7 +40,7 @@ loadLibraries(rmdLibs)
 GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/flipTheFleet/")
 ```
 
 \newpage
