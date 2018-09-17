@@ -8,9 +8,9 @@ ggParams$gsMasterFile <- paste0(ggParams$dataLoc, "Green Grid Project Management
 ggParams$hhAttributes <- paste0(ggParams$dataLoc, "cleanData/safe/survey/ggHouseholdAttributesSafe.csv")
 
 # Rmd includes
-ggParams$historyGenericRmd <- paste0(ggParams$projLoc, "/includes/historyGeneric.Rmd")
-ggParams$supportGenericRmd <- paste0(ggParams$projLoc, "/includes/supportGeneric.Rmd")
-ggParams$circulationGenericRmd <- paste0(ggParams$projLoc, "/includes/circulationGeneric.Rmd")
+ggParams$historyGenericRmd <- paste0(ggParams$repoLoc, "/includes/historyGeneric.Rmd")
+ggParams$supportGenericRmd <- paste0(ggParams$repoLoc, "/includes/supportGeneric.Rmd")
+ggParams$circulationGenericRmd <- paste0(ggParams$repoLoc, "/includes/circulationGeneric.Rmd")
 
 # Vars for Rmd
 ggParams$pubLoc <- "[Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin"
