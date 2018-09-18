@@ -87,7 +87,7 @@ Making: A Worked Example}
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{Last run at: 2018-09-18 18:04:39}
+    \date{Last run at: 2018-09-18 23:42:51}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -303,74 +303,26 @@ making should be based on:
 \tightlist
 \item
   statistic effect size - is it 2\% or 22\% (i.e.~is the result
-  \emph{important} or \emph{useful}, what is the \emph{bang for buck}?)
+  \emph{important} or \emph{useful}, ``What is the estimated \emph{bang
+  for buck}?'');
 \item
   statistic confidence intervals - (i.e.~is there \emph{uncertainty} or
-  \emph{variation} in response?)
+  \emph{variation} in response, ``How uncertain is the estimated
+  bang?'');
 \item
   statistic p values - (i.e.~what is the risk of a Type I error /
-  \emph{false positive})
+  \emph{false positive}, ``What is the risk the bang observed isn't
+  real?'');
 \end{itemize}
 
-As an example, consider the a study which collected electricity power
-demand data for two different groups of households. The data shows that
-the mean W for group 1 was 35.14 and for group 2 was 162.67. This is a
-(very) large difference in the mean of 127.53.
-
-A t-test of the difference between the groups produces the result shown
-below.
-
-\begin{verbatim}
-## 
-##  Welch Two Sample t-test
-## 
-## data:  testDT[group == "S"]$meanW and testDT[group == "W"]$meanW
-## t = -1.9907, df = 31.47, p-value = 0.05526
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  -258.110005    3.050644
-## sample estimates:
-## mean of x mean of y 
-##  35.13947 162.66915
-\end{verbatim}
-
-In this case we have:
-
-\begin{itemize}
-\tightlist
-\item
-  effect size = 127.5296803W or 78.4\% representing a \emph{substantial
-  bang for buck} for whatever caused the difference;
-\item
-  95\% confidence interval for the test = -258.11 to 3.05 representing
-  \emph{considerable} uncertainty/variation;
-\item
-  p value of 0.055 representing a \emph{relatively low} risk of a false
-  positive results but which (just) fails the conventional p \textless{}
-  0.05 threshold.
-\end{itemize}
-
-What would we have concluded? We have a large effect size, substantial
-uncertainty and a slightly raised risk of a false positive or Type I
-error when compared to conventional p value levels. From a narrow and
-conventional `p value testing' perspective we would have concluded that
-there was no statistically signficant difference between the groups.
-However this misses the crucial point that an organisation with a higher
-risk tolerance might conclude that the large effect size justifies
-implementing the intervention even though the risk of a false positive
-is slightly higher. If the p value had been 0.25 then this would have
-still been the case but would have warranted even further caution. As
-the recent discussions of the role of the p value in decision making
-have made clear (Wasserstein and Lazar 2016) statistical analysis needs
-to report all of these elements to enable contextually appropriate and
-defensible evidence-based decisions to be taken. Simply dismissing
-results on the basis of failure to meet conventional statistical levels
-of significance risks throwing both the baby and the bath water out of
-the window.
+Only then can a contextually appropriate decision be taken as to whether
+the effect is large enough, certain enough and has a low enough risk of
+being a false positive result to warrant action.
 
 In the following sections we apply these principles to the design and
 analysis of a hypothetical New Zealand household electricity demand
-response trial.
+response trial and to the use of a simple statistical test of difference
+between two groups.
 
 \section{Sample design: statistical
 power}\label{sample-design-statistical-power}
@@ -434,11 +386,67 @@ However in this case the risk of a Type II error would increase.
 \section{Testing for differences: confidence intervals and p
 values}\label{testing-for-differences-confidence-intervals-and-p-values}
 
+As an example, consider the a study which collected electricity power
+demand data for two different groups of households. The data shows that
+the mean W for group 1 was 35.14 and for group 2 was 162.67. This is a
+(very) large difference in the mean of 127.53.
+
+A t-test of the difference between the groups produces the result shown
+below.
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  testDT[group == "S"]$meanW and testDT[group == "W"]$meanW
+## t = -1.9907, df = 31.47, p-value = 0.05526
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -258.110005    3.050644
+## sample estimates:
+## mean of x mean of y 
+##  35.13947 162.66915
+\end{verbatim}
+
+In this case we have:
+
+\begin{itemize}
+\tightlist
+\item
+  effect size = 127.5296803W or 78.4\% representing a \emph{substantial
+  bang for buck} for whatever caused the difference;
+\item
+  95\% confidence interval for the test = -258.11 to 3.05 representing
+  \emph{considerable} uncertainty/variation;
+\item
+  p value of 0.055 representing a \emph{relatively low} risk of a false
+  positive results but which (just) fails the conventional p \textless{}
+  0.05 threshold.
+\end{itemize}
+
+What would we have concluded? We have a large effect size, substantial
+uncertainty and a slightly raised risk of a false positive or Type I
+error when compared to conventional p value levels. From a narrow and
+conventional `p value testing' perspective we would have concluded that
+there was no statistically signficant difference between the groups.
+However this misses the crucial point that an organisation with a higher
+risk tolerance might conclude that the large effect size justifies
+implementing the intervention even though the risk of a false positive
+is slightly higher. If the p value had been 0.25 then this would have
+still been the case but would have warranted even further caution. As
+the recent discussions of the role of the p value in decision making
+have made clear (Wasserstein and Lazar 2016) statistical analysis needs
+to report all of these elements to enable contextually appropriate and
+defensible evidence-based decisions to be taken. Simply dismissing
+results on the basis of failure to meet conventional statistical levels
+of significance risks throwing both the baby and the bath water out of
+the window.
+
 \section{Summary and recomendations}\label{summary-and-recomendations}
 
 \section{Runtime}\label{runtime}
 
-Analysis completed in 51.56 seconds ( 0.86 minutes) using
+Analysis completed in 54.12 seconds ( 0.9 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.5.1 (2018-07-02)
 running on x86\_64-apple-darwin15.6.0.

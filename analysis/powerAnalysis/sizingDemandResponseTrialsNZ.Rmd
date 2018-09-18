@@ -8,6 +8,10 @@ subtitle: '`r paste0(params$subtitle)`'
 author: '`r paste0(params$author)` (Contact: b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
+  bookdown::word_document2:
+    fig_caption: yes
+    toc: yes
+    toc_depth: 2
   bookdown::pdf_document2:
     fig_caption: yes
     keep_tex: yes
@@ -66,6 +70,14 @@ labelProfilePlot <- function(plot){
 }
 
 # Local parameters ----
+
+dPath <- "~/Data/NZ_GREENGrid/reshare/v1.0/dataExtracts/" 
+# created from https://dx.doi.org/10.5255/UKDA-SN-853334
+# using https://github.com/CfSOtago/GREENGridData/blob/master/examples/code/extractCleanGridSpy1minCircuit.R
+heatPumpData <- paste0(dPath, "Heat Pump_2015-04-01_2016-03-31_observations.csv.gz")
+hotWaterData <- paste0(dPath, "Hot Water_2015-04-01_2016-03-31_observations.csv.gz")
+lightingData <- paste0(dPath, "Lighting_2015-04-01_2016-03-31_observations.csv.gz")
+
 plotCaption <- paste0("Source: ", ggParams$dataDOI)
 
 # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
@@ -156,8 +168,8 @@ Calculation of the required sample size for a control and intervention group req
 As we have noted the choice of significance level (p value threshold) and statistical power are subjective and normative. Most academic researchers will struggle to justify relaxing from the conventional p = 0.05 and power = 0.8. However as we have discussed there may be good reason in applied research to take action on results of studies that use less conservative thresholds. Nevertheless there is a strong argument for designing such studies using the more conservative conventional levels but acknowledging that making inferences from the results may require a more relaxed approach to Type I or Type II error risks than is considered 'normal' in academic research.
 
 
-```{r loadGgHP, include =FALSE}
-dt <- data.table::as.data.table(readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz", progress = FALSE))
+```{r loadGgData, include =FALSE}
+dt <- data.table::as.data.table(readr::read_csv(heatPumpData, progress = FALSE))
 
 dt <- dt[, month := lubridate::month(r_dateTime)]
 dt <- dt[, year := lubridate::year(r_dateTime)]
@@ -174,13 +186,17 @@ testDT <- dt[lubridate::hour(r_dateTime) > 15 & # 16:00 ->
                         year == 2015,
                         .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(season, linkID)]
 
+testDT <- testDT[season == "Winter", group := "W"]
+testDT <- testDT[season == "Summer", group := "S"]
+
 t <- testDT[, .(Mean_W = mean(meanW),
                            SD_W = sd(meanW),
                            median_W = median(meanW),
-                           n_HHs = uniqueN(linkID)), keyby = .(season)]
+                           n_HHs = uniqueN(linkID)), keyby = .(group)]
+
 
 sumW <- t[group == "S", Mean_W]
-winW <- t[season == "W", Mean_W]
+winW <- t[group == "W", Mean_W]
 
 testMean <- mean(testDT[group == "W"]$meanW)
 testSD <- mean(testDT[group == "W"]$meanW)
@@ -218,15 +234,20 @@ myCaption <- paste0(plotCaption, ", Winter 2015",
 vLineAlpha <- 0.5
 vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
 
-yp005Ref <- plotDT[pValue == "p = 0.05" & sampleN == 1000] # for reference line 
-yp005N <- min(yp005Ref$sampleN)
-yp005e <- min(yp005Ref$effectSize)
-
+yp001Ref <- plotDT[pValue == "p = 0.01" & sampleN == 1000] # for reference line
+x001 <- mean(yp001Ref$sampleN)
+yp005Ref <- plotDT[pValue == "p = 0.05" & 
+                     effectSize < ceiling(yp001Ref$effectSize) &
+                     effectSize > floor(yp001Ref$effectSize)] # for reference line
+x005 <- mean(yp005Ref$sampleN)
 yp01Ref <- plotDT[pValue == "p = 0.1" & 
-                   effectSize >= floor(yp005Ref$effectSize) & 
-                   effectSize <= ceiling(yp005Ref$effectSize)] # for reference line
-yp01N <- min(yp01Ref$sampleN)
-yp01e <- yp01Ref[sampleN == yp01N, effectSize ]
+                     effectSize < ceiling(yp001Ref$effectSize) &
+                     effectSize > floor(yp001Ref$effectSize)] # for reference line
+x01 <- mean(yp01Ref$sampleN)
+yp02Ref <- plotDT[pValue == "p = 0.2" & 
+                     effectSize < ceiling(yp001Ref$effectSize+1) & # fix this to get a value!
+                     effectSize > floor(yp001Ref$effectSize-1)] # for reference line
+x02 <- mean(yp02Ref$sampleN)
 
 p <- ggplot2::ggplot(plotDT, aes(x = sampleN, y = effectSize, colour = pValue)) +
   geom_line() + 
@@ -235,26 +256,29 @@ p <- ggplot2::ggplot(plotDT, aes(x = sampleN, y = effectSize, colour = pValue)) 
        y = "Detectable effect size (%)",
        caption = myCaption) +
   guides(colour = guide_legend(title = "p value: ")) +
-  geom_vline(xintercept = 1000, alpha = vLineAlpha, colour = vLineCol) +
-  geom_hline(yintercept = yp005e, alpha = vLineAlpha, colour = vLineCol) +
-  geom_hline(yintercept = yp01e, alpha = vLineAlpha, colour = vLineCol) +
   scale_colour_manual(values=cbPalette) + # use colour-blind friendly palette
   scale_y_continuous(breaks = seq(0,max(plotDT$effectSize),5)) + # add detail to y scale
   scale_x_continuous(breaks = seq(0,3000,200)) # add detail to x scale
 
+p <- p + 
+  geom_hline(yintercept = yp001Ref$effectSize, alpha = vLineAlpha, colour = "black") +
+  geom_segment(x = x001, y = yp001Ref$effectSize, xend = 1000, yend = 0, alpha = vLineAlpha,
+               colour = cbPalette[1]) +
+  geom_segment(x = x005, y = yp001Ref$effectSize, xend = x005, yend = 0, alpha = vLineAlpha,
+               colour = cbPalette[2]) +
+  geom_segment(x = x01, y = yp001Ref$effectSize, xend = x01, yend = 0, alpha = vLineAlpha,
+               colour = cbPalette[3]) + 
+  geom_segment(x = x02, y = yp001Ref$effectSize, xend = x02, yend = 0, alpha = vLineAlpha,
+               colour = cbPalette[4])
+
 p <- p +
   annotate(geom = "text", 
-           x = 2000, 
-           y = 8.5, 
-           label = "Effect size = 7.5%", 
-           colour =  vLineCol, 
-           hjust = 0) + # https://stackoverflow.com/questions/26684023/how-to-left-align-text-in-annotate-from-ggplot2
-  annotate(geom = "text", 
-           y = 25, 
-           x = 1050, 
-           label = "Sample size = 1000",
-           colour =  vLineCol, 
-           hjust = 0 )
+           x = 1200, 
+           y = yp001Ref$effectSize + 3, 
+           label = paste0("Effect size = ", round(yp001Ref$effectSize, 2) ,"%"), 
+           colour = cbPalette[1], 
+           hjust = 0) # https://stackoverflow.com/questions/26684023/how-to-left-align-text-in-annotate-from-ggplot2
+
 p
 
 ggplot2::ggsave("figs/fig1_statPowerEsts.png", p)
@@ -273,8 +297,6 @@ A t-test of the difference between the groups produces the result shown below.
  
 ```{r tTestTab}
 # fix
-testDT <- testDT[season == "Winter", group := "W"]
-testDT <- testDT[season == "Summer", group := "S"]
 tTest <- t.test(testDT[group == "S"]$meanW, testDT[group == "W"]$meanW)
 tTest
 ```
@@ -288,6 +310,13 @@ In this case we have:
 What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional 'p value testing' perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution. As the recent discussions of the role of the p value in decision making have made clear [@wasserstein2016] statistical analysis needs to report all of these elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of failure to meet conventional statistical levels of significance risks throwing both the baby and the bath water out of the window.
 
 # Summary and recomendations
+
+## Statsitical power and sample design
+
+## Reporting statistical tests of difference (effects)
+
+## Making inferences and taking decisions
+
 # Runtime
 
 
