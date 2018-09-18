@@ -1,0 +1,322 @@
+---
+params:
+  author: 'Ben Anderson and Tom Rushby'
+  title: 'Statistical Power, Statistical Significance, Study Design and Decision Making: A Worked Example'
+  subtitle: 'Sizing Demand Response Trials in New Zealand'
+title: '`r paste0(params$title)`'
+subtitle: '`r paste0(params$subtitle)`'
+author: '`r paste0(params$author)` (Contact: b.anderson@soton.ac.uk, `@dataknut`)'
+date: 'Last run at: `r Sys.time()`'
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+  bookdown::html_document2:
+    code_folding: hide
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    self_contained: no
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+bibliography: '`r path.expand("~/bibliography.bib")`'
+---
+
+```{r knitrSetup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+```
+
+```{r codeSetup, include=FALSE}
+# Set start time ----
+startTime <- proc.time()
+
+library(GREENGridData) # local utilities
+library(GREENGrid) # local utilities
+
+# Set parameters etc ----
+GREENGrid::setup()
+
+# Packages needed in this .Rmd file ----
+rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
+             "ggplot2", # for fancy graphs
+             "readr", # writing to files
+             "lubridate", # for today
+             "SAVEr", # power stats
+             "kableExtra" # for extra kable
+)
+# load them
+loadLibraries(rmdLibs)
+
+# Local functions ---
+labelProfilePlot <- function(plot){
+  # adds neat labels to X axis
+  plot <- plot + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
+    scale_x_time(breaks = c(hms::as.hms("00:00:00"),
+                            hms::as.hms("04:00:00"), hms::as.hms("08:00:00"), 
+                            hms::as.hms("12:00:00"), hms::as.hms("16:00:00"),
+                            hms::as.hms("20:00:00"), hms::as.hms("24:00:00")))
+
+  return(plot)
+}
+
+# Local parameters ----
+plotCaption <- paste0("Source: ", ggParams$dataDOI)
+
+# http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+# with grey
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# with black
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+\newpage
+
+# About
+
+## Report circulation:
+
+ * Public
+
+## License
+
+```{r ccby license, child=ggParams$licenseCCBY}
+```
+ 
+## Citation
+
+If you wish to use any of the material from this report please cite as:
+
+ * `r params$author`. (`r lubridate::year(lubridate::now())`) `r params$title` (`r params$subtitle`), `r ggParams$pubLoc`.
+
+This work is (c) `r lubridate::year(today())` the authors.
+
+## History
+
+Code history is generally tracked via our git.soton [repo](https://github.com/CfSOtago/GREENGrid):
+
+ * [Report history](https://github.com/CfSOtago/GREENGrid/commits/master/analysis/powerAnalysis)
+ 
+## Data:
+
+This paper uses circuit level extracts for 'Heat Pumps', 'Lighting' and 'Hot Water' for the NZ GREEN Grid Household Electricity Demand Data (`r ggParams$dataDOI` [@anderson_new_2018]). These have been extracted using the code found in 
+
+## Support
+
+```{r generic support, child=ggParams$supportGeneric}
+```
+ 
+\newpage
+
+# Introduction
+In our experiennce of designing and running empirical studies, whether experimental or naturalistic, there is ongoing confusion over the meaning and role of two key statistical terms:
+ 
+  * statistical power
+  * statistical significance
+
+We have found this to be the case both in academic research where the objective is to establish 'the most likely explanation' under academic conventions and in applied research where the objective is to 'make a robust decision' based on the balance of evidence and probability.
+
+In this brief paper we respond to these confusions using a worked example: the design of a hypothetical household electricity demand response trial in New Zealand which seeks to shift the use of Heat Pumps out of the evening winter peak demand period. We use this example to explain and demonstrate the role of statistical signficance in testing for differences and of both statistical signficance and statistical power in sample design and decision making.
+
+# Error, power, significance and decision making
+
+Two types of error are of concern in both purely academic and applied research studies:
+
+ * Type I: a false positive - an effect is inferred when in fact there is none. From a commercial or policy perspective this could lead to the implementation of a costly intervention which would be unlikely to have the effect expected;
+ * Type II: a false negative - an effect is not inferred when in fact there is one. From a commercial or policy perspective this could lead to inaction when an intervention would have been likely to have the effect expected.
+ 
+The significance level (p value) of the statistical test to be used represents the extent to which the observed data matches the null model to be tested [@wasserstein2016]. In most trials the null model will be a measure of 'no difference' between control and intervenion groups. By convention, the p value _threshold_ for rejecting the null model (the risk of a Type I error) is generally set to 0.05 (5%) although this choice is entirely subjective. In commercial or policy terms an action taken on a larger p value (e.g. setting the p value threshold to 10%) would increase the risk of making a Type I error and thus implementing a potentially costly intervention that is unlikely to have the effect desired. However, as we discuss in more detail below, this is not necessarily _bad practice_ as it may reflect the potential magnitude of an effect, the decision-maker's tolerance of Type I error risk and the urgency of action.
+
+Statistical power is normally set to 0.8 (80%) by convention and represents the pre-study risk of making a Type II error [@Greenland2016]. From a commercial or policy perspective reducing power (e.g. to 0.7 or 70%) will therefore increase the risk of taking no action when in fact the intervention would probably have had the effect desired. Statistical power calculations enable the investigator to estimate the sample size that would be needed to robustly detect an experimental effect with a given risk of a false positive (Type I error) or false negative (Type II error) result. This prevents a study from recruiting too few participants to be able to robustly detect the hypothesised intervention effect [@Delmas2013Information] or wasting resources by recruiting a larger sample than needed. 
+
+Previous work has suggested that sample sizes in most energy efficiency studies may be too low to provide adequate power and so statistically robust conclusions cannot be drawn at conventional thresholds [@Frederiks2016Evaluating] while a more recent review focusing on demand response studies reaching a similar conclusion [@Srivastava2018Assessing]. It is therefore hardly surprising that a number of studies report effect sizes which are not statistically significant at conventional thresholds [@Srivastava2018Assessing], choose to use lower statistical significance thresholds [@RockyMountainInstitute2006Automated, @AECOM2011Energy, @CER2012Smart, @Schofield2015Experimental] or both lower statistical power values _and_ statistical significance thresholds [@energyWiseT1,@energyWiseT2].
+
+However it would be wrong to conclude that this is _necessarily_ bad practice. Recent discussions of the role of p values in inference [@Greenland2016, @wasserstein2016] should remind us that decisions should never be based only on statistical significance thresholds set purely by convention. Rather, inference and thus decision making should be based on:
+
+ * statistic effect size - is it 2% or 22% (i.e. is the result _important_ or _useful_, "What is the estimated _bang for buck_?");
+ * statistic confidence intervals - (i.e. is there _uncertainty_ or _variation_ in response, "How uncertain is the estimated bang?");
+ * statistic p values - (i.e. what is the risk of a Type I error / _false positive_, “What is the risk the bang observed isn’t real?”);
+
+Only then can a contextually appropriate decision be taken as to whether the effect is large enough, certain enough and has a low enough risk of being a false positive result to warrant action.
+
+In the following sections we apply these principles to the design and analysis of a hypothetical New Zealand household electricity demand response trial and to the use of a simple statistical test of difference between two groups.
+
+# Sample design: statistical power
+
+To return to the discussion of statistical power, we need to establish the probably size of the control and intervention groups we will require. This is an aid to resource budgeting (_"How many households and thus `$` do I need?"_) and to ensure good study design practice ("_Will I be able to answer my research question?_") [@Frederiks2016Evaluating].
+
+Calculation of the required sample size for a control and intervention group requires the estimation of the probable intervention effect size, agreement on the significance level (p value threshold or Type I error risk) of the statistical test to be used and agreement on the level of statistical power (Type II error risk). Given any three of these values the fourth can be calculated if an estimate of the mean and standard deviation of the outcome to be measured is known. In the case of DSR interventions the effect size comprises a given % reduction in energy demand or consumption in a given time period and estimates of the likely reduction can be derived from previous studies or data. 
+
+As we have noted the choice of significance level (p value threshold) and statistical power are subjective and normative. Most academic researchers will struggle to justify relaxing from the conventional p = 0.05 and power = 0.8. However as we have discussed there may be good reason in applied research to take action on results of studies that use less conservative thresholds. Nevertheless there is a strong argument for designing such studies using the more conservative conventional levels but acknowledging that making inferences from the results may require a more relaxed approach to Type I or Type II error risks than is considered 'normal' in academic research.
+
+
+```{r loadGgHP, include =FALSE}
+dt <- data.table::as.data.table(readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz", progress = FALSE))
+
+dt <- dt[, month := lubridate::month(r_dateTime)]
+dt <- dt[, year := lubridate::year(r_dateTime)]
+
+dt <- GREENGridData::addNZSeason(dt, r_dateTime)
+```
+
+
+```{r powerEstimates}
+testDT <- dt[lubridate::hour(r_dateTime) > 15 & # 16:00 ->
+                        lubridate::hour(r_dateTime) < 20 & # <- 20:00
+                        lubridate::wday(r_dateTime) != 6 & # not Saturday
+                        lubridate::wday(r_dateTime) != 7 & # not Sunday
+                        year == 2015,
+                        .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(season, linkID)]
+
+t <- testDT[, .(Mean_W = mean(meanW),
+                           SD_W = sd(meanW),
+                           median_W = median(meanW),
+                           n_HHs = uniqueN(linkID)), keyby = .(season)]
+
+sumW <- t[group == "S", Mean_W]
+winW <- t[season == "W", Mean_W]
+
+testMean <- mean(testDT[group == "W"]$meanW)
+testSD <- mean(testDT[group == "W"]$meanW)
+testSamples <- seq(50,3000,50)
+testPower <- 0.8
+
+resArrayDT <- SAVEr::estimateEffectSizes(testMean,testSD,testSamples,testPower) # auto-produces range of p values
+
+# table
+powerDT <- resArrayDT[,
+                             .(
+                               sampleN = Sample,
+                               effectp001 = round(100*p0.01,2), # "Detectable % effect (p = 0.01)"
+                               effectp005 = round(100*p0.05,2), # "Detectable % effect (p = 0.05)"
+                               effectp01 = round(100*p0.1,2), # "Detectable % effect (p = 0.1)"
+                               effectp02 = round(100*p0.2,2) # "Detectable % effect (p = 0.2)"
+                             )
+                             ]
+```
+
+```{r ggHPSampleSizeFig}
+plotDT <- data.table::as.data.table(reshape2::melt(powerDT, id=c("sampleN")))
+plotDT <- data.table::setnames(plotDT, "value", "effectSize")
+plotDT <- data.table::setnames(plotDT, "variable", "pValue")
+
+# set useful labels
+plotDT <- plotDT[pValue == "effectp001", pValue := "p = 0.01"]
+plotDT <- plotDT[pValue == "effectp005", pValue := "p = 0.05"]
+plotDT <- plotDT[pValue == "effectp01", pValue := "p = 0.1"]
+plotDT <- plotDT[pValue == "effectp02", pValue := "p = 0.2"]
+
+myCaption <- paste0(plotCaption, ", Winter 2015",
+                    "\nStatistic: mean W, weekdays 16:00 - 20:00",
+                    "\nTest: R function power.t.test, power = 0.8")
+vLineAlpha <- 0.5
+vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+
+yp005Ref <- plotDT[pValue == "p = 0.05" & sampleN == 1000] # for reference line 
+yp005N <- min(yp005Ref$sampleN)
+yp005e <- min(yp005Ref$effectSize)
+
+yp01Ref <- plotDT[pValue == "p = 0.1" & 
+                   effectSize >= floor(yp005Ref$effectSize) & 
+                   effectSize <= ceiling(yp005Ref$effectSize)] # for reference line
+yp01N <- min(yp01Ref$sampleN)
+yp01e <- yp01Ref[sampleN == yp01N, effectSize ]
+
+p <- ggplot2::ggplot(plotDT, aes(x = sampleN, y = effectSize, colour = pValue)) +
+  geom_line() + 
+  ylim(0,NA) +
+  labs(x = "Sample size",
+       y = "Detectable effect size (%)",
+       caption = myCaption) +
+  guides(colour = guide_legend(title = "p value: ")) +
+  geom_vline(xintercept = 1000, alpha = vLineAlpha, colour = vLineCol) +
+  geom_hline(yintercept = yp005e, alpha = vLineAlpha, colour = vLineCol) +
+  geom_hline(yintercept = yp01e, alpha = vLineAlpha, colour = vLineCol) +
+  scale_colour_manual(values=cbPalette) + # use colour-blind friendly palette
+  scale_y_continuous(breaks = seq(0,max(plotDT$effectSize),5)) + # add detail to y scale
+  scale_x_continuous(breaks = seq(0,3000,200)) # add detail to x scale
+
+p <- p +
+  annotate(geom = "text", 
+           x = 2000, 
+           y = 8.5, 
+           label = "Effect size = 7.5%", 
+           colour =  vLineCol, 
+           hjust = 0) + # https://stackoverflow.com/questions/26684023/how-to-left-align-text-in-annotate-from-ggplot2
+  annotate(geom = "text", 
+           y = 25, 
+           x = 1050, 
+           label = "Sample size = 1000",
+           colour =  vLineCol, 
+           hjust = 0 )
+p
+
+ggplot2::ggsave("figs/fig1_statPowerEsts.png", p)
+
+```
+
+As an illustration, \ref(fig:ggHPSampleSizeFig) shows sample size calculations using 'Heat Pump' electricity demand extracted from the publicly available New Zealand Green Grid household electricity demand data [@anderson_new_2018] for winter 2014 for the peak demand period (16:00 - 20:00) on weekdays.
+
+As a guide, these results suggest that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of XXX with p = 0.05 and power = 0.8. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ XXX households would be needed in each group (see \ref(fig:sampleSizeFig)) but the risk of a Type I error would increase. Reducing the statistical power used would also reduce the  sample required for a given effect size tested at a given p value. However in this case the risk of a Type II error would increase.
+
+# Testing for differences: confidence intervals and p values
+
+As an example, consider the a study which collected electricity power demand data for two different groups of households. The data shows that the mean W for group 1 was `r round(sumW,2)` and for group 2 was `r round(winW,2)`. This is a (very) large difference in the mean of `r round(winW - sumW, 2)`.
+
+A t-test of the difference between the groups produces the result shown below.
+ 
+```{r tTestTab}
+# fix
+testDT <- testDT[season == "Winter", group := "W"]
+testDT <- testDT[season == "Summer", group := "S"]
+tTest <- t.test(testDT[group == "S"]$meanW, testDT[group == "W"]$meanW)
+tTest
+```
+
+In this case we have:
+
+ * effect size = `r winW - sumW`W or `r round(100 * (1-(sumW/winW)),2)`%  representing a _substantial bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = -258.11 to 3.05 representing _considerable_ uncertainty/variation;
+ * p value of 0.055 representing a _relatively low_ risk of a false positive results but which (just) fails the conventional p < 0.05 threshold.
+ 
+What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional 'p value testing' perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution. As the recent discussions of the role of the p value in decision making have made clear [@wasserstein2016] statistical analysis needs to report all of these elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of failure to meet conventional statistical levels of significance risks throwing both the baby and the bath water out of the window.
+
+# Summary and recomendations
+# Runtime
+
+
+```{r check runtime, include=FALSE}
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+```
+
+Analysis completed in `r round(elapsed,2)` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+# R environment
+
+R packages used:
+
+ * base R - for the basics [@baseR]
+ * data.table - for fast (big) data handling [@data.table]
+ * lubridate - date manipulation [@lubridate]
+ * ggplot2 - for slick graphics [@ggplot2]
+ * readr - for csv reading/writing [@readr]
+ * dplyr - for select and contains [@dplyr]
+ * progress - for progress bars [@progress]
+ * kableExtra - to create this document & neat tables [@knitr]
+ * GREENGrid - for local NZ GREEN Grid project utilities
+
+Session info:
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References
