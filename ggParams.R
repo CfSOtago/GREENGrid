@@ -3,6 +3,7 @@ ggParams <<- list() # params holder
 # Location of data
 ggParams$repoLoc <- findParentDirectory("GREENGrid")
 ggParams$dataLoc <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/" # HCS by default
+ggParams$dataDOI <- "https://dx.doi.org/10.5255/UKDA-SN-853334"
 
 ggParams$gsMasterFile <- paste0(ggParams$dataLoc, "Green Grid Project Management/Gridspy/Master list of Gridspy units.xlsx")
 ggParams$hhAttributes <- paste0(ggParams$dataLoc, "cleanData/safe/survey/ggHouseholdAttributesSafe.csv")
@@ -13,7 +14,7 @@ ggParams$supportGenericRmd <- paste0(ggParams$repoLoc, "/includes/supportGeneric
 ggParams$circulationGenericRmd <- paste0(ggParams$repoLoc, "/includes/circulationGeneric.Rmd")
 
 # Vars for Rmd
-ggParams$pubLoc <- "[Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin"
+ggParams$pubLoc <- "[Centre for Sustainability](http://www.otago.ac.nz/centre-sustainability/), University of Otago: Dunedin, New Zealand"
 ggParams$otagoHCS <- "the University of Otago's High-Capacity Central File Storage [HCS](https://www.otago.ac.nz/its/services/hosting/otago068353.html)"
 
 # Misc
