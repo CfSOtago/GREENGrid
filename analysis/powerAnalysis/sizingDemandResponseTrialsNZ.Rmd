@@ -178,7 +178,7 @@ dt <- GREENGridData::addNZSeason(dt, r_dateTime)
 ```
 
 
-```{r powerEstimates}
+```{r powerEstPrep}
 testDT <- dt[lubridate::hour(r_dateTime) > 15 & # 16:00 ->
                         lubridate::hour(r_dateTime) < 20 & # <- 20:00
                         lubridate::wday(r_dateTime) != 6 & # not Saturday
@@ -188,134 +188,214 @@ testDT <- dt[lubridate::hour(r_dateTime) > 15 & # 16:00 ->
 
 testDT <- testDT[season == "Winter", group := "W"]
 testDT <- testDT[season == "Summer", group := "S"]
+```
 
-t <- testDT[, .(Mean_W = mean(meanW),
-                           SD_W = sd(meanW),
-                           median_W = median(meanW),
-                           n_HHs = uniqueN(linkID)), keyby = .(group)]
+```{r ggHPSampleSizeFig80}
 
+makePowerPlot <- function(dt, myCaption){
+  vLineAlpha <- 0.5
+  vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+  
+  yp001Ref <<- dt[pValue == "p = 0.01" & sampleN == 1000] # for reference line
+  x001 <- mean(yp001Ref$sampleN)
+  yp005Ref <- dt[pValue == "p = 0.05" & 
+                       effectSize < ceiling(yp001Ref$effectSize) &
+                       effectSize > floor(yp001Ref$effectSize)] # for reference line
+  x005 <- mean(yp005Ref$sampleN)
+  yp01Ref <- dt[pValue == "p = 0.1" & 
+                      effectSize < ceiling(yp001Ref$effectSize) &
+                      effectSize > floor(yp001Ref$effectSize)] # for reference line
+  x01 <<- mean(yp01Ref$sampleN)
+  yp02Ref <- dt[pValue == "p = 0.2" & 
+                      effectSize < ceiling(yp001Ref$effectSize+1) & # fix this to get a value!
+                      effectSize > floor(yp001Ref$effectSize-1)] # for reference line
+  x02 <- mean(yp02Ref$sampleN)
+  
+  p <- ggplot2::ggplot(dt, aes(x = sampleN, y = effectSize, colour = pValue)) +
+    geom_line() + 
+    ylim(0,NA) +
+    labs(x = "Sample size",
+         y = "Detectable effect size (%)",
+         caption = myCaption) +
+    guides(colour = guide_legend(title = "p value: ")) +
+    scale_colour_manual(values=cbPalette) + # use colour-blind friendly palette
+    scale_y_continuous(breaks = seq(0,max(dt$effectSize),5)) + # add detail to y scale
+    scale_x_continuous(breaks = seq(0,3000,200)) # add detail to x scale
+  
+  p <- p + 
+    geom_hline(yintercept = yp001Ref$effectSize, alpha = vLineAlpha, colour = "black") +
+    geom_segment(x = x001, y = yp001Ref$effectSize, xend = 1000, yend = 0, alpha = vLineAlpha,
+                 colour = cbPalette[1]) +
+    geom_segment(x = x005, y = yp001Ref$effectSize, xend = x005, yend = 0, alpha = vLineAlpha,
+                 colour = cbPalette[2]) +
+    geom_segment(x = x01, y = yp001Ref$effectSize, xend = x01, yend = 0, alpha = vLineAlpha,
+                 colour = cbPalette[3]) + 
+    geom_segment(x = x02, y = yp001Ref$effectSize, xend = x02, yend = 0, alpha = vLineAlpha,
+                 colour = cbPalette[4])
+  
+  p <- p +
+    annotate(geom = "text", 
+             x = 1200, 
+             y = yp001Ref$effectSize + 3, 
+             label = paste0("Effect size = ", round(yp001Ref$effectSize, 2) ,"%"), 
+             colour = cbPalette[1], 
+             hjust = 0) # https://stackoverflow.com/questions/26684023/how-to-left-align-text-in-annotate-from-ggplot2
+  return(p)
+}
 
-sumW <- t[group == "S", Mean_W]
-winW <- t[group == "W", Mean_W]
-
-testMean <- mean(testDT[group == "W"]$meanW)
-testSD <- mean(testDT[group == "W"]$meanW)
+testMean <- mean(testDT[group == "W"]$meanW) # winter
+testSD <- mean(testDT[group == "W"]$meanW) # winter
 testSamples <- seq(50,3000,50)
 testPower <- 0.8
 
-resArrayDT <- SAVEr::estimateEffectSizes(testMean,testSD,testSamples,testPower) # auto-produces range of p values
+powerRes80DT <- SAVEr::estimateEffectSizes(testMean,testSD,testSamples,testPower) # auto-produces range of p values
 
-# table
-powerDT <- resArrayDT[,
-                             .(
-                               sampleN = Sample,
-                               effectp001 = round(100*p0.01,2), # "Detectable % effect (p = 0.01)"
-                               effectp005 = round(100*p0.05,2), # "Detectable % effect (p = 0.05)"
-                               effectp01 = round(100*p0.1,2), # "Detectable % effect (p = 0.1)"
-                               effectp02 = round(100*p0.2,2) # "Detectable % effect (p = 0.2)"
-                             )
-                             ]
-```
 
-```{r ggHPSampleSizeFig}
-plotDT <- data.table::as.data.table(reshape2::melt(powerDT, id=c("sampleN")))
-plotDT <- data.table::setnames(plotDT, "value", "effectSize")
-plotDT <- data.table::setnames(plotDT, "variable", "pValue")
-
-# set useful labels
-plotDT <- plotDT[pValue == "effectp001", pValue := "p = 0.01"]
-plotDT <- plotDT[pValue == "effectp005", pValue := "p = 0.05"]
-plotDT <- plotDT[pValue == "effectp01", pValue := "p = 0.1"]
-plotDT <- plotDT[pValue == "effectp02", pValue := "p = 0.2"]
 
 myCaption <- paste0(plotCaption, ", Winter 2015",
                     "\nStatistic: mean W, weekdays 16:00 - 20:00",
-                    "\nTest: R function power.t.test, power = 0.8")
-vLineAlpha <- 0.5
-vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+                    "\nTest: R function power.t.test, statistical power = 0.8")
 
-yp001Ref <- plotDT[pValue == "p = 0.01" & sampleN == 1000] # for reference line
-x001 <- mean(yp001Ref$sampleN)
-yp005Ref <- plotDT[pValue == "p = 0.05" & 
-                     effectSize < ceiling(yp001Ref$effectSize) &
-                     effectSize > floor(yp001Ref$effectSize)] # for reference line
-x005 <- mean(yp005Ref$sampleN)
-yp01Ref <- plotDT[pValue == "p = 0.1" & 
-                     effectSize < ceiling(yp001Ref$effectSize) &
-                     effectSize > floor(yp001Ref$effectSize)] # for reference line
-x01 <- mean(yp01Ref$sampleN)
-yp02Ref <- plotDT[pValue == "p = 0.2" & 
-                     effectSize < ceiling(yp001Ref$effectSize+1) & # fix this to get a value!
-                     effectSize > floor(yp001Ref$effectSize-1)] # for reference line
-x02 <- mean(yp02Ref$sampleN)
-
-p <- ggplot2::ggplot(plotDT, aes(x = sampleN, y = effectSize, colour = pValue)) +
-  geom_line() + 
-  ylim(0,NA) +
-  labs(x = "Sample size",
-       y = "Detectable effect size (%)",
-       caption = myCaption) +
-  guides(colour = guide_legend(title = "p value: ")) +
-  scale_colour_manual(values=cbPalette) + # use colour-blind friendly palette
-  scale_y_continuous(breaks = seq(0,max(plotDT$effectSize),5)) + # add detail to y scale
-  scale_x_continuous(breaks = seq(0,3000,200)) # add detail to x scale
-
-p <- p + 
-  geom_hline(yintercept = yp001Ref$effectSize, alpha = vLineAlpha, colour = "black") +
-  geom_segment(x = x001, y = yp001Ref$effectSize, xend = 1000, yend = 0, alpha = vLineAlpha,
-               colour = cbPalette[1]) +
-  geom_segment(x = x005, y = yp001Ref$effectSize, xend = x005, yend = 0, alpha = vLineAlpha,
-               colour = cbPalette[2]) +
-  geom_segment(x = x01, y = yp001Ref$effectSize, xend = x01, yend = 0, alpha = vLineAlpha,
-               colour = cbPalette[3]) + 
-  geom_segment(x = x02, y = yp001Ref$effectSize, xend = x02, yend = 0, alpha = vLineAlpha,
-               colour = cbPalette[4])
-
-p <- p +
-  annotate(geom = "text", 
-           x = 1200, 
-           y = yp001Ref$effectSize + 3, 
-           label = paste0("Effect size = ", round(yp001Ref$effectSize, 2) ,"%"), 
-           colour = cbPalette[1], 
-           hjust = 0) # https://stackoverflow.com/questions/26684023/how-to-left-align-text-in-annotate-from-ggplot2
-
+p <- makePowerPlot(powerRes80DT, myCaption)
 p
 
-ggplot2::ggsave("figs/fig1_statPowerEsts.png", p)
+ggplot2::ggsave("figs/fig1_statPowerEsts80.png", p)
 
 ```
 
-As an illustration, \ref(fig:ggHPSampleSizeFig) shows sample size calculations using 'Heat Pump' electricity demand extracted from the publicly available New Zealand Green Grid household electricity demand data [@anderson_new_2018] for winter 2014 for the peak demand period (16:00 - 20:00) on weekdays.
+As an illustration, \ref(fig:ggHPSampleSizeFig80) shows sample size calculations for power = 0.8 (80%) using 'Heat Pump' electricity demand extracted from the publicly available New Zealand Green Grid household electricity demand data [@anderson_new_2018] for winter 2015 for the peak demand period (16:00 - 20:00) on weekdays.
 
-As a guide, these results suggest that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of XXX with p = 0.05 and power = 0.8. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ XXX households would be needed in each group (see \ref(fig:sampleSizeFig)) but the risk of a Type I error would increase. Reducing the statistical power used would also reduce the  sample required for a given effect size tested at a given p value. However in this case the risk of a Type II error would increase.
+These results show that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r yp001Ref$effectSize`% with p = 0.01 and power = 0.8. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig80)) but the risk of a Type I error would increase. 
 
-# Testing for differences: confidence intervals and p values
+```{r ggHPSampleSizeFig70}
 
-As an example, consider the a study which collected electricity power demand data for two different groups of households. The data shows that the mean W for group 1 was `r round(sumW,2)` and for group 2 was `r round(winW,2)`. This is a (very) large difference in the mean of `r round(winW - sumW, 2)`.
+testPower <- 0.7
 
-A t-test of the difference between the groups produces the result shown below.
+powerRes70DT <- SAVEr::estimateEffectSizes(testMean,testSD,testSamples,testPower) # auto-produces range of p values
+
+myCaption <- paste0(plotCaption, ", Winter 2015",
+                    "\nStatistic: mean W, weekdays 16:00 - 20:00",
+                    "\nTest: R function power.t.test, statistical power = 0.7")
+
+p <- makePowerPlot(powerRes70DT, myCaption)
+p
+
+ggplot2::ggsave("figs/fig1_statPowerEsts70.png", p)
+
+```
+
+Were we to reduce the statistical power to 0.7 then we would obtain the results shown in \ref(fig:ggHPSampleSizeFig70). In this case a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r yp001Ref$effectSize`% with p = 0.01 and power = 0.7. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig80)) but again the risk of a Type I error would increase. As we can see, reducing the statistical power used would also reduce the  sample required for a given effect size tested at a given p value. However the risk of a Type II error would increase.
+
+# Testing for differences: effect sizes, confidence intervals and p values
+
+## Getting it 'wrong'
+
+Let us imagine that we have not designed and implemented our sample recruitment according to \ref(fig:ggHPSampleSizeFig80) and instead decided, perhaps for cost reasons to recruit ~ 30 households per group. Now we wish to test for differences between the control and intervention groups.
+
+Suppose a t-test of the difference between the Control and Intervention 1 group produces the result shown below.
  
-```{r tTestTab}
+```{r tTestTabG1}
 # fix
-tTest <- t.test(testDT[group == "S"]$meanW, testDT[group == "W"]$meanW)
+# we are going to compare winter with summer to get a large effect. This is not what we would really do as it is a repeat measures dataset but this is irrelevant for our current purposes.
+testDT <- testDT[season == "Winter", group := "Control"]
+testDT <- testDT[season == "Summer", group := "Intervention 1"]
+testDT <- testDT[season == "Spring", group := "Intervention 2"]
+testDT <- testDT[season == "Autumn", group := "Intervention 3"]
+
+controlW <- testDT[group == "Control", mean(meanW)]
+int1W <- testDT[group == "Intervention 1", mean(meanW)]
+
+tTest <- t.test(testDT[group == "Intervention 1"]$meanW, testDT[group == "Control"]$meanW)
 tTest
 ```
 
-In this case we have:
+The data shows that the mean power demand for the control group was `r round(controlW,2)`W and for Intervention 1 was `r round(int1W,2)`W. This is a (very) large difference in the mean of `r round(controlW - int1W, 2)`. The results of the t test are:
 
- * effect size = `r winW - sumW`W or `r round(100 * (1-(sumW/winW)),2)`%  representing a _substantial bang for buck_ for whatever caused the difference;
+ * effect size = `r controlW - int1W`W or `r round(100 * (1-(int1W/controlW)),2)`%  representing a _substantial bang for buck_ for whatever caused the difference;
  * 95% confidence interval for the test = -258.11 to 3.05 representing _considerable_ uncertainty/variation;
  * p value of 0.055 representing a _relatively low_ risk of a false positive results but which (just) fails the conventional p < 0.05 threshold.
  
 What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional 'p value testing' perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution. As the recent discussions of the role of the p value in decision making have made clear [@wasserstein2016] statistical analysis needs to report all of these elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of failure to meet conventional statistical levels of significance risks throwing both the baby and the bath water out of the window.
 
+But what about Intervention Group 2? In this case the t.test results are slightly different:
+
+```{r tTestTabG2}
+# fix
+# now compare winter & spring for a smaller effect
+controlW <- testDT[group == "Control", mean(meanW)]
+int2W <- testDT[group == "Intervention 2", mean(meanW)]
+
+tTest <- t.test(testDT[group == "Intervention 2"]$meanW, testDT[group == "Control"]$meanW)
+tTest
+```
+
+Now:
+ 
+ * effect size = `r controlW - int2W`W or `r round(100 * (1-(int2W/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = -236.83 to 29.10 representing _even greater_ uncertainty/variation;
+ * p value of 0.12 representing a _slightly higher_ risk of a false positive results which fails the conventional p < 0.05 threshold and also the less conservative p < 0.1.
+
+As before, the subsequent action we take depends on our tolerance of Type I (falso positive) risk. We still have a reasonably large effect size but we are less certain about it and we have a higher risk of it not being real. What do you think we should do?
+
+```{r getN}
+# get sample size required for Int Group 2
+sd <- testDT[, sd(meanW)]
+result <- power.t.test(
+        n = NULL,
+        delta = controlW - int2W,
+        sd = sd,
+        sig.level = 0.05,
+        power = 0.8,
+        alternative = c("one.sided")
+      )
+```
+
+In both cases our decision-making is rather hampered by the small sample size even though we have extremely large effect sizes. As we can see from \ref(fig:ggHPSampleSizeFig80), to detect Intervention Group 2's effect size of `r round(100 * (1-(int2W/controlW)),2)`% would have required control and trial group sizes of `r round(result$n)` respectively.
+
+## Getting it 'right'
+
+Suppose instead that we had designed and implemented our sample recruitment according to \ref(fig:ggHPSampleSizeFig80) so that we have a reasonable chance of detecting a difference of ~ 14% with power = 0.8 and at a significance level (p) of 0.05. This means we should have a sample of around 3000 households split equally (and randomly) between our trial and two intervention groups.
+
+```{r createLargeN}
+# fix.
+# we just randomly re-sample the GREEN Grid data
+largeTestDT <- sample_frac(testDT[group != "Intervention 3"], 40, replace = TRUE)
+nrow(largeTestDT)
+table(largeTestDT$group)
+
+# now compare winter & spring for a smaller effect
+controlW <- largeTestDT[group == "Control", mean(meanW)]
+int2W <- largeTestDT[group == "Intervention 2", mean(meanW)]
+
+tTest <- t.test(largeTestDT[group == "Intervention 2"]$meanW, largeTestDT[group == "Control"]$meanW)
+tTest
+```
+
+In this case:
+ 
+ * effect size = `r controlW - int2W`W or `r round(100 * (1-(int2W/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = -111.59 to -72.82 representing _much less_ uncertainty/variation;
+ * p value of 2.2e-16 0.00000000000000022) represents a _very small_ risk of a false positive result as it passes all conventional thresholds.
+ 
+So now we are able to be much more confident in our decision to implement Intervention 2 since the average effect is reasonably large, the expected variation in the effect size is reasonably narrow and the risk of a Type I (false positive) error is extremely small. We have combined good study design, based on statistical power analysis, with a nuanced understanding of what effect sizes, test statistic confidence intervals and p values can tell us. As a result we now have a robust, evidence-based, contextually meaningful and _defensible_ strategy.
+
 # Summary and recomendations
 
 ## Statsitical power and sample design
 
+Get it right _first time_ and if you don't have previous data to use _justify_ your choices through power analysis based on defensible assumptions.
+
 ## Reporting statistical tests of difference (effects)
 
+Report all three elements _always_.
+
 ## Making inferences and taking decisions
+
+Pay attention to all three elements _always_.
+
+# Ackowledgements
+
+We would like to thank partners on a number of applied research projects for prodding us into trying to give them some clarity on these issues. We hope this helps.
 
 # Runtime
 
