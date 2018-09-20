@@ -8,10 +8,6 @@ subtitle: '`r paste0(params$subtitle)`'
 author: '`r paste0(params$author)` (Contact: b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::word_document2:
-    fig_caption: yes
-    toc: yes
-    toc_depth: 2
   bookdown::pdf_document2:
     fig_caption: yes
     keep_tex: yes
@@ -27,6 +23,10 @@ output:
     toc: yes
     toc_depth: 2
     toc_float: yes
+  bookdown::word_document2:
+    fig_caption: yes
+    toc: yes
+    toc_depth: 2
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
@@ -92,7 +92,7 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 
 # About
 
-## Report circulation:
+## Paper circulation:
 
  * Public
 
@@ -111,7 +111,7 @@ This work is (c) `r lubridate::year(today())` the authors.
 
 ## History
 
-Code history is generally tracked via our git.soton [repo](https://github.com/CfSOtago/GREENGrid):
+Code history is generally tracked via our [repo](https://github.com/CfSOtago/GREENGrid):
 
  * [Report history](https://github.com/CfSOtago/GREENGrid/commits/master/analysis/powerAnalysis)
  
@@ -138,16 +138,16 @@ In this brief paper we respond to these confusions using a worked example: the d
 
 # Error, power, significance and decision making
 
-Two types of error are of concern in both purely academic and applied research studies:
+Two types of error are of concern in both purely academic research where the efficacy of an intervention is to be tested and also in applied research where a decision may then be taken based on the results:
 
  * Type I: a false positive - an effect is inferred when in fact there is none. From a commercial or policy perspective this could lead to the implementation of a costly intervention which would be unlikely to have the effect expected;
  * Type II: a false negative - an effect is not inferred when in fact there is one. From a commercial or policy perspective this could lead to inaction when an intervention would have been likely to have the effect expected.
  
-The significance level (p value) of the statistical test to be used represents the extent to which the observed data matches the null model to be tested [@wasserstein2016]. In most trials the null model will be a measure of 'no difference' between control and intervenion groups. By convention, the p value _threshold_ for rejecting the null model (the risk of a Type I error) is generally set to 0.05 (5%) although this choice is entirely subjective. In commercial or policy terms an action taken on a larger p value (e.g. setting the p value threshold to 10%) would increase the risk of making a Type I error and thus implementing a potentially costly intervention that is unlikely to have the effect desired. However, as we discuss in more detail below, this is not necessarily _bad practice_ as it may reflect the potential magnitude of an effect, the decision-maker's tolerance of Type I error risk and the urgency of action.
+_Type I error_: The significance level (p value) of the statistical test to be used to test the efficacy of an intervention represents the extent to which the observed data matches the null model to be tested [@wasserstein2016]. In most trials the null model will be a measure of 'no difference' between control and intervenion groups. By convention, the p value _threshold_ for rejecting the null model (the risk of a Type I error) is generally set to 0.05 (5%) although this choice is entirely subjective. In commercial or policy terms an action taken on a larger p value (e.g. setting the p value threshold to 10%) would increase the risk of making a Type I error and thus implementing a potentially costly intervention that is unlikely to have the effect desired. However, as we discuss in more detail below, this is not necessarily _bad practice_ as it may reflect the potential magnitude of an effect, the decision-maker's tolerance of Type I error risk and the urgency of action.
 
-Statistical power is normally set to 0.8 (80%) by convention and represents the pre-study risk of making a Type II error [@Greenland2016]. From a commercial or policy perspective reducing power (e.g. to 0.7 or 70%) will therefore increase the risk of taking no action when in fact the intervention would probably have had the effect desired. Statistical power calculations enable the investigator to estimate the sample size that would be needed to robustly detect an experimental effect with a given risk of a false positive (Type I error) or false negative (Type II error) result. This prevents a study from recruiting too few participants to be able to robustly detect the hypothesised intervention effect [@Delmas2013Information] or wasting resources by recruiting a larger sample than needed. 
+_Type II error_: Statistical power is normally set to 0.8 (80%) by convention and represents the pre-study risk of making a Type II error [@Greenland2016]. From a commercial or policy perspective reducing power (e.g. to 0.7 or 70%) will therefore increase the risk of taking no action when in fact the intervention would probably have had the effect desired. Statistical power calculations enable the investigator to estimate the sample size that would be needed to robustly detect an experimental effect with a given risk of a false positive (Type I error) or false negative (Type II error) result. This prevents a study from recruiting too few participants to be able to robustly detect the hypothesised intervention effect [@Delmas2013Information] or wasting resources by recruiting a larger sample than needed. 
 
-Previous work has suggested that sample sizes in most energy efficiency studies may be too low to provide adequate power and so statistically robust conclusions cannot be drawn at conventional thresholds [@Frederiks2016Evaluating] while a more recent review focusing on demand response studies reaching a similar conclusion [@Srivastava2018Assessing]. It is therefore hardly surprising that a number of studies report effect sizes which are not statistically significant at conventional thresholds [@Srivastava2018Assessing], choose to use lower statistical significance thresholds [@RockyMountainInstitute2006Automated, @AECOM2011Energy, @CER2012Smart, @Schofield2015Experimental] or both lower statistical power values _and_ statistical significance thresholds [@energyWiseT1,@energyWiseT2].
+Previous work has suggested that sample sizes in most energy efficiency studies may be too low to provide adequate power and so statistically robust conclusions cannot be drawn at conventional thresholds [@Frederiks2016Evaluating] while a more recent review focusing on demand response studies reached a similar conclusion [@Srivastava2018Assessing]. It is therefore hardly surprising that a number of studies report effect sizes which are not statistically significant at conventional thresholds [@Srivastava2018Assessing], choose to use lower statistical significance thresholds [@RockyMountainInstitute2006Automated, @AECOM2011Energy, @CER2012Smart, @Schofield2015Experimental] or both lower statistical power values _and_ lower statistical significance thresholds [@energyWiseT1,@energyWiseT2].
 
 However it would be wrong to conclude that this is _necessarily_ bad practice. Recent discussions of the role of p values in inference [@Greenland2016, @wasserstein2016] should remind us that decisions should never be based only on statistical significance thresholds set purely by convention. Rather, inference and thus decision making should be based on:
 
@@ -157,7 +157,7 @@ However it would be wrong to conclude that this is _necessarily_ bad practice. R
 
 Only then can a contextually appropriate decision be taken as to whether the effect is large enough, certain enough and has a low enough risk of being a false positive result to warrant action.
 
-In the following sections we apply these principles to the design and analysis of a hypothetical New Zealand household electricity demand response trial and to the use of a simple statistical test of difference between two groups.
+In the following sections we apply these principles to the design and analysis of a hypothetical New Zealand household electricity demand response trial and to the use of a simple statistical test of difference between trial groups to demonstrate and clarify these points.
 
 # Sample design: statistical power
 
@@ -185,12 +185,9 @@ testDT <- dt[lubridate::hour(r_dateTime) > 15 & # 16:00 ->
                         lubridate::wday(r_dateTime) != 7 & # not Sunday
                         year == 2015,
                         .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(season, linkID)]
-
-testDT <- testDT[season == "Winter", group := "W"]
-testDT <- testDT[season == "Summer", group := "S"]
 ```
 
-```{r ggHPSampleSizeFig80}
+```{r ggHPSampleSizeFig80, fig.cap="Power analysis results (power = 0.8)"}
 
 makePowerPlot <- function(dt, myCaption){
   vLineAlpha <- 0.5
@@ -243,8 +240,8 @@ makePowerPlot <- function(dt, myCaption){
   return(p)
 }
 
-testMean <- mean(testDT[group == "W"]$meanW) # winter
-testSD <- mean(testDT[group == "W"]$meanW) # winter
+testMean <- mean(testDT[season == "Winter"]$meanW) 
+testSD <- mean(testDT[season == "Winter"]$meanW) 
 testSamples <- seq(50,3000,50)
 testPower <- 0.8
 
@@ -265,9 +262,9 @@ ggplot2::ggsave("figs/fig1_statPowerEsts80.png", p)
 
 As an illustration, \ref(fig:ggHPSampleSizeFig80) shows sample size calculations for power = 0.8 (80%) using 'Heat Pump' electricity demand extracted from the publicly available New Zealand Green Grid household electricity demand data [@anderson_new_2018] for winter 2015 for the peak demand period (16:00 - 20:00) on weekdays.
 
-These results show that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r yp001Ref$effectSize`% with p = 0.01 and power = 0.8. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig80)) but the risk of a Type I error would increase. 
+These results show that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r round(yp001Ref$effectSize,2)`% with p = 0.01 and power = 0.8. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig80)) but the risk of a Type I error would increase. 
 
-```{r ggHPSampleSizeFig70}
+```{r ggHPSampleSizeFig70, fig.cap="Power analysis results (power = 0.7)"}
 
 testPower <- 0.7
 
@@ -284,7 +281,7 @@ ggplot2::ggsave("figs/fig1_statPowerEsts70.png", p)
 
 ```
 
-Were we to reduce the statistical power to 0.7 then we would obtain the results shown in \ref(fig:ggHPSampleSizeFig70). In this case a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r yp001Ref$effectSize`% with p = 0.01 and power = 0.7. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig80)) but again the risk of a Type I error would increase. As we can see, reducing the statistical power used would also reduce the  sample required for a given effect size tested at a given p value. However the risk of a Type II error would increase.
+Were we to reduce the statistical power to 0.7 then we would obtain the results shown in \ref(fig:ggHPSampleSizeFig70). In this case a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of `r round(yp001Ref$effectSize,2)`% with p = 0.01 and power = 0.7. Were a study to be less risk averse in it's decision making then p = 0.1 may be acceptable in which case only ~ `r x01` households would be needed in each group (see \ref(fig:ggHPSampleSizeFig70)) but as before the risk of a Type I error would increase. Similarly, reducing the statistical power used would also reduce the sample required for a given effect size tested at a given p value. However, as before the risk of a Type II error would increase.
 
 # Testing for differences: effect sizes, confidence intervals and p values
 
@@ -292,48 +289,94 @@ Were we to reduce the statistical power to 0.7 then we would obtain the results 
 
 Let us imagine that we have not designed and implemented our sample recruitment according to \ref(fig:ggHPSampleSizeFig80) and instead decided, perhaps for cost reasons to recruit ~ 30 households per group. Now we wish to test for differences between the control and intervention groups.
 
-Suppose a t-test of the difference between the Control and Intervention 1 group produces the result shown below.
- 
-```{r tTestTabG1}
-# fix
-# we are going to compare winter with summer to get a large effect. This is not what we would really do as it is a repeat measures dataset but this is irrelevant for our current purposes.
+
+```{r smallNTable}
 testDT <- testDT[season == "Winter", group := "Control"]
 testDT <- testDT[season == "Summer", group := "Intervention 1"]
 testDT <- testDT[season == "Spring", group := "Intervention 2"]
 testDT <- testDT[season == "Autumn", group := "Intervention 3"]
 
-controlW <- testDT[group == "Control", mean(meanW)]
-int1W <- testDT[group == "Intervention 1", mean(meanW)]
+t <- testDT[, .("mean W" = mean(meanW),
+                     "sd W" = sd(meanW),
+                     "n households" = .N),
+                 keyby = .(group)]
+
+kableExtra::kable(t, caption = "Number of households and summary statistics per group") %>%
+  kable_styling()
+```
+```{r ggMeanDiffs, fig.caption = "Mean W demand per group (Error bars = 95% confidence intervals for the sample mean)"}
+plotDT <- testDT[, .(meanW = mean(meanW),
+                     sdW = sd(meanW),
+                     nObs = .N),
+                 keyby = .(group)
+                 ]
+
+myCaption <- paste0("Hypothetical small n sample",
+                    "\nStatistic: mean W, weekdays 16:00 - 20:00")
+
+makeMeanCIPlot <- function(dt){
+  # makes the plot, assumes meanW & sdW - not flexible but it does the job
+  dt <- dt[, ci_upper := meanW + (qnorm(0.975) * sdW/sqrt(nObs))]
+  dt <- dt[, ci_lower := meanW - (qnorm(0.975) * sdW/sqrt(nObs))]
+  p <- ggplot2::ggplot(dt, aes(x = group, y = meanW, fill = group)) +
+    geom_col() + 
+    geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.25) +
+    guides(fill = guide_legend(title = "Group")) +
+    labs(y = "Mean W",
+         x = "Trial group",
+       caption = myCaption)
+  return(p)
+}
+
+makeMeanCIPlot(plotDT)
+  
+```
+
+As a first step we plot the differences using the mean and 95% confidence intervals as shown in \ref(fig:ggMeanDiffs). As we can see the interventions appear to have reduced demand quite substantially and the error bars indicate the uncertainty (variation) around the mean within each group. Based on this, we suspect that we are unlikely to see low p values when we use statistical tests of the differences as the error bars overlap substantially.
+
+Suppose a t-test of the difference between the Control and Intervention 1 group produces the result shown below.
+ 
+```{r tTestTabG1}
+# fix
+# we are going to compare winter with summer to get a large effect. This is not what we would really do as it is a repeat measures dataset but this is irrelevant for our current purposes.
 
 tTest <- t.test(testDT[group == "Intervention 1"]$meanW, testDT[group == "Control"]$meanW)
 tTest
+
+controlW <- tTest$estimate[[2]]
+intW <- tTest$estimate[[1]]
+
+cil <- tTest$conf.int[[1]]
+ciu <- tTest$conf.int[[2]]
 ```
 
-The data shows that the mean power demand for the control group was `r round(controlW,2)`W and for Intervention 1 was `r round(int1W,2)`W. This is a (very) large difference in the mean of `r round(controlW - int1W, 2)`. The results of the t test are:
+The data shows that the mean power demand for the control group was `r round(controlW,2)`W and for Intervention 1 was `r round(intW,2)`W. This is a (very) large difference in the mean of `r round(controlW - intW, 2)`. The results of the t test are:
 
- * effect size = `r controlW - int1W`W or `r round(100 * (1-(int1W/controlW)),2)`%  representing a _substantial bang for buck_ for whatever caused the difference;
- * 95% confidence interval for the test = -258.11 to 3.05 representing _considerable_ uncertainty/variation;
- * p value of 0.055 representing a _relatively low_ risk of a false positive results but which (just) fails the conventional p < 0.05 threshold.
+ * effect size = `r round(controlW - intW)`W or `r round(100 * (1-(intW/controlW)))`%  representing a _substantial bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = `r round(cil,2)` to `r round(ciu,2)` representing _considerable_ uncertainty/variation;
+ * p value of `r round(tTest$p.value,3)` representing a _relatively low_ risk of a false positive result but which (just) fails the conventional p < 0.05 threshold.
  
-What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional 'p value testing' perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution. As the recent discussions of the role of the p value in decision making have made clear [@wasserstein2016] statistical analysis needs to report all of these elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of failure to meet conventional statistical levels of significance risks throwing both the baby and the bath water out of the window.
+What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional 'p value testing' perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution.
 
 But what about Intervention Group 2? In this case the t.test results are slightly different:
 
 ```{r tTestTabG2}
 # fix
 # now compare winter & spring for a smaller effect
-controlW <- testDT[group == "Control", mean(meanW)]
-int2W <- testDT[group == "Intervention 2", mean(meanW)]
 
 tTest <- t.test(testDT[group == "Intervention 2"]$meanW, testDT[group == "Control"]$meanW)
 tTest
+controlW <- tTest$estimate[[2]]
+intW <- tTest$estimate[[1]]
+cil <- tTest$conf.int[[1]]
+ciu <- tTest$conf.int[[2]]
 ```
 
 Now:
  
- * effect size = `r controlW - int2W`W or `r round(100 * (1-(int2W/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
- * 95% confidence interval for the test = -236.83 to 29.10 representing _even greater_ uncertainty/variation;
- * p value of 0.12 representing a _slightly higher_ risk of a false positive results which fails the conventional p < 0.05 threshold and also the less conservative p < 0.1.
+ * effect size = `r round(controlW - intW)`W or `r round(100 * (1-(intW/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = `r round(cil,2)` to `r round(ciu,2)` representing _even greater_ uncertainty/variation;
+ * p value of `r round(tTest$p.value,3)` representing a _higher_ risk of a false positive result which fails the conventional p < 0.05 threshold and also the less conservative p < 0.1.
 
 As before, the subsequent action we take depends on our tolerance of Type I (falso positive) risk. We still have a reasonably large effect size but we are less certain about it and we have a higher risk of it not being real. What do you think we should do?
 
@@ -342,7 +385,7 @@ As before, the subsequent action we take depends on our tolerance of Type I (fal
 sd <- testDT[, sd(meanW)]
 result <- power.t.test(
         n = NULL,
-        delta = controlW - int2W,
+        delta = controlW - intW,
         sd = sd,
         sig.level = 0.05,
         power = 0.8,
@@ -350,52 +393,90 @@ result <- power.t.test(
       )
 ```
 
-In both cases our decision-making is rather hampered by the small sample size even though we have extremely large effect sizes. As we can see from \ref(fig:ggHPSampleSizeFig80), to detect Intervention Group 2's effect size of `r round(100 * (1-(int2W/controlW)),2)`% would have required control and trial group sizes of `r round(result$n)` respectively.
+In both cases our decision-making is rather hampered by the small sample size even though we have extremely large effect sizes. As we can see from \ref(fig:ggHPSampleSizeFig80), to detect Intervention Group 2's effect size of `r round(100 * (1-(intW/controlW)),2)`% would have required control and trial group sizes of `r round(result$n)` respectively.
+
+However, as the recent discussions of the role of the p value in decision making have made clear [@wasserstein2016] statistical analysis needs to report all of the result elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of a failure to meet conventional statistical levels of significance risks levitating babies and bathwater...
 
 ## Getting it 'right'
 
-Suppose instead that we had designed and implemented our sample recruitment according to \ref(fig:ggHPSampleSizeFig80) so that we have a reasonable chance of detecting a difference of ~ 14% with power = 0.8 and at a significance level (p) of 0.05. This means we should have a sample of around 3000 households split equally (and randomly) between our trial and two intervention groups.
+Suppose instead that we had designed and implemented our sample recruitment according to \ref(fig:ggHPSampleSizeFig80) so that we have a reasonable chance of detecting a difference of ~ 14% with power = 0.8 and at a significance level (p) of 0.05. This means we should have a sample of around 4000 households split equally (and randomly) between our trial and two intervention groups.
 
-```{r createLargeN}
+```{r creatLargeN}
 # fix.
 # we just randomly re-sample the GREEN Grid data
-largeTestDT <- sample_frac(testDT[group != "Intervention 3"], 40, replace = TRUE)
-nrow(largeTestDT)
-table(largeTestDT$group)
+largeTestDT <- sample_frac(testDT, 40, replace = TRUE)
 
+t <- largeTestDT[, .("mean W" = mean(meanW),
+                     "sd W" = sd(meanW),
+                     "n households" = .N),
+                 keyby = .(group)]
+
+kableExtra::kable(t, caption = "Number of households and summary statistics per group") %>%
+  kable_styling()
+```
+
+```{r largeNmeanDiffs, fig.cap="Mean W demand per group for large sample (Error bars = 95% confidence intervals for the sample mean)"}
+plotDT <- largeTestDT[, .(meanW = mean(meanW),
+                     sdW = sd(meanW),
+                     nObs = .N),
+                 keyby = .(group)
+                 ]
+
+myCaption <- paste0("Hypothetical large n sample",
+                    "\nStatistic: mean W, weekdays 16:00 - 20:00")
+makeMeanCIPlot(plotDT)
+```
+
+In comparison to \ref(fig:ggMeanDiffs) we can now see (\ref(fig:largeNmeanDiffs)) that the 95% confidence intervals for the group means are much narrower. This is almost entirely due to the larger sample sizes. Re-running our previous test for differences now produces:
+
+```{r largeNtTest1}
 # now compare winter & spring for a smaller effect
-controlW <- largeTestDT[group == "Control", mean(meanW)]
-int2W <- largeTestDT[group == "Intervention 2", mean(meanW)]
 
 tTest <- t.test(largeTestDT[group == "Intervention 2"]$meanW, largeTestDT[group == "Control"]$meanW)
 tTest
+controlW <- tTest$estimate[[2]]
+intW <- tTest$estimate[[1]]
+cil <- tTest$conf.int[[1]]
+ciu <- tTest$conf.int[[2]]
 ```
 
 In this case:
+
+  * effect size = `r controlW - intW`W or `r round(100 * (1-(intW/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
+ * 95% confidence interval for the test = `r round(cil,2)` to `r round(ciu,2)` representing _much less_ uncertainty/variation;
+ * p value of `r round(tTest$p.value,4)` representing a _very low_ risk of a false positive result as it passes all conventional thresholds.
  
- * effect size = `r controlW - int2W`W or `r round(100 * (1-(int2W/controlW)),2)`%  representing a still _reasonable bang for buck_ for whatever caused the difference;
- * 95% confidence interval for the test = -111.59 to -72.82 representing _much less_ uncertainty/variation;
- * p value of 2.2e-16 0.00000000000000022) represents a _very small_ risk of a false positive result as it passes all conventional thresholds.
- 
-So now we are able to be much more confident in our decision to implement Intervention 2 since the average effect is reasonably large, the expected variation in the effect size is reasonably narrow and the risk of a Type I (false positive) error is extremely small. We have combined good study design, based on statistical power analysis, with a nuanced understanding of what effect sizes, test statistic confidence intervals and p values can tell us. As a result we now have a robust, evidence-based, contextually meaningful and _defensible_ strategy.
+So now we are able to be much more confident in our decision to implement Intervention 2 since the average effect is reasonably large, the expected variation in the effect size is reasonably narrow and the risk of a Type I (false positive) error is extremely small. 
 
 # Summary and recomendations
 
-## Statsitical power and sample design
+## Statistical power and sample design
 
-Get it right _first time_ and if you don't have previous data to use _justify_ your choices through power analysis based on defensible assumptions.
+Get it right _first time_: we should do the statistical power analysis before we start to make sure the study is even worth trying. If we don't have previous data to use, we _justify_ our choices through power analysis based on defensible assumptions.
 
 ## Reporting statistical tests of difference (effects)
 
-Report all three elements _always_.
+Report all three elements _always_:
+
+ * average effect size
+ * effect size confidence intervals
+ * the p value (risk of Type I errors)
+
+We should also report the statistical power used just to be clear on the risk of Type II errors.
 
 ## Making inferences and taking decisions
 
-Pay attention to all three elements _always_.
+Pay attention to all three elements _always_:
+
+ * average effect size: what is the _average bang for buck_?
+ * effect size confidence intervals: _how uncertain is the bang_?
+ * the p value: _what is the risk of a false positive_?
+
+If we have ticked all the boxes so far then we have combined good study design based on statistical power analysis, with a nuanced understanding of what test statistic effect sizes, confidence intervals and p values can tell us. As a result we now have a robust, evidence-based, contextually meaningful and _defensible_ strategy.
 
 # Ackowledgements
 
-We would like to thank partners on a number of applied research projects for prodding us into trying to give them some clarity on these issues. We hope this helps.
+We would like to thank collaborators and partners on a number of applied research projects for prodding us into thinking about these issues more deeply and clearly than we othweise would have done. We hope this paper helps to bring some clarity.
 
 # Runtime
 

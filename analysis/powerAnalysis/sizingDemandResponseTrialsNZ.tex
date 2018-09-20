@@ -87,7 +87,7 @@ Making: A Worked Example}
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{Last run at: 2018-09-18 23:42:51}
+    \date{Last run at: 2018-09-20 18:00:10}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -129,7 +129,7 @@ Making: A Worked Example}
 
 \section{About}\label{about}
 
-\subsection{Report circulation:}\label{report-circulation}
+\subsection{Paper circulation:}\label{paper-circulation}
 
 \begin{itemize}
 \tightlist
@@ -157,7 +157,7 @@ This work is (c) 2018 the authors.
 
 \subsection{History}\label{history}
 
-Code history is generally tracked via our git.soton
+Code history is generally tracked via our
 \href{https://github.com/CfSOtago/GREENGrid}{repo}:
 
 \begin{itemize}
@@ -235,8 +235,9 @@ power in sample design and decision making.
 \section{Error, power, significance and decision
 making}\label{error-power-significance-and-decision-making}
 
-Two types of error are of concern in both purely academic and applied
-research studies:
+Two types of error are of concern in both purely academic research where
+the efficacy of an intervention is to be tested and also in applied
+research where a decision may then be taken based on the results:
 
 \begin{itemize}
 \tightlist
@@ -252,45 +253,48 @@ research studies:
   effect expected.
 \end{itemize}
 
-The significance level (p value) of the statistical test to be used
-represents the extent to which the observed data matches the null model
-to be tested (Wasserstein and Lazar 2016). In most trials the null model
-will be a measure of `no difference' between control and intervenion
-groups. By convention, the p value \emph{threshold} for rejecting the
-null model (the risk of a Type I error) is generally set to 0.05 (5\%)
-although this choice is entirely subjective. In commercial or policy
-terms an action taken on a larger p value (e.g.~setting the p value
-threshold to 10\%) would increase the risk of making a Type I error and
-thus implementing a potentially costly intervention that is unlikely to
-have the effect desired. However, as we discuss in more detail below,
-this is not necessarily \emph{bad practice} as it may reflect the
-potential magnitude of an effect, the decision-maker's tolerance of Type
-I error risk and the urgency of action.
+\emph{Type I error}: The significance level (p value) of the statistical
+test to be used to test the efficacy of an intervention represents the
+extent to which the observed data matches the null model to be tested
+(Wasserstein and Lazar 2016). In most trials the null model will be a
+measure of `no difference' between control and intervenion groups. By
+convention, the p value \emph{threshold} for rejecting the null model
+(the risk of a Type I error) is generally set to 0.05 (5\%) although
+this choice is entirely subjective. In commercial or policy terms an
+action taken on a larger p value (e.g.~setting the p value threshold to
+10\%) would increase the risk of making a Type I error and thus
+implementing a potentially costly intervention that is unlikely to have
+the effect desired. However, as we discuss in more detail below, this is
+not necessarily \emph{bad practice} as it may reflect the potential
+magnitude of an effect, the decision-maker's tolerance of Type I error
+risk and the urgency of action.
 
-Statistical power is normally set to 0.8 (80\%) by convention and
-represents the pre-study risk of making a Type II error (Greenland et
-al. 2016). From a commercial or policy perspective reducing power
-(e.g.~to 0.7 or 70\%) will therefore increase the risk of taking no
-action when in fact the intervention would probably have had the effect
-desired. Statistical power calculations enable the investigator to
-estimate the sample size that would be needed to robustly detect an
-experimental effect with a given risk of a false positive (Type I error)
-or false negative (Type II error) result. This prevents a study from
-recruiting too few participants to be able to robustly detect the
-hypothesised intervention effect (Delmas, Fischlein, and Asensio 2013)
-or wasting resources by recruiting a larger sample than needed.
+\emph{Type II error}: Statistical power is normally set to 0.8 (80\%) by
+convention and represents the pre-study risk of making a Type II error
+(Greenland et al. 2016). From a commercial or policy perspective
+reducing power (e.g.~to 0.7 or 70\%) will therefore increase the risk of
+taking no action when in fact the intervention would probably have had
+the effect desired. Statistical power calculations enable the
+investigator to estimate the sample size that would be needed to
+robustly detect an experimental effect with a given risk of a false
+positive (Type I error) or false negative (Type II error) result. This
+prevents a study from recruiting too few participants to be able to
+robustly detect the hypothesised intervention effect (Delmas, Fischlein,
+and Asensio 2013) or wasting resources by recruiting a larger sample
+than needed.
 
 Previous work has suggested that sample sizes in most energy efficiency
 studies may be too low to provide adequate power and so statistically
 robust conclusions cannot be drawn at conventional thresholds (Frederiks
 et al. 2016) while a more recent review focusing on demand response
-studies reaching a similar conclusion (Srivastava, Van Passel, and Laes
+studies reached a similar conclusion (Srivastava, Van Passel, and Laes
 2018). It is therefore hardly surprising that a number of studies report
 effect sizes which are not statistically significant at conventional
 thresholds (Srivastava, Van Passel, and Laes 2018), choose to use lower
-statistical significance thresholds (Institute 2006, AECOM (2011), CER
-(2012), Schofield et al. (2015)) or both lower statistical power values
-\emph{and} statistical significance thresholds (UKPN 2017,UKPN (2018)).
+statistical significance thresholds (Rocky Mountain Institute 2006,
+AECOM (2011), CER (2012), Schofield et al. (2015)) or both lower
+statistical power values \emph{and} lower statistical significance
+thresholds (UKPN 2017,UKPN (2018)).
 
 However it would be wrong to conclude that this is \emph{necessarily}
 bad practice. Recent discussions of the role of p values in inference
@@ -322,7 +326,7 @@ being a false positive result to warrant action.
 In the following sections we apply these principles to the design and
 analysis of a hypothetical New Zealand household electricity demand
 response trial and to the use of a simple statistical test of difference
-between two groups.
+between trial groups to demonstrate and clarify these points.
 
 \section{Sample design: statistical
 power}\label{sample-design-statistical-power}
@@ -361,44 +365,110 @@ considered `normal' in academic research.
 ## will replace the existing scale.
 \end{verbatim}
 
-\includegraphics{sizingDemandResponseTrialsNZ_files/figure-latex/ggHPSampleSizeFig-1.pdf}
+\begin{figure}
+\centering
+\includegraphics{sizingDemandResponseTrialsNZ_files/figure-latex/ggHPSampleSizeFig80-1.pdf}
+\caption{\label{fig:ggHPSampleSizeFig80}Power analysis results (power =
+0.8)}
+\end{figure}
 
 \begin{verbatim}
 ## Saving 6.5 x 4.5 in image
 \end{verbatim}
 
-As an illustration, \ref(fig:ggHPSampleSizeFig) shows sample size
-calculations using `Heat Pump' electricity demand extracted from the
-publicly available New Zealand Green Grid household electricity demand
-data (Anderson et al. 2018) for winter 2014 for the peak demand period
-(16:00 - 20:00) on weekdays.
+As an illustration, \ref(fig:ggHPSampleSizeFig80) shows sample size
+calculations for power = 0.8 (80\%) using `Heat Pump' electricity demand
+extracted from the publicly available New Zealand Green Grid household
+electricity demand data (Anderson et al. 2018) for winter 2015 for the
+peak demand period (16:00 - 20:00) on weekdays.
 
-As a guide, these results suggest that a trial comprising a control and
-intervention sample of 1000 households (each) would be able to detect an
-effect size of XXX with p = 0.05 and power = 0.8. Were a study to be
-less risk averse in it's decision making then p = 0.1 may be acceptable
-in which case only \textasciitilde{} XXX households would be needed in
-each group (see \ref(fig:sampleSizeFig)) but the risk of a Type I error
-would increase. Reducing the statistical power used would also reduce
-the sample required for a given effect size tested at a given p value.
-However in this case the risk of a Type II error would increase.
+These results show that a trial comprising a control and intervention
+sample of 1000 households (each) would be able to detect an effect size
+of 14.18\% with p = 0.01 and power = 0.8. Were a study to be less risk
+averse in it's decision making then p = 0.1 may be acceptable in which
+case only \textasciitilde{} 450 households would be needed in each group
+(see \ref(fig:ggHPSampleSizeFig80)) but the risk of a Type I error would
+increase.
 
-\section{Testing for differences: confidence intervals and p
-values}\label{testing-for-differences-confidence-intervals-and-p-values}
+\begin{verbatim}
+## Scale for 'y' is already present. Adding another scale for 'y', which
+## will replace the existing scale.
+\end{verbatim}
 
-As an example, consider the a study which collected electricity power
-demand data for two different groups of households. The data shows that
-the mean W for group 1 was 35.14 and for group 2 was 162.67. This is a
-(very) large difference in the mean of 127.53.
+\begin{figure}
+\centering
+\includegraphics{sizingDemandResponseTrialsNZ_files/figure-latex/ggHPSampleSizeFig70-1.pdf}
+\caption{\label{fig:ggHPSampleSizeFig70}Power analysis results (power =
+0.7)}
+\end{figure}
 
-A t-test of the difference between the groups produces the result shown
-below.
+\begin{verbatim}
+## Saving 6.5 x 4.5 in image
+\end{verbatim}
+
+Were we to reduce the statistical power to 0.7 then we would obtain the
+results shown in \ref(fig:ggHPSampleSizeFig70). In this case a trial
+comprising a control and intervention sample of 1000 households (each)
+would be able to detect an effect size of 12.76\% with p = 0.01 and
+power = 0.7. Were a study to be less risk averse in it's decision making
+then p = 0.1 may be acceptable in which case only \textasciitilde{} 425
+households would be needed in each group (see
+\ref(fig:ggHPSampleSizeFig70)) but as before the risk of a Type I error
+would increase. Similarly, reducing the statistical power used would
+also reduce the sample required for a given effect size tested at a
+given p value. However, as before the risk of a Type II error would
+increase.
+
+\section{Testing for differences: effect sizes, confidence intervals and
+p
+values}\label{testing-for-differences-effect-sizes-confidence-intervals-and-p-values}
+
+\subsection{\texorpdfstring{Getting it
+`wrong'}{Getting it wrong}}\label{getting-it-wrong}
+
+Let us imagine that we have not designed and implemented our sample
+recruitment according to \ref(fig:ggHPSampleSizeFig80) and instead
+decided, perhaps for cost reasons to recruit \textasciitilde{} 30
+households per group. Now we wish to test for differences between the
+control and intervention groups.
+
+\begin{table}[t]
+
+\caption{\label{tab:smallNTable}Number of households and summary statistics per group}
+\centering
+\begin{tabular}{l|r|r|r}
+\hline
+group & mean W & sd W & n households\\
+\hline
+Control & 162.66915 & 325.51171 & 28\\
+\hline
+Intervention 1 & 35.13947 & 83.90258 & 22\\
+\hline
+Intervention 2 & 58.80597 & 113.53102 & 26\\
+\hline
+Intervention 3 & 68.37439 & 147.37279 & 29\\
+\hline
+\end{tabular}
+\end{table}
+
+\includegraphics{sizingDemandResponseTrialsNZ_files/figure-latex/ggMeanDiffs-1.pdf}
+
+As a first step we plot the differences using the mean and 95\%
+confidence intervals as shown in \ref(fig:ggMeanDiffs). As we can see
+the interventions appear to have reduced demand quite substantially and
+the error bars indicate the uncertainty (variation) around the mean
+within each group. Based on this, we suspect that we are unlikely to see
+low p values when we use statistical tests of the differences as the
+error bars overlap substantially.
+
+Suppose a t-test of the difference between the Control and Intervention
+1 group produces the result shown below.
 
 \begin{verbatim}
 ## 
 ##  Welch Two Sample t-test
 ## 
-## data:  testDT[group == "S"]$meanW and testDT[group == "W"]$meanW
+## data:  testDT[group == "Intervention 1"]$meanW and testDT[group == "Control"]$meanW
 ## t = -1.9907, df = 31.47, p-value = 0.05526
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
@@ -408,19 +478,21 @@ below.
 ##  35.13947 162.66915
 \end{verbatim}
 
-In this case we have:
+The data shows that the mean power demand for the control group was
+162.67W and for Intervention 1 was 35.14W. This is a (very) large
+difference in the mean of 127.53. The results of the t test are:
 
 \begin{itemize}
 \tightlist
 \item
-  effect size = 127.5296803W or 78.4\% representing a \emph{substantial
-  bang for buck} for whatever caused the difference;
+  effect size = 128W or 78\% representing a \emph{substantial bang for
+  buck} for whatever caused the difference;
 \item
   95\% confidence interval for the test = -258.11 to 3.05 representing
   \emph{considerable} uncertainty/variation;
 \item
   p value of 0.055 representing a \emph{relatively low} risk of a false
-  positive results but which (just) fails the conventional p \textless{}
+  positive result but which (just) fails the conventional p \textless{}
   0.05 threshold.
 \end{itemize}
 
@@ -433,20 +505,194 @@ However this misses the crucial point that an organisation with a higher
 risk tolerance might conclude that the large effect size justifies
 implementing the intervention even though the risk of a false positive
 is slightly higher. If the p value had been 0.25 then this would have
-still been the case but would have warranted even further caution. As
-the recent discussions of the role of the p value in decision making
-have made clear (Wasserstein and Lazar 2016) statistical analysis needs
-to report all of these elements to enable contextually appropriate and
-defensible evidence-based decisions to be taken. Simply dismissing
-results on the basis of failure to meet conventional statistical levels
-of significance risks throwing both the baby and the bath water out of
-the window.
+still been the case but would have warranted even further caution.
+
+But what about Intervention Group 2? In this case the t.test results are
+slightly different:
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  testDT[group == "Intervention 2"]$meanW and testDT[group == "Control"]$meanW
+## t = -1.5876, df = 33.909, p-value = 0.1217
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -236.82848   29.10212
+## sample estimates:
+## mean of x mean of y 
+##  58.80597 162.66915
+\end{verbatim}
+
+Now:
+
+\begin{itemize}
+\tightlist
+\item
+  effect size = 104W or 63.85\% representing a still \emph{reasonable
+  bang for buck} for whatever caused the difference;
+\item
+  95\% confidence interval for the test = -236.83 to 29.1 representing
+  \emph{even greater} uncertainty/variation;
+\item
+  p value of 0.122 representing a \emph{higher} risk of a false positive
+  result which fails the conventional p \textless{} 0.05 threshold and
+  also the less conservative p \textless{} 0.1.
+\end{itemize}
+
+As before, the subsequent action we take depends on our tolerance of
+Type I (falso positive) risk. We still have a reasonably large effect
+size but we are less certain about it and we have a higher risk of it
+not being real. What do you think we should do?
+
+In both cases our decision-making is rather hampered by the small sample
+size even though we have extremely large effect sizes. As we can see
+from \ref(fig:ggHPSampleSizeFig80), to detect Intervention Group 2's
+effect size of 63.85\% would have required control and trial group sizes
+of 47 respectively.
+
+However, as the recent discussions of the role of the p value in
+decision making have made clear (Wasserstein and Lazar 2016) statistical
+analysis needs to report all of the result elements to enable
+contextually appropriate and defensible evidence-based decisions to be
+taken. Simply dismissing results on the basis of a failure to meet
+conventional statistical levels of significance risks levitating babies
+and bathwater\ldots{}
+
+\subsection{\texorpdfstring{Getting it
+`right'}{Getting it right}}\label{getting-it-right}
+
+Suppose instead that we had designed and implemented our sample
+recruitment according to \ref(fig:ggHPSampleSizeFig80) so that we have a
+reasonable chance of detecting a difference of \textasciitilde{} 14\%
+with power = 0.8 and at a significance level (p) of 0.05. This means we
+should have a sample of around 4000 households split equally (and
+randomly) between our trial and two intervention groups.
+
+\begin{table}[t]
+
+\caption{\label{tab:creatLargeN}Number of households and summary statistics per group}
+\centering
+\begin{tabular}{l|r|r|r}
+\hline
+group & mean W & sd W & n households\\
+\hline
+Control & 139.28889 & 292.78141 & 1137\\
+\hline
+Intervention 1 & 36.47888 & 84.60407 & 835\\
+\hline
+Intervention 2 & 60.40882 & 113.37202 & 1054\\
+\hline
+Intervention 3 & 73.64247 & 147.39290 & 1174\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\centering
+\includegraphics{sizingDemandResponseTrialsNZ_files/figure-latex/largeNmeanDiffs-1.pdf}
+\caption{\label{fig:largeNmeanDiffs}Mean W demand per group for large sample
+(Error bars = 95\% confidence intervals for the sample mean)}
+\end{figure}
+
+In comparison to \ref(fig:ggMeanDiffs) we can now see
+(\ref(fig:largeNmeanDiffs)) that the 95\% confidence intervals for the
+group means are much narrower. This is almost entirely due to the larger
+sample sizes. Re-running our previous test for differences now produces:
+
+\begin{verbatim}
+## 
+##  Welch Two Sample t-test
+## 
+## data:  largeTestDT[group == "Intervention 2"]$meanW and largeTestDT[group == "Control"]$meanW
+## t = -8.4284, df = 1491.1, p-value < 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -97.23786 -60.52228
+## sample estimates:
+## mean of x mean of y 
+##  60.40882 139.28889
+\end{verbatim}
+
+In this case:
+
+\begin{itemize}
+\tightlist
+\item
+  effect size = 78.880071W or 56.63\% representing a still
+  \emph{reasonable bang for buck} for whatever caused the difference;
+\item
+  95\% confidence interval for the test = -97.24 to -60.52 representing
+  \emph{much less} uncertainty/variation;
+\item
+  p value of 0 representing a \emph{very low} risk of a false positive
+  result as it passes all conventional thresholds.
+\end{itemize}
+
+So now we are able to be much more confident in our decision to
+implement Intervention 2 since the average effect is reasonably large,
+the expected variation in the effect size is reasonably narrow and the
+risk of a Type I (false positive) error is extremely small.
 
 \section{Summary and recomendations}\label{summary-and-recomendations}
 
+\subsection{Statistical power and sample
+design}\label{statistical-power-and-sample-design}
+
+Get it right \emph{first time}: we should do the statistical power
+analysis before we start to make sure the study is even worth trying. If
+we don't have previous data to use, we \emph{justify} our choices
+through power analysis based on defensible assumptions.
+
+\subsection{Reporting statistical tests of difference
+(effects)}\label{reporting-statistical-tests-of-difference-effects}
+
+Report all three elements \emph{always}:
+
+\begin{itemize}
+\tightlist
+\item
+  average effect size
+\item
+  effect size confidence intervals
+\item
+  the p value (risk of Type I errors)
+\end{itemize}
+
+We should also report the statistical power used just to be clear on the
+risk of Type II errors.
+
+\subsection{Making inferences and taking
+decisions}\label{making-inferences-and-taking-decisions}
+
+Pay attention to all three elements \emph{always}:
+
+\begin{itemize}
+\tightlist
+\item
+  average effect size: what is the \emph{average bang for buck}?
+\item
+  effect size confidence intervals: \emph{how uncertain is the bang}?
+\item
+  the p value: \emph{what is the risk of a false positive}?
+\end{itemize}
+
+If we have ticked all the boxes so far then we have combined good study
+design based on statistical power analysis, with a nuanced understanding
+of what test statistic effect sizes, confidence intervals and p values
+can tell us. As a result we now have a robust, evidence-based,
+contextually meaningful and \emph{defensible} strategy.
+
+\section{Ackowledgements}\label{ackowledgements}
+
+We would like to thank collaborators and partners on a number of applied
+research projects for prodding us into thinking about these issues more
+deeply and clearly than we othweise would have done. We hope this paper
+helps to bring some clarity.
+
 \section{Runtime}\label{runtime}
 
-Analysis completed in 54.12 seconds ( 0.9 minutes) using
+Analysis completed in 67.65 seconds ( 1.13 minutes) using
 \href{https://cran.r-project.org/package=knitr}{knitr} in
 \href{http://www.rstudio.com}{RStudio} with R version 3.5.1 (2018-07-02)
 running on x86\_64-apple-darwin15.6.0.
@@ -504,26 +750,26 @@ Session info:
 ##  [4] prettyunits_1.0.2 png_0.1-7         utf8_1.1.4       
 ##  [7] assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15    
 ## [10] R6_2.2.2          cellranger_1.1.0  plyr_1.8.4       
-## [13] backports_1.1.2   evaluate_0.11     httr_1.3.1       
-## [16] pillar_1.3.0      RgoogleMaps_1.4.2 rlang_0.2.2      
-## [19] progress_1.2.0    lazyeval_0.2.1    readxl_1.1.0     
-## [22] rstudioapi_0.7    geosphere_1.5-7   rmarkdown_1.10   
-## [25] proto_1.0.0       stringr_1.3.1     munsell_0.5.0    
-## [28] broom_0.5.0       compiler_3.5.1    modelr_0.1.2     
-## [31] xfun_0.3          pkgconfig_2.0.2   htmltools_0.3.6  
-## [34] openssl_1.0.2     tidyselect_0.2.4  tibble_1.4.2     
-## [37] bookdown_0.7      fansi_0.3.0       viridisLite_0.3.0
-## [40] crayon_1.3.4      withr_2.1.2       grid_3.5.1       
-## [43] nlme_3.1-137      jsonlite_1.5      gtable_0.2.0     
-## [46] magrittr_1.5      scales_1.0.0      cli_1.0.0        
-## [49] stringi_1.2.4     mapproj_1.2.6     reshape2_1.4.3   
-## [52] bindrcpp_0.2.2    sp_1.3-1          tidyverse_1.2.1  
-## [55] xml2_1.2.0        rjson_0.2.20      tools_3.5.1      
-## [58] forcats_0.3.0     ggmap_2.6.1       glue_1.3.0       
-## [61] purrr_0.2.5       maps_3.3.0        hms_0.4.2        
-## [64] jpeg_0.1-8        yaml_2.2.0        colorspace_1.3-2 
-## [67] rvest_0.3.2       knitr_1.20.13     bindr_0.1.1      
-## [70] haven_1.1.2
+## [13] backports_1.1.2   evaluate_0.11     highr_0.7        
+## [16] httr_1.3.1        pillar_1.3.0      RgoogleMaps_1.4.2
+## [19] rlang_0.2.2       progress_1.2.0    lazyeval_0.2.1   
+## [22] readxl_1.1.0      rstudioapi_0.7    geosphere_1.5-7  
+## [25] rmarkdown_1.10    labeling_0.3      proto_1.0.0      
+## [28] stringr_1.3.1     munsell_0.5.0     broom_0.5.0      
+## [31] compiler_3.5.1    modelr_0.1.2      xfun_0.3         
+## [34] pkgconfig_2.0.2   htmltools_0.3.6   openssl_1.0.2    
+## [37] tidyselect_0.2.4  tibble_1.4.2      bookdown_0.7     
+## [40] fansi_0.3.0       viridisLite_0.3.0 crayon_1.3.4     
+## [43] withr_2.1.2       grid_3.5.1        nlme_3.1-137     
+## [46] jsonlite_1.5      gtable_0.2.0      magrittr_1.5     
+## [49] scales_1.0.0      cli_1.0.0         stringi_1.2.4    
+## [52] mapproj_1.2.6     reshape2_1.4.3    bindrcpp_0.2.2   
+## [55] sp_1.3-1          tidyverse_1.2.1   xml2_1.2.0       
+## [58] rjson_0.2.20      tools_3.5.1       forcats_0.3.0    
+## [61] ggmap_2.6.1       glue_1.3.0        purrr_0.2.5      
+## [64] maps_3.3.0        hms_0.4.2         jpeg_0.1-8       
+## [67] yaml_2.2.0        colorspace_1.3-2  rvest_0.3.2      
+## [70] knitr_1.20.13     bindr_0.1.1       haven_1.1.2
 \end{verbatim}
 
 \section*{References}\label{references}
@@ -583,15 +829,15 @@ Grolemund, Garrett, and Hadley Wickham. 2011. ``Dates and Times Made
 Easy with lubridate.'' \emph{Journal of Statistical Software} 40 (3):
 1--25. \url{http://www.jstatsoft.org/v40/i03/}.
 
-\hypertarget{ref-RockyMountainInstitute2006Automated}{}
-Institute, Rocky Mountain. 2006. ``Automated demand response system
-pilot: Final report.''
-\url{https://www.smartgrid.gov/files/Aumated_Demd_Response_System_Pilot_Volume_1_Intro_Exec_Summa.pdf}.
-
 \hypertarget{ref-baseR}{}
 R Core Team. 2016. \emph{R: A Language and Environment for Statistical
 Computing}. Vienna, Austria: R Foundation for Statistical Computing.
 \url{https://www.R-project.org/}.
+
+\hypertarget{ref-RockyMountainInstitute2006Automated}{}
+Rocky Mountain Institute. 2006. ``Automated demand response system
+pilot: Final report.''
+\url{https://www.smartgrid.gov/files/Aumated_Demd_Response_System_Pilot_Volume_1_Intro_Exec_Summa.pdf}.
 
 \hypertarget{ref-Schofield2015Experimental}{}
 Schofield, James, Richard Carmichael, Simon Tindemans, Matt Woolf, Mark

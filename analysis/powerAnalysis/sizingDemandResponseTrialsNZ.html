@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Ben Anderson and Tom Rushby (Contact: b.anderson@soton.ac.uk, @dataknut)" />
+
+
+<title>Statistical Power, Statistical Significance, Study Design and Decision Making: A Worked Example</title>
+
+<script src="sizingDemandResponseTrialsNZ_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="sizingDemandResponseTrialsNZ_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="sizingDemandResponseTrialsNZ_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="sizingDemandResponseTrialsNZ_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="sizingDemandResponseTrialsNZ_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/navigation-1.1/tabsets.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/navigation-1.1/codefolding.js"></script>
+<link href="sizingDemandResponseTrialsNZ_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="sizingDemandResponseTrialsNZ_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="sizingDemandResponseTrialsNZ_files/kePrint-0.0.1/kePrint.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Statistical Power, Statistical Significance, Study Design and Decision Making: A Worked Example</h1>
+<h3 class="subtitle"><em>Sizing Demand Response Trials in New Zealand</em></h3>
+<h4 class="author"><em>Ben Anderson and Tom Rushby (Contact: <a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a>, <code>@dataknut</code>)</em></h4>
+<h4 class="date"><em>Last run at: 2018-09-20 17:34:36</em></h4>
+
+</div>
+
+
+
+<div id="about" class="section level1">
+<h1><span class="header-section-number">1</span> About</h1>
+<div id="paper-circulation" class="section level2">
+<h2><span class="header-section-number">1.1</span> Paper circulation:</h2>
+<ul>
+<li>Public</li>
+</ul>
+</div>
+<div id="license" class="section level2">
+<h2><span class="header-section-number">1.2</span> License</h2>
+</div>
+<div id="citation" class="section level2">
+<h2><span class="header-section-number">1.3</span> Citation</h2>
+<p>If you wish to use any of the material from this report please cite as:</p>
+<ul>
+<li>Ben Anderson and Tom Rushby. (2018) Statistical Power, Statistical Significance, Study Design and Decision Making: A Worked Example (Sizing Demand Response Trials in New Zealand), <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin, New Zealand.</li>
+</ul>
+<p>This work is (c) 2018 the authors.</p>
+</div>
+<div id="history" class="section level2">
+<h2><span class="header-section-number">1.4</span> History</h2>
+<p>Code history is generally tracked via our <a href="https://github.com/CfSOtago/GREENGrid">repo</a>:</p>
+<ul>
+<li><a href="https://github.com/CfSOtago/GREENGrid/commits/master/analysis/powerAnalysis">Report history</a></li>
+</ul>
+</div>
+<div id="data" class="section level2">
+<h2><span class="header-section-number">1.5</span> Data:</h2>
+<p>This paper uses circuit level extracts for ‘Heat Pumps’, ‘Lighting’ and ‘Hot Water’ for the NZ GREEN Grid Household Electricity Demand Data (<a href="https://dx.doi.org/10.5255/UKDA-SN-853334" class="uri">https://dx.doi.org/10.5255/UKDA-SN-853334</a> <span class="citation">(Anderson et al. 2018)</span>). These have been extracted using the code found in</p>
+</div>
+<div id="support" class="section level2">
+<h2><span class="header-section-number">1.6</span> Support</h2>
+<p>This work was supported by:</p>
+<ul>
+<li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
+<li>The <a href="https://www.southampton.ac.uk/">University of Southampton</a>;</li>
+<li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a> through the <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project;</li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-2020).</li>
+</ul>
+<p>We do not ‘support’ the code but if you notice a problem please check the <a href="https://github.com/CfSOtago/GREENGrid/issues">issues</a> on our <a href="https://github.com/CfSOtago/GREENGrid">repo</a> and if it doesn’t already exist, please open a new one.</p>
+
+</div>
+</div>
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">2</span> Introduction</h1>
+<p>In our experiennce of designing and running empirical studies, whether experimental or naturalistic, there is ongoing confusion over the meaning and role of two key statistical terms:</p>
+<ul>
+<li>statistical power</li>
+<li>statistical significance</li>
+</ul>
+<p>We have found this to be the case both in academic research where the objective is to establish ‘the most likely explanation’ under academic conventions and in applied research where the objective is to ‘make a robust decision’ based on the balance of evidence and probability.</p>
+<p>In this brief paper we respond to these confusions using a worked example: the design of a hypothetical household electricity demand response trial in New Zealand which seeks to shift the use of Heat Pumps out of the evening winter peak demand period. We use this example to explain and demonstrate the role of statistical signficance in testing for differences and of both statistical signficance and statistical power in sample design and decision making.</p>
+</div>
+<div id="error-power-significance-and-decision-making" class="section level1">
+<h1><span class="header-section-number">3</span> Error, power, significance and decision making</h1>
+<p>Two types of error are of concern in both purely academic research where the efficacy of an intervention is to be tested and also in applied research where a decision may then be taken based on the results:</p>
+<ul>
+<li>Type I: a false positive - an effect is inferred when in fact there is none. From a commercial or policy perspective this could lead to the implementation of a costly intervention which would be unlikely to have the effect expected;</li>
+<li>Type II: a false negative - an effect is not inferred when in fact there is one. From a commercial or policy perspective this could lead to inaction when an intervention would have been likely to have the effect expected.</li>
+</ul>
+<p><em>Type I error</em>: The significance level (p value) of the statistical test to be used to test the efficacy of an intervention represents the extent to which the observed data matches the null model to be tested <span class="citation">(Wasserstein and Lazar 2016)</span>. In most trials the null model will be a measure of ‘no difference’ between control and intervenion groups. By convention, the p value <em>threshold</em> for rejecting the null model (the risk of a Type I error) is generally set to 0.05 (5%) although this choice is entirely subjective. In commercial or policy terms an action taken on a larger p value (e.g. setting the p value threshold to 10%) would increase the risk of making a Type I error and thus implementing a potentially costly intervention that is unlikely to have the effect desired. However, as we discuss in more detail below, this is not necessarily <em>bad practice</em> as it may reflect the potential magnitude of an effect, the decision-maker’s tolerance of Type I error risk and the urgency of action.</p>
+<p><em>Type II error</em>: Statistical power is normally set to 0.8 (80%) by convention and represents the pre-study risk of making a Type II error <span class="citation">(Greenland et al. 2016)</span>. From a commercial or policy perspective reducing power (e.g. to 0.7 or 70%) will therefore increase the risk of taking no action when in fact the intervention would probably have had the effect desired. Statistical power calculations enable the investigator to estimate the sample size that would be needed to robustly detect an experimental effect with a given risk of a false positive (Type I error) or false negative (Type II error) result. This prevents a study from recruiting too few participants to be able to robustly detect the hypothesised intervention effect <span class="citation">(Delmas, Fischlein, and Asensio 2013)</span> or wasting resources by recruiting a larger sample than needed.</p>
+<p>Previous work has suggested that sample sizes in most energy efficiency studies may be too low to provide adequate power and so statistically robust conclusions cannot be drawn at conventional thresholds <span class="citation">(Frederiks et al. 2016)</span> while a more recent review focusing on demand response studies reached a similar conclusion <span class="citation">(Srivastava, Van Passel, and Laes 2018)</span>. It is therefore hardly surprising that a number of studies report effect sizes which are not statistically significant at conventional thresholds <span class="citation">(Srivastava, Van Passel, and Laes 2018)</span>, choose to use lower statistical significance thresholds <span class="citation">(Rocky Mountain Institute 2006, <span class="citation">AECOM (2011)</span>, <span class="citation">CER (2012)</span>, <span class="citation">Schofield et al. (2015)</span>)</span> or both lower statistical power values <em>and</em> lower statistical significance thresholds <span class="citation">(UKPN 2017,<span class="citation">UKPN (2018)</span>)</span>.</p>
+<p>However it would be wrong to conclude that this is <em>necessarily</em> bad practice. Recent discussions of the role of p values in inference <span class="citation">(Greenland et al. 2016, <span class="citation">Wasserstein and Lazar (2016)</span>)</span> should remind us that decisions should never be based only on statistical significance thresholds set purely by convention. Rather, inference and thus decision making should be based on:</p>
+<ul>
+<li>statistic effect size - is it 2% or 22% (i.e. is the result <em>important</em> or <em>useful</em>, “What is the estimated <em>bang for buck</em>?”);</li>
+<li>statistic confidence intervals - (i.e. is there <em>uncertainty</em> or <em>variation</em> in response, “How uncertain is the estimated bang?”);</li>
+<li>statistic p values - (i.e. what is the risk of a Type I error / <em>false positive</em>, “What is the risk the bang observed isn’t real?”);</li>
+</ul>
+<p>Only then can a contextually appropriate decision be taken as to whether the effect is large enough, certain enough and has a low enough risk of being a false positive result to warrant action.</p>
+<p>In the following sections we apply these principles to the design and analysis of a hypothetical New Zealand household electricity demand response trial and to the use of a simple statistical test of difference between trial groups to demonstrate and clarify these points.</p>
+</div>
+<div id="sample-design-statistical-power" class="section level1">
+<h1><span class="header-section-number">4</span> Sample design: statistical power</h1>
+<p>To return to the discussion of statistical power, we need to establish the probably size of the control and intervention groups we will require. This is an aid to resource budgeting (<em>“How many households and thus <code>$</code> do I need?”</em>) and to ensure good study design practice (“<em>Will I be able to answer my research question?</em>”) <span class="citation">(Frederiks et al. 2016)</span>.</p>
+<p>Calculation of the required sample size for a control and intervention group requires the estimation of the probable intervention effect size, agreement on the significance level (p value threshold or Type I error risk) of the statistical test to be used and agreement on the level of statistical power (Type II error risk). Given any three of these values the fourth can be calculated if an estimate of the mean and standard deviation of the outcome to be measured is known. In the case of DSR interventions the effect size comprises a given % reduction in energy demand or consumption in a given time period and estimates of the likely reduction can be derived from previous studies or data.</p>
+<p>As we have noted the choice of significance level (p value threshold) and statistical power are subjective and normative. Most academic researchers will struggle to justify relaxing from the conventional p = 0.05 and power = 0.8. However as we have discussed there may be good reason in applied research to take action on results of studies that use less conservative thresholds. Nevertheless there is a strong argument for designing such studies using the more conservative conventional levels but acknowledging that making inferences from the results may require a more relaxed approach to Type I or Type II error risks than is considered ‘normal’ in academic research.</p>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<p><img src="sizingDemandResponseTrialsNZ_files/figure-html/ggHPSampleSizeFig80-1.png" /><!-- --></p>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<p>As an illustration, (fig:ggHPSampleSizeFig80) shows sample size calculations for power = 0.8 (80%) using ‘Heat Pump’ electricity demand extracted from the publicly available New Zealand Green Grid household electricity demand data <span class="citation">(Anderson et al. 2018)</span> for winter 2015 for the peak demand period (16:00 - 20:00) on weekdays.</p>
+<p>These results show that a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of 14.1771905% with p = 0.01 and power = 0.8. Were a study to be less risk averse in it’s decision making then p = 0.1 may be acceptable in which case only ~ 450 households would be needed in each group (see (fig:ggHPSampleSizeFig80)) but the risk of a Type I error would increase.</p>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<p><img src="sizingDemandResponseTrialsNZ_files/figure-html/ggHPSampleSizeFig70-1.png" /><!-- --></p>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<p>Were we to reduce the statistical power to 0.7 then we would obtain the results shown in (fig:ggHPSampleSizeFig70). In this case a trial comprising a control and intervention sample of 1000 households (each) would be able to detect an effect size of 12.7575745% with p = 0.01 and power = 0.7. Were a study to be less risk averse in it’s decision making then p = 0.1 may be acceptable in which case only ~ 425 households would be needed in each group (see (fig:ggHPSampleSizeFig80)) but again the risk of a Type I error would increase. As we can see, reducing the statistical power used would also reduce the sample required for a given effect size tested at a given p value. However the risk of a Type II error would increase.</p>
+</div>
+<div id="testing-for-differences-effect-sizes-confidence-intervals-and-p-values" class="section level1">
+<h1><span class="header-section-number">5</span> Testing for differences: effect sizes, confidence intervals and p values</h1>
+<div id="getting-it-wrong" class="section level2">
+<h2><span class="header-section-number">5.1</span> Getting it ‘wrong’</h2>
+<p>Let us imagine that we have not designed and implemented our sample recruitment according to (fig:ggHPSampleSizeFig80) and instead decided, perhaps for cost reasons to recruit ~ 30 households per group. Now we wish to test for differences between the control and intervention groups.</p>
+<p>As a first step we plot the differences using the mean and 95% confidence intervals as shown in (fig:ggMeanDiffs).</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:smallNTable">Table 5.1: </span>Number of households and summary statistics per group
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+group
+</th>
+<th style="text-align:right;">
+mean W
+</th>
+<th style="text-align:right;">
+sd W
+</th>
+<th style="text-align:right;">
+n households
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Control
+</td>
+<td style="text-align:right;">
+162.66915
+</td>
+<td style="text-align:right;">
+325.51171
+</td>
+<td style="text-align:right;">
+28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 1
+</td>
+<td style="text-align:right;">
+35.13947
+</td>
+<td style="text-align:right;">
+83.90258
+</td>
+<td style="text-align:right;">
+22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 2
+</td>
+<td style="text-align:right;">
+58.80597
+</td>
+<td style="text-align:right;">
+113.53102
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 3
+</td>
+<td style="text-align:right;">
+68.37439
+</td>
+<td style="text-align:right;">
+147.37279
+</td>
+<td style="text-align:right;">
+29
+</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sizingDemandResponseTrialsNZ_files/figure-html/ggMeanDiffs-1.png" /><!-- --></p>
+<p>As we can see the interventions appear to have reduced demand quite substantially and the error bars indicate the uncertainty (variation) around the mean within each group. Based on this, we suspect that we are unlikely to see low p values when we use statistical tests of the differences as the error bars overlap substantially.</p>
+<p>Suppose a t-test of the difference between the Control and Intervention 1 group produces the result shown below.</p>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  testDT[group == &quot;Intervention 1&quot;]$meanW and testDT[group == &quot;Control&quot;]$meanW
+## t = -1.9907, df = 31.47, p-value = 0.05526
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -258.110005    3.050644
+## sample estimates:
+## mean of x mean of y 
+##  35.13947 162.66915</code></pre>
+<p>The data shows that the mean power demand for the control group was 162.67W and for Intervention 1 was 35.14W. This is a (very) large difference in the mean of 127.53. The results of the t test are:</p>
+<ul>
+<li>effect size = 128W or 78% representing a <em>substantial bang for buck</em> for whatever caused the difference;</li>
+<li>95% confidence interval for the test = -258.11 to 3.05 representing <em>considerable</em> uncertainty/variation;</li>
+<li>p value of 0.055 representing a <em>relatively low</em> risk of a false positive result but which (just) fails the conventional p &lt; 0.05 threshold.</li>
+</ul>
+<p>What would we have concluded? We have a large effect size, substantial uncertainty and a slightly raised risk of a false positive or Type I error when compared to conventional p value levels. From a narrow and conventional ‘p value testing’ perspective we would have concluded that there was no statistically signficant difference between the groups. However this misses the crucial point that an organisation with a higher risk tolerance might conclude that the large effect size justifies implementing the intervention even though the risk of a false positive is slightly higher. If the p value had been 0.25 then this would have still been the case but would have warranted even further caution.</p>
+<p>But what about Intervention Group 2? In this case the t.test results are slightly different:</p>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  testDT[group == &quot;Intervention 2&quot;]$meanW and testDT[group == &quot;Control&quot;]$meanW
+## t = -1.5876, df = 33.909, p-value = 0.1217
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -236.82848   29.10212
+## sample estimates:
+## mean of x mean of y 
+##  58.80597 162.66915</code></pre>
+<p>Now:</p>
+<ul>
+<li>effect size = 103.8631823W or 63.85% representing a still <em>reasonable bang for buck</em> for whatever caused the difference;</li>
+<li>95% confidence interval for the test = -236.83 to 29.1 representing <em>even greater</em> uncertainty/variation;</li>
+<li>p value of 0.122 representing a <em>higher</em> risk of a false positive result which fails the conventional p &lt; 0.05 threshold and also the less conservative p &lt; 0.1.</li>
+</ul>
+<p>As before, the subsequent action we take depends on our tolerance of Type I (falso positive) risk. We still have a reasonably large effect size but we are less certain about it and we have a higher risk of it not being real. What do you think we should do?</p>
+<p>In both cases our decision-making is rather hampered by the small sample size even though we have extremely large effect sizes. As we can see from (fig:ggHPSampleSizeFig80), to detect Intervention Group 2’s effect size of 63.85% would have required control and trial group sizes of 47 respectively.</p>
+<p>However, as the recent discussions of the role of the p value in decision making have made clear <span class="citation">(Wasserstein and Lazar 2016)</span> statistical analysis needs to report all of the result elements to enable contextually appropriate and defensible evidence-based decisions to be taken. Simply dismissing results on the basis of a failure to meet conventional statistical levels of significance risks levitating babies and bathwater…</p>
+</div>
+<div id="getting-it-right" class="section level2">
+<h2><span class="header-section-number">5.2</span> Getting it ‘right’</h2>
+<p>Suppose instead that we had designed and implemented our sample recruitment according to (fig:ggHPSampleSizeFig80) so that we have a reasonable chance of detecting a difference of ~ 14% with power = 0.8 and at a significance level (p) of 0.05. This means we should have a sample of around 3000 households split equally (and randomly) between our trial and two intervention groups.</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:creatLargeN">Table 5.2: </span>Number of households and summary statistics per group
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+group
+</th>
+<th style="text-align:right;">
+mean W
+</th>
+<th style="text-align:right;">
+sd W
+</th>
+<th style="text-align:right;">
+n households
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Control
+</td>
+<td style="text-align:right;">
+158.87413
+</td>
+<td style="text-align:right;">
+316.34278
+</td>
+<td style="text-align:right;">
+1142
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 1
+</td>
+<td style="text-align:right;">
+39.71171
+</td>
+<td style="text-align:right;">
+86.20793
+</td>
+<td style="text-align:right;">
+874
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 2
+</td>
+<td style="text-align:right;">
+60.19201
+</td>
+<td style="text-align:right;">
+111.35901
+</td>
+<td style="text-align:right;">
+1083
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Intervention 3
+</td>
+<td style="text-align:right;">
+67.03022
+</td>
+<td style="text-align:right;">
+144.81602
+</td>
+<td style="text-align:right;">
+1101
+</td>
+</tr>
+</tbody>
+</table>
+<div class="figure"><span id="fig:largeNmeanDiffs"></span>
+<img src="sizingDemandResponseTrialsNZ_files/figure-html/largeNmeanDiffs-1.png" alt="Mean W demand per group for large sample (Error bars = 95% confidence intervals for the sample mean)"  />
+<p class="caption">
+Figure 5.1: Mean W demand per group for large sample (Error bars = 95% confidence intervals for the sample mean)
+</p>
+</div>
+<p>In comparison to (fig:ggMeanDiffs) we can now see ((fig:largeNmeanDiffs)) that the 95% confidence intervals for the group means are much narrower. This is almost entirely due to the larger sample sizes. Re-running our previous test for differences now produces:</p>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  largeTestDT[group == &quot;Intervention 2&quot;]$meanW and largeTestDT[group == &quot;Control&quot;]$meanW
+## t = -9.9139, df = 1432.9, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -118.20786  -79.15637
+## sample estimates:
+## mean of x mean of y 
+##  60.19201 158.87413</code></pre>
+<p>In this case: * effect size = 98.6821156W or 62.11% representing a still <em>reasonable bang for buck</em> for whatever caused the difference; * 95% confidence interval for the test = -118.21 to -79.16 representing <em>much less</em> uncertainty/variation; * p value of 0 representing a <em>very low</em> risk of a false positive result as it passes all conventional thresholds.</p>
+<p>So now we are able to be much more confident in our decision to implement Intervention 2 since the average effect is reasonably large, the expected variation in the effect size is reasonably narrow and the risk of a Type I (false positive) error is extremely small. We have combined good study design, based on statistical power analysis, with a nuanced understanding of what effect sizes, test statistic confidence intervals and p values can tell us. As a result we now have a robust, evidence-based, contextually meaningful and <em>defensible</em> strategy.</p>
+</div>
+</div>
+<div id="summary-and-recomendations" class="section level1">
+<h1><span class="header-section-number">6</span> Summary and recomendations</h1>
+<div id="statsitical-power-and-sample-design" class="section level2">
+<h2><span class="header-section-number">6.1</span> Statsitical power and sample design</h2>
+<p>Get it right <em>first time</em> and if you don’t have previous data to use <em>justify</em> your choices through power analysis based on defensible assumptions.</p>
+</div>
+<div id="reporting-statistical-tests-of-difference-effects" class="section level2">
+<h2><span class="header-section-number">6.2</span> Reporting statistical tests of difference (effects)</h2>
+<p>Report all three elements <em>always</em>.</p>
+</div>
+<div id="making-inferences-and-taking-decisions" class="section level2">
+<h2><span class="header-section-number">6.3</span> Making inferences and taking decisions</h2>
+<p>Pay attention to all three elements <em>always</em>.</p>
+</div>
+</div>
+<div id="ackowledgements" class="section level1">
+<h1><span class="header-section-number">7</span> Ackowledgements</h1>
+<p>We would like to thank collaborators and partners on a number of applied research projects for prodding us into thinking about these issues more deeply and clearly than we othweise would have done. We hope this paper helps to bring some clarity.</p>
+</div>
+<div id="runtime" class="section level1">
+<h1><span class="header-section-number">8</span> Runtime</h1>
+<p>Analysis completed in 96.98 seconds ( 1.62 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.1 (2018-07-02) running on x86_64-apple-darwin15.6.0.</p>
+</div>
+<div id="r-environment" class="section level1">
+<h1><span class="header-section-number">9</span> R environment</h1>
+<p>R packages used:</p>
+<ul>
+<li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>
+<li>data.table - for fast (big) data handling <span class="citation">(Dowle et al. 2015)</span></li>
+<li>lubridate - date manipulation <span class="citation">(Grolemund and Wickham 2011)</span></li>
+<li>ggplot2 - for slick graphics <span class="citation">(Wickham 2009)</span></li>
+<li>readr - for csv reading/writing <span class="citation">(Wickham, Hester, and Francois 2016)</span></li>
+<li>dplyr - for select and contains <span class="citation">(Wickham and Francois 2016)</span></li>
+<li>progress - for progress bars <span class="citation">(Csárdi and FitzJohn 2016)</span></li>
+<li>kableExtra - to create this document &amp; neat tables <span class="citation">(Xie 2016)</span></li>
+<li>GREENGrid - for local NZ GREEN Grid project utilities</li>
+</ul>
+<p>Session info:</p>
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.6
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] kableExtra_0.9.0  SAVEr_0.0.1.9000  lubridate_1.7.4   readr_1.1.1      
+## [5] ggplot2_3.0.0     dplyr_0.7.6       data.table_1.11.4 GREENGrid_0.1.0  
+## [9] GREENGridData_1.0
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.18      lattice_0.20-35   tidyr_0.8.1      
+##  [4] prettyunits_1.0.2 png_0.1-7         utf8_1.1.4       
+##  [7] assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15    
+## [10] R6_2.2.2          cellranger_1.1.0  plyr_1.8.4       
+## [13] backports_1.1.2   evaluate_0.11     highr_0.7        
+## [16] httr_1.3.1        pillar_1.3.0      RgoogleMaps_1.4.2
+## [19] rlang_0.2.2       progress_1.2.0    lazyeval_0.2.1   
+## [22] readxl_1.1.0      rstudioapi_0.7    geosphere_1.5-7  
+## [25] rmarkdown_1.10    labeling_0.3      proto_1.0.0      
+## [28] stringr_1.3.1     munsell_0.5.0     broom_0.5.0      
+## [31] compiler_3.5.1    modelr_0.1.2      xfun_0.3         
+## [34] pkgconfig_2.0.2   htmltools_0.3.6   openssl_1.0.2    
+## [37] tidyselect_0.2.4  tibble_1.4.2      bookdown_0.7     
+## [40] fansi_0.3.0       viridisLite_0.3.0 crayon_1.3.4     
+## [43] withr_2.1.2       grid_3.5.1        nlme_3.1-137     
+## [46] jsonlite_1.5      gtable_0.2.0      magrittr_1.5     
+## [49] scales_1.0.0      cli_1.0.0         stringi_1.2.4    
+## [52] mapproj_1.2.6     reshape2_1.4.3    bindrcpp_0.2.2   
+## [55] sp_1.3-1          tidyverse_1.2.1   xml2_1.2.0       
+## [58] rjson_0.2.20      tools_3.5.1       forcats_0.3.0    
+## [61] ggmap_2.6.1       glue_1.3.0        purrr_0.2.5      
+## [64] maps_3.3.0        hms_0.4.2         jpeg_0.1-8       
+## [67] yaml_2.2.0        colorspace_1.3-2  rvest_0.3.2      
+## [70] knitr_1.20.13     bindr_0.1.1       haven_1.1.2</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-AECOM2011Energy">
+<p>AECOM. 2011. “Energy Demand Research Project: Final Analysis.” St Albans: AECOM.</p>
+</div>
+<div id="ref-anderson_new_2018">
+<p>Anderson, Ben, David Eyers, Rebecca Ford, Diana Giraldo Ocampo, Rana Peniamina, Janet Stephenson, Kiti Suomalainen, Lara Wilcocks, and Michael Jack. 2018. “New Zealand GREEN Grid Household Electricity Demand Study 2014-2018,” September. doi:<a href="https://doi.org/10.5255/UKDA-SN-853334">10.5255/UKDA-SN-853334</a>.</p>
+</div>
+<div id="ref-CER2012Smart">
+<p>CER. 2012. “Smart Meter Electricity Consumer Behaviour Trial data.” Dublin: Irish Social Science Data Archive. <a href="http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/" class="uri">http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/</a>.</p>
+</div>
+<div id="ref-progress">
+<p>Csárdi, Gábor, and Rich FitzJohn. 2016. <em>Progress: Terminal Progress Bars</em>. <a href="https://CRAN.R-project.org/package=progress" class="uri">https://CRAN.R-project.org/package=progress</a>.</p>
+</div>
+<div id="ref-Delmas2013Information">
+<p>Delmas, Magali A., Miriam Fischlein, and Omar I. Asensio. 2013. “Information strategies and energy conservation behavior: A meta-analysis of experimental studies from 1975 to 2012.” <em>Energy Policy</em> 61 (October): 729–39. doi:<a href="https://doi.org/10.1016/j.enpol.2013.05.109">10.1016/j.enpol.2013.05.109</a>.</p>
+</div>
+<div id="ref-data.table">
+<p>Dowle, M, A Srinivasan, T Short, S Lianoglou with contributions from R Saporta, and E Antonyan. 2015. <em>Data.table: Extension of Data.frame</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
+</div>
+<div id="ref-Frederiks2016Evaluating">
+<p>Frederiks, Elisha R., Karen Stenner, Elizabeth V. Hobman, and Mark Fischle. 2016. “Evaluating energy behavior change programs using randomized controlled trials: Best practice guidelines for policymakers.” <em>Energy Research &amp; Social Science</em> 22 (December): 147–64. doi:<a href="https://doi.org/10.1016/j.erss.2016.08.020">10.1016/j.erss.2016.08.020</a>.</p>
+</div>
+<div id="ref-Greenland2016">
+<p>Greenland, Sander, Stephen J. Senn, Kenneth J. Rothman, John B. Carlin, Charles Poole, Steven N. Goodman, and Douglas G. Altman. 2016. “Statistical Tests, P Values, Confidence Intervals, and Power: A Guide to Misinterpretations.” <em>European Journal of Epidemiology</em> 31 (4): 337–50. doi:<a href="https://doi.org/10.1007/s10654-016-0149-3">10.1007/s10654-016-0149-3</a>.</p>
+</div>
+<div id="ref-lubridate">
+<p>Grolemund, Garrett, and Hadley Wickham. 2011. “Dates and Times Made Easy with lubridate.” <em>Journal of Statistical Software</em> 40 (3): 1–25. <a href="http://www.jstatsoft.org/v40/i03/" class="uri">http://www.jstatsoft.org/v40/i03/</a>.</p>
+</div>
+<div id="ref-baseR">
+<p>R Core Team. 2016. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
+</div>
+<div id="ref-RockyMountainInstitute2006Automated">
+<p>Rocky Mountain Institute. 2006. “Automated demand response system pilot: Final report.” <a href="https://www.smartgrid.gov/files/Aumated_Demd_Response_System_Pilot_Volume_1_Intro_Exec_Summa.pdf" class="uri">https://www.smartgrid.gov/files/Aumated_Demd_Response_System_Pilot_Volume_1_Intro_Exec_Summa.pdf</a>.</p>
+</div>
+<div id="ref-Schofield2015Experimental">
+<p>Schofield, James, Richard Carmichael, Simon Tindemans, Matt Woolf, Mark Bilton, and Goran Strbac. 2015. “Experimental validation of residential consumer responsiveness to dynamic time-of-use pricing.” In <em>23 International Conference on Electricity Distribution</em>.</p>
+</div>
+<div id="ref-Srivastava2018Assessing">
+<p>Srivastava, Aman, Steven Van Passel, and Erik Laes. 2018. “Assessing the Success of Electricity Demand Response Programs: A Meta-Analysis.” <em>Energy Research &amp; Social Science</em> 40 (June): 110–17. doi:<a href="https://doi.org/10.1016/j.erss.2017.12.005">10.1016/j.erss.2017.12.005</a>.</p>
+</div>
+<div id="ref-energyWiseT1">
+<p>UKPN. 2017. “The Final Energy Saving Trial Report.” London: UK Power Networks. <a href="http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/" class="uri">http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/</a>.</p>
+</div>
+<div id="ref-energyWiseT2">
+<p>———. 2018. “The Energy Shifting Trial Report.” London: UK Power Networks. <a href="http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/" class="uri">http://innovation.ukpowernetworks.co.uk/innovation/en/Projects/tier-2-projects/Energywise/</a>.</p>
+</div>
+<div id="ref-wasserstein2016">
+<p>Wasserstein, Ronald L., and Nicole A. Lazar. 2016. “The Asa’s Statement on P-Values: Context, Process, and Purpose.” <em>The American Statistician</em> 70 (2). Taylor &amp; Francis: 129–33. doi:<a href="https://doi.org/10.1080/00031305.2016.1154108">10.1080/00031305.2016.1154108</a>.</p>
+</div>
+<div id="ref-ggplot2">
+<p>Wickham, Hadley. 2009. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="http://ggplot2.org" class="uri">http://ggplot2.org</a>.</p>
+</div>
+<div id="ref-dplyr">
+<p>Wickham, Hadley, and Romain Francois. 2016. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a>.</p>
+</div>
+<div id="ref-readr">
+<p>Wickham, Hadley, Jim Hester, and Romain Francois. 2016. <em>Readr: Read Tabular Data</em>. <a href="https://CRAN.R-project.org/package=readr" class="uri">https://CRAN.R-project.org/package=readr</a>.</p>
+</div>
+<div id="ref-knitr">
+<p>Xie, Yihui. 2016. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://CRAN.R-project.org/package=knitr" class="uri">https://CRAN.R-project.org/package=knitr</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
