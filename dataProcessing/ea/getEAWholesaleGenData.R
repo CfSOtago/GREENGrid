@@ -8,7 +8,7 @@ rm(list=ls(all=TRUE)) # remove all objects from workspace
 
 
 # Load libraries ----
-library(GREENGrid) # load this first - you will need to download & install it locally from this repo
+library(GREENGrid) #load this first - you will need to download & install it locally from this repo
 
 # Packages needed in this .Rmd file ----
 reqLibs <- c("data.table", # data munching
@@ -29,7 +29,7 @@ refresh <- 0 # set to 1 to try to download all files even if we have them
 if(local){ # set data storage location
   lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
 } else {
-  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
+  lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/")
 }
 
 rDataLoc <- "https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/"
