@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">NZ Electricity Generation Trends 1998-2017</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a> <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-06-27 15:46:19</em></h4>
+<h4 class="date"><em>Last run at: 2018-09-20 12:53:37</em></h4>
 
 </div>
 
@@ -133,7 +133,7 @@ $(document).ready(function () {
 <h1><span class="header-section-number">1</span> Citation</h1>
 <p>If you wish to use any of the material from this report please cite as:</p>
 <ul>
-<li>Anderson, B. (2018) <em>NZ Electricity Generation Trends 1998-2017</em>, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin.</li>
+<li>Anderson, B. (2018) <em>NZ Electricity Generation Trends 1998-2017</em>, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin, New Zealand.</li>
 </ul>
 <p>This work is (c) 2018 the University of Southampton.</p>
 
@@ -169,7 +169,7 @@ $(document).ready(function () {
 </ul>
 <p>Specific history of this code:</p>
 <ul>
-<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd" class="uri">https://git.soton.ac.uk/ba1e12/nzGREENGrid/commits/master/analysis/generation/nzGenerationHistory.Rmd</a></li>
+<li><a href="https://github.com/CfSOtago/GREENGrid/tree/master/analysis/generation" class="uri">https://github.com/CfSOtago/GREENGrid/tree/master/analysis/generation</a></li>
 </ul>
 </div>
 <div id="support" class="section level2">
@@ -179,9 +179,9 @@ $(document).ready(function () {
 <li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
 <li>The <a href="https://www.southampton.ac.uk/">University of Southampton</a>;</li>
 <li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a> through the <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project;</li>
-<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-202).</li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-2020).</li>
 </ul>
-<p>We do not ‘support’ the code but if you have a problem check the <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a> on our <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a> and if it doesn’t already exist, open one. We might be able to fix it :-)</p>
+<p>We do not ‘support’ the code but if you notice a problem please check the <a href="https://github.com/CfSOtago/GREENGrid/issues">issues</a> on our <a href="https://github.com/CfSOtago/GREENGrid">repo</a> and if it doesn’t already exist, please open a new one.</p>
 </div>
 </div>
 <div id="introduction" class="section level1">
@@ -191,12 +191,12 @@ $(document).ready(function () {
 <p>Data is kWh - so energy not power.</p>
 </div>
 <div id="load-data" class="section level1">
-<h1><span class="header-section-number">4</span>  Load data</h1>
+<h1><span class="header-section-number">4</span> Load data</h1>
 <p>Load the generation data from files stored in:</p>
 <ul>
-<li>/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/</li>
+<li>/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/</li>
 </ul>
-<p>These have been <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/dataProcessing/ea">pre-downloaded and cleaned</a> but could be pulled on the fly to be refreshed for other dates…</p>
+<p>These have been <a href="https://github.com/CfSOtago/GREENGrid/tree/master/dataProcessing/ea">pre-downloaded and cleaned</a> but could be pulled on the fly to be refreshed for other dates…</p>
 <pre><code>## Warning in `[.data.table`(filesToDateDT, , `:=`(c(&quot;year&quot;, &quot;month&quot;,
 ## &quot;stub&quot;), : Supplied 3 columns to be assigned a list (length 5) of values (2
 ## unused)</code></pre>
@@ -787,17 +787,24 @@ Figure 5.6: Half-hourly profile plot by fuel type (sum)
 Figure 5.7: Half-hourly profile plot by fuel type (sum)
 </p>
 </div>
-<p>Figures <a href="#fig:meanProfileCol">5.8</a> and <a href="#fig:meanProfilePoint">5.9</a> repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.</p>
+<p>Repeat for 2017 only</p>
+<div class="figure"><span id="fig:sumProfilePoint2017"></span>
+<img src="nzElecGenTrends_files/figure-html/sumProfilePoint2017-1.png" alt="Half-hourly profile plot by fuel type (sum), 2017 only" width="672" />
+<p class="caption">
+Figure 5.8: Half-hourly profile plot by fuel type (sum), 2017 only
+</p>
+</div>
+<p>Figures <a href="#fig:meanProfileCol">5.9</a> and <a href="#fig:meanProfilePoint">5.10</a> repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.</p>
 <div class="figure"><span id="fig:meanProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/meanProfileCol-1.png" alt="Half-hourly profile plot by fuel type (mean)" width="672" />
 <p class="caption">
-Figure 5.8: Half-hourly profile plot by fuel type (mean)
+Figure 5.9: Half-hourly profile plot by fuel type (mean)
 </p>
 </div>
 <div class="figure"><span id="fig:meanProfilePoint"></span>
 <img src="nzElecGenTrends_files/figure-html/meanProfilePoint-1.png" alt="Half-hourly profile plot by fuel type (mean)" width="672" />
 <p class="caption">
-Figure 5.9: Half-hourly profile plot by fuel type (mean)
+Figure 5.10: Half-hourly profile plot by fuel type (mean)
 </p>
 </div>
 </div>
@@ -811,50 +818,50 @@ Figure 5.9: Half-hourly profile plot by fuel type (mean)
 <div class="figure"><span id="fig:sumDailyProfilePoint"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfilePoint-1.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.10: Half-hourly profile plot by fuel type
+Figure 5.11: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfilePoint"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfilePoint-2.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.10: Half-hourly profile plot by fuel type
+Figure 5.11: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfilePoint"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfilePoint-3.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.10: Half-hourly profile plot by fuel type
+Figure 5.11: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfilePoint"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfilePoint-4.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.10: Half-hourly profile plot by fuel type
+Figure 5.11: Half-hourly profile plot by fuel type
 </p>
 </div>
-<p>Figure <a href="#fig:sumDailyProfilePoint">5.10</a> shows the total as a point plot while Figure <a href="#fig:sumDailyProfileCol">5.11</a> shows the total as stacked column plots to show the proportion of energy generation produced by each fuel.</p>
+<p>Figure <a href="#fig:sumDailyProfilePoint">5.11</a> shows the total as a point plot while Figure <a href="#fig:sumDailyProfileCol">5.12</a> shows the total as stacked column plots to show the proportion of energy generation produced by each fuel.</p>
 <div class="figure"><span id="fig:sumDailyProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfileCol-1.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.11: Half-hourly profile plot by fuel type
+Figure 5.12: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfileCol-2.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.11: Half-hourly profile plot by fuel type
+Figure 5.12: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfileCol-3.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.11: Half-hourly profile plot by fuel type
+Figure 5.12: Half-hourly profile plot by fuel type
 </p>
 </div>
 <div class="figure"><span id="fig:sumDailyProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/sumDailyProfileCol-4.png" alt="Half-hourly profile plot by fuel type" width="672" />
 <p class="caption">
-Figure 5.11: Half-hourly profile plot by fuel type
+Figure 5.12: Half-hourly profile plot by fuel type
 </p>
 </div>
 </div>
@@ -1002,7 +1009,7 @@ Figure 8.1: Huntly fuel sources
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">9</span> Runtime</h1>
-<p>Analysis completed in 566.62 seconds ( 9.44 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.0 (2018-04-23) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 664.94 seconds ( 11.08 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.1 (2018-07-02) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">10</span> R environment</h1>
@@ -1016,12 +1023,12 @@ Figure 8.1: Huntly fuel sources
 <li>Hmisc - for describe <span class="citation">(Harrell Jr, Charles Dupont, and others. 2016)</span></li>
 <li>knitr - to create this document &amp; neat tables <span class="citation">(Xie 2016b)</span></li>
 <li>bookdown - for additional markdown <span class="citation">(Xie 2016a)</span></li>
-<li>nzGREENGrid - for local NZ GREEN Grid project utilities</li>
+<li>GREENGrid - for local NZ GREEN Grid project utilities</li>
 </ul>
 <p>Session info:</p>
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.5
+## Running under: macOS High Sierra 10.13.6
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -1034,34 +1041,34 @@ Figure 8.1: Huntly fuel sources
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] knitr_1.20        Hmisc_4.1-1       Formula_1.2-3    
-##  [4] survival_2.42-3   lattice_0.20-35   skimr_1.0.3      
-##  [7] readr_1.1.1       ggplot2_2.2.1     dplyr_0.7.5      
-## [10] data.table_1.11.4 nzGREENGrid_0.1.0
+##  [1] knitr_1.20.13     Hmisc_4.1-1       Formula_1.2-3    
+##  [4] survival_2.42-6   lattice_0.20-35   skimr_1.0.3      
+##  [7] readr_1.1.1       ggplot2_3.0.0     dplyr_0.7.6      
+## [10] data.table_1.11.4 GREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.17        lubridate_1.7.4     prettyunits_1.0.2  
-##  [4] png_0.1-7           utf8_1.1.4          assertthat_0.2.0   
-##  [7] rprojroot_1.3-2     digest_0.6.15       R6_2.2.2           
-## [10] plyr_1.8.4          backports_1.1.2     acepack_1.4.1      
-## [13] evaluate_0.10.1     highr_0.7           pillar_1.2.3       
-## [16] RgoogleMaps_1.4.2   rlang_0.2.1         progress_1.2.0     
-## [19] lazyeval_0.2.1      rstudioapi_0.7      geosphere_1.5-7    
-## [22] rpart_4.1-13        Matrix_1.2-14       checkmate_1.8.5    
-## [25] rmarkdown_1.10      labeling_0.3        proto_1.0.0        
-## [28] splines_3.5.0       stringr_1.3.1       foreign_0.8-70     
-## [31] htmlwidgets_1.2     munsell_0.5.0       compiler_3.5.0     
-## [34] xfun_0.1            pkgconfig_2.0.1     base64enc_0.1-3    
-## [37] htmltools_0.3.6     nnet_7.3-12         openssl_1.0.1      
-## [40] tidyselect_0.2.4    tibble_1.4.2        gridExtra_2.3      
-## [43] htmlTable_1.12      bookdown_0.7        crayon_1.3.4       
-## [46] grid_3.5.0          gtable_0.2.0        magrittr_1.5       
-## [49] scales_0.5.0        cli_1.0.0           stringi_1.2.3      
+##  [1] Rcpp_0.12.18        lubridate_1.7.4     png_0.1-7          
+##  [4] utf8_1.1.4          assertthat_0.2.0    rprojroot_1.3-2    
+##  [7] digest_0.6.15       R6_2.2.2            plyr_1.8.4         
+## [10] backports_1.1.2     acepack_1.4.1       evaluate_0.11      
+## [13] highr_0.7           pillar_1.3.0        RgoogleMaps_1.4.2  
+## [16] rlang_0.2.2         lazyeval_0.2.1      rstudioapi_0.7     
+## [19] geosphere_1.5-7     rpart_4.1-13        Matrix_1.2-14      
+## [22] checkmate_1.8.5     rmarkdown_1.10      labeling_0.3       
+## [25] proto_1.0.0         splines_3.5.1       stringr_1.3.1      
+## [28] foreign_0.8-71      htmlwidgets_1.2     munsell_0.5.0      
+## [31] compiler_3.5.1      xfun_0.3            pkgconfig_2.0.2    
+## [34] base64enc_0.1-3     htmltools_0.3.6     nnet_7.3-12        
+## [37] openssl_1.0.2       tidyselect_0.2.4    tibble_1.4.2       
+## [40] gridExtra_2.3       htmlTable_1.12      bookdown_0.7       
+## [43] fansi_0.3.0         crayon_1.3.4        withr_2.1.2        
+## [46] grid_3.5.1          gtable_0.2.0        magrittr_1.5       
+## [49] scales_1.0.0        cli_1.0.0           stringi_1.2.4      
 ## [52] mapproj_1.2.6       reshape2_1.4.3      bindrcpp_0.2.2     
 ## [55] sp_1.3-1            latticeExtra_0.6-28 rjson_0.2.20       
-## [58] RColorBrewer_1.1-2  tools_3.5.0         ggmap_2.6.1        
-## [61] glue_1.2.0          purrr_0.2.5         maps_3.3.0         
-## [64] hms_0.4.2           jpeg_0.1-8          yaml_2.1.19        
+## [58] RColorBrewer_1.1-2  tools_3.5.1         ggmap_2.6.1        
+## [61] glue_1.3.0          purrr_0.2.5         maps_3.3.0         
+## [64] hms_0.4.2           jpeg_0.1-8          yaml_2.2.0         
 ## [67] colorspace_1.3-2    cluster_2.0.7-1     bindr_0.1.1</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">

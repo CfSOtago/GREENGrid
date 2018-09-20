@@ -3,10 +3,10 @@ title: "NZ Electricity Generation Trends 1998-2017"
 author: "Ben Anderson (b.anderson@soton.ac.uk `@dataknut`)"
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::pdf_document2: default
   bookdown::html_document2:
     self_contained: no
-bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
+  bookdown::pdf_document2: default
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 ```{r knitrSetup, include=FALSE}
@@ -44,7 +44,7 @@ local <- 0 # set to 1 for local file storage (see below)
 if(local){ # set data storage location
   ggParams$lDataLoc <- path.expand("~/Data/NZGreenGrid/safe/ea/")
 } else {
-  ggParams$lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/EA_Generation_Data/")
+  ggParams$lDataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/")
 }
 
 ggParams$genCaption <- paste0("Source: NZ Energy Authority",
@@ -290,12 +290,12 @@ plotDT <- sampleGenDT[,
                   mediankWh = median(kWh, na.rm = TRUE),
                   sdkWh = sd(kWh, na.rm = TRUE),
                   nObs = .N),
-                keyby = .(rTime, month, year, Fuel_Code)]
+                keyby = .(rTime, month = lubridate::month(rDateTime, label = TRUE), year, Fuel_Code)]
 
 # create a function to produce identical plots
 makeHalfHourlyColPlot <- function(dt, yVar, yLabel){
   #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
-  ggplot(plotDT, aes(x = rTime, y = get(yVar)/1000000, fill = Fuel_Code)) +
+  ggplot(dt, aes(x = rTime, y = get(yVar)/1000000, fill = Fuel_Code)) +
     geom_col(alpha = 0.4) +
     facet_grid(month ~ year) +
     labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day") +
@@ -306,7 +306,7 @@ makeHalfHourlyColPlot <- function(dt, yVar, yLabel){
 
 makeHalfHourlyPointPlot <- function(dt, yVar, yLabel){
   #print(paste0("Making monthly plot for ", eval(yVar), " with y label ", eval(yLabel)))
-  ggplot(plotDT, aes(x = rTime, y = get(yVar)/1000000, colour = Fuel_Code)) +
+  ggplot(dt, aes(x = rTime, y = get(yVar)/1000000, colour = Fuel_Code)) +
     geom_point(alpha = 0.4) +
     facet_grid(month ~ year) +
     labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day") +
@@ -327,6 +327,13 @@ makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh per half hour across all days o
 ```{r sumProfilePoint, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
 makeHalfHourlyPointPlot(plotDT, "sumkWh", "Sum GWh per half hour across all days of the month")
 ```
+
+Repeat for 2017 only
+
+```{r sumProfilePoint2017, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum), 2017 only"}
+makeHalfHourlyPointPlot(plotDT[year == 2017], "sumkWh", "Sum GWh per half hour across all days of the month")
+```
+
 
 Figures \@ref(fig:meanProfileCol) and \@ref(fig:meanProfilePoint) repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.
 
@@ -454,7 +461,7 @@ Figure \ref(fig:monthlySOI) shows the monthly El Niño Southern Oscillation Inde
 
 ```{r monthlySOI, fig.cap="Monthly Southern Oscillation"}
 
-soFile <- paste0(ggParams$dataLoc,"_RAW DATA/mfe/mfe-monthly-el-nino-southern-oscillation-index-19862016/monthly-el-nino-southern-oscillation-index-19862016.csv")
+soFile <- paste0(ggParams$dataLoc,"externalData/mfe/mfe-monthly-el-nino-southern-oscillation-index-19862016/monthly-el-nino-southern-oscillation-index-19862016.csv")
 monthlySODT <- data.table::as.data.table(readr::read_csv(soFile))
 
 head(monthlySODT)
