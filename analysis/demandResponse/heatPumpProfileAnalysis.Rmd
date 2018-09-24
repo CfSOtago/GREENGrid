@@ -8599,6 +8599,35 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
 ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```
+#Energy Efficiency: Lighting
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8669,6 +8698,8 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 #sc1data <- sc1data[, ShiftL:= ifelse(Period == "Evening Peak", 0, ShiftL )]
 #sc1data <- sc1data[, ShiftL:= ifelse(Period == "Morning Peak", 0, ShiftL )]
 ```
+
+
 
 
 # Runtime
