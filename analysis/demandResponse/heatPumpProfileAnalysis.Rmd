@@ -8600,6 +8600,69 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```
 #Energy Efficiency: Lighting
+##Data import
+
+```{r importing lighting data}
+
+LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
+LightObsDT <- data.table::as.data.table(LightingHCS)
+LightObsDT <- LightObsDT[, dateTime := lubridate::dmy_hm(r_dateTime, tz = "Pacific/Auckland")]
+CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
+CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
+CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
+CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
+CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
+
+#LightObsDT <- GREENGridData::addNZSeason(LightObsDT)
+
+LightDT <- LightObsDT[, .(meanW = powerW),
+                           keyby = .(season, obsHourMin = hms::hms(r_dateTime))]
+```
+
+##Lighting calculation per household
+```{r lighting calculation per household}
+
+LEDfac <- 0.11270924 # This is out of the Excel calculation
+LightDT <- LightDT[, meanWLed := meanW * LEDfac]
+LightDT <- LightDT[, orikWh := meanW/60/1000]
+LightDT <- LightDT[, LedkWh := meanWLed/60/1000]
+
+consumOrigPD <- LightDT[, sum(meanW/60)/1000] #Consumption in kWh for an avg day per season for one household
+consumOrigPY <- LightDT[, sum(meanW/60*90)/1000] #Consumption in kWh per season for one household
+consumLEDPD <- LightDT[, sum(meanW*LEDfac)/60/1000]#Consumption in kWh for an avg day per season for one household LED 100%
+consumLEDPY <- LightDT[, sum(meanW*LEDfac*90)/60/1000]#Consumption in kWh per season for one household LED 100%
+
+```
+
+##Visualisation
+```{r Original wattage and LED wattage 2in1 per household}
+
+#Change the order in facet_grid()
+LightDT$season <- factor(LightDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising shifted and original consumption two colours
+
+myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
+  geom_line(aes(y=meanW, color="red"), size=0.5) +
+  geom_line(aes(y=meanWLed, color="blue"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting power for an avergae day per season and household") +
+  scale_colour_manual(name = element_blank(), 
+                      values = c('red'='red', 'blue'='blue'),  labels = c('LED technology', 'Current technologies')) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Power (W)') +
+  #scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
+  #scale_y_continuous(breaks = c(0.1)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+
+myPlot
 
 
 
@@ -8611,22 +8674,7 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
