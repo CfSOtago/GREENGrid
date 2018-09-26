@@ -208,7 +208,7 @@ head(heatPumpProfileDT)
 
 ```{r aggregateMethod1}
 # aggregate the scaled MW to half hours
-# as it is MW we need to take the mean - taking the sum would not be meaningfull
+# as it is MW we need to take the mean - taking the sum would not be meaningful
 method1AggDT <- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
                                   keyby = .(season, obsHalfHour)] # <- takes the mean for each category of half hour & season
 
@@ -1290,7 +1290,7 @@ sc5data <- sc5data[, GWhREF:= ifelse(Period == "Evening Peak"|Period== "Morning 
 #Renaming PumpandWater to depict the right y in the colorbar
 setnames(sc5data, old=c("GWhREF"), new=c("MWh"))
 
-myPlot <- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
+myPlot <- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = MWh, color=MWh)) +
   geom_line(size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Total refrigeration load curtailment in peak time-periods by season") +
@@ -1545,6 +1545,27 @@ sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
 
+#Visualising only winter 
+  #myPlot <- ggplot2::ggplot(subset(sc5data, season %in% c("Winter")), aes(x = #obsHalfHour)) +
+ # geom_line(aes(y=GWhREF, color="red"), size=0.5) +
+  #geom_line(aes(y=GWhs4, color="blue"), size=0.5) +
+ # theme(text = element_text(family = "Cambria")) +
+  #ggtitle("Per day original and shifted New Zealand refrigeration energy #consumption by season for 2015") +
+  #scale_colour_manual(name = element_blank(), 
+         #values =c('red'='red','blue'='blue'), labels = c('Original consumption',
+                  #'Shifted consumption')) +
+  #facet_grid(season ~ .) +
+ # labs(x='Time of Day', y='MWh') +
+  #scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+  #scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), #hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
+  #hms::as.hms("20:00:00"))) 
+ 
+
+#myPlot
+
+
+
+# Orifginal plot, the one above depicts winter
 #Visualising shifted and original consumption two colours
   myPlot <- ggplot2::ggplot(sc5data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWhREF, color="red"), size=0.5) +
@@ -1553,10 +1574,10 @@ sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
   ggtitle("Per day original and shifted New Zealand refrigeration energy consumption by season for 2015") +
   scale_colour_manual(name = element_blank(), 
          values =c('red'='red','blue'='blue'), labels = c('Original consumption',
-                  'Shifted consumption')) +
+                 'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
-  #scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+scale_y_continuous(breaks = c(10, 20, 30, 40)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
   hms::as.hms("20:00:00"))) 
  
@@ -5687,7 +5708,7 @@ sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW + GWhREF]
 ```{r calculating baseline scenario SC0 economic all three}
 
 #Economic evaluation begins
-sc3data <- sc3data[, MWh:=PumpandWater*fac1000] # Creating new column MWh
+sc3data <- sc3data[, MWh:=(PumpandWater*fac1000)] # Creating new column MWh
 
 
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -5695,29 +5716,38 @@ setkey(sc3data, season, obsHalfHour)
 
 Mergedsc0DT <- sc3data[SeasonAvgDT]
 
+Mergedsc0DT <- Mergedsc0DT[, MWh:= MWh]
 Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := 0]
+#Mergedsc0DT <- Mergedsc0DT[, avgregion := sum((meanprice)/5),
+                          #keyby = .(season, obsHalfHour)]
 
 Mergedsc0DT <- Mergedsc0DT[, MWh := MWh /5]
 
-Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := (MWh * (meanprice)/1000000), 
-                           keyby = .(season, Region, obsHalfHour)]
+Mergedsc0DT <- Mergedsc0DT[, ecoValueHH := (MWh * meanprice), 
+                           keyby = .(season, obsHalfHour)]
 
 #Change the order in facet_grid()
 Mergedsc0DT$season <- factor(Mergedsc0DT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
+
+
+
+
+
+
 #Visualising
-myPlot <- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
-  geom_point(aes(y=ecoValueHH, color= Region), size=1) +
+myPlot <- ggplot2::ggplot(subset(Mergedsc0DT, Region %in% c("Central North Island")), aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH), size=1) +
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Costs baseline scenario time of day for heat pump and hot water") +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Cost in million NZD') +
+  labs(x='Time of Day', y='Cost in NZD') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
   hms::as.hms("20:00:00"))) 
 myPlot
 
-#ggsave("ALLTHREE_PerDayCost baseline scenario time of day all three.jpeg", dpi = 600)
+ggsave("ALLTHREE_PerDayCost baseline scenario time of day all three.jpeg", dpi = 600)
 
 #Building season sum by period
 #Mergedsc0DT <- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
@@ -8569,6 +8599,84 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
 ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```
+#Energy Efficiency: Lighting
+##Data import
+
+```{r importing lighting data}
+
+LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
+LightObsDT <- data.table::as.data.table(LightingHCS)
+LightObsDT <- LightObsDT[, dateTime := lubridate::dmy_hm(r_dateTime, tz = "Pacific/Auckland")]
+LightObsDT <- LightObsDT[, year := lubridate::year(dateTime)]
+LightObsDT <- LightObsDT[, obsHalfHour := hms::as.hms(dateTime)]
+LightObsDT <- LightObsDT[, month := lubridate::month(dateTime)]
+LightObsDT <- LightObsDT[month >= 2 | month == 4, month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month >= 3 | month == 4, month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+
+#LightObsDT <- GREENGridData::addNZSeason(LightObsDT)
+
+LightDT <- LightObsDT[, .(meanW = powerW),
+                           keyby = .(season, obsHourMin = hms::hms(r_dateTime))]
+```
+
+##Lighting calculation per household
+```{r lighting calculation per household}
+
+LEDfac <- 0.11270924 # This is out of the Excel calculation
+LightDT <- LightDT[, meanWLed := meanW * LEDfac]
+LightDT <- LightDT[, orikWh := meanW/60/1000]
+LightDT <- LightDT[, LedkWh := meanWLed/60/1000]
+
+consumOrigPD <- LightDT[, sum(meanW/60)/1000] #Consumption in kWh for an avg day per season for one household
+consumOrigPY <- LightDT[, sum(meanW/60*90)/1000] #Consumption in kWh per season for one household
+consumLEDPD <- LightDT[, sum(meanW*LEDfac)/60/1000]#Consumption in kWh for an avg day per season for one household LED 100%
+consumLEDPY <- LightDT[, sum(meanW*LEDfac*90)/60/1000]#Consumption in kWh per season for one household LED 100%
+
+```
+
+##Visualisation
+```{r Original wattage and LED wattage 2in1 per household}
+
+#Change the order in facet_grid()
+LightDT$season <- factor(LightDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising shifted and original consumption two colours
+
+myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
+  geom_line(aes(y=meanW, color="red"), size=0.5) +
+  geom_line(aes(y=meanWLed, color="blue"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting power for an avergae day per season and household") +
+  scale_colour_manual(name = element_blank(), 
+                      values = c('red'='red', 'blue'='blue'),  labels = c('LED technology', 'Current technologies')) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Power (W)') +
+  #scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
+  #scale_y_continuous(breaks = c(0.1)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+
+myPlot
+
+
+
+
+
+
+
+
+
+
+
+```
+
 
 
 
@@ -8639,6 +8747,8 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 #sc1data <- sc1data[, ShiftL:= ifelse(Period == "Evening Peak", 0, ShiftL )]
 #sc1data <- sc1data[, ShiftL:= ifelse(Period == "Morning Peak", 0, ShiftL )]
 ```
+
+
 
 
 # Runtime
