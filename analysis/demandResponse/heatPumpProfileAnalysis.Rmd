@@ -8607,11 +8607,12 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
 LightObsDT <- data.table::as.data.table(LightingHCS)
 LightObsDT <- LightObsDT[, dateTime := lubridate::dmy_hm(r_dateTime, tz = "Pacific/Auckland")]
-CpdMinAll <- CpdMinAll[, year := lubridate::year(dateTime)]
-CpdMinAll <- CpdMinAll[, obsHalfHour := hms::as.hms(dateTime)]
-CpdMinAll <- CpdMinAll[, month := lubridate::month(dateTime)]
-CpdMinAll <- CpdMinAll[month >= 5 & month <= 5, season := "Autumn"]
-CpdMinAll <- CpdMinAll[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT <- LightObsDT[, year := lubridate::year(dateTime)]
+LightObsDT <- LightObsDT[, obsHalfHour := hms::as.hms(dateTime)]
+LightObsDT <- LightObsDT[, month := lubridate::month(dateTime)]
+LightObsDT <- LightObsDT[month >= 2 | month == 4, month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month >= 3 | month == 4, month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 
 #LightObsDT <- GREENGridData::addNZSeason(LightObsDT)
 
