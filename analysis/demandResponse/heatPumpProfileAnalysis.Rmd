@@ -8606,49 +8606,64 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 
 LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
 LightObsDT <- data.table::as.data.table(LightingHCS)
-LightObsDT <- LightObsDT[, dateTime := lubridate::dmy_hm(r_dateTime, tz = "Pacific/Auckland")]
-LightObsDT <- LightObsDT[, year := lubridate::year(dateTime)]
-LightObsDT <- LightObsDT[, obsHalfHour := hms::as.hms(dateTime)]
-LightObsDT <- LightObsDT[, month := lubridate::month(dateTime)]
-LightObsDT <- LightObsDT[month >= 2 | month == 4, month == 5, season := "Autumn"]
-LightObsDT <- LightObsDT[month >= 3 | month == 4, month == 5, season := "Autumn"]
+
+LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
+LightObsDT <- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT <- LightObsDT[, month := lubridate::month(r_dateTime)]
+
+LightObsDT <- LightObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+LightObsDT <- LightObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
 LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT <- LightObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
 
-#LightObsDT <- GREENGridData::addNZSeason(LightObsDT)
+#Building daily average per season
 
-LightDT <- LightObsDT[, .(meanW = powerW),
-                           keyby = .(season, obsHourMin = hms::hms(r_dateTime))]
+LightDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
+
+
+
+#ggplot2::ggplot(LightDT, aes(x = obsHalfHour, y = meanW, colour = season)) + #geom_line()
+
 ```
 
 ##Lighting calculation per household
 ```{r lighting calculation per household}
 
 LEDfac <- 0.11270924 # This is out of the Excel calculation
+nzHouseholds <- 1457464 # Census 2013 data on households (copied from HP calc)
+
+LightDT <- LightDT[, meanMWtotal := ((meanW * nzHouseholds)/1000/1000)]  
 LightDT <- LightDT[, meanWLed := meanW * LEDfac]
-LightDT <- LightDT[, orikWh := meanW/60/1000]
-LightDT <- LightDT[, LedkWh := meanWLed/60/1000]
+LightDT <- LightDT[, meanMWLedTot := ((meanW * LEDfac * nzHouseholds)/1000/1000)]
+LightDT <- LightDT[, oriWh := meanW/60]
+LightDT <- LightDT[, oriMWhTot := (meanW/60/1000/1000) * nzHouseholds]
+LightDT <- LightDT[, LedWh := meanWLed/60]
+LightDT <- LightDT[, LedMWhTot := (meanWLed/60/1000/1000) * nzHouseholds]
 
 consumOrigPD <- LightDT[, sum(meanW/60)/1000] #Consumption in kWh for an avg day per season for one household
+consumOrigTotPD <- LightDT[, sum((meanW/60)/1000/1000/1000) * nzHouseholds] #Consumption in kWh for an avg day per season for total NZ
 consumOrigPY <- LightDT[, sum(meanW/60*90)/1000] #Consumption in kWh per season for one household
+consumOrigTotPY <- LightDT[, sum((meanW/60*90)/1000/1000/1000) * nzHouseholds] #Consumption in kWh per season for total NZ
 consumLEDPD <- LightDT[, sum(meanW*LEDfac)/60/1000]#Consumption in kWh for an avg day per season for one household LED 100%
+consumLEDTotPD <- LightDT[, sum((meanW*LEDfac)/60/1000/1000/1000) * nzHouseholds]#Consumption in kWh for an avg day per season for total NZ LED 100%
 consumLEDPY <- LightDT[, sum(meanW*LEDfac*90)/60/1000]#Consumption in kWh per season for one household LED 100%
+consumLEDTotPY <- LightDT[, sum((meanW*LEDfac*90)/60/1000/1000/1000) * nzHouseholds]#Consumption in GWh per season for total NZ LED 100%
 
 ```
 
 ##Visualisation
-```{r Original wattage and LED wattage 2in1 per household}
+```{r Insert variables from above}
 
 #Change the order in facet_grid()
 LightDT$season <- factor(LightDT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
 #Visualising shifted and original consumption two colours
-
 myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
   geom_line(aes(y=meanW, color="red"), size=0.5) +
   geom_line(aes(y=meanWLed, color="blue"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Lighting power for an avergae day per season and household") +
+  ggtitle("Lighting power for an average day per season and household") +
   scale_colour_manual(name = element_blank(), 
                       values = c('red'='red', 'blue'='blue'),  labels = c('LED technology', 'Current technologies')) +
   facet_grid(season ~ .) +
@@ -8662,10 +8677,9 @@ myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
                           hms::as.hms("16:00:00"), 
                           hms::as.hms("20:00:00"),
                           hms::as.hms("24:00:00"))) 
-
 myPlot
 
-
+#ggsave("Lighting power for an average day per season and household.jpg", dpi=600)
 
 
 
