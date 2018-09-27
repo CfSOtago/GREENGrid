@@ -747,14 +747,43 @@ myPlot
 This file is the pre-aggregated data for all hot water  circuits in the GREEN Grid data for April 2015 - March 2016 (check!)
 
 ```{r set fileName2}
-ggParams$profilesFile <- paste0(ggParams$dataLoc, "Hot Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz")
+#ggParams$profilesFile <- paste0(ggParams$dataLoc, "Hot #Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz")
 ```
 
 In this section we load and describe the  data files from `r ggParams$profilesFile`.
 
 ```{r load data2}
-print(paste0("Trying to load: ", ggParams$profilesFile))
-hotWaterProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+#print(paste0("Trying to load: ", ggParams$profilesFile))
+#hotWaterProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+
+HotwaterHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Hot Water_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HotwaterObsDT <- data.table::as.data.table(HotwaterHCS)
+
+HotwaterObsDT <- HotwaterObsDT[, year := lubridate::year(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, month := lubridate::month(r_dateTime)]
+
+HotwaterObsDT <- HotwaterObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+#Building daily average per season
+
+hotWaterProfileDT <- HotwaterObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
+
+
 ```
 
 ##BRANZ vs. EECA comparison
@@ -8639,10 +8668,6 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 ##Data import
 
 ```{r importing lighting data}
-
-
-
-
 LightingHCS <- data.table::as.data.table(
  readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz",
                        col_types = cols(
