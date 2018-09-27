@@ -8604,14 +8604,11 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```{r importing lighting data}
 
-LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz")
+LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
 LightObsDT <- data.table::as.data.table(LightingHCS)
-lubridate::tz(LightObsDT[1,r_dateTime])
-LightObsDT <- LightObsDT[, nzTime := lubridate::with_tz(r_dateTime, tzone = "Pacific/Auckland")]
-LightObsDT <- LightObsDT[, obsTime := hms::as.hms(r_dateTime)]
-LightObsDT <- LightObsDT[, obsTimeNZ := hms::as.hms(nzTime)]
+
 LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
-LightObsDT <- LightObsDT[, obsHalfHour := hms::as.hms(r_dateTime)]
+LightObsDT <- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
 LightObsDT <- LightObsDT[, month := lubridate::month(r_dateTime)]
 
 LightObsDT <- LightObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
@@ -8619,21 +8616,14 @@ LightObsDT <- LightObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn
 LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 LightObsDT <- LightObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
 
-#Building seasonal daily average
+#Building daily average per season
 
-LightDT <- LightObsDT[, . (meanW = mean(powerW), keyby =. (obsTime, month))]
-
-
+LightDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
 
 
 
+#ggplot2::ggplot(LightDT, aes(x = obsHalfHour, y = meanW, colour = season)) + #geom_line()
 
-
-
-
-
-#LightDT <- LightObsDT[, .(meanW = powerW),
-                      #     keyby = .(season, obsTimeNZ = hms::hms(r_dateTime))]
 ```
 
 ##Lighting calculation per household
@@ -8681,7 +8671,7 @@ myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
 
 myPlot
 
-
+#ggsave("Average lighting power per day, season, and household.jpg", dpi=600)
 
 
 
