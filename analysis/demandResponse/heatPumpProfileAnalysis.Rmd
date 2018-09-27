@@ -59,7 +59,7 @@ if(userName == "ben"){
   ggParams$dataLoc <- path.expand("~/Dropbox/Work/Carsten_MSc/ggData/profiles/") # <- dropbox
 } 
 if(userName == "carsten.dortans"){
-  ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/") # <- server
+  ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/") # <- server
 }
 ```
 
@@ -114,14 +114,50 @@ Specific history of this code:
 This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)
 
 ```{r set fileName}
-ggParams$profilesFile <- paste0(ggParams$dataLoc, "Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz")
+#ggParams$profilesFile <- paste0(ggParams$dataLoc, "Heat #Pump_2015-04-01_2016-03-31_observations.csv.gz")
 ```
 
 In this section we load and describe the  data files from `r ggParams$profilesFile`.
 
 ```{r load data}
-print(paste0("Trying to load: ", ggParams$profilesFile))
-heatPumpProfileDT <- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+#print(paste0("Trying to load: ", ggParams$profilesFile))
+
+heatPumpProfileDT1 <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+#heatPumpProfileDT1 <- #data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+
+heatPumpProfileDT <- heatPumpProfileDT1
+heatPumpProfileDT <- heatPumpProfileDT[, year := lubridate::year(r_dateTime)]
+heatPumpProfileDT <- heatPumpProfileDT[, obsHourMin := hms::as.hms(r_dateTime)]
+heatPumpProfileDT <- heatPumpProfileDT[, month := lubridate::month(r_dateTime)]
+
+heatPumpProfileDT <- heatPumpProfileDT[month == 12 | month == 1 | month == 2, season := "Summer"]
+heatPumpProfileDT <- heatPumpProfileDT[month == 3 | month == 4 | month == 5, season := "Autumn"]
+heatPumpProfileDT <- heatPumpProfileDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+heatPumpProfileDT <- heatPumpProfileDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+#Building daily average per season
+
+#heatPumpProfileDT[ , 5][is.na(heatPumpProfileDT[ , 5] ) ] = 0 
+
+heatPumpProfileDT <- heatPumpProfileDT[, .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(obsHourMin, season)]
+
+
+
+
+
+
+
 ```
 
 
@@ -693,7 +729,7 @@ myPlot <- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
                   'Shifted consumption')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
- scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+# scale_y_continuous(breaks = c(4, 8, 12, 16)) +
  scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
   hms::as.hms("20:00:00")))  
   #scale_color_gradient(low= "green", high="red")
@@ -8604,7 +8640,21 @@ ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```{r importing lighting data}
 
-LightingHCS  <- readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz")
+
+
+
+LightingHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
 LightObsDT <- data.table::as.data.table(LightingHCS)
 
 LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
