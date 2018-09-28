@@ -8715,19 +8715,47 @@ LightDT <- LightDT[, oriMWhTot := (meanW/60/1000/1000) * nzHouseholds]
 LightDT <- LightDT[, LedWh := meanWLed/60]
 LightDT <- LightDT[, LedMWhTot := (meanWLed/60/1000/1000) * nzHouseholds]
 
-consumOrigPD <- LightDT[, sum(meanW/60)/1000] #Consumption in kWh for an avg day per season for one household
-consumOrigTotPD <- LightDT[, sum((meanW/60)/1000/1000/1000) * nzHouseholds] #Consumption in kWh for an avg day per season for total NZ
-consumOrigPY <- LightDT[, sum(meanW/60*90)/1000] #Consumption in kWh per season for one household
-consumOrigTotPY <- LightDT[, sum((meanW/60*90)/1000/1000/1000) * nzHouseholds] #Consumption in kWh per season for total NZ
-consumLEDPD <- LightDT[, sum(meanW*LEDfac)/60/1000]#Consumption in kWh for an avg day per season for one household LED 100%
-consumLEDTotPD <- LightDT[, sum((meanW*LEDfac)/60/1000/1000/1000) * nzHouseholds]#Consumption in kWh for an avg day per season for total NZ LED 100%
-consumLEDPY <- LightDT[, sum(meanW*LEDfac*90)/60/1000]#Consumption in kWh per season for one household LED 100%
-consumLEDTotPY <- LightDT[, sum((meanW*LEDfac*90)/60/1000/1000/1000) * nzHouseholds]#Consumption in GWh per season for total NZ LED 100%
+
+
+
+consumOrigPDDT <- LightDT[, .(consumOrigPDkWh = sum(meanW/60)/1000),
+                          keyby = .(season)]
+
+consumOrigTotPDDT <- LightDT[, .(consumOrigTotPDGWh = sum(meanW/60 * nzHouseholds)/1000/1000/1000), keyby = .(season)]
+
+consumOrigPYDT <- LightDT[, .(consumOrigPYkWh = sum(meanW/60*90)/1000), keyby = .(season)]
+
+consumOrigTotPYDT <- LightDT[, .(consumOrigTotPYGWh = sum(meanW/60*90*nzHouseholds)/1000/1000/1000), keyby = .(season)]
+
+consumLEDPDDT <- LightDT[, .(consumLEDPDkWh = sum(meanW*LEDfac)/60/1000), keyby = .(season)]
+
+consumLEDTotPDDT <- LightDT[, .(consumLEDTotPDGWh = sum(meanW*LEDfac*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]
+
+consumLEDPYDT <- LightDT[, .(consumLEDPYkWh = sum(meanW*LEDfac*90)/60/1000), keyby = .(season)]
+
+consumLEDTotPYDT <- LightDT[, .(consumLEDTotPYGWh = sum(meanW*LEDfac*90*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]
 
 ```
 
 ##Visualisation
 ```{r Insert variables from above}
+
+consumOrigPDDT #Consumption in kWh for an avg day per season for one household
+
+consumOrigTotPDDT #Consumption in GWh for an avg day per season for total NZ
+
+consumOrigPYDT #Consumption in kWh per season for one household
+
+consumOrigTotPYDT #Consumption in GWh per season for total NZ
+
+consumLEDPDDT #Consumption in kWh for an avg day per season for one household LED 100%
+
+consumLEDTotPDDT #Consumption in GWh for an avg day per season for total NZ LED 100%
+
+consumLEDPYDT #Consumption in kWh per season for one household LED 100%
+
+consumLEDTotPYDT #Consumption in GWh per season for total NZ LED 100%
+
 
 #Change the order in facet_grid()
 LightDT$season <- factor(LightDT$season, levels = c("Spring","Summer",
@@ -8755,7 +8783,6 @@ myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
 myPlot
 
 #ggsave("Lighting power for an average day per season and household.jpg", dpi=600)
-
 
 
 
