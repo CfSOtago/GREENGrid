@@ -94,6 +94,9 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -219,7 +222,7 @@ div.tocify {
 <h1 class="title toc-ignore">Technical Potential of Demand Response</h1>
 <h3 class="subtitle"><em>Heat Pump Analysis</em></h3>
 <h4 class="author"><em>Carsten Dortans (<a href="mailto:xxx@otago.ac.nz">xxx@otago.ac.nz</a>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-08-10 12:31:14</em></h4>
+<h4 class="date"><em>Last run at: 2018-09-28 15:34:55</em></h4>
 
 </div>
 
@@ -229,7 +232,7 @@ div.tocify {
 <h1><span class="header-section-number">1</span> Citation</h1>
 <p>If you wish to use any of the material from this report please cite as:</p>
 <ul>
-<li>Dortans, C. (2018) Technical Potential of Demand Response: Heat Pump Analysis, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin.</li>
+<li>Dortans, C. (2018) Technical Potential of Demand Response: Heat Pump Analysis, <a href="http://www.otago.ac.nz/centre-sustainability/">Centre for Sustainability</a>, University of Otago: Dunedin, New Zealand.</li>
 </ul>
 <p>This work is (c) 2018 the University of Southampton.</p>
 
@@ -253,7 +256,7 @@ div.tocify {
 <div id="requirements" class="section level2">
 <h2><span class="header-section-number">2.3</span> Requirements:</h2>
 <ul>
-<li>test dataset stored at /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/</li>
+<li>test dataset stored at /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/</li>
 </ul>
 </div>
 <div id="history" class="section level2">
@@ -265,7 +268,7 @@ div.tocify {
 </ul>
 <p>Specific history of this code:</p>
 <ul>
-<li><a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse" class="uri">https://git.soton.ac.uk/ba1e12/nzGREENGrid/tree/master/analysis/demandResponse</a></li>
+<li><a href="https://github.com/CfSOtago/GREENGrid/commits/master/analysis/demandResponse/" class="uri">https://github.com/CfSOtago/GREENGrid/commits/master/analysis/demandResponse/</a></li>
 </ul>
 </div>
 <div id="support" class="section level2">
@@ -275,9 +278,9 @@ div.tocify {
 <li>The <a href="https://www.otago.ac.nz/">University of Otago</a>;</li>
 <li>The <a href="https://www.southampton.ac.uk/">University of Southampton</a>;</li>
 <li>The New Zealand <a href="http://www.mbie.govt.nz/">Ministry of Business, Innovation and Employment (MBIE)</a> through the <a href="https://www.otago.ac.nz/centre-sustainability/research/energy/otago050285.html">NZ GREEN Grid</a> project;</li>
-<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-202).</li>
+<li><a href="http://www.energy.soton.ac.uk/tag/spatialec/">SPATIALEC</a> - a <a href="http://ec.europa.eu/research/mariecurieactions/about-msca/actions/if/index_en.htm">Marie Skłodowska-Curie Global Fellowship</a> based at the University of Otago’s <a href="http://www.otago.ac.nz/centre-sustainability/staff/otago673896.html">Centre for Sustainability</a> (2017-2019) &amp; the University of Southampton’s Sustainable Energy Research Group (2019-2020).</li>
 </ul>
-<p>We do not ‘support’ the code but if you have a problem check the <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid/issues">issues</a> on our <a href="https://git.soton.ac.uk/ba1e12/nzGREENGrid">repo</a> and if it doesn’t already exist, open one. We might be able to fix it :-)</p>
+<p>We do not ‘support’ the code but if you notice a problem please check the <a href="https://github.com/CfSOtago/GREENGrid/issues">issues</a> on our <a href="https://github.com/CfSOtago/GREENGrid">repo</a> and if it doesn’t already exist, please open a new one.</p>
 </div>
 </div>
 <div id="load-data-files" class="section level1">
@@ -285,47 +288,58 @@ div.tocify {
 <div id="heat-pump-profiles" class="section level2">
 <h2><span class="header-section-number">3.1</span> Heat pump profiles</h2>
 <p>This file is the pre-aggregated data for all heat pump circuits in the GREEN Grid data for April 2015 - March 2016 (check!)</p>
-<pre class="r"><code>ggParams$profilesFile &lt;- paste0(ggParams$dataLoc, &quot;Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;)</code></pre>
-<p>In this section we load and describe the data files from /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.</p>
-<pre class="r"><code>print(paste0(&quot;Trying to load: &quot;, ggParams$profilesFile))</code></pre>
-<pre><code>## [1] &quot;Trying to load: /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/Heat Pump_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;</code></pre>
-<pre class="r"><code>heatPumpProfileDT &lt;- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   obsHourMin = col_integer(),
-##   season = col_character(),
-##   meanW = col_double(),
-##   medianW = col_double(),
-##   nObs = col_integer(),
-##   sdW = col_double()
-## )</code></pre>
+<pre class="r"><code>#ggParams$profilesFile &lt;- paste0(ggParams$dataLoc, &quot;Heat #Pump_2015-04-01_2016-03-31_observations.csv.gz&quot;)</code></pre>
+<p>In this section we load and describe the data files from .</p>
+<pre class="r"><code>#print(paste0(&quot;Trying to load: &quot;, ggParams$profilesFile))
+
+heatPumpProfileDT1 &lt;- data.table::as.data.table(
+ readr::read_csv(&quot;/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz&quot;,
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = &quot;&quot;),
+                       circuit = col_character(),
+                       powerW = col_double() # &lt;- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+#heatPumpProfileDT1 &lt;- #data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+
+heatPumpProfileDT &lt;- heatPumpProfileDT1
+heatPumpProfileDT &lt;- heatPumpProfileDT[, year := lubridate::year(r_dateTime)]
+heatPumpProfileDT &lt;- heatPumpProfileDT[, obsHourMin := hms::as.hms(r_dateTime)]
+heatPumpProfileDT &lt;- heatPumpProfileDT[, month := lubridate::month(r_dateTime)]
+
+heatPumpProfileDT &lt;- heatPumpProfileDT[month == 12 | month == 1 | month == 2, season := &quot;Summer&quot;]
+heatPumpProfileDT &lt;- heatPumpProfileDT[month == 3 | month == 4 | month == 5, season := &quot;Autumn&quot;]
+heatPumpProfileDT &lt;- heatPumpProfileDT[month == 6 | month == 7 | month == 8, season := &quot;Winter&quot;]
+heatPumpProfileDT &lt;- heatPumpProfileDT[month == 9 | month == 10 | month == 11, season := &quot;Spring&quot;]
+
+#Building daily average per season
+
+#heatPumpProfileDT[ , 5][is.na(heatPumpProfileDT[ , 5] ) ] = 0 
+
+heatPumpProfileDT &lt;- heatPumpProfileDT[, .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(obsHourMin, season)]</code></pre>
 <p>Describe using skim:</p>
 <pre class="r"><code>skimr::skim(heatPumpProfileDT)</code></pre>
 <pre><code>## Skim summary statistics
 ##  n obs: 5760 
-##  n variables: 6 
+##  n variables: 3 
 ## 
-## ── Variable type:character ──────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:character ────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete    n min max empty n_unique
 ##    season       0     5760 5760   6   6     0        4
 ## 
-## ── Variable type:integer ────────────────────────────────────────────────────────────────────────────────────
-##    variable missing complete    n     mean       sd   p0   p25   p50
-##        nObs       0     5760 5760  2474.01   193.01 2150  2401  2517
-##  obsHourMin       0     5760 5760 43170    24943.69    0 21585 43170
-##      p75  p100     hist
-##   2598.5  2688 ▅▁▁▁▁▇▁▅
-##  64755   86340 ▇▇▇▇▇▇▇▇
+## ── Variable type:difftime ─────────────────────────────────────────────────────────────────────────────────────────────
+##    variable missing complete    n    min        max     median n_unique
+##  obsHourMin       0     5760 5760 0 secs 86340 secs 43170 secs     1440
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────
-##  variable missing complete    n   mean     sd     p0    p25    p50    p75
-##     meanW       0     5760 5760 143.53 117.47  34.99  69.26 104.83 174.66
-##   medianW       0     5760 5760  17.05  67.67   0      0      0      0   
-##       sdW       0     5760 5760 329.06 147.27 101.04 224.74 296.2  404.69
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────
+##  variable missing complete    n   mean     sd    p0   p25    p50    p75
+##     meanW       0     5760 5760 143.53 117.47 34.99 69.26 104.83 174.66
 ##    p100     hist
-##  613.89 ▇▃▂▁▁▁▁▁
-##  392.55 ▇▁▁▁▁▁▁▁
-##  879.07 ▆▇▆▃▁▂▁▁</code></pre>
+##  613.89 ▇▃▂▁▁▁▁▁</code></pre>
 <p>Draw a plot of GreenGrid heat pump profiles.</p>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(heatPumpProfileDT, aes(x = obsHourMin, colour = season)) +
   geom_point(aes(y = meanW)) +
@@ -400,24 +414,17 @@ heatPumpProfileDT &lt;- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHou
 
 # check
 head(heatPumpProfileDT)</code></pre>
-<pre><code>##    obsHourMin season     meanW medianW nObs      sdW scaledMWmethod1
-## 1:          0 Autumn  64.40783       0 2546 198.4544        99.82505
-## 2:          0 Spring  55.96022       0 2522 176.6016        86.73218
-## 3:          0 Summer  59.26967       0 2159 160.4681        91.86146
-## 4:          0 Winter 124.01313       0 2687 325.3015       192.20670
-## 5:         60 Autumn  63.29641       0 2546 195.6336        98.10247
-## 6:         60 Spring  55.18319       0 2521 174.0815        85.52787
-##    EECApmMethod2 obsHalfHour
-## 1:    0.05515844    00:00:00
-## 2:    0.04792396    00:00:00
-## 3:    0.05075815    00:00:00
-## 4:    0.10620402    00:00:00
-## 5:    0.05420663    00:00:00
-## 6:    0.04725852    00:00:00</code></pre>
+<pre><code>##    obsHourMin season     meanW scaledMWmethod1 EECApmMethod2 obsHalfHour
+## 1:   00:00:00 Autumn  64.40783        99.82505    0.05515844    00:00:00
+## 2:   00:00:00 Spring  55.96022        86.73218    0.04792396    00:00:00
+## 3:   00:00:00 Summer  59.26967        91.86146    0.05075815    00:00:00
+## 4:   00:00:00 Winter 124.01313       192.20670    0.10620402    00:00:00
+## 5:   00:01:00 Autumn  63.29641        98.10247    0.05420663    00:00:00
+## 6:   00:01:00 Spring  55.18319        85.52787    0.04725852    00:00:00</code></pre>
 <div id="method-1" class="section level2">
 <h2><span class="header-section-number">5.1</span> Method 1</h2>
 <pre class="r"><code># aggregate the scaled MW to half hours
-# as it is MW we need to take the mean - taking the sum would not be meaningfull
+# as it is MW we need to take the mean - taking the sum would not be meaningful
 method1AggDT &lt;- heatPumpProfileDT[, .(meanMW = mean(scaledMWmethod1)), 
                                   keyby = .(season, obsHalfHour)] # &lt;- takes the mean for each category of half hour &amp; season
 
@@ -480,7 +487,7 @@ skimr::skim(sumbranzGWh)</code></pre>
 <pre><code>## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────
 ##     variable missing complete n   mean sd     p0    p25    p50    p75
 ##  sumbranzGWh       0        1 1 638.66 NA 638.66 638.66 638.66 638.66
 ##    p100     hist
@@ -489,14 +496,14 @@ skimr::skim(sumbranzGWh)</code></pre>
 <pre><code>## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────
 ##  variable missing complete n mean sd  p0 p25 p50 p75 p100     hist
 ##  totalGWH       0        1 1  708 NA 708 708 708 708  708 ▁▁▁▇▁▁▁▁</code></pre>
 <pre class="r"><code>skimr::skim(diffbranzeeca)</code></pre>
 <pre><code>## 
 ## Skim summary statistics
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────────────────────────────────────────────
+## ── Variable type:numeric ──────────────────────────────────────────────────────────────────────────────────────────────
 ##       variable missing complete n  mean sd    p0   p25   p50   p75  p100
 ##  diffbranzeeca       0        1 1 0.098 NA 0.098 0.098 0.098 0.098 0.098
 ##      hist
@@ -538,9 +545,14 @@ OP2E &lt;- hms::as.hms(&quot;16:30:00&quot;)
 
 sc1data &lt;- heatPumpProfileDT
 sc1data[, c(&quot;medianW&quot;, &quot;obsHourMin&quot;, &quot;meanW&quot;, &quot;nObs&quot;, &quot;sdW&quot;,
-            &quot;scaledMWmethod1&quot;, &quot;EECApmMethod2&quot;):=NULL] #Deleting unnecessary columns
-
-sc1data &lt;- sc1data[, .(GWh = sum(scaledGWh)), 
+            &quot;scaledMWmethod1&quot;, &quot;EECApmMethod2&quot;):=NULL] #Deleting unnecessary columns</code></pre>
+<pre><code>## Warning in `[.data.table`(sc1data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;medianW&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(sc1data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;nObs&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(sc1data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;sdW&#39; then assigning NULL (deleting it).</code></pre>
+<pre class="r"><code>sc1data &lt;- sc1data[, .(GWh = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
 
@@ -982,7 +994,7 @@ myPlot &lt;- ggplot2::ggplot(sc1data, aes(x = obsHalfHour)) +
                   &#39;Shifted consumption&#39;)) +
   facet_grid(season ~ .) +
   labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;) +
- scale_y_continuous(breaks = c(4, 8, 12, 16)) +
+# scale_y_continuous(breaks = c(4, 8, 12, 16)) +
  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),       hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), 
   hms::as.hms(&quot;20:00:00&quot;)))  
   #scale_color_gradient(low= &quot;green&quot;, high=&quot;red&quot;)
@@ -998,20 +1010,37 @@ myPlot</code></pre>
 <div id="loading-data" class="section level2">
 <h2><span class="header-section-number">9.1</span> Loading data</h2>
 <p>This file is the pre-aggregated data for all hot water circuits in the GREEN Grid data for April 2015 - March 2016 (check!)</p>
-<pre class="r"><code>ggParams$profilesFile &lt;- paste0(ggParams$dataLoc, &quot;Hot Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;)</code></pre>
-<p>In this section we load and describe the data files from /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/Hot Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz.</p>
-<pre class="r"><code>print(paste0(&quot;Trying to load: &quot;, ggParams$profilesFile))</code></pre>
-<pre><code>## [1] &quot;Trying to load: /Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/profiles/Hot Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;</code></pre>
-<pre class="r"><code>hotWaterProfileDT &lt;- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   obsHourMin = col_integer(),
-##   season = col_character(),
-##   meanW = col_double(),
-##   medianW = col_integer(),
-##   nObs = col_integer(),
-##   sdW = col_double()
-## )</code></pre>
+<pre class="r"><code>#ggParams$profilesFile &lt;- paste0(ggParams$dataLoc, &quot;Hot #Water_2015-04-01_2016-03-31_overallSeasonalProfiles.csv.gz&quot;)</code></pre>
+<p>In this section we load and describe the data files from .</p>
+<pre class="r"><code>#print(paste0(&quot;Trying to load: &quot;, ggParams$profilesFile))
+#hotWaterProfileDT &lt;- data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+
+HotwaterHCS &lt;- data.table::as.data.table(
+ readr::read_csv(&quot;/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Hot Water_2015-04-01_2016-03-31_observations.csv.gz&quot;,
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = &quot;&quot;),
+                       circuit = col_character(),
+                       powerW = col_double() # &lt;- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HotwaterObsDT &lt;- data.table::as.data.table(HotwaterHCS)
+
+HotwaterObsDT &lt;- HotwaterObsDT[, year := lubridate::year(r_dateTime)]
+HotwaterObsDT &lt;- HotwaterObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+HotwaterObsDT &lt;- HotwaterObsDT[, month := lubridate::month(r_dateTime)]
+
+HotwaterObsDT &lt;- HotwaterObsDT[month &gt;= 12 | month == 1 | month == 2, season := &quot;Summer&quot;]
+HotwaterObsDT &lt;- HotwaterObsDT[month &gt;= 3 | month == 4 | month == 5, season := &quot;Autumn&quot;]
+HotwaterObsDT &lt;- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := &quot;Winter&quot;]
+HotwaterObsDT &lt;- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := &quot;Spring&quot;]
+
+#Building daily average per season
+
+hotWaterProfileDT &lt;- HotwaterObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]</code></pre>
 </div>
 <div id="branz-vs.eeca-comparison-1" class="section level2">
 <h2><span class="header-section-number">9.2</span> BRANZ vs. EECA comparison</h2>
@@ -1053,12 +1082,12 @@ method2AggDT &lt;- hotWaterProfileDT[, .(GWh = sum(scaledGWh)),
 # check
 head(method2AggDT)</code></pre>
 <pre><code>##    season obsHalfHour      GWh
-## 1: Autumn    00:00:00 7.389856
-## 2: Autumn    00:30:00 6.954208
-## 3: Autumn    01:00:00 6.925681
-## 4: Autumn    01:30:00 6.115930
-## 5: Autumn    02:00:00 6.324915
-## 6: Autumn    02:30:00 5.965116</code></pre>
+## 1: Autumn    00:00:00 7.429713
+## 2: Autumn    00:30:00 6.780614
+## 3: Autumn    01:00:00 6.811152
+## 4: Autumn    01:30:00 5.888405
+## 5: Autumn    02:00:00 5.910528
+## 6: Autumn    02:30:00 5.654303</code></pre>
 <pre class="r"><code>#Change the order in facet_grid()
 method2AggDT$season &lt;- factor(method2AggDT$season, levels = c(&quot;Spring&quot;,&quot;Summer&quot;,
                                                     &quot;Autumn&quot;, &quot;Winter&quot;))
@@ -1146,14 +1175,14 @@ sc2data</code></pre>
 ##  2: Spring Morning Peak 261.4715
 ##  3: Spring   Off Peak 1 171.1496
 ##  4: Spring   Off Peak 2 208.4891
-##  5: Summer Evening Peak 155.9102
-##  6: Summer Morning Peak 175.5699
-##  7: Summer   Off Peak 1 142.2316
-##  8: Summer   Off Peak 2 161.6591
-##  9: Autumn Evening Peak 212.5322
-## 10: Autumn Morning Peak 257.1399
-## 11: Autumn   Off Peak 1 154.7345
-## 12: Autumn   Off Peak 2 218.1377
+##  5: Summer Evening Peak 151.8508
+##  6: Summer Morning Peak 163.4540
+##  7: Summer   Off Peak 1 137.4521
+##  8: Summer   Off Peak 2 152.6129
+##  9: Autumn Evening Peak 201.5304
+## 10: Autumn Morning Peak 244.0416
+## 11: Autumn   Off Peak 1 153.9915
+## 12: Autumn   Off Peak 2 209.3414
 ## 13: Winter Evening Peak 242.9733
 ## 14: Winter Morning Peak 284.4167
 ## 15: Winter   Off Peak 1 183.5473
@@ -1163,6 +1192,12 @@ sc2data</code></pre>
 <pre class="r"><code>sc2data &lt;- hotWaterProfileDT
 sc2data[, c(&quot;medianW&quot;, &quot;obsHourMin&quot;, &quot;meanW&quot;, &quot;nObs&quot;, &quot;sdW&quot;,
             &quot;scaledMWmethod1&quot;, &quot;EECApmMethod2&quot;):=NULL] #Deleting unnecessary columns</code></pre>
+<pre><code>## Warning in `[.data.table`(sc2data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;medianW&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(sc2data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;nObs&#39; then assigning NULL (deleting it).</code></pre>
+<pre><code>## Warning in `[.data.table`(sc2data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
+## &quot;meanW&quot;, : Adding new column &#39;sdW&#39; then assigning NULL (deleting it).</code></pre>
 <pre><code>## Warning in `[.data.table`(sc2data, , `:=`(c(&quot;medianW&quot;, &quot;obsHourMin&quot;,
 ## &quot;meanW&quot;, : Adding new column &#39;scaledMWmethod1&#39; then assigning NULL
 ## (deleting it).</code></pre>
@@ -1309,14 +1344,14 @@ sc2data</code></pre>
 ##  2: Spring Morning Peak 130.73577
 ##  3: Spring   Off Peak 1 171.14962
 ##  4: Spring   Off Peak 2 208.48912
-##  5: Summer Evening Peak  77.95512
-##  6: Summer Morning Peak  87.78493
-##  7: Summer   Off Peak 1 142.23164
-##  8: Summer   Off Peak 2 161.65907
-##  9: Autumn Evening Peak 106.26611
-## 10: Autumn Morning Peak 128.56994
-## 11: Autumn   Off Peak 1 154.73452
-## 12: Autumn   Off Peak 2 218.13772
+##  5: Summer Evening Peak  75.92541
+##  6: Summer Morning Peak  81.72698
+##  7: Summer   Off Peak 1 137.45208
+##  8: Summer   Off Peak 2 152.61293
+##  9: Autumn Evening Peak 100.76520
+## 10: Autumn Morning Peak 122.02079
+## 11: Autumn   Off Peak 1 153.99151
+## 12: Autumn   Off Peak 2 209.34144
 ## 13: Winter Evening Peak 121.48666
 ## 14: Winter Morning Peak 142.20837
 ## 15: Winter   Off Peak 1 183.54731
@@ -1648,9 +1683,9 @@ sc5data &lt;- sc5data[, GWhREF:= ifelse(Period == &quot;Evening Peak&quot;|Perio
 
 
 #Renaming PumpandWater to depict the right y in the colorbar
-setnames(sc5data, old=c(&quot;GWhREF&quot;), new=c(&quot;GWh&quot;))
+setnames(sc5data, old=c(&quot;GWhREF&quot;), new=c(&quot;MWh&quot;))
 
-myPlot &lt;- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = GWh, color=GWh)) +
+myPlot &lt;- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = MWh, color=MWh)) +
   geom_line(size=1) +
   theme(text = element_text(family = &quot;Cambria&quot;)) +
   ggtitle(&quot;Total refrigeration load curtailment in peak time-periods by season&quot;) +
@@ -1663,7 +1698,7 @@ myPlot &lt;- ggplot2::ggplot(sc5data, aes(x = obsHalfHour, y = GWh, color=GWh)) 
 
 myPlot</code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/Visualising%20rf%20curtailed%20periods-1.png" /><!-- --></p>
-<pre class="r"><code>#ggsave(&quot;Total refrigeration curtailment in peak time-periods by season.jpeg&quot;, dpi = 600)</code></pre>
+<pre class="r"><code>#ggsave(&quot;Per_DayTotal refrigeration curtailment in peak time-periods by season.jpeg&quot;, dpi = 600)</code></pre>
 </div>
 </div>
 <div id="load-curtailment-of-particular-amount" class="section level2">
@@ -1917,6 +1952,27 @@ sc3data$season &lt;- factor(sc3data$season, levels = c(&quot;Spring&quot;,&quot;
                                                     &quot;Autumn&quot;, &quot;Winter&quot;))
 
 
+#Visualising only winter 
+  #myPlot &lt;- ggplot2::ggplot(subset(sc5data, season %in% c(&quot;Winter&quot;)), aes(x = #obsHalfHour)) +
+ # geom_line(aes(y=GWhREF, color=&quot;red&quot;), size=0.5) +
+  #geom_line(aes(y=GWhs4, color=&quot;blue&quot;), size=0.5) +
+ # theme(text = element_text(family = &quot;Cambria&quot;)) +
+  #ggtitle(&quot;Per day original and shifted New Zealand refrigeration energy #consumption by season for 2015&quot;) +
+  #scale_colour_manual(name = element_blank(), 
+         #values =c(&#39;red&#39;=&#39;red&#39;,&#39;blue&#39;=&#39;blue&#39;), labels = c(&#39;Original consumption&#39;,
+                  #&#39;Shifted consumption&#39;)) +
+  #facet_grid(season ~ .) +
+ # labs(x=&#39;Time of Day&#39;, y=&#39;MWh&#39;) +
+  #scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+  #scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;04:00:00&quot;), #hms::as.hms(&quot;08:00:00&quot;),       hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), 
+  #hms::as.hms(&quot;20:00:00&quot;))) 
+ 
+
+#myPlot
+
+
+
+# Orifginal plot, the one above depicts winter
 #Visualising shifted and original consumption two colours
   myPlot &lt;- ggplot2::ggplot(sc5data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWhREF, color=&quot;red&quot;), size=0.5) +
@@ -1925,10 +1981,10 @@ sc3data$season &lt;- factor(sc3data$season, levels = c(&quot;Spring&quot;,&quot;
   ggtitle(&quot;Per day original and shifted New Zealand refrigeration energy consumption by season for 2015&quot;) +
   scale_colour_manual(name = element_blank(), 
          values =c(&#39;red&#39;=&#39;red&#39;,&#39;blue&#39;=&#39;blue&#39;), labels = c(&#39;Original consumption&#39;,
-                  &#39;Shifted consumption&#39;)) +
+                 &#39;Shifted consumption&#39;)) +
   facet_grid(season ~ .) +
   labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;) +
-  #scale_y_continuous(breaks = c(10, 20, 30, 40)) +
+scale_y_continuous(breaks = c(10, 20, 30, 40)) +
   scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),       hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), 
   hms::as.hms(&quot;20:00:00&quot;))) 
  
@@ -2038,14 +2094,14 @@ sc3data</code></pre>
 ##  2: Spring Morning Peak 297.5807
 ##  3: Spring   Off Peak 1 199.9309
 ##  4: Spring   Off Peak 2 234.1039
-##  5: Summer Evening Peak 183.7138
-##  6: Summer Morning Peak 186.3754
-##  7: Summer   Off Peak 1 164.8386
-##  8: Summer   Off Peak 2 187.8391
-##  9: Autumn Evening Peak 252.7637
-## 10: Autumn Morning Peak 287.1488
-## 11: Autumn   Off Peak 1 184.3496
-## 12: Autumn   Off Peak 2 241.9487
+##  5: Summer Evening Peak 179.6544
+##  6: Summer Morning Peak 174.2595
+##  7: Summer   Off Peak 1 160.0590
+##  8: Summer   Off Peak 2 178.7930
+##  9: Autumn Evening Peak 241.7618
+## 10: Autumn Morning Peak 274.0505
+## 11: Autumn   Off Peak 1 183.6066
+## 12: Autumn   Off Peak 2 233.1524
 ## 13: Winter Evening Peak 345.8801
 ## 14: Winter Morning Peak 363.5610
 ## 15: Winter   Off Peak 1 248.0292
@@ -2242,12 +2298,12 @@ sc3data</code></pre>
 ##  1: Spring Evening Peak 132.02903
 ##  2: Spring Morning Peak 148.79037
 ##  3: Spring     Not Peak 434.03483
-##  4: Summer Evening Peak  91.85691
-##  5: Summer Morning Peak  93.18769
-##  6: Summer     Not Peak 352.67774
-##  7: Autumn Evening Peak 126.38183
-##  8: Autumn Morning Peak 143.57439
-##  9: Autumn     Not Peak 426.29832
+##  4: Summer Evening Peak  89.82719
+##  5: Summer Morning Peak  87.12973
+##  6: Summer     Not Peak 338.85205
+##  7: Autumn Evening Peak 120.88092
+##  8: Autumn Morning Peak 137.02524
+##  9: Autumn     Not Peak 416.75902
 ## 10: Winter Evening Peak 172.94005
 ## 11: Winter Morning Peak 181.78049
 ## 12: Winter     Not Peak 558.35746</code></pre>
@@ -2638,14 +2694,14 @@ sc3data</code></pre>
 ##  2: Spring Morning Peak 394.7995
 ##  3: Spring   Off Peak 1 383.5663
 ##  4: Spring   Off Peak 2 374.5310
-##  5: Summer Evening Peak 280.9326
-##  6: Summer Morning Peak 283.5941
-##  7: Summer   Off Peak 1 348.4740
-##  8: Summer   Off Peak 2 328.2662
-##  9: Autumn Evening Peak 349.9824
-## 10: Autumn Morning Peak 384.3675
-## 11: Autumn   Off Peak 1 367.9850
-## 12: Autumn   Off Peak 2 382.3758
+##  5: Summer Evening Peak 276.8731
+##  6: Summer Morning Peak 271.4782
+##  7: Summer   Off Peak 1 343.6945
+##  8: Summer   Off Peak 2 319.2201
+##  9: Autumn Evening Peak 338.9806
+## 10: Autumn Morning Peak 371.2692
+## 11: Autumn   Off Peak 1 367.2420
+## 12: Autumn   Off Peak 2 373.5795
 ## 13: Winter Evening Peak 443.0988
 ## 14: Winter Morning Peak 460.7797
 ## 15: Winter   Off Peak 1 431.6646
@@ -2905,14 +2961,14 @@ sc3data</code></pre>
 ##  2: Spring Morning Peak 197.3997
 ##  3: Spring   Off Peak 1 383.5663
 ##  4: Spring   Off Peak 2 374.5310
-##  5: Summer Evening Peak 140.4663
-##  6: Summer Morning Peak 141.7971
-##  7: Summer   Off Peak 1 348.4740
-##  8: Summer   Off Peak 2 328.2662
-##  9: Autumn Evening Peak 174.9912
-## 10: Autumn Morning Peak 192.1838
-## 11: Autumn   Off Peak 1 367.9850
-## 12: Autumn   Off Peak 2 382.3758
+##  5: Summer Evening Peak 138.4366
+##  6: Summer Morning Peak 135.7391
+##  7: Summer   Off Peak 1 343.6945
+##  8: Summer   Off Peak 2 319.2201
+##  9: Autumn Evening Peak 169.4903
+## 10: Autumn Morning Peak 185.6346
+## 11: Autumn   Off Peak 1 367.2420
+## 12: Autumn   Off Peak 2 373.5795
 ## 13: Winter Evening Peak 221.5494
 ## 14: Winter Morning Peak 230.3899
 ## 15: Winter   Off Peak 1 431.6646
@@ -5224,9 +5280,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 137.8309</code></pre>
+<pre><code>## [1] 135.4888</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.5719415</code></pre>
+<pre><code>## [1] 0.5705792</code></pre>
 <pre class="r"><code>#Visualisation
 myPlot &lt;- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
@@ -5314,9 +5370,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc*0.5@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 68.91545</code></pre>
+<pre><code>## [1] 67.7444</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.2859708</code></pre>
+<pre><code>## [1] 0.2852896</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -5410,9 +5466,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostLoadShif`
 SavingsPercent &lt;- 1-(`CostLoadShif` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 19.40061</code></pre>
+<pre><code>## [1] 18.91147</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.08050454</code></pre>
+<pre><code>## [1] 0.0796412</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -5975,9 +6031,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 170.9783</code></pre>
+<pre><code>## [1] 168.6363</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.58084</code></pre>
+<pre><code>## [1] 0.5798358</code></pre>
 <pre class="r"><code>#Visualisation
 myPlot &lt;- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
@@ -6065,9 +6121,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc*0.5@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 85.48917</code></pre>
+<pre><code>## [1] 84.31813</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.29042</code></pre>
+<pre><code>## [1] 0.2899179</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -6161,9 +6217,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostLoadShif`
 SavingsPercent &lt;- 1-(`CostLoadShif` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 22.77641</code></pre>
+<pre><code>## [1] 22.28727</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.077375</code></pre>
+<pre><code>## [1] 0.07663213</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -6290,7 +6346,7 @@ sc3data &lt;- sc3data[, PumpandWater := GWhHP + GWhHW + GWhREF]</code></pre>
 <div id="baseline-2" class="section level4">
 <h4><span class="header-section-number">13.5.5.1</span> Baseline</h4>
 <pre class="r"><code>#Economic evaluation begins
-sc3data &lt;- sc3data[, MWh:=PumpandWater*fac1000] # Creating new column MWh
+sc3data &lt;- sc3data[, MWh:=(PumpandWater*fac1000)] # Creating new column MWh
 
 
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -6298,31 +6354,40 @@ setkey(sc3data, season, obsHalfHour)
 
 Mergedsc0DT &lt;- sc3data[SeasonAvgDT]
 
+Mergedsc0DT &lt;- Mergedsc0DT[, MWh:= MWh]
 Mergedsc0DT &lt;- Mergedsc0DT[, ecoValueHH := 0]
+#Mergedsc0DT &lt;- Mergedsc0DT[, avgregion := sum((meanprice)/5),
+                          #keyby = .(season, obsHalfHour)]
 
 Mergedsc0DT &lt;- Mergedsc0DT[, MWh := MWh /5]
 
-Mergedsc0DT &lt;- Mergedsc0DT[, ecoValueHH := (MWh * (meanprice)/1000000), 
-                           keyby = .(season, Region, obsHalfHour)]
+Mergedsc0DT &lt;- Mergedsc0DT[, ecoValueHH := (MWh * meanprice), 
+                           keyby = .(season, obsHalfHour)]
 
 #Change the order in facet_grid()
 Mergedsc0DT$season &lt;- factor(Mergedsc0DT$season, levels = c(&quot;Spring&quot;,&quot;Summer&quot;,
                                                     &quot;Autumn&quot;, &quot;Winter&quot;))
 
+
+
+
+
+
+
 #Visualising
-myPlot &lt;- ggplot2::ggplot(Mergedsc0DT, aes(x = obsHalfHour)) +
-  geom_point(aes(y=ecoValueHH, color= Region), size=1) +
+myPlot &lt;- ggplot2::ggplot(subset(Mergedsc0DT, Region %in% c(&quot;Central North Island&quot;)), aes(x = obsHalfHour)) +
+  geom_point(aes(y=ecoValueHH), size=1) +
   theme(text = element_text(family = &quot;Cambria&quot;)) +
   ggtitle(&quot;Costs baseline scenario time of day for heat pump and hot water&quot;) +
   facet_grid(season ~ .) +
-  labs(x=&#39;Time of Day&#39;, y=&#39;Cost in million NZD&#39;) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;Cost in NZD&#39;) +
   scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),       hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), 
   hms::as.hms(&quot;20:00:00&quot;))) 
 myPlot</code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/calculating%20baseline%20scenario%20SC0%20economic%20all%20three-1.png" /><!-- --></p>
-<pre class="r"><code>#ggsave(&quot;Cost baseline scenario time of day.jpeg&quot;, dpi = 600)
-
-#Building season sum by period
+<pre class="r"><code>ggsave(&quot;ALLTHREE_PerDayCost baseline scenario time of day all three.jpeg&quot;, dpi = 600)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code>#Building season sum by period
 #Mergedsc0DT &lt;- Mergedsc0DT[, .(EcoVal = sum(ecoValueHH)),
                   # keyby = .(season, Region, Period)]</code></pre>
 </div>
@@ -6651,7 +6716,7 @@ sc3data &lt;- sc3data[, DiffOrigMWh := 0]
 sc3data &lt;- sc3data[, DiffOrigMWh := ifelse(GWhs3 &gt; 0,
                                            (GWhs3-GWhs1) * 1000, (0-GWhs1 * 1000))]
 
-sc3data &lt;- sc3data[, DiffOrigMWh := DiffOrigMWh / 5]
+sc3data &lt;- sc3data[, DiffOrigMWh := DiffOrigMWh /5]
                      
 #Preparation for merging DTs
 setkey(SeasonAvgDT, season, obsHalfHour)
@@ -6757,9 +6822,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 227.1828</code></pre>
+<pre><code>## [1] 427391825</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.5272027</code></pre>
+<pre><code>## [1] 1</code></pre>
 <pre class="r"><code>#Visualisation
 myPlot &lt;- ggplot2::ggplot(EcoVaSumSC1DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
@@ -6847,9 +6912,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostEcoVaLc*0.5@Peak`
 SavingsPercent &lt;- 1-(`CostEcoVaLc*0.5@Peak` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 113.5914</code></pre>
+<pre><code>## [1] 314971383</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.2636014</code></pre>
+<pre><code>## [1] 0.7369617</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC2DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -6943,9 +7008,9 @@ SavingsMillionNZD &lt;- CostBaseline - `CostLoadShif`
 SavingsPercent &lt;- 1-(`CostLoadShif` / CostBaseline)
 
 SavingsMillionNZD</code></pre>
-<pre><code>## [1] 29.86544</code></pre>
+<pre><code>## [1] 224840761</code></pre>
 <pre class="r"><code>SavingsPercent</code></pre>
-<pre><code>## [1] 0.06930604</code></pre>
+<pre><code>## [1] 0.5260764</code></pre>
 <pre class="r"><code>myPlot &lt;- ggplot2::ggplot(EcoVaSumSC3DT, aes(x = Period, fill = Region)) +
   geom_bar(aes(y= V1), stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
   #geom_line(aes(y= V1)) +
@@ -6956,7 +7021,7 @@ SavingsMillionNZD</code></pre>
   
 myPlot </code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/economic%20visualisation%20SC3%201%20all%20three%20appliances-1.png" /><!-- --></p>
-<pre class="r"><code>#ggsave(&quot;Load shifting scenario: Cost for HP &amp; HW.jpeg&quot;, dpi = 600)
+<pre class="r"><code>#ggsave(&quot;ALLTHREE_Seasonal_Load shifting scenario: Cost for HP &amp; HW.jpeg&quot;, dpi = 600)
 
 myPlot &lt;- ggplot2::ggplot(subset(EcoVaSumSC3DT,
                                  season %in% c(&quot;Winter&quot;)), aes(x = Period, fill = Region)) +
@@ -6969,7 +7034,7 @@ myPlot &lt;- ggplot2::ggplot(subset(EcoVaSumSC3DT,
   
 myPlot</code></pre>
 <p><img src="heatPumpProfileAnalysis_files/figure-html/economic%20visualisation%20SC3%201%20all%20three%20appliances-2.png" /><!-- --></p>
-<pre class="r"><code>#ggsave(&quot;Load shifting scenario: Cost for HP &amp; HW in winter.jpeg&quot;, dpi = 600)</code></pre>
+<pre class="r"><code>#ggsave(&quot;ALLTHREE_Seasonal_Load shifting scenario: Cost for HP &amp; HW in winter.jpeg&quot;, dpi = 600)</code></pre>
 </div>
 </div>
 <div id="cpd-analysis" class="section level3">
@@ -7020,7 +7085,7 @@ CpdMergedHWDT &lt;- HWprofileDT[CpdSumDT]
 CpdMergedHWDT &lt;- CpdMergedHWDT[, AvgDemCPD := kWperHh * Probability]
 AvgHWCpdDem &lt;- sum(CpdMergedHWDT$AvgDemCPD)
 
-#Introducing prices
+#Introducing prices #Using Frankton GXP of Aurora CPD pricing (lowest charges)
 PS1 &lt;- 0.3079
 PS2 &lt;- 0.3387
 PS3 &lt;- 0.3616
@@ -9062,9 +9127,249 @@ sc1data</code></pre>
 ## 7: Winter   Off Peak 1 3139.080
 ## 8: Winter   Off Peak 2 3091.740</code></pre>
 </div>
+<div id="grid-generation-total-impact" class="section level2">
+<h2><span class="header-section-number">14.2</span> Grid generation total impact</h2>
+<pre class="r"><code>Generationdata  &lt;- read.csv(&quot;/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/Monthly extract/2018_01_07.csv&quot;)
+
+
+#Time and month adjustments
+GenDT &lt;- data.table::as.data.table(Generationdata)
+GenDT &lt;- GenDT[, Period.start := lubridate::dmy_hm(Period.start, tz = &quot;Pacific/Auckland&quot;)]
+GenDT &lt;- GenDT[, year := lubridate::year(Period.start)]
+GenDT &lt;- GenDT[, obsHalfHour := hms::as.hms(Period.start)]
+GenDT &lt;- GenDT[, month := lubridate::month(Period.start)]
+GenDT &lt;- GenDT[month == 1, season := &quot;Summer&quot;]
+GenDT &lt;- GenDT[month == 7, season := &quot;Winter&quot;]
+
+GenDT &lt;- GenDT[, Period.start := NULL]
+GenDT &lt;- GenDT[, Period.end := NULL]
+
+#GenDT &lt;- GenDT[, GWh := GWh * 3]#Scaling up for whole season
+
+
+
+
+GenDT &lt;- GenDT[, .(meanGWh = mean(`GWh`)), keyby = .(season, obsHalfHour)]
+
+GenDT &lt;- GenDT[, Period := &quot;Not Peak&quot;]
+
+GenDT &lt;- GenDT[obsHalfHour &gt;= MPS &amp; 
+                     obsHalfHour &lt;= MPE,
+                   Period := &quot;Morning Peak&quot;]
+
+GenDT &lt;- GenDT[obsHalfHour &gt;= EPS &amp; 
+                     obsHalfHour &lt;= EPE,
+                   Period := &quot;Evening Peak&quot;]
+
+GenDT &lt;- GenDT[obsHalfHour &gt;= OP1S &amp; 
+                     obsHalfHour &lt;= OP1E,
+                   Period := &quot;Off Peak 1&quot;]
+
+GenDT &lt;- GenDT[obsHalfHour &gt;= OP12S &amp; 
+                     obsHalfHour &lt;= OP12E,
+                   Period := &quot;Off Peak 1&quot;]
+
+GenDT &lt;- GenDT[obsHalfHour &gt;= OP2S &amp; 
+                     obsHalfHour &lt;= OP2E,
+                   Period := &quot;Off Peak 2&quot;]
+
+
+GenDT &lt;- GenDT[, SuSc1 := meanGWh]
+GenDT &lt;- GenDT[, SuSc1 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Summer&quot;, SuSc1 * 0.8466, SuSc1)]
+GenDT &lt;- GenDT[, SuSc1 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Summer&quot;, SuSc1 * 0.8541, SuSc1)]
+GenDT &lt;- GenDT[, SuSc1 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Winter&quot;, SuSc1 * 0.8178, SuSc1)]
+GenDT &lt;- GenDT[, SuSc1 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Winter&quot;, SuSc1 * 0.7950, SuSc1)]
+
+
+GenDT &lt;- GenDT[, SuSc2 := meanGWh]
+GenDT &lt;- GenDT[, SuSc2 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Summer&quot;, SuSc2 * 0.9233, SuSc2)]
+GenDT &lt;- GenDT[, SuSc2 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Summer&quot;, SuSc2 * 0.9271, SuSc2)]
+GenDT &lt;- GenDT[, SuSc2 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Winter&quot;, SuSc2 * 0.8975, SuSc2)]
+GenDT &lt;- GenDT[, SuSc2 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Winter&quot;, SuSc2 * 0.9089, SuSc2)]
+
+GenDT &lt;- GenDT[, SuSc3 := meanGWh]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Summer&quot;, SuSc3 * 0.8466, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Summer&quot;, SuSc3 * 0.8541, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Morning Peak&quot; &amp; season == &quot;Winter&quot;, SuSc3 * 0.8178, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Evening Peak&quot; &amp; season == &quot;Winter&quot;, SuSc3 * 0.7950, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Off Peak 1&quot; &amp; season == &quot;Summer&quot;, SuSc3 * 1.1001, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Off Peak 2&quot; &amp; season == &quot;Summer&quot;, SuSc3 * 1.0981, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Off Peak 1&quot; &amp; season == &quot;Winter&quot;, SuSc3 * 1.1467, SuSc3)]
+GenDT &lt;- GenDT[, SuSc3 := ifelse(Period==&quot;Off Peak 2&quot; &amp; season == &quot;Winter&quot;, SuSc3 * 1.1433, SuSc3)]
+
+
+#Visualising shifted and original consumption two colours
+  myPlot &lt;- ggplot2::ggplot(GenDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=SuSc3, color=&quot;red&quot;), size=0.5) +
+     geom_line(aes(y=meanGWh, color=&quot;blue&quot;), size=1.5) +
+  geom_line(aes(y=SuSc1, color=&quot;green&quot;), size=0.5) +  
+     geom_line(aes(y=SuSc2, color=&quot;orange&quot;), size=0.5) +  
+  theme(text = element_text(family = &quot;Cambria&quot;)) +
+  ggtitle(&quot;Effects of demand response scenarios 1-3 on total electricity generation per day&quot;) +
+  scale_colour_manual(name = element_blank(), 
+      values = c(&#39;red&#39;=&#39;red&#39;, &#39;blue&#39;=&#39;blue&#39;,&#39;orange&#39;=&#39;orange&#39;, &#39;green&#39;=&#39;green&#39;),  labels = c(&#39;Orig. Generation&#39;, &#39;SC1: Load curtailment&#39;, &#39;SC2: Halved load curtailment&#39;,&#39;SC3: Load shifting&#39;)) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;GWh&#39;) +
+  scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
+  #scale_y_continuous(breaks = c(0.1)) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), hms::as.hms(&quot;04:00:00&quot;), hms::as.hms(&quot;08:00:00&quot;),       hms::as.hms(&quot;12:00:00&quot;), hms::as.hms(&quot;16:00:00&quot;), 
+  hms::as.hms(&quot;20:00:00&quot;))) 
+  
+  myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/loading%20summer%20data%20analysis-1.png" /><!-- --></p>
+<pre class="r"><code>ggsave(&quot;Effects of DR.jpeg&quot;, dpi = 600)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+</div>
+</div>
+<div id="energy-efficiency-lighting" class="section level1">
+<h1><span class="header-section-number">15</span> Energy Efficiency: Lighting</h1>
+<div id="data-import" class="section level2">
+<h2><span class="header-section-number">15.1</span> Data import</h2>
+<pre class="r"><code>LightingHCS &lt;- data.table::as.data.table(
+ readr::read_csv(&quot;/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz&quot;,
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = &quot;&quot;),
+                       circuit = col_character(),
+                       powerW = col_double() # &lt;- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+LightObsDT &lt;- data.table::as.data.table(LightingHCS)
+
+LightObsDT &lt;- LightObsDT[, year := lubridate::year(r_dateTime)]
+LightObsDT &lt;- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT &lt;- LightObsDT[, month := lubridate::month(r_dateTime)]
+
+LightObsDT &lt;- LightObsDT[month &gt;= 12 | month == 1 | month == 2, season := &quot;Summer&quot;]
+LightObsDT &lt;- LightObsDT[month &gt;= 3 | month == 4 | month == 5, season := &quot;Autumn&quot;]
+LightObsDT &lt;- LightObsDT[month == 6 | month == 7 | month == 8, season := &quot;Winter&quot;]
+LightObsDT &lt;- LightObsDT[month == 9 | month == 10 | month == 11, season := &quot;Spring&quot;]
+
+#Building daily average per season
+
+LightDT &lt;- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
+
+
+
+#ggplot2::ggplot(LightDT, aes(x = obsHalfHour, y = meanW, colour = season)) + #geom_line()</code></pre>
+</div>
+<div id="lighting-calculation-per-household" class="section level2">
+<h2><span class="header-section-number">15.2</span> Lighting calculation per household</h2>
+<pre class="r"><code>LEDfac &lt;- 0.11270924 # This is out of the Excel calculation
+nzHouseholds &lt;- 1457464 # Census 2013 data on households (copied from HP calc)
+
+LightDT &lt;- LightDT[, meanMWtotal := ((meanW * nzHouseholds)/1000/1000)]  
+LightDT &lt;- LightDT[, meanWLed := meanW * LEDfac]
+LightDT &lt;- LightDT[, meanMWLedTot := ((meanW * LEDfac * nzHouseholds)/1000/1000)]
+LightDT &lt;- LightDT[, oriWh := meanW/60]
+LightDT &lt;- LightDT[, oriMWhTot := (meanW/60/1000/1000) * nzHouseholds]
+LightDT &lt;- LightDT[, LedWh := meanWLed/60]
+LightDT &lt;- LightDT[, LedMWhTot := (meanWLed/60/1000/1000) * nzHouseholds]
+
+
+
+
+consumOrigPDDT &lt;- LightDT[, .(consumOrigPDkWh = sum(meanW/60)/1000),
+                          keyby = .(season)]
+
+consumOrigTotPDDT &lt;- LightDT[, .(consumOrigTotPDGWh = sum(meanW/60 * nzHouseholds)/1000/1000/1000), keyby = .(season)]
+
+consumOrigPYDT &lt;- LightDT[, .(consumOrigPYkWh = sum(meanW/60*90)/1000), keyby = .(season)]
+
+consumOrigTotPYDT &lt;- LightDT[, .(consumOrigTotPYGWh = sum(meanW/60*90*nzHouseholds)/1000/1000/1000), keyby = .(season)]
+
+consumLEDPDDT &lt;- LightDT[, .(consumLEDPDkWh = sum(meanW*LEDfac)/60/1000), keyby = .(season)]
+
+consumLEDTotPDDT &lt;- LightDT[, .(consumLEDTotPDGWh = sum(meanW*LEDfac*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]
+
+consumLEDPYDT &lt;- LightDT[, .(consumLEDPYkWh = sum(meanW*LEDfac*90)/60/1000), keyby = .(season)]
+
+consumLEDTotPYDT &lt;- LightDT[, .(consumLEDTotPYGWh = sum(meanW*LEDfac*90*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]</code></pre>
+</div>
+<div id="visualisation-1" class="section level2">
+<h2><span class="header-section-number">15.3</span> Visualisation</h2>
+<pre class="r"><code>consumOrigPDDT #Consumption in kWh for an avg day per season for one household</code></pre>
+<pre><code>##    season consumOrigPDkWh
+## 1: Autumn        2.573960
+## 2: Spring        2.459135
+## 3: Summer        1.736652
+## 4: Winter        3.472153</code></pre>
+<pre class="r"><code>consumOrigTotPDDT #Consumption in GWh for an avg day per season for total NZ</code></pre>
+<pre><code>##    season consumOrigTotPDGWh
+## 1: Autumn           3.751455
+## 2: Spring           3.584101
+## 3: Summer           2.531108
+## 4: Winter           5.060538</code></pre>
+<pre class="r"><code>consumOrigPYDT #Consumption in kWh per season for one household</code></pre>
+<pre><code>##    season consumOrigPYkWh
+## 1: Autumn        231.6564
+## 2: Spring        221.3222
+## 3: Summer        156.2987
+## 4: Winter        312.4937</code></pre>
+<pre class="r"><code>consumOrigTotPYDT #Consumption in GWh per season for total NZ</code></pre>
+<pre><code>##    season consumOrigTotPYGWh
+## 1: Autumn           337.6309
+## 2: Spring           322.5691
+## 3: Summer           227.7998
+## 4: Winter           455.4484</code></pre>
+<pre class="r"><code>consumLEDPDDT #Consumption in kWh for an avg day per season for one household LED 100%</code></pre>
+<pre><code>##    season consumLEDPDkWh
+## 1: Autumn      0.2901091
+## 2: Spring      0.2771673
+## 3: Summer      0.1957368
+## 4: Winter      0.3913437</code></pre>
+<pre class="r"><code>consumLEDTotPDDT #Consumption in GWh for an avg day per season for total NZ LED 100%</code></pre>
+<pre><code>##    season consumLEDTotPDGWh
+## 1: Autumn         0.4228236
+## 2: Spring         0.4039613
+## 3: Summer         0.2852793
+## 4: Winter         0.5703693</code></pre>
+<pre class="r"><code>consumLEDPYDT #Consumption in kWh per season for one household LED 100%</code></pre>
+<pre><code>##    season consumLEDPYkWh
+## 1: Autumn       26.10982
+## 2: Spring       24.94506
+## 3: Summer       17.61631
+## 4: Winter       35.22093</code></pre>
+<pre class="r"><code>consumLEDTotPYDT #Consumption in GWh per season for total NZ LED 100%</code></pre>
+<pre><code>##    season consumLEDTotPYGWh
+## 1: Autumn          38.05412
+## 2: Spring          36.35652
+## 3: Summer          25.67514
+## 4: Winter          51.33324</code></pre>
+<pre class="r"><code>#Change the order in facet_grid()
+LightDT$season &lt;- factor(LightDT$season, levels = c(&quot;Spring&quot;,&quot;Summer&quot;,
+                                                    &quot;Autumn&quot;, &quot;Winter&quot;))
+
+#Visualising shifted and original consumption two colours
+myPlot &lt;- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
+  geom_line(aes(y=oriMWhTot, color=&quot;red&quot;), size=0.5) +
+  geom_line(aes(y=LedMWhTot, color=&quot;blue&quot;), size=0.5) +
+  theme(text = element_text(family = &quot;Cambria&quot;)) +
+  ggtitle(&quot;Lighting energy for an average day per season total NZ&quot;) +
+  scale_colour_manual(name = element_blank(), 
+                      values = c(&#39;red&#39;=&#39;red&#39;, &#39;blue&#39;=&#39;blue&#39;),  labels = c(&#39;LED technology&#39;, &#39;Current technologies&#39;)) +
+  facet_grid(season ~ .) +
+  labs(x=&#39;Time of Day&#39;, y=&#39;Energy (MWh)&#39;) +
+  #scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
+  #scale_y_continuous(breaks = c(0.1)) +
+  scale_x_time(breaks = c(hms::as.hms(&quot;00:00:00&quot;), 
+                          hms::as.hms(&quot;04:00:00&quot;), 
+                          hms::as.hms(&quot;08:00:00&quot;),       
+                          hms::as.hms(&quot;12:00:00&quot;), 
+                          hms::as.hms(&quot;16:00:00&quot;), 
+                          hms::as.hms(&quot;20:00:00&quot;),
+                          hms::as.hms(&quot;24:00:00&quot;))) 
+myPlot</code></pre>
+<p><img src="heatPumpProfileAnalysis_files/figure-html/Insert%20variables%20from%20above-1.png" /><!-- --></p>
+<pre class="r"><code>ggsave(&quot;Lighting energy for an average day per season total NZ.jpg&quot;, dpi=600)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+</div>
 </div>
 <div id="myplot-example" class="section level1">
-<h1><span class="header-section-number">15</span> MyPlot example</h1>
+<h1><span class="header-section-number">16</span> MyPlot example</h1>
 <pre class="r"><code>#sc1data &lt;- heatPumpProfileDT
 #sc1data[, c(&quot;medianW&quot;, &quot;obsHourMin&quot;, &quot;meanW&quot;, &quot;nObs&quot;, &quot;sdW&quot;, &quot;scaledMWmethod1&quot;, &quot;EECApmMethod2&quot;):=NULL] #Deleting unnecessary columns
 
@@ -9129,26 +9434,26 @@ sc1data</code></pre>
 #sc1data &lt;- sc1data[, ShiftL:= ifelse(Period == &quot;Morning Peak&quot;, 0, ShiftL )]</code></pre>
 </div>
 <div id="runtime" class="section level1">
-<h1><span class="header-section-number">16</span> Runtime</h1>
-<p>Analysis completed in 94.28 seconds ( 1.57 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
+<h1><span class="header-section-number">17</span> Runtime</h1>
+<p>Analysis completed in 207.99 seconds ( 3.47 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.4.4 (2018-03-15) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
-<h1><span class="header-section-number">17</span> R environment</h1>
+<h1><span class="header-section-number">18</span> R environment</h1>
 <p>R packages used:</p>
 <ul>
-<li>base R - for the basics <span class="citation">(R Core Team 2016)</span></li>
-<li>data.table - for fast (big) data handling <span class="citation">(Dowle et al. 2015)</span></li>
-<li>lubridate - date manipulation <span class="citation">(Grolemund and Wickham 2011)</span></li>
-<li>ggplot2 - for slick graphics <span class="citation">(Wickham 2009)</span></li>
-<li>readr - for csv reading/writing <span class="citation">(Wickham, Hester, and Francois 2016)</span></li>
-<li>skimr - for skim <span class="citation">(Arino de la Rubia et al. 2017)</span></li>
-<li>knitr - to create this document &amp; neat tables <span class="citation">(Xie 2016)</span></li>
-<li>nzGREENGrid - for local NZ GREEN Grid project utilities</li>
+<li>base R - for the basics <span class="citation">[@baseR]</span></li>
+<li>data.table - for fast (big) data handling <span class="citation">[@data.table]</span></li>
+<li>lubridate - date manipulation <span class="citation">[@lubridate]</span></li>
+<li>ggplot2 - for slick graphics <span class="citation">[@ggplot2]</span></li>
+<li>readr - for csv reading/writing <span class="citation">[@readr]</span></li>
+<li>skimr - for skim <span class="citation">[@skimr]</span></li>
+<li>knitr - to create this document &amp; neat tables <span class="citation">[@knitr]</span></li>
+<li>GREENGrid - for local NZ GREEN Grid project utilities</li>
 </ul>
 <p>Session info:</p>
 <pre><code>## R version 3.4.4 (2018-03-15)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.5
+## Running under: macOS High Sierra 10.13.6
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
@@ -9161,51 +9466,32 @@ sc1data</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2.2      knitr_1.20          skimr_1.0.3        
-## [4] hms_0.4.2           readr_1.1.1         lubridate_1.7.4    
-## [7] ggplot2_2.2.1       data.table_1.10.4-3 nzGREENGrid_0.1.0  
+## [1] bindrcpp_0.2.2    knitr_1.20        skimr_1.0.3       hms_0.4.2        
+## [5] readr_1.1.1       lubridate_1.7.4   ggplot2_3.0.0     data.table_1.11.6
+## [9] GREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.16      highr_0.6         pillar_1.2.1     
-##  [4] compiler_3.4.4    plyr_1.8.4        bindr_0.1.1      
-##  [7] prettyunits_1.0.2 tools_3.4.4       progress_1.2.0   
-## [10] digest_0.6.15     gtable_0.2.0      evaluate_0.10.1  
-## [13] tibble_1.4.2      pkgconfig_2.0.1   rlang_0.2.0      
-## [16] cli_1.0.0         rstudioapi_0.7    yaml_2.1.18      
-## [19] xfun_0.2          dplyr_0.7.5       stringr_1.3.0    
-## [22] rprojroot_1.3-2   grid_3.4.4        tidyselect_0.2.4 
-## [25] glue_1.2.0        R6_2.2.2          rmarkdown_1.9    
-## [28] bookdown_0.7      tidyr_0.8.1       purrr_0.2.5      
-## [31] reshape2_1.4.3    magrittr_1.5      scales_0.5.0     
-## [34] backports_1.1.2   htmltools_0.3.6   assertthat_0.2.0 
-## [37] colorspace_1.3-2  labeling_0.3      stringi_1.1.7    
-## [40] lazyeval_0.2.1    munsell_0.4.3     crayon_1.3.4</code></pre>
+##  [1] tidyselect_0.2.4  xfun_0.3          purrr_0.2.5      
+##  [4] reshape2_1.4.3    lattice_0.20-35   colorspace_1.3-2 
+##  [7] htmltools_0.3.6   yaml_2.2.0        rlang_0.2.2      
+## [10] pillar_1.3.0      glue_1.3.0        withr_2.1.2      
+## [13] sp_1.3-1          jpeg_0.1-8        plyr_1.8.4       
+## [16] bindr_0.1.1       stringr_1.3.1     munsell_0.5.0    
+## [19] gtable_0.2.0      RgoogleMaps_1.4.2 mapproj_1.2.6    
+## [22] evaluate_0.11     labeling_0.3      highr_0.7        
+## [25] proto_1.0.0       Rcpp_0.12.18      geosphere_1.5-7  
+## [28] openssl_1.0.2     scales_1.0.0      backports_1.1.2  
+## [31] rjson_0.2.20      png_0.1-7         digest_0.6.17    
+## [34] stringi_1.2.4     bookdown_0.7      dplyr_0.7.6      
+## [37] grid_3.4.4        rprojroot_1.3-2   cli_1.0.1        
+## [40] tools_3.4.4       magrittr_1.5      maps_3.3.0       
+## [43] lazyeval_0.2.1    tibble_1.4.2      crayon_1.3.4     
+## [46] tidyr_0.8.1       pkgconfig_2.0.2   assertthat_0.2.0 
+## [49] rmarkdown_1.10    R6_2.2.2          ggmap_2.6.1      
+## [52] compiler_3.4.4</code></pre>
 </div>
-<div id="references" class="section level1 unnumbered">
-<h1>References</h1>
-<div id="refs" class="references">
-<div id="ref-skimr">
-<p>Arino de la Rubia, Eduardo, Hao Zhu, Shannon Ellis, Elin Waring, and Michael Quinn. 2017. <em>Skimr: Skimr</em>. <a href="https://github.com/ropenscilabs/skimr" class="uri">https://github.com/ropenscilabs/skimr</a>.</p>
-</div>
-<div id="ref-data.table">
-<p>Dowle, M, A Srinivasan, T Short, S Lianoglou with contributions from R Saporta, and E Antonyan. 2015. <em>Data.table: Extension of Data.frame</em>. <a href="https://CRAN.R-project.org/package=data.table" class="uri">https://CRAN.R-project.org/package=data.table</a>.</p>
-</div>
-<div id="ref-lubridate">
-<p>Grolemund, Garrett, and Hadley Wickham. 2011. “Dates and Times Made Easy with lubridate.” <em>Journal of Statistical Software</em> 40 (3): 1–25. <a href="http://www.jstatsoft.org/v40/i03/" class="uri">http://www.jstatsoft.org/v40/i03/</a>.</p>
-</div>
-<div id="ref-baseR">
-<p>R Core Team. 2016. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
-</div>
-<div id="ref-ggplot2">
-<p>Wickham, Hadley. 2009. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="http://ggplot2.org" class="uri">http://ggplot2.org</a>.</p>
-</div>
-<div id="ref-readr">
-<p>Wickham, Hadley, Jim Hester, and Romain Francois. 2016. <em>Readr: Read Tabular Data</em>. <a href="https://CRAN.R-project.org/package=readr" class="uri">https://CRAN.R-project.org/package=readr</a>.</p>
-</div>
-<div id="ref-knitr">
-<p>Xie, Yihui. 2016. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://CRAN.R-project.org/package=knitr" class="uri">https://CRAN.R-project.org/package=knitr</a>.</p>
-</div>
-</div>
+<div id="references" class="section level1">
+<h1><span class="header-section-number">19</span> References</h1>
 </div>
 
 
