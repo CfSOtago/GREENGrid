@@ -8708,177 +8708,141 @@ LightDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
 ```{r lighting calculation per household}
 
 #Input variables
-EecaLight <- (1577 * 1000 * 1000 * 1000) / (1004329 + 453135) #Yearly Wh per household for lighting
-Consumption2015 <- 
-Consumption2017 <-
-Consumption2019 <-
-Consumption2021 <-
-Consumption2023 <-
-Consumption2025 <-
-Consumption2027 <-
-Consumption2029 <-
+NZhouseholds <- 1796331.30947204 #RBS assumption for 2015 households
+EecaLight <- (1577 * 1000 * 1000) / (NZhouseholds) #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
+
+ConsumptionHH2015 <- 877.9004139
+ConsumptionHH2017 <- 818.4851125
+ConsumptionHH2019 <- 731.1840095
+ConsumptionHH2021 <- 628.539852 #Yearly lighting consumption per household in kWh out of Excel calc
+ConsumptionHH2023 <- 529.9719035
+ConsumptionHH2025 <- 442.4107427
+ConsumptionHH2027 <- 367.4350267
+ConsumptionHH2029 <- 306.6638448
+  
+ConsumptionTot2015 <- 1577.00
+ConsumptionTot2017 <- 1500.57
+ConsumptionTot2019 <- 1366.22
+ConsumptionTot2021 <- 1196.53 #Yearly lighting consumption total NZ in GWh out of Excel calc
+ConsumptionTot2023 <- 1025.99
+ConsumptionTot2025 <-  870.75
+ConsumptionTot2027 <-  734.28
+ConsumptionTot2029 <-  621.46
+  
+  
+  
 
 
 #Calculation
 LightDT <- LightDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]#Creating half hour time-steps
 
 LightHHDT <- LightDT[, .(meanW = mean(meanW)), keyby = .(obsHalfHour, season)]
-LightHHDT <- LightHHDT[, oriWh := meanW / 2, (meanW = NULL)]
+LightHHDT <- LightHHDT[, orikWh := (meanW / 2)/1000]
 LightHHDT <- LightHHDT[, meanW := NULL]
-Scaling <- EecaLight / sum(LightHHDT$oriWh * 90)
-LightHHDT <- LightHHDT[, oriWh := oriWh * Scaling] #Scaling profile to EECA input Wh
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-nzHouseholds <- 1457464 # Census 2013 data on households (copied from HP calc)
-
-LightDT <- LightDT[, meanMWtotal := ((meanW * nzHouseholds)/1000/1000)]  
-LightDT <- LightDT[, meanWLed := meanW * LEDfac]
-LightDT <- LightDT[, meanMWLedTot := ((meanW * LEDfac * nzHouseholds)/1000/1000)]
-LightDT <- LightDT[, oriWh := meanW/60]
-LightDT <- LightDT[, oriMWhTot := (meanW/60/1000/1000) * nzHouseholds]
-LightDT <- LightDT[, LedWh := meanWLed/60]
-LightDT <- LightDT[, LedMWhTot := (meanWLed/60/1000/1000) * nzHouseholds]
-
-
-
-
-consumOrigPDDT <- LightDT[, .(consumOrigPDkWh = sum(meanW/60)/1000),
-                          keyby = .(season)]
-
-consumOrigTotPDDT <- LightDT[, .(consumOrigTotPDGWh = sum(meanW/60 * nzHouseholds)/1000/1000/1000), keyby = .(season)]
-
-consumOrigPYDT <- LightDT[, .(consumOrigPYkWh = sum(meanW/60*90)/1000), keyby = .(season)]
-
-consumOrigTotPYDT <- LightDT[, .(consumOrigTotPYGWh = sum(meanW/60*90*nzHouseholds)/1000/1000/1000), keyby = .(season)]
-
-consumLEDPDDT <- LightDT[, .(consumLEDPDkWh = sum(meanW*LEDfac)/60/1000), keyby = .(season)]
-
-consumLEDTotPDDT <- LightDT[, .(consumLEDTotPDGWh = sum(meanW*LEDfac*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]
-
-consumLEDPYDT <- LightDT[, .(consumLEDPYkWh = sum(meanW*LEDfac*90)/60/1000), keyby = .(season)]
-
-consumLEDTotPYDT <- LightDT[, .(consumLEDTotPYGWh = sum(meanW*LEDfac*90*nzHouseholds)/60/1000/1000/1000), keyby = .(season)]
-
-
-
-
-
-
-
-
-
-LightDT <- LightDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
-
-
-
-
-LightHHDT <- LightDT[, .(oriWh = sum(oriWh),
-                         oriMWhTot = sum(oriMWhTot),
-                         LedWh = sum(LedWh),
-                         LedMWhTot = sum(LedMWhTot)), keyby = .(obsHalfHour, season)]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#Scales original 2015 energy consumption to RBS figures. Applied on profile. Output: kWh for an average day in each season, not seasonal sum!
+Scaling <- EecaLight / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, orikWh := orikWh * Scaling] #Scaling profile to EECA input kWh
+Scaling <- ConsumptionHH2015 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2015 := orikWh * Scaling]
+Scaling <- ConsumptionHH2017 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2017 := orikWh * Scaling]
+Scaling <- ConsumptionHH2019 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2019 := orikWh * Scaling]
+Scaling <- ConsumptionHH2021 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2021 := orikWh * Scaling]
+Scaling <- ConsumptionHH2023 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2023 := orikWh * Scaling]
+Scaling <- ConsumptionHH2025 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2025 := orikWh * Scaling]
+Scaling <- ConsumptionHH2027 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2027 := orikWh * Scaling]
+Scaling <- ConsumptionHH2029 / sum(LightHHDT$orikWh * 90)
+LightHHDT <- LightHHDT[, ConsumptionHH2029 := orikWh * Scaling]
+
+
+# Getting data ready for plotting: Converting kWh in Wh
+LightHHDT <- LightHHDT[, orikWh := orikWh * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2015 := ConsumptionHH2015 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2017 := ConsumptionHH2017 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2019 := ConsumptionHH2019 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2021 := ConsumptionHH2021 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2023 := ConsumptionHH2023 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2025 := ConsumptionHH2025 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2027 := ConsumptionHH2027 * 1000]
+LightHHDT <- LightHHDT[, ConsumptionHH2029 := ConsumptionHH2029 * 1000]
+
+#________________________________________________________________________
+#Total NZ
+#Calculation
+LightHHTotDT <- copy(LightDT)
+LightHHTotDT <- LightDT[, .(meanW = mean(meanW)), keyby = .(obsHalfHour, season)]
+LightHHTotDT <- LightHHTotDT[, oriMWh := ((meanW / 2) * NZhouseholds) / 1000 /1000]
+LightHHTotDT <- LightHHTotDT[, meanW := NULL]
+
+#Scales original 2015 energy consumption to RBS figures. Applied on profile. Output: MWh for an average day in each season, not seasonal sum!
+Scaling <- ((EecaLight / 1000) *  NZhouseholds) / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, oriMWh := oriMWh * Scaling] #Scaling profile to EECA input kWh
+Scaling <- ConsumptionTot2015 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2015 := oriMWh * Scaling] 
+Scaling <- ConsumptionTot2017 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2017 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2019 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2019 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2021 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2021 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2023 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2023 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2025 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2025 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2027 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2027 := oriMWh * Scaling]
+Scaling <- ConsumptionTot2029 *1000 / sum(LightHHTotDT$oriMWh * 90)
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2029 := oriMWh * Scaling]
 
 
 
 ```
 
 ##Visualisation
-```{r Insert variables from above}
-
-consumOrigPDDT #Consumption in kWh for an avg day per season for one household
-
-consumOrigTotPDDT #Consumption in GWh for an avg day per season for total NZ
-
-consumOrigPYDT #Consumption in kWh per season for one household
-
-consumOrigTotPYDT #Consumption in GWh per season for total NZ
-
-consumLEDPDDT #Consumption in kWh for an avg day per season for one household LED 100%
-
-consumLEDTotPDDT #Consumption in GWh for an avg day per season for total NZ LED 100%
-
-consumLEDPYDT #Consumption in kWh per season for one household LED 100%
-
-consumLEDTotPYDT #Consumption in GWh per season for total NZ LED 100%
-
+###Average day per season and household
+```{r Plot 1}
 
 #Change the order in facet_grid()
-LightDT$season <- factor(LightDT$season, levels = c("Spring","Summer",
+LightHHDT$season <- factor(LightHHDT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
-#Visualising shifted and original power two colours
-myPlot <- ggplot2::ggplot(LightDT, aes(x = obsHourMin)) +
-  geom_line(aes(y=oriMWhTot, color="red"), size=0.5) +
-  geom_line(aes(y=LedMWhTot, color="blue"), size=0.5) +
-  theme(text = element_text(family = "Cambria")) +
-  ggtitle("Lighting energy for an average day per season total NZ") +
-  scale_colour_manual(name = element_blank(), 
-                      values = c('red'='red', 'blue'='blue'),  labels = c('LED technology', 'Current technologies')) +
-  facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Energy (MWh)') +
-  #scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
-  #scale_y_continuous(breaks = c(0.1)) +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
-                          hms::as.hms("04:00:00"), 
-                          hms::as.hms("08:00:00"),       
-                          hms::as.hms("12:00:00"), 
-                          hms::as.hms("16:00:00"), 
-                          hms::as.hms("20:00:00"),
-                          hms::as.hms("24:00:00"))) 
-myPlot
 
-ggsave("Lighting energy for an average day per season total NZ.jpg", dpi=600)
-
-
-
-#Visualising shifted and original consumption two colours
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
 myPlot <- ggplot2::ggplot(LightHHDT, aes(x = obsHalfHour)) +
-  geom_line(aes(y=oriMWhTot, color="red"), size=0.5) +
-  geom_line(aes(y=LedMWhTot, color="blue"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Lighting energy for an average day per season total NZ") +
-  scale_colour_manual(name = element_blank(), 
-                      values = c('red'='red', 'blue'='blue'),  labels = c('LED technology', 'Current technologies')) +
+  ggtitle("Lighting energy for an average day per season and household - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='Energy (MWh)') +
-  #scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
-  #scale_y_continuous(breaks = c(0.1)) +
+  labs(x='Time of Day', y='Energy (Wh)') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
                           hms::as.hms("08:00:00"),       
@@ -8888,13 +8852,300 @@ myPlot <- ggplot2::ggplot(LightHHDT, aes(x = obsHalfHour)) +
                           hms::as.hms("24:00:00"))) 
 myPlot
 
-#ggsave("Lighting energy for an average day per season total NZ.jpg", dpi=600)
+#ggsave("Lighting energy for an average day per seasonand household forecast.jpg", dpi=600)
+
+```
+```{r Plot 2}
+
+#Change the order in facet_grid()
+LightHHDT$season <- factor(LightHHDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(LightHHDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.2) +
+  
+  geom_point(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season and household - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Energy (Wh)') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Lighting energy for an average day per season and household.jpg", dpi=600)
 
 
 
+```
+```{r Plot 3 Spring and Summer}
+
+#Change the order in facet_grid()
+LightHHDT$season <- factor(LightHHDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
 
 
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(subset(LightHHDT, season %in% c("Spring", "Summer"))
+                          , aes(x = obsHalfHour)) +
+  geom_line(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.2) +
+  
+  geom_point(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season and household - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Energy (Wh)') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
 
+#ggsave("Lighting energy for an average day per season and household.jpg", dpi=600)
+
+
+```
+```{r Plot 4 Autumn and Winter}
+
+#Change the order in facet_grid()
+LightHHDT$season <- factor(LightHHDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(subset(LightHHDT, season %in% c("Autumn", "Winter"))
+                          , aes(x = obsHalfHour)) +
+  geom_line(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.2) +
+  geom_line(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.2) +
+  
+  geom_point(aes(y=ConsumptionHH2015, colour = "ConsumptionHH2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2017, colour = "ConsumptionHH2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2019, colour = "ConsumptionHH2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2021, colour = "ConsumptionHH2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2023, colour = "ConsumptionHH2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2025, colour = "ConsumptionHH2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2027, colour = "ConsumptionHH2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionHH2029, colour = "ConsumptionHH2029"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season and household - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Energy (Wh)') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Lighting energy for an average day per season and household.jpg", dpi=600)
+
+
+```
+###Average day per season total NZ
+```{r Plot 1 1}
+
+#Change the order in facet_grid()
+LightHHTotDT$season <- factor(LightHHTotDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(LightHHTotDT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ConsumptionTot2015, colour = "ConsumptionTot2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2017, colour = "ConsumptionTot2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2019, colour = "ConsumptionTot2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2021, colour = "ConsumptionTot2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2023, colour = "ConsumptionTot2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2025, colour = "ConsumptionTot2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2027, colour = "ConsumptionTot2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2029, colour = "ConsumptionTot2029"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season total NZ - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Energy (MWh)') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Lighting energy for an average day per season total NZ forecast.jpg", dpi=600)
+
+```
+```{r Plot 1 2}
+
+#Change the order in facet_grid()
+LightHHTotDT$season <- factor(LightHHTotDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(LightHHTotDT, aes(x = obsHalfHour)) +
+  geom_point(aes(y=ConsumptionTot2015, colour = "ConsumptionTot2015"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2017, colour = "ConsumptionTot2017"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2019, colour = "ConsumptionTot2019"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2021, colour = "ConsumptionTot2021"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2023, colour = "ConsumptionTot2023"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2025, colour = "ConsumptionTot2025"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2027, colour = "ConsumptionTot2027"), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2029, colour = "ConsumptionTot2029"), size=0.5) +
+  
+  geom_line(aes(y=ConsumptionTot2015, colour = "ConsumptionTot2015"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2017, colour = "ConsumptionTot2017"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2019, colour = "ConsumptionTot2019"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2021, colour = "ConsumptionTot2021"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2023, colour = "ConsumptionTot2023"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2025, colour = "ConsumptionTot2025"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2027, colour = "ConsumptionTot2027"), size=0.2) +
+  geom_line(aes(y=ConsumptionTot2029, colour = "ConsumptionTot2029"), size=0.2) +
+  
+  
+  
+  
+  
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season total NZ - forecast") +
+  scale_color_manual(legend_title, labels = c("2015",
+                                              "2017",
+                                              "2019",
+                                              "2021",
+                                              "2023",
+                                              "2025",
+                                              "2027",
+                                              "2029"), values = c("#332288",
+                                                                  "#88CCEE",
+                                                                  "#44AA99",
+                                                                  "#117733",
+                                                                  "#999933",
+                                                                  "#DDCC77",
+                                                                  "#CC6677",
+                                                                  "#882255")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Energy (MWh)') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Lighting energy for an average day per season total NZ forecast.jpg", dpi=600)
 
 ```
 
