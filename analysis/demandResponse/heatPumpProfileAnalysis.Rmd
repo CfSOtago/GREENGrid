@@ -8707,8 +8707,17 @@ LightDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
 ```{r lighting calculation per household}
 
 #Input variables
-NZhouseholds <- 1796331.30947204 #RBS assumption for 2015 households
-EecaLight <- (1577 * 1000 * 1000) / (NZhouseholds) #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
+
+NZhouseholds2015 <- 1796331.309 #RBS assumption for 2015 households
+NZhouseholds2017 <- 1833349.88
+NZhouseholds2019 <- 1868507.182
+NZhouseholds2021 <- 1903664.484
+NZhouseholds2023 <- 1935926.478
+NZhouseholds2025 <- 1968188.473
+NZhouseholds2027 <- 1998382.39
+NZhouseholds2029 <- 2026508.232
+
+EecaLight <- (1577 * 1000 * 1000) / (NZhouseholds2015) #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
 
 ConsumptionHH2015 <- 877.9004139
 ConsumptionHH2017 <- 818.4851125
@@ -8798,6 +8807,9 @@ Scaling <- ConsumptionTot2027 *1000 / sum(LightHHTotDT$oriMWh * 90)
 LightHHTotDT <- LightHHTotDT[, ConsumptionTot2027 := oriMWh * Scaling]
 Scaling <- ConsumptionTot2029 *1000 / sum(LightHHTotDT$oriMWh * 90)
 LightHHTotDT <- LightHHTotDT[, ConsumptionTot2029 := oriMWh * Scaling]
+LightHHTotDT$season <- factor(LightHHTotDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+LightHHTotDT <- LightHHTotDT[, ConsumptionTot2029 := ConsumptionTot2029, keyby = .(season, obsHalfHour)]
 
 #_____________________________________________________________________-
 
@@ -8837,9 +8849,97 @@ LightDevDT <- LightDevDT[, ConsumptionTot2027 := meanMWh - (oriMWh * (1-Scaling)
 Scaling <- ConsumptionTot2029 *1000 / sum(LightHHTotDT$oriMWh * 90)
 LightDevDT <- LightDevDT[, ConsumptionTot2029 := meanMWh - (oriMWh * (1-Scaling))]
 
+#_______________________________________________________________________________________
+# Economic analysis
+# Wholesale prices per year total NZ
+LightpriceDT <- copy(SeasonAvgDT)
+LightpriceDT <- LightpriceDT[, meanprice := mean(meanprice), keyby = .(season, obsHalfHour)]
+LightpriceDT <- LightpriceDT[!(LightpriceDT$Region=="Central North Island"),]# Copying DT and retain season column and meanprice. Building price average from five regions
+LightpriceDT <- LightpriceDT[!(LightpriceDT$Region=="Lower North Island"),]
+LightpriceDT <- LightpriceDT[!(LightpriceDT$Region=="Lower South Island"),]
+LightpriceDT <- LightpriceDT[!(LightpriceDT$Region=="Upper North Island"),]
+LightpriceDT <- LightpriceDT[, Region := NULL]
+
+
+LightPriceCalcDT <- copy(LightpriceDT)
 
 
 
+LightPriceCalcDT <- LightPriceCalcDT[, obsHalfHour := LightpriceDT$obsHalfHour]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2015 := 
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2015`] #Calculating spot market orices for an average day in each season in NZD. To calculate yearly charge sum(LightPriceCalcDT$WP2015*90)/1000000 in MIO NZD
+LightPriceCalcDT <- LightPriceCalcDT[, WP2017 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2017`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2019 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2019`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2021 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2021`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2023 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2023`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2025 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2025`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2027 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2027`]
+LightPriceCalcDT <- LightPriceCalcDT[, WP2029 :=
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2029`]
+#______________________________________________________________________________________________
+#CPD charges
+
+#Loading and scaling hot water load
+LightHHCPDDT <- LightHHDT[ !(season %in% c("Spring", "Summer"))]
+
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2015 := (ConsumptionHH2015 *
+                                                2)/90/1000]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2017 := (ConsumptionHH2017 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2019 := (ConsumptionHH2019 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2021 := (ConsumptionHH2021 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2023 := (ConsumptionHH2023 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2025 := (ConsumptionHH2025 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2027 := (ConsumptionHH2027 *
+                                                2)/90]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2029 := (ConsumptionHH2029 *
+                                                2)/90]#kW per household and half hour for one day
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(LightHHCPDDT, season, obsHalfHour)
+CpdMergedLightDT <- LightHHCPDDT[CpdSumDT]
+
+#Calculating average kW at congestion periods per household
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2015 := kWperHh2015 * Probability]
+AvgLightCpdDem2015 <- sum(CpdMergedLightDT$AvgDemCPD2015)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2029 := kWperHh2029 * Probability]
+AvgLightCpdDem2029 <- sum(CpdMergedLightDT$AvgDemCPD2029)
+
+
+#Introducing prices #Using Frankton GXP of Aurora CPD pricing (lowest charges)
+PS1 <- 0.3079
+PS2 <- 0.3387
+PS3 <- 0.3616
+PS4 <- 0.4698
+
+#Adding prices to DT
+CpdSumDT <- CpdSumDT[, PS1 := PS1]
+CpdSumDT <- CpdSumDT[, PS2 := PS2]
+CpdSumDT <- CpdSumDT[, PS3 := PS3]
+CpdSumDT <- CpdSumDT[, PS4 := PS4]
+
+#Preparing for merging
+setkey(CpdSumDT, season, obsHalfHour)
+setkey(CpdMergedHWDT, season, obsHalfHour)
+CpdMergedHWDT <- CpdMergedHWDT[CpdSumDT]
+
+#Claculating annual charges hot water for one household
+sumPS1HW <- AvgHWCpdDem * PS1 * 365
+sumPS2HW <- AvgHWCpdDem * PS2 * 365
+sumPS3HW <- AvgHWCpdDem * PS3 * 365
+sumPS4HW <- AvgHWCpdDem * PS4 * 365
 
 
 
