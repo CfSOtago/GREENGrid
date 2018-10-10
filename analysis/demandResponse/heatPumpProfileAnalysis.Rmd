@@ -8663,9 +8663,65 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
   myPlot
 
 
-ggsave("Effects of DR.jpeg", dpi = 600)
+#ggsave("Effects of DR.jpeg", dpi = 600)
 
 ```
+```{r  Figure 3 thesis}
+
+GenerationdataFig  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/Monthly extract/2017_01_12_06.csv")
+
+
+#Time and month adjustments
+GenDTFig <- data.table::as.data.table(GenerationdataFig)
+GenDTFig <- GenDTFig[, Period_start := lubridate::dmy_hm(Period_start, tz = "Pacific/Auckland")]
+GenDTFig <- GenDTFig[, year := lubridate::year(Period_start)]
+GenDTFig <- GenDTFig[, obsHalfHour := hms::as.hms(Period_start)]
+GenDTFig <- GenDTFig[, month := lubridate::month(Period_start)]
+GenDTFig <- GenDTFig[month == 12, season := "Summer"]
+GenDTFig <- GenDTFig[month == 6, season := "Winter"]
+
+GenDTFig <- GenDTFig[, Period_start := NULL]
+GenDTFig <- GenDTFig[, Period_end := NULL]
+
+GenDTFig <- GenDTFig[, .(GWh = mean(GWh)), keyby = .(season, obsHalfHour)]
+
+GenDTFig 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Visualising shifted and original consumption two colours
+#Visualising CPD by season
+  myPlot <- ggplot2::ggplot(GenDTFig, aes(x = obsHalfHour)) +
+  geom_line(aes(y=GWh, colour = season), size=0.5) +
+  geom_point(aes(y=GWh, colour = season), size=1) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Average daily half-hour electricity generation in summer and winter") +
+  labs(x='Time of Day', y='GWh per ½  hour') +
+  facet_grid(season ~ .) +
+ # scale_y_continuous(breaks = c(20, 40, 60, 80)) +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"),hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),
+                          hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), hms::as.hms("20:00:00"),                              hms::as.hms("24:00:00")))
+
+  
+  myPlot
+
+#ggsave("Fig. 3 Average daily half-hour electricity generation in summer and winter.jpg", dpi=600)
+
+```
+
+
+
+
 #Energy Efficiency: Lighting
 ##Data import
 
