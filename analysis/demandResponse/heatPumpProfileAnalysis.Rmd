@@ -8684,19 +8684,30 @@ GenDTFig <- GenDTFig[, Period_start := NULL]
 GenDTFig <- GenDTFig[, Period_end := NULL]
 
 GenDTFig <- GenDTFig[, .(GWh = mean(GWh)), keyby = .(season, obsHalfHour)]
-
 GenDTFig 
 
 
+WholesalePricesFig  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Wholesale_Prices/Wholesale_17_06_12.csv")
+
+#Time and month adjustments
+WPDTFig <- data.table::as.data.table(WholesalePricesFig)
+WPDTFig <- WPDTFig[, Period_start := lubridate::dmy_hm(Period_start, tz = "Pacific/Auckland")]
+WPDTFig <- WPDTFig[, year := lubridate::year(Period_start)]
+WPDTFig <- WPDTFig[, obsHalfHour := hms::as.hms(Period_start)]
+WPDTFig <- WPDTFig[, month := lubridate::month(Period_start)]
+WPDTFig <- WPDTFig[month == 12, season := "Summer"]
+WPDTFig <- WPDTFig[month == 6, season := "Winter"]
+
+WPDTFig <- WPDTFig[, Period_start := NULL]
+WPDTFig <- WPDTFig[, Period_end := NULL]
+
+WPDTFig <- WPDTFig[, .(Price = mean(`Price`)), keyby = .(season, obsHalfHour)]
+WPDTFig <- WPDTFig[, Generation := (GenDTFig$GWh)*1000]
 
 
 
-
-
-
-
-
-
+#Change the order in facet_grid()
+WPDTFig$season <- factor(WPDTFig$season, levels = c("Summer", "Winter"))
 
 
 #Visualising shifted and original consumption two colours
@@ -8773,7 +8784,7 @@ NZhouseholds2025 <- 1968188.473
 NZhouseholds2027 <- 1998382.39
 NZhouseholds2029 <- 2026508.232
 
-EecaLight <- (1577 * 1000 * 1000) / (NZhouseholds2015) #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
+EecaLight <- (1577 * 1000 * 1000) / NZhouseholds2015 #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
 
 ConsumptionHH2015 <- 877.9004139
 ConsumptionHH2017 <- 818.4851125
@@ -8923,7 +8934,7 @@ LightPriceCalcDT <- copy(LightpriceDT)
 
 LightPriceCalcDT <- LightPriceCalcDT[, obsHalfHour := LightpriceDT$obsHalfHour]
 LightPriceCalcDT <- LightPriceCalcDT[, WP2015 := 
-                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2015`] #Calculating spot market orices for an average day in each season in NZD. To calculate yearly charge sum(LightPriceCalcDT$WP2015*90)/1000000 in MIO NZD
+                                       LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2015`] #Calculating spot market prices for an average day in each season in NZD. To calculate yearly charge sum(LightPriceCalcDT$WP2015*90)/1000000 in MIO NZD
 LightPriceCalcDT <- LightPriceCalcDT[, WP2017 :=
                                        LightpriceDT$meanprice *  LightHHTotDT$`ConsumptionTot2017`]
 LightPriceCalcDT <- LightPriceCalcDT[, WP2019 :=
@@ -8944,22 +8955,22 @@ LightPriceCalcDT <- LightPriceCalcDT[, WP2029 :=
 #Loading and scaling hot water load
 LightHHCPDDT <- LightHHDT[ !(season %in% c("Spring", "Summer"))]
 
-LightHHCPDDT <- LightHHCPDDT[, kWperHh2015 := (ConsumptionHH2015 *
-                                                2)/90/1000]#kW per household and half hour for one day
+LightHHCPDDT <- LightHHCPDDT[, kWperHh2015 := (ConsumptionHH2015/1000) *
+                                                2]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2017 := (ConsumptionHH2017 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2019 := (ConsumptionHH2019 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2021 := (ConsumptionHH2021 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2023 := (ConsumptionHH2023 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2025 := (ConsumptionHH2025 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2027 := (ConsumptionHH2027 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 LightHHCPDDT <- LightHHCPDDT[, kWperHh2029 := (ConsumptionHH2029 *
-                                                2)/90]#kW per household and half hour for one day
+                                                2)/1000]#kW per household and half hour for one day
 
 #Preparing for merging
 setkey(CpdSumDT, season, obsHalfHour)
@@ -8969,6 +8980,24 @@ CpdMergedLightDT <- LightHHCPDDT[CpdSumDT]
 #Calculating average kW at congestion periods per household
 CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2015 := kWperHh2015 * Probability]
 AvgLightCpdDem2015 <- sum(CpdMergedLightDT$AvgDemCPD2015)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2017 := kWperHh2017 * Probability]
+AvgLightCpdDem2017 <- sum(CpdMergedLightDT$AvgDemCPD2017)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2019 := kWperHh2019 * Probability]
+AvgLightCpdDem2019 <- sum(CpdMergedLightDT$AvgDemCPD2019)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2021 := kWperHh2021 * Probability]
+AvgLightCpdDem2021 <- sum(CpdMergedLightDT$AvgDemCPD2021)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2023 := kWperHh2023 * Probability]
+AvgLightCpdDem2023 <- sum(CpdMergedLightDT$AvgDemCPD2023)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2025 := kWperHh2025 * Probability]
+AvgLightCpdDem2025 <- sum(CpdMergedLightDT$AvgDemCPD2025)
+
+CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2027 := kWperHh2027 * Probability]
+AvgLightCpdDem2027 <- sum(CpdMergedLightDT$AvgDemCPD2027)
 
 CpdMergedLightDT <- CpdMergedLightDT[, AvgDemCPD2029 := kWperHh2029 * Probability]
 AvgLightCpdDem2029 <- sum(CpdMergedLightDT$AvgDemCPD2029)
@@ -8989,15 +9018,252 @@ CpdSumDT <- CpdSumDT[, PS4 := PS4]
 #Preparing for merging
 setkey(CpdSumDT, season, obsHalfHour)
 setkey(CpdMergedHWDT, season, obsHalfHour)
-CpdMergedHWDT <- CpdMergedHWDT[CpdSumDT]
+CpdMergedLightDT <- CpdMergedLightDT[CpdSumDT]
 
 #Claculating annual charges hot water for one household
-sumPS1HW <- AvgHWCpdDem * PS1 * 365
-sumPS2HW <- AvgHWCpdDem * PS2 * 365
-sumPS3HW <- AvgHWCpdDem * PS3 * 365
-sumPS4HW <- AvgHWCpdDem * PS4 * 365
+sumPS1Light <- AvgLightCpdDem2029 * PS1 * 365
+sumPS2Light <- AvgLightCpdDem2029 * PS2 * 365
+sumPS3Light <- AvgLightCpdDem2029 * PS3 * 365
+sumPS4Light <- AvgLightCpdDem2029 * PS4 * 365
+
+#__________________________________________________________________________________________
+
+#Energy output tables
+#Daily average total NZ in MWh
+
+EnergyOutput1 <- copy(LightHHTotDT)
 
 
+#Defining peak and off-peak periods
+EnergyOutput1 <- EnergyOutput1[, Period := "Not Peak"]
+
+EnergyOutput1 <- EnergyOutput1[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+EnergyOutput1 <- EnergyOutput1[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+EnergyOutput1 <- EnergyOutput1[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+EnergyOutput1 <- EnergyOutput1[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+EnergyOutput1 <- EnergyOutput1[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+#Seasonal average total NZ
+
+EnergyOutput2 <- copy(EnergyOutput1)
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2015 := ConsumptionTot2015 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2017 := ConsumptionTot2017 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2019 := ConsumptionTot2019 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2021 := ConsumptionTot2021 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2023 := ConsumptionTot2023 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2025 := ConsumptionTot2025 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2027 := ConsumptionTot2027 * 90]
+EnergyOutput2 <- EnergyOutput2[, ConsumptionTot2029 := ConsumptionTot2029 * 90]
+
+#______________________________________________________________________________________________
+
+#All four appliances together energy consumption
+
+sc3data <- heatPumpProfileDT
+sc3data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
+            "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
+
+  sc3data <- sc3data[, .(GWhHP = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+
+#Defining peak and off-peak periods
+sc3data <- sc3data[, Period := "Not Peak"]
+
+sc3data <- sc3data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+sc3data <- sc3data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+sc3data <- sc3data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc3data <- sc3data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+
+
+
+
+
+
+sc4data <- hotWaterProfileDT
+
+sc4data <- sc4data[, .(GWhHW = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc4data <- sc4data[, Period := "Not Peak"]
+
+sc4data <- sc4data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+sc4data <- sc4data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+sc4data <- sc4data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc4data <- sc4data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc4data <- sc4data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+
+sc5data <- refrigerationProfileDT
+
+sc5data <- sc5data[, .(GWhREF = sum(scaledGWh)), 
+                    keyby = .(season, obsHalfHour)]
+
+sc5data <- sc5data[, Period := "Not Peak"]
+
+sc5data <- sc5data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+sc5data <- sc5data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+sc5data <- sc5data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc5data <- sc5data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc5data <- sc5data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+#Lighting
+sc6data <- copy(sc5data)
+sc6data <- sc6data[, GWhREF:= (EnergyOutput2$ConsumptionTot2015)/1000]
+sc6data <- sc6data[, GWhLight := GWhREF]
+sc6data <- sc6data[, GWhREF := NULL]
+
+
+
+sc6data <- sc6data[, Period := "Not Peak"]
+
+sc6data <- sc6data[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+sc6data <- sc6data[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+sc6data <- sc6data[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+sc6data <- sc6data[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+sc6data <- sc6data[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+
+
+
+
+
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc4data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc5data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc6data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc3data <- cbind(sc3data, sc4data[,"GWhHW"], sc5data[,"GWhREF"], sc6data[,"GWhLight"])
+
+#COnverting to daily average in MWh
+sc3data <- sc3data[, PumpandWater := ((GWhHP+GWhHW+GWhREF+GWhLight)/90)*1000]
+sc3data <- sc3data[, GWhHP := (GWhHP/90)*1000]
+sc3data <- sc3data[, GWhHW := (GWhHW/90)*1000]
+sc3data <- sc3data[, GWhREF := (GWhREF/90)*1000]
+sc3data <- sc3data[, GWhLight := (GWhLight/90)*1000]
+
+
+
+
+
+
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+legend_title <- "Appliance"
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=PumpandWater, colour = "PumpandWater"), size=0.5) +
+  geom_line(aes(y=GWhREF, colour = "GWhREF"), size=0.5) +
+  geom_line(aes(y=GWhLight, colour = "GWhLight"), size=0.5) +
+  geom_line(aes(y=GWhHW, colour = "GWhHW"), size=0.5) +
+  geom_line(aes(y=GWhHP, colour = "GWhHP"), size=0.5) +
+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy consumption profile for an average day per season") +
+  scale_color_manual(legend_title, labels = c("HP|REF|LIGHT|HW",
+                                              "Hot Water Heaters (HW)",
+                                              "Lighting (LIGHT)",
+                                              "Refrigerators (REF)",
+                                              "Heat Pumps (HP)"
+                                              ), values = c("blue",
+                                                                  "black",
+                                                                  "red",
+                                                                  "rainbow magic",
+                                                                  "green"
+                                                                  )) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½  hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
 
 
 
@@ -9538,11 +9804,117 @@ myPlot
 #ggsave("Total NZ demand development for an average day with improving lighting efficiency - forecast.jpeg", dpi=600)
 
 ```
+```{r Energy output: Daily average per day total NZ Lighting}
+
+
+sc3data <- EnergyOutput2[, .(EnergyOut = sum(ConsumptionTot2029)/1000),
+                   keyby = .(season, Period)]
+sc3data
+
+```
+```{r Dailay average consumption profile with time-periods}
+
+
+EnergyOutput1$season <- factor(EnergyOutput1$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Visualising Lighting time-periods in MWh 2015
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(EnergyOutput1, aes(x = obsHalfHour, colour = Period)) +
+  geom_point(aes(y=ConsumptionTot2015), size=0.5) +
+  
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average consumption profile 2015") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½ hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily average consumption profile 2015.jpeg", dpi=600)
+
+
+
+
+#Visualising Lighting time-periods in MWh 2015 and 2029
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(EnergyOutput1, aes(x = obsHalfHour, colour = Period)) +
+  geom_point(aes(y=ConsumptionTot2015), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2029), size=0.5) +
+  
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average consumption profile 2015 and 2029") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½ hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily average consumption profile 2015 and 2029.jpeg", dpi=600)
 
 
 
 
 
+
+
+#Visualising Lighting time-periods in MWh 2015-2029
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(EnergyOutput1, aes(x = obsHalfHour, colour = Period)) +
+  geom_point(aes(y=ConsumptionTot2015), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2017), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2019), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2021), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2023), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2025), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2027), size=0.5) +
+  geom_point(aes(y=ConsumptionTot2029), size=0.5) +
+  
+  scale_color_discrete(breaks=c("Off Peak 1", "Morning Peak", "Off Peak 2",
+                                "Evening Peak")) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average consumption profile 2015-2029") +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½ hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+
+#ggsave("Daily average consumption profile 2015-2029.jpeg", dpi=600)
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
 #MyPlot example
 ```{r scenario load curtailment}
 
