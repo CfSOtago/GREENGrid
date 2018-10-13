@@ -9198,12 +9198,6 @@ sc6data <- sc6data[obsHalfHour >= OP2S &
                      obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
-
-
-
-
-
-
 sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
@@ -9225,48 +9219,13 @@ sc3data <- sc3data[, GWhHW := (GWhHW/90)*1000]
 sc3data <- sc3data[, GWhREF := (GWhREF/90)*1000]
 sc3data <- sc3data[, GWhLight := (GWhLight/90)*1000]
 
+sc3data <- sc3data[, APumpandWater := PumpandWater]
+sc3data <- sc3data[, BGWhHW := GWhHW]
+sc3data <- sc3data[, CGWhLight := GWhLight]#Sorting for plotting, ggplot plots columns alphabetically
+sc3data <- sc3data[, DGWhREF := GWhREF]
+sc3data <- sc3data[, EGWhHP := GWhHP]
 
-
-
-
-
-#Change the order in facet_grid()
-sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
-                                                    "Autumn", "Winter"))
-legend_title <- "Appliance"
-myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
-  geom_line(aes(y=PumpandWater, colour = "PumpandWater"), size=0.5) +
-  geom_line(aes(y=GWhREF, colour = "GWhREF"), size=0.5) +
-  geom_line(aes(y=GWhLight, colour = "GWhLight"), size=0.5) +
-  geom_line(aes(y=GWhHW, colour = "GWhHW"), size=0.5) +
-  geom_line(aes(y=GWhHP, colour = "GWhHP"), size=0.5) +
-
-  theme(text = element_text(family = "Cambria")) +
-  ggtitle("Lighting energy consumption profile for an average day per season") +
-  scale_color_manual(legend_title, labels = c("HP|REF|LIGHT|HW",
-                                              "Hot Water Heaters (HW)",
-                                              "Lighting (LIGHT)",
-                                              "Refrigerators (REF)",
-                                              "Heat Pumps (HP)"
-                                              ), values = c("blue",
-                                                                  "black",
-                                                                  "red",
-                                                                  "rainbow magic",
-                                                                  "green"
-                                                                  )) +
-  facet_grid(season ~ .) +
-  labs(x='Time of Day', y='MWh per ½  hour') +
-  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
-                          hms::as.hms("04:00:00"), 
-                          hms::as.hms("08:00:00"),       
-                          hms::as.hms("12:00:00"), 
-                          hms::as.hms("16:00:00"), 
-                          hms::as.hms("20:00:00"),
-                          hms::as.hms("24:00:00"))) 
-myPlot
-
-
-
+#sc3data <- sc3data[,c(1, 2, 8, 5, 7, 6, 3, 4)]#Ordering columns based on previous DT
 
 ```
 
@@ -9318,7 +9277,7 @@ myPlot <- ggplot2::ggplot(LightHHDT, aes(x = obsHalfHour)) +
                           hms::as.hms("24:00:00"))) 
 myPlot
 
-#ggsave("Lighting energy for an average day per seasonand household forecast.jpg", dpi=600)
+#ggsave("Lighting energy for an average day per season and household forecast.jpg", dpi=600)
 
 ```
 ```{r Plot 2}
@@ -9428,6 +9387,8 @@ myPlot <- ggplot2::ggplot(subset(LightHHDT, season %in% c("Spring", "Summer"))
                                                                   "#882255")) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='Wh per ½ hour') +
+  scale_y_continuous(breaks = c(50, 100, 150, 200)) +
+  scale_y_continuous( limits = c(0,208))+
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
                           hms::as.hms("08:00:00"),       
@@ -9664,6 +9625,8 @@ myPlot <- ggplot2::ggplot(subset(LightHHTotDT, season %in% c("Spring", "Summer")
                                                                   "#CC6677",
                                                                   "#882255")) +
   facet_grid(season ~ .) +
+  scale_y_continuous(breaks = c(100, 200, 300)) +
+  scale_y_continuous( limits = c(0,370))+
   labs(x='Time of Day', y='MWh per ½  hour') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
@@ -9907,6 +9870,159 @@ myPlot
 
 
 
+
+
+
+
+
+
+
+```
+```{r all appliances togetrher visualisation}
+
+
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+
+#All seasons
+legend_title <- "Appliance"
+myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
+  geom_line(aes(y=APumpandWater, colour = "APumpandWater"), size=0.2) +
+  geom_line(aes(y=BGWhHW, colour = "BGWhHW"), size=0.2) +
+  geom_line(aes(y=CGWhLight, colour = "CGWhLight"), size=0.2) +
+  geom_line(aes(y=DGWhREF, colour = "DGWhREF"), size=0.2) +
+  geom_line(aes(y=EGWhHP, colour = "EGWhHP"), size=0.2) +
+  
+  
+  geom_point(aes(y=APumpandWater, colour = "APumpandWater"), size=0.1) +
+  geom_point(aes(y=BGWhHW, colour = "BGWhHW"), size=0.1) +
+  geom_point(aes(y=CGWhLight, colour = "CGWhLight"), size=0.1) +
+  geom_point(aes(y=DGWhREF, colour = "DGWhREF"), size=0.1) +
+  geom_point(aes(y=EGWhHP, colour = "EGWhHP"), size=0.1) +
+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average energy consumption all appliances per season") +
+  scale_color_manual(legend_title, labels = c("∑ A-D",
+                                              "HW (A)",
+                                              "LIGHT (B)",
+                                              "REF (C)",
+                                              "HP (D)"
+                                              ), values = c("black",
+                                                                  "blue",
+                                                                  "red",
+                                                                  "orange",
+                                                                  "green"
+                                                                  )) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½  hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily average energy consumption all appliances per season.jpeg", dpi = 600)
+
+
+#Autumn and Winter
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+legend_title <- "Appliance"
+myPlot <- ggplot2::ggplot(subset(sc3data, season %in% c("Autumn", "Winter")), aes(x = obsHalfHour)) +
+  geom_line(aes(y=APumpandWater, colour = "APumpandWater"), size=0.2) +
+  geom_line(aes(y=BGWhHW, colour = "BGWhHW"), size=0.2) +
+  geom_line(aes(y=CGWhLight, colour = "CGWhLight"), size=0.2) +
+  geom_line(aes(y=DGWhREF, colour = "DGWhREF"), size=0.2) +
+  geom_line(aes(y=EGWhHP, colour = "EGWhHP"), size=0.2) +
+  
+  
+  geom_point(aes(y=APumpandWater, colour = "APumpandWater"), size=0.1) +
+  geom_point(aes(y=BGWhHW, colour = "BGWhHW"), size=0.1) +
+  geom_point(aes(y=CGWhLight, colour = "CGWhLight"), size=0.1) +
+  geom_point(aes(y=DGWhREF, colour = "DGWhREF"), size=0.1) +
+  geom_point(aes(y=EGWhHP, colour = "EGWhHP"), size=0.1) +
+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average energy consumption all appliances for autumn and winter") +
+  scale_color_manual(legend_title, labels = c("∑ A-D",
+                                              "HW (A)",
+                                              "LIGHT (B)",
+                                              "REF (C)",
+                                              "HP (D)"
+                                              ), values = c("black",
+                                                                  "blue",
+                                                                  "red",
+                                                                  "orange",
+                                                                  "green"
+                                                                  )) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½  hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily average energy consumption all appliances for autumn and winter.jpeg", dpi = 600)
+
+#Spring and Summer
+#Change the order in facet_grid()
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+legend_title <- "Appliance"
+myPlot <- ggplot2::ggplot(subset(sc3data, season %in% c("Spring", "Summer")), aes(x = obsHalfHour)) +
+  geom_line(aes(y=APumpandWater, colour = "APumpandWater"), size=0.2) +
+  geom_line(aes(y=BGWhHW, colour = "BGWhHW"), size=0.2) +
+  geom_line(aes(y=CGWhLight, colour = "CGWhLight"), size=0.2) +
+  geom_line(aes(y=DGWhREF, colour = "DGWhREF"), size=0.2) +
+  geom_line(aes(y=EGWhHP, colour = "EGWhHP"), size=0.2) +
+  
+  
+  geom_point(aes(y=APumpandWater, colour = "APumpandWater"), size=0.1) +
+  geom_point(aes(y=BGWhHW, colour = "BGWhHW"), size=0.1) +
+  geom_point(aes(y=CGWhLight, colour = "CGWhLight"), size=0.1) +
+  geom_point(aes(y=DGWhREF, colour = "DGWhREF"), size=0.1) +
+  geom_point(aes(y=EGWhHP, colour = "EGWhHP"), size=0.1) +
+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily average energy consumption all appliances for spring and summer") +
+  scale_color_manual(legend_title, labels = c("∑ A-D",
+                                              "HW (A)",
+                                              "LIGHT (B)",
+                                              "REF (C)",
+                                              "HP (D)"
+                                              ), values = c("black",
+                                                                  "blue",
+                                                                  "red",
+                                                                  "orange",
+                                                                  "green"
+                                                                  )) +
+  scale_y_continuous(breaks = c(250, 500, 750, 1000)) +
+  scale_y_continuous( limits = c(0,1000))+
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MWh per ½  hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily average energy consumption all appliances for spring and summer", dpi = 600)
 
 
 
