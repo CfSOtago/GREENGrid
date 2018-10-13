@@ -9167,6 +9167,21 @@ sc5data <- sc5data[obsHalfHour >= OP2S &
                      obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
+sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc4data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+sc5data$season <- factor(sc3data$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+
+sc3data <- sc3data[, Period := Period, keyby = .(season, obsHalfHour)]
+sc4data <- sc4data[, Period := Period, keyby = .(season, obsHalfHour)]
+sc5data <- sc5data[, Period := Period, keyby = .(season, obsHalfHour)]
+
 
 #Lighting
 sc6data <- copy(sc5data)
@@ -9198,6 +9213,8 @@ sc6data <- sc6data[obsHalfHour >= OP2S &
                      obsHalfHour <= OP2E,
                    Period := "Off Peak 2"]
 
+
+#VERY IMPORTANT Brings column season into the right order for binding, otherwise seasons get mixed up in adding process. Spring becomes summer for lighting
 sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
