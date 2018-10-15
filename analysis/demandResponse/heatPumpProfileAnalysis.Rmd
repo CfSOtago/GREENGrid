@@ -154,7 +154,7 @@ heatPumpProfileDT <- heatPumpProfileDT[month == 9 | month == 10 | month == 11, s
 #heatPumpProfileDT[ , 5][is.na(heatPumpProfileDT[ , 5] ) ] = 0 
 
 heatPumpProfileDT <- heatPumpProfileDT[, .(meanW = mean(powerW, na.rm = TRUE)), keyby = .(obsHourMin, season)]
-
+HeatPumptestDT1 <- copy(heatPumpProfileDT)#Used for test section after lighting analysis
 
 
 
@@ -235,7 +235,9 @@ To do that we need to set a half-hour value from the observed time. We do this u
 
 ```{r set halfHours}
 # create a 'half hour' variable for aggregation
-heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)] # <- this truncates the time to the previous half hour (hms works in seconds so 30 mins * 60 secs = 1800 secs). e.g. 13:18:00 -> 13:00:00 but 13:40:00 -> 13:30 etc
+heatPumpProfileDT <- heatPumpProfileDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+
+# <- this truncates the time to the previous half hour (hms works in seconds so 30 mins * 60 secs = 1800 secs). e.g. 13:18:00 -> 13:00:00 but 13:40:00 -> 13:30 etc
 
 # This means any plots will be using the 1/2 hour value at the  -> start <-  of the period!
 
@@ -781,6 +783,8 @@ HotwaterObsDT <- HotwaterObsDT[month >= 12 | month == 1 | month == 2, season := 
 HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
 HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+HotWatertestDT1 <- copy(HotwaterObsDT)#Used for test section after lighting analysis
 
 #Building daily average per season
 
@@ -8812,8 +8816,10 @@ ConsumptionTot2029 <-  621.46
 LightDT <- LightDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]#Creating half hour time-steps
 
 LightHHDT <- LightDT[, .(meanW = mean(meanW)), keyby = .(obsHalfHour, season)]
+LightTestDT1 <- copy(LightHHDT)
 LightHHDT <- LightHHDT[, orikWh := (meanW / 2)/1000]
 LightHHDT <- LightHHDT[, meanW := NULL]
+
 
 #Scales original 2015 energy consumption to RBS figures. Applied on profile. Output: kWh for an average day in each season, not seasonal sum!
 Scaling <- EecaLight / sum(LightHHDT$orikWh * 90)
@@ -10039,7 +10045,7 @@ myPlot <- ggplot2::ggplot(subset(sc3data, season %in% c("Spring", "Summer")), ae
                           hms::as.hms("24:00:00"))) 
 myPlot
 
-#ggsave("Daily average energy consumption all appliances for spring and summer", dpi = 600)
+#ggsave("Daily average energy consumption all appliances for spring and summer.jpeg", dpi = 600)
 
 
 
@@ -10048,6 +10054,90 @@ myPlot
 
 
 ```
+#Test without scaling
+```{r depict applainces without scaling}
+
+HeatPumptestDT <- HeatPumptestDT1[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]#Creating half hour time-steps
+HeatPumptestDT <- HeatPumptestDT[, .(meanW = mean(meanW)/2), keyby = .(season, obsHalfHour)]#Wh
+HeatPumptestDT$season <- factor(HeatPumptestDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+HeatPumptestDT <- HeatPumptestDT[, season := season, keyby = .(season, obsHalfHour)]
+#_____________________________________________________
+
+#Hot Water
+HotWatertestDT <-HotWatertestDT1[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+HotWatertestDT <- HotWatertestDT[, .(powerW = mean(powerW)/2), keyby = .(season, obsHalfHour)]#Wh
+HotWatertestDT$season <- factor(HotWatertestDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+HotWatertestDT <- HotWatertestDT[, season := season, keyby = .(season, obsHalfHour)]
+#_____________________________________________________
+
+#Lighting
+LightTestDT <- LightTestDT1
+LightTestDT$season <- factor(LightTestDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+LightTestDT <- LightTestDT[, season := season, keyby = .(season, obsHalfHour)]
+LightTestDT <- LightTestDT[, BLighttest := meanW/2]#Wh
+
+#Copying other appliances
+LightTestDT <- LightTestDT[, CHPtest := HeatPumptestDT$meanW]
+LightTestDT <- LightTestDT[, AHWtest := HotWatertestDT$powerW]
+
+#______________________________________________________
+
+#Visualisation
+
+legend_title <- "Appliance"
+myPlot <- ggplot2::ggplot(subset(LightTestDT, season %in% c("Autumn", "Winter")), aes(x = obsHalfHour)) +
+  geom_line(aes(y=AHWtest, colour = "AHWtest"), size=0.3) +
+  geom_line(aes(y=BLighttest, colour = "BLighttest"), size=0.3) +
+  geom_line(aes(y=CHPtest, colour = "CHPtest"), size=0.3) +
+  
+  
+  geom_point(aes(y=AHWtest, colour = "AHWtest"), size=0.1) +
+  geom_point(aes(y=BLighttest, colour = "BLighttest"), size=0.1) +
+  geom_point(aes(y=CHPtest, colour = "CHPtest"), size=0.1) +
+
+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Original daily average energy consumption profile for autumn and winter per household") +
+  scale_color_manual(legend_title, labels = c(
+                                              "HW",
+                                              "LIGHT",
+                                              "HP"
+                                              
+                                              ), values = c("blue",
+                                                                  "red",
+                                                                  "green"
+                                                                  
+                                                                  )) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='Wh per ½ hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+
+#ggsave("Original daily average energy consumption profile for autumn and winter per household.jpeg", dpi= 600)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
 #MyPlot example
 ```{r scenario load curtailment}
 
