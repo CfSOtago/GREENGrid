@@ -2,19 +2,19 @@
 % Please edit documentation in R/ftf.R
 \name{createSafeFtF}
 \alias{createSafeFtF}
-\title{Removes disclosive variables}
+\title{Remove disclosive variables}
 \usage{
 createSafeFtF(dt)
 }
 \description{
-\code{createSafeFtF} removes the following disclosive variables:
+\code{createSafeFtF} creates a new uhnique EV ID byhashing the `Reg No` and then removes the following disclosive variables:
  `Reg No`
  `Latitude`
  `Longitude`
  `Course (deg)`
 }
 \details{
-Ideally these would be removed prior to sharing the data.
+These should be removed prior to any data sharing.
 }
 \author{
 Ben Anderson, \email{b.anderson@soton.ac.uk} (original)
