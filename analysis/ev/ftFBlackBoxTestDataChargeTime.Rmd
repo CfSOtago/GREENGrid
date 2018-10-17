@@ -198,6 +198,22 @@ kableExtra::kable(caption = "Summary of Charger (amps)", t) %>% kable_styling()
 
 _XX Is the Amp reading of 33 an outlier? If so should we ignore the ~= 8kW values? XX_
 
+# Analaysis: Number of cars over time
+
+Just a simple trend line...
+
+```{r carTrends}
+plotDT <- ftfDT[, .(obs = .N), keyby = .(evID, rDate)]
+
+ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
+  geom_line() +
+  theme(legend.position="bottom") +
+  labs(x = "Date",
+       y = "Number of observations per day",
+       caption = figCaption)
+```
+
+
 # Analysis: Timing of charging
 
 We assume `powerW` is a good indicator of charging. For now we do not exclude the apparent outlier caused by the few very high Amp values (`Charger (amps)` > 30) but we flag them as potential problems.
