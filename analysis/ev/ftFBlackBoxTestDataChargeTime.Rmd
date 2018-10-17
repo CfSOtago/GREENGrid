@@ -7,10 +7,10 @@ subtitle: '`r params$subtitle`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::pdf_document2: default
   bookdown::html_document2:
     toc: true
     toc_float: true
+  bookdown::pdf_document2: default
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
@@ -25,25 +25,29 @@ knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 # Set start time ----
 startTime <- proc.time()
 
-library(GREENGrid)
+library(dkUtils) # my utils :-) get this via devtools::install_github("dataknut/dkUtils")
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
+             "dplyr", # data munching
              "ggplot2", # for fancy graphs
+             "lubridate", # date & time processing
              "readr", # writing to files
-             "knitr" # for kable
+             "Hmisc", # describe
+             "codebook", # codebook
+             "skimr", # for skim
+             "GREENGrid", # ftf functions
+             "kableExtra" # for smart kable
 )
 # load them
-GREENGrid::loadLibraries(rmdLibs)
+dkUtils::loadLibraries(rmdLibs)
 
 # run gg set up
 GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters ----
-dIPath <- paste0(ggParams$dataLoc, "externalData/flipTheFleet/")
-dOPath <- paste0(ggParams$dataLoc, "cleanData/flipTheFleet/")
-
-dFile <- "EVBlackBox export 2018-06-10-233146" # edit to suit. This will also be the name of the saved 'safe' version.
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/flipTheFleet/")
+dFile <- paste0(ggParams$dataLoc, "safe/ftfSafeLatestAll.csv.gz") # safe data file 
 ```
 
 \newpage
@@ -78,7 +82,7 @@ knitr::include_graphics("fig/bb.jpg")
 
 ## Requirements:
 
- * test FlipTheFleet black box dataset stored on `r ggParams$otagoHCS` at: `r ggParams$dataLoc`
+ * test FlipTheFleet black box dataset stored on `r ggParams$otagoHCS` at: `r dFile`
 
 ## Code and report history
 
@@ -102,14 +106,10 @@ This document was created using [knitr](https://cran.r-project.org/package=knitr
 
 ## Load data
 
-```{r set fileName}
-fileToLoad <- paste0(dIPath, dFile, ".csv")
-```
-
-In this section we load and describe the data from `r ggParams$ftfFile`. First we load the data.
+In this section we load and describe the pre-processed safe data from `r dFile`. First we load the data.
 
 ```{r load ftf data, echo=TRUE}
-ftfDT <- data.table::as.data.table(readr::read_csv(fileToLoad))
+ftfDT <- data.table::as.data.table(readr::read_csv(dFile))
 ```
 
 That loaded `r tidyNum(nrow(ftfDT))` observations.
@@ -118,21 +118,18 @@ That loaded `r tidyNum(nrow(ftfDT))` observations.
 
 Next we create some useful derived variables. Errors may be 'odd' dates and times or even not set in the original data as we see below.
 
-```{r process ftf data, echo = TRUE}
-# create derived variables
-ftfDT <- createDerivedFtF(ftfDT)
-
+```{r check ftf data, echo = TRUE}
 t <- ftfDT[is.na(rDate), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
 
-knitr::kable(caption = "Number of obs and mean pack volts where date cannot be set by original GPS Date and Time", t)
+kableExtra::kable(caption = "Number of obs and mean pack volts where date cannot be set by original GPS Date and Time", t) %>% kable_styling()
 
 t <- ftfDT[is.na(rTime), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
 
-knitr::kable(caption = "Number of obs and mean pack volts where time cannot be set by original GPS Date and Time", t)
+kableExtra::kable(caption = "Number of obs and mean pack volts where time cannot be set by original GPS Date and Time", t) %>% kable_styling()
 
 ```
 
@@ -151,57 +148,6 @@ pcGPSNA <- round((before - after)/before*100, 2)
 
 Doing so removed `r before - after` (`r pcGPSNA` %) observations.
 
-## Location inference
-
-Figure \@ref(fig:mapAllLocations) maps the location of a subset of the observations in the dataset coloured by `Speed (GPS)`. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
-
-```{r mapAllLocations, fig.cap="Map of all observations coloured by speed"}
-# draw map of all GPS locations
-
-evMap <- getEVMap(ftfDT)
-
-evMap + scale_colour_gradient(low = "blue", high = "red")
-```
-
-To avoid any risk of such disclosure we next infer a very coarse geo-location at each time point so that we can remove the potentially disclosive GPS data before moving on to the analysis. 
-
-Note that this does not necessarily render this dataset _safe_ ([anonymised](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation)) as there may well be other variables that provide sufficient information either on their own or together which would [enable identification](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation) of the car and it's owner.
-
-```{r inferLoc, fig.cap="Check inferred location", echo=TRUE}
-ftfDT <- inferLocationFtF(ftfDT)
-
-plotDT <- ftfDT[, .(nObs = .N), 
-                keyby = .(geoLoc, obsHour, rDow)]
-
-ggplot(plotDT, aes(x = obsHour, y = nObs)) + 
-  geom_col() + 
-  facet_grid(rDow ~ geoLoc)
-```
-
-Figure \@ref(fig:inferLoc) shows the results of this inference. Does it look like a reasonable guestimate of location?
-
-## Make safe dataset
-
-Next we remove the following variables as they are potentially disclosive:
-
- * `Reg No` - this is converted to `evID` using an encryption method
- * `Latitude`
- * `Longitude` 
- * `Course (deg)` 
- 
-```{r makeSafe}
-# do analysis on safe version
-ftfSafeDT <- createSafeFtF(ftfDT)
-
-# save it for re-use ----
-safeOut <- paste0(dOPath, dFile, "_safe.csv")
-data.table::fwrite(ftfSafeDT, safeOut)
-GREENGrid::gzipFile(safeOut)
-```
-
-
-The remaining variables are described in detail in [ftFBlackBoxTestDataCodebook.docx](https://www.dropbox.com/s/bfepx3sgfxek78e/ftFBlackBoxTestDataCodebook.docx?dl=0). 
-
 ## Check variables of interest for this analysis
 
 Check charger related variables. We think these are:
@@ -214,37 +160,40 @@ Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@re
 ```{r setCaptions}
 # for plots
 figCaption <- paste0("FlipTheFleet 'Black Box' test data for 1 car for ", 
-                     uniqueN(ftfSafeDT$rDate), " days from ",
-                     min(ftfSafeDT$rDate, na.rm = TRUE), " to ", max(ftfSafeDT$rDate, na.rm = TRUE))
+                     uniqueN(ftfDT$rDate), " days from ",
+                     min(ftfDT$rDate, na.rm = TRUE), " to ", max(ftfDT$rDate, na.rm = TRUE))
 ```
 
-```{r checkAmps, fig.cap="Distribution of charger amp readings"}
-ggplot(ftfSafeDT, aes(x = `Charger (amps)`)) +
+```{r checkAmps, fig.cap="Distribution of charger amp readings by car"}
+ggplot(ftfDT, aes(x = `Charger (amps)`)) +
   geom_histogram(binwidth = 0.1) +
+  facet_grid(evID ~ .) +
   labs(caption = figCaption)
 ```
 
 ```{r checkVolts, fig.cap="Distribution of charger volt readings"}
-ggplot(ftfSafeDT, aes(x = `Charger (V)`)) +
+ggplot(ftfDT, aes(x = `Charger (V)`)) +
   geom_histogram(binwidth = 5) +
+  facet_grid(evID ~ .) +
   labs(caption = figCaption)
 ```
 
 ```{r checkPower, fig.cap="Distribution of derived power demand"}
 
-ftfSafeDT <- ftfSafeDT[, powerW := `Charger (amps)` * `Charger (V)`]
+ftfDT <- ftfDT[, powerW := `Charger (amps)` * `Charger (V)`]
 
-ggplot(ftfSafeDT, aes(x = powerW/1000)) +
+ggplot(ftfDT, aes(x = powerW/1000)) +
   geom_histogram(binwidth = 0.1) +
+  facet_grid(evID ~ .) +
   labs(x = "kW", caption = figCaption)
 ```
 
 The following table sumarises these distributions.
 
 ```{r summaryTable, fig.cap="Summary table"}
-t <- summary(ftfSafeDT[, c("Charger (amps)", "Charger (V)", "powerW")])
+t <- summary(ftfDT[, c("Charger (amps)", "Charger (V)", "powerW")])
 
-knitr::kable(caption = "Summary of Charger (amps)", t)
+kableExtra::kable(caption = "Summary of Charger (amps)", t) %>% kable_styling()
 ```
 
 _XX Is the Amp reading of 33 an outlier? If so should we ignore the ~= 8kW values? XX_
@@ -254,17 +203,17 @@ _XX Is the Amp reading of 33 an outlier? If so should we ignore the ~= 8kW value
 We assume `powerW` is a good indicator of charging. For now we do not exclude the apparent outlier caused by the few very high Amp values (`Charger (amps)` > 30) but we flag them as potential problems.
 
 ```{r flagAmpOutliers}
-ftfSafeDT <- ftfSafeDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
+ftfDT <- ftfDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
 ```
 
-Figure \@ref(fig:plotChargingTime) shows mean kW by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
+Figure \@ref(fig:plotChargingTime) shows mean kW by time of day over the entire test datset of `r uniqueN(ftfDT$rDate)` days from `r min(ftfDT$rDate, na.rm = TRUE)` to `r max(ftfDT$rDate, na.rm = TRUE)`.
 
 ```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
-plotDT <- ftfSafeDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow, ampOutlier,geoLoc)]
+plotDT <- ftfDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow, ampOutlier,geoLoc, evID)]
 
 myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = ampOutlier)) +
   geom_point() +
-  facet_grid(rDow ~ ampOutlier + geoLoc) +
+  facet_grid(evID + rDow ~ ampOutlier + geoLoc) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
@@ -280,7 +229,7 @@ Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values o
 ```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)", fig.height=6}
 myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data" & !is.na(rDow) & meanPowerW != 0], aes(x = rTime, y = meanPowerW/1000)) +
   geom_point() +
-  facet_grid(rDow ~ geoLoc) +
+  facet_grid(rDow ~ evID + geoLoc) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
