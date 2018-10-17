@@ -7,19 +7,19 @@ subtitle: '`r params$subtitle`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
-  bookdown::word_document2:
-    toc: true
-    toc_depth: 2
-  bookdown::pdf_document2:
-    toc: true
-    toc_depth: 2
   bookdown::html_document2:
     toc: true
     toc_float: TRUE
     toc_depth: 2
     keep_md: TRUE
     self_contained: no
-bibliography: '`r paste0(findParentDirectory("GREENGrid"), "/bibliography.bib")`'
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+  bookdown::word_document2:
+    toc: true
+    toc_depth: 2
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 ```{r setup, include=FALSE}
@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 # Set start time ----
 startTime <- proc.time()
 
-library(GREENGrid)
+library(dkUtils) # my utils :-) get this via devtools::install_github("dataknut/dkUtils")
 
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
@@ -43,17 +43,21 @@ rmdLibs <- c("data.table", # data munching
              "readr", # writing to files
              "Hmisc", # describe
              "codebook", # codebook
+             "leaflet", #for maps
              "skimr", # for skim
-             "knitr" # for kable
+             "GREENGrid", # ftf functions
+             "kableExtra" # for smart kable
 )
 # load them
-loadLibraries(rmdLibs)
+dkUtils::loadLibraries(rmdLibs)
 
 # run gg set up
 GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
 
 # Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/_RAW DATA/flipTheFleet/")
+ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/flipTheFleet/")
+dIPath <- paste0(ggParams$dataLoc, "raw/")
+dOPath <- paste0(ggParams$dataLoc, "safe/")
 ```
 
 \newpage
@@ -83,7 +87,7 @@ This report is intended to:
 
 ## Requirements:
 
- * test dataset stored at `r ggParams$dataLoc`
+ * test dataset stored at `r dIPath`
 
 ## History
 
@@ -102,32 +106,133 @@ Specific history of this code:
 
 # Load data files
 
-## EV test data
+```{r get fileNames}
+fileList <- list.files(path = dIPath , pattern = "EVBlackBox*")
+fListDT <- as.data.table(fileList)
+fListDT <- fListDT[, fullPath := path.expand(paste0(dIPath, fileList))]
 
-```{r set fileName}
-ggParams$ftfFile <- paste0(ggParams$dataLoc, "EVBlackBox export 2018-06-10-233146.csv")
+kableExtra::kable(fListDT, caption = "Data files to be loaded") %>%
+  kable_styling()
 ```
 
-In this section we load and describe the  data files from `r ggParams$ftfFile`. Note that we remove the following variables before we do so as they are potentially disclosive:
+In this section we load, merge and describe the data files from `r ggParams$dataLoc`. 
+
+```{r load ftf data}
+# use read_csv inside as.data.table to make use of readr's smart parsing
+ftfDT <- rbindlist(lapply(fListDT$fullPath,
+                            function(f)
+                              data.table::as.data.table(readr::read_csv(f,
+                                                                        progress = FALSE)
+                                                        )
+                            ), fill = TRUE
+                     )
+```
+
+# Location inference
+
+The raw data has latitude and longitude. This is very discosive, although there are some errors. For example in the sample selected below there are 0 values (off the coast of West Africa). Clearly nonsense...
+
+```{r getTestGeo}
+
+geoDT <- head(ftfDT[, .(Longitude, Latitude, Altitude, ambient_temp_1)], 100)
+
+kableExtra::kable(summary(geoDT), caption = "Summary of test geo data") %>%
+  kable_styling()
+
+```
+
+Figure \@ref(fig:mapAllLocations) maps the location of a subset of the observations in the dataset. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
+
+```{r mapAllLocations, fig.cap="Map of sample of observations"}
+# draw map of some EV locations
+
+geoDT <- geoDT[Latitude != 0 & Longitude != 0]
+
+# https://rstudio.github.io/leaflet/markers.html
+
+leaflet::leaflet(data = geoDT[]) %>% addTiles() %>%
+  addMarkers(~Longitude, ~Latitude, popup = ~as.character(ambient_temp_1), label = ~as.character(ambient_temp_1))
+
+```
+
+
+## Derived variables
+
+Create some useful derived variables.
+
+```{r process ftf data, echo = TRUE}
+# create derived 
+ftfT <- GREENGrid::createDerivedFtF(ftfDT)
+```
+
+If there is a 'failed to parse' message it suggests some dates and times could not be correctly parsed by ` GREENGrid::createDerivedFtF()`. We can check this using by comparing the original and parsed variables:
+
+```{r checkFails}
+message("Date (GPS)")
+summary(ftfT$`Date (GPS)`)
+message("rDate")
+summary(ftfT$rDate)
+message("Time (GPS)")
+summary(ftfT$`Time (GPS)`)
+message("rTime")
+summary(ftfT$rTime)
+
+message("rDateTime")
+summary(ftfT$rDateTime)
+
+message("rDow")
+summary(ftfT$rDow)
+```
+
+It looks like the dates don't always parse. Check a few...
+
+```{r checkDates}
+dateFail <- ftfT[is.na(rDate), .(`Date (GPS)`, rDate, `Time (GPS)`, rTime)]
+
+kableExtra::kable(head(dateFail), caption = "Example rows where date failed to parse") %>% 
+  kable_styling()
+```
+
+Doesn't look like we can do much about these...
+
+## Geo-disclosure
+
+To avoid any risk of location disclosure we next infer a very coarse geo-location at each time point so that we can remove the potentially disclosive GPS data before moving on to the analysis. 
+
+Note that this does not necessarily render this dataset _completely safe_ ([anonymised](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation)) as there may well be other variables that provide sufficient information either on their own or together which would [enable identification](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation) of the car and it's owner.
+
+```{r inferLoc, fig.cap="Check inferred location", echo=TRUE}
+ftfDT <- GREENGrid::inferLocationFtF(ftfT)
+
+plotDT <- ftfDT[, .(nObs = .N), 
+                keyby = .(geoLoc, obsHour, rDow)]
+
+ggplot(plotDT, aes(x = obsHour, y = nObs)) + 
+  geom_col() + 
+  facet_grid(rDow ~ geoLoc)
+```
+
+Figure \@ref(fig:inferLoc) shows the results of this inference. Does it look like a reasonable guestimate of location?
+
+# Make safe version
+
+We now create a unique EV ID by hashing the `Reg No` and then removing the following variables before we do anything else as they are potentially disclosive:
 
  * `Reg No`
  * `Latitude`
  * `Longitude` 
  * `Course (deg)` 
-
-```{r load ftf data}
-ftfDT <- data.table::as.data.table(readr::read_csv(ggParams$ftfFile))
-
+ 
+```{r makeSafe}
 # do analysis on safe version
-ftfSafeDT <- createSafeFtF(ftfDT)
+ftfSafeDT <- GREENGrid::createSafeFtF(ftfDT)
 ```
 
-Create some useful derived variables.
+That gives us a data file with:
 
-```{r process ftf data, echo = TRUE}
-# create derived 
-ftfSafeDT <- createDerivedFtF(ftfSafeDT)
-```
+ * `r dkUtils::tidyNum(nrow(ftfSafeDT))` rows of data
+ * `r ncol(ftfSafeDT)` columns (variables)
+ * `r uniqueN(ftfSafeDT$evID)` EVs
 
 # Codebook
 
@@ -159,12 +264,27 @@ cb
 ```
 
 ```{r skimCodebook, eval=FALSE}
-# an alternative approach also fails to wrap properly - how to force small font so it fits?
+# an alternative approach also fails to wrap properly - how to force small font so it fits?
 
 skimCB <- skim(ftfSafeDT)
 
 cb <- dplyr::filter(skimCB, stat != "p0" & stat != "p100")
 ```
+
+# Save safe data out
+
+Save the safe data for future use and gzip it.
+
+```{r saveData}
+of <- path.expand(paste0(dOPath, "ftfSafeLatestAll.csv"))
+
+data.table::fwrite(ftfSafeDT, of)
+ofs <- file.size(of)
+dkUtils::gzipIt(of)
+gzofs <- file.size(paste0(of, ".gz"))
+```
+
+Gzipped the file to reduce it from `r round(ofs*1e-6,2)` MB to `r round(gzofs*1e-6,2)` MB.
 
 # Runtime
 
