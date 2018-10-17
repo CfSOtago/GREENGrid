@@ -240,12 +240,12 @@ myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = ampOutlier
   #                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
 ```
 
-Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday and we also appear to see some night charging 'not at home' which may indicate our location inference is imperfect. We re-draw this plot (Figure \@ref(fig:plotChargingTimeClean)) excluding the Amp outliers and also excluding values of exactly 0 for clarity.
+Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday and we also appear to see some night charging 'not at home' which may indicate our location inference is imperfect. We re-draw this plot excluding the potential Amp errors (Figure \@ref(fig:plotChargingTimeClean)).
 
 ```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)", fig.height=6}
-myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data" & !is.na(rDow) & meanPowerW != 0], aes(x = rTime, y = meanPowerW/1000)) +
+myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data"], aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
   geom_point() +
-  facet_grid(rDow ~ evID + geoLoc) +
+  facet_grid(evID + rDow ~ geoLoc) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
@@ -253,7 +253,7 @@ myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("06:00:00"
                         hms::as.hms("12:00:00"), hms::as.hms("18:00:00"), hms::as.hms("24:00:00")))
 ```
 
-We can see that this car appears to be on an overnight charging timer at home although we do still see charging scattered through the rest of the day. 
+We can see that one of the cars appears to be on an overnight charging timer at home although we do still see charging scattered through the rest of the day. 
 
 So where is the non-home charging happening? We need a way to infer other locations without being disclosive.
 
