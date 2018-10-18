@@ -1,9 +1,11 @@
 ---
 params:
+ dataLoc: '' # passed in
+ iFile: '' # passed in
+ fileName: '' # passed in
  title: "FlipTheFleet Test Black Box Data: Codebook"
- subtitle: "Exploration of test data"
 title: '`r params$title`'
-subtitle: '`r params$subtitle`'
+subtitle: '`r params$file`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
 output:
@@ -33,8 +35,6 @@ knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
 # Set start time ----
 startTime <- proc.time()
 
-library(dkUtils) # my utils :-) get this via devtools::install_github("dataknut/dkUtils")
-
 # Packages needed in this .Rmd file ----
 rmdLibs <- c("data.table", # data munching
              "dplyr", # data munching
@@ -53,11 +53,6 @@ dkUtils::loadLibraries(rmdLibs)
 
 # run gg set up
 GREENGrid::setup() # sets a load of parameters which are then accessible via ggParams$xxx
-
-# Local paramaters
-ggParams$dataLoc <- path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/flipTheFleet/")
-dIPath <- paste0(ggParams$dataLoc, "raw/")
-dOPath <- paste0(ggParams$dataLoc, "safe/")
 ```
 
 \newpage
@@ -87,7 +82,7 @@ This report is intended to:
 
 ## Requirements:
 
- * test dataset stored at `r dIPath`
+ * test dataset `r params$file`
 
 ## History
 
@@ -107,25 +102,37 @@ Specific history of this code:
 # Load data files
 
 ```{r get fileNames}
-fileList <- list.files(path = dIPath , pattern = "EVBlackBox*")
-fListDT <- as.data.table(fileList)
-fListDT <- fListDT[, fullPath := path.expand(paste0(dIPath, fileList))]
 
-kableExtra::kable(fListDT, caption = "Data files to be loaded") %>%
-  kable_styling()
 ```
 
-In this section we load, merge and describe the data files from `r ggParams$dataLoc`. 
+In this section we load, merge and describe `r params$iFile`.
 
 ```{r load ftf data}
 # use read_csv inside as.data.table to make use of readr's smart parsing
-ftfDT <- rbindlist(lapply(fListDT$fullPath,
-                            function(f)
-                              data.table::as.data.table(readr::read_csv(f,
-                                                                        progress = FALSE)
-                                                        )
-                            ), fill = TRUE
-                     )
+
+# for(f in fListDT$fullPath){
+#   dt <- data.table::as.data.table(readr::read_csv(f, col_types = NULL, progress = FALSE)
+#                                      )
+#   nVars <- ncol(dt)
+#   message(f, ": ", nVars, " variables")
+# }
+# ftfDT <- rbindlist(lapply(fListDT$fullPath,
+#                             function(f)
+#                               data.table::as.data.table(readr::read_csv(f,
+#                                                                         progress = FALSE)
+#                                                         )
+#                             ), fill = TRUE
+#                      )
+ftfDT <- data.table::as.data.table(readr::read_csv(params$iFile,
+                                                   col_types = NULL, 
+                                                   progress = FALSE)
+)
+```
+
+Original data:
+
+```{r checkData}
+skimr::skim(ftfDT)
 ```
 
 # Location inference
@@ -195,7 +202,7 @@ kableExtra::kable(head(dateFail), caption = "Example rows where date failed to p
 
 Doesn't look like we can do much about these...
 
-## Geo-disclosure
+## Preventing geo-disclosure
 
 To avoid any risk of location disclosure we next infer a very coarse geo-location at each time point so that we can remove the potentially disclosive GPS data before moving on to the analysis. 
 
@@ -276,7 +283,7 @@ cb <- dplyr::filter(skimCB, stat != "p0" & stat != "p100")
 Save the safe data for future use and gzip it.
 
 ```{r saveData}
-of <- path.expand(paste0(dOPath, "ftfSafeLatestAll.csv"))
+of <- path.expand(paste0(params$dataLoc, "safe/", params$fileName, "_safe.csv"))
 
 data.table::fwrite(ftfSafeDT, of)
 ofs <- file.size(of)
