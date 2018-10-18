@@ -152,7 +152,7 @@ Figure \@ref(fig:mapAllLocations) maps the location of a random sample of 200 of
 ```{r mapAllLocations, fig.cap="Map of sample of observations"}
 # draw map of random sample of EV locations
 
-mapDT <- sample_n(geoDT[Latitude != 0 & Longitude != 0], 200)
+mapDT <- sample_n(geoDT[Latitude != 0 & Longitude != 0], 50)
 
 # https://rstudio.github.io/leaflet/markers.html
 
