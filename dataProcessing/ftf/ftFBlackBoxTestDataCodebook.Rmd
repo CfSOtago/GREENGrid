@@ -137,23 +137,22 @@ skimr::skim(ftfDT)
 
 # Location inference
 
-The raw data has latitude and longitude. This is very discosive, although there are some errors. For example in the sample selected below there are 0 values (off the coast of West Africa). Clearly nonsense...
+The raw data has latitude and longitude. This is very disclosive, although there are likely to be errors. For example 0 values in the table below (off the coast of West Africa) may indicate GPS signal issues.
 
 ```{r getTestGeo}
-
-geoDT <- head(ftfDT[, .(Longitude, Latitude, Altitude, ambient_temp_1)], 100)
+geoDT <- ftfDT[, .(Longitude, Latitude, Altitude, ambient_temp_1)]
 
 kableExtra::kable(summary(geoDT), caption = "Summary of test geo data") %>%
   kable_styling()
 
 ```
 
-Figure \@ref(fig:mapAllLocations) maps the location of a subset of the observations in the dataset. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
+Figure \@ref(fig:mapAllLocations) maps the location of a random sample of the observations in the dataset. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
 
 ```{r mapAllLocations, fig.cap="Map of sample of observations"}
 # draw map of some EV locations
 
-geoDT <- geoDT[Latitude != 0 & Longitude != 0]
+mapDT <- sample_n(geoDT[Latitude != 0 & Longitude != 0], 200)
 
 # https://rstudio.github.io/leaflet/markers.html
 
@@ -163,7 +162,7 @@ leaflet::leaflet(data = geoDT[]) %>% addTiles() %>%
 ```
 
 
-## Derived variables
+# Derived variables
 
 Create some useful derived variables.
 
@@ -202,7 +201,7 @@ kableExtra::kable(head(dateFail), caption = "Example rows where date failed to p
 
 Doesn't look like we can do much about these...
 
-## Preventing geo-disclosure
+# Preventing geo-disclosure
 
 To avoid any risk of location disclosure we next infer a very coarse geo-location at each time point so that we can remove the potentially disclosive GPS data before moving on to the analysis. 
 
