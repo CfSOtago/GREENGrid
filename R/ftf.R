@@ -10,13 +10,13 @@
 #'
 #'  These should be removed prior to any data sharing.
 #'
-#' @import data.table
+#' @import openssl
 #'
 #' @author Ben Anderson, \email{b.anderson@@soton.ac.uk} (original)
 #' @export
 #'
 createSafeFtF <- function(dt){
-  dt <- dt[, evID := openssl::md5(`Reg No`)] # hash the reg number
+  dt <- dt[, evID := openssl::md5(`Reg No`)] # hash the reg number to get a unique anonymous id - see https://en.wikipedia.org/wiki/MD5 and ?openssl::md5
   safeDT <- dt[, c("Reg No", "Latitude", "Longitude", "Course (deg)") := NULL]
   return(safeDT)
 }
