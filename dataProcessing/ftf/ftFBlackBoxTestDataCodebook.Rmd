@@ -147,12 +147,13 @@ kableExtra::kable(summary(geoDT), caption = "Summary of test geo data") %>%
 
 ```
 
-Figure \@ref(fig:mapAllLocations) maps the location of a random sample of 200 of the observations in the dataset. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
 
 ```{r mapAllLocations, fig.cap="Map of sample of observations"}
 # draw map of random sample of EV locations
 
-mapDT <- sample_n(geoDT[Latitude != 0 & Longitude != 0], 200)
+points <- 50
+
+mapDT <- sample_n(geoDT[Latitude != 0 & Longitude != 0], 50)
 
 # https://rstudio.github.io/leaflet/markers.html
 
@@ -161,6 +162,7 @@ leaflet::leaflet(data = mapDT[]) %>% addTiles() %>%
 
 ```
 
+Figure \@ref(fig:mapAllLocations) maps the location of a random sample of `r points` of the observations in the dataset. If we selected just one vehicle and zoomed our map to the location at 01:00 - 04:00 when speed is 0 then we would probably determine their home. We could also determine other places visited at other times... This indicates how [disclosive GPS Lat/Long can be](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/) even if address data is not provided.
 
 # Derived variables
 
