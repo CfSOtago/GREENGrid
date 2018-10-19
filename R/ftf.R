@@ -34,7 +34,7 @@ createDerivedFtF <- function(dt){
   dt <- dt[, homeMinLon := min(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(`Reg No`)]
   dt <- dt[, homeMaxLon := max(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(`Reg No`)]
   dt <- dt[, derivedLocation := ifelse((Latitude >= homeMinLat & Latitude <= homeMaxLat) &
-                                (Longitude >= homeMinLon & Longitude <= homeMaxLon), "Home", "Not home"), # set home if within bb at any time
+                                (Longitude >= homeMinLon & Longitude <= homeMaxLon), "Home?", "Not home?"), # set home if within bb at any time
            by = .(`Reg No`)]
   dt$obsHour <- NULL # as above
   return(dt)
