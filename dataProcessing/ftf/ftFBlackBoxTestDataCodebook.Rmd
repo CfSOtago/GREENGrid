@@ -170,32 +170,27 @@ Create some useful derived variables.
 
 ```{r process ftf data, echo = TRUE}
 # create derived 
-ftfT <- GREENGrid::createDerivedFtF(ftfDT)
+ftfDT <- GREENGrid::createDerivedFtF(ftfDT)
 ```
 
 If there is a 'failed to parse' message it suggests some dates and times could not be correctly parsed by ` GREENGrid::createDerivedFtF()`. We can check this using by comparing the original and parsed variables:
 
 ```{r checkFails}
 message("Date (GPS)")
-summary(ftfT$`Date (GPS)`)
-message("rDate")
-summary(ftfT$rDate)
+summary(ftfDT$`Date (GPS)`)
+
 message("Time (GPS)")
-summary(ftfT$`Time (GPS)`)
-message("rTime")
-summary(ftfT$rTime)
+summary(ftfDT$`Time (GPS)`)
 
 message("rDateTime")
-summary(ftfT$rDateTime)
+summary(ftfDT$rDateTime)
 
-message("rDow")
-summary(ftfT$rDow)
 ```
 
 It looks like the dates don't always parse. Check a few...
 
 ```{r checkDates}
-dateFail <- ftfT[is.na(rDate), .(`Date (GPS)`, rDate, `Time (GPS)`, rTime)]
+dateFail <- ftfDT[is.na(rDateTime), .(`Date (GPS)`, rDateTime, `Time (GPS)`)]
 
 kableExtra::kable(head(dateFail), caption = "Example rows where date failed to parse") %>% 
   kable_styling()
@@ -211,7 +206,7 @@ Note that this does not necessarily render this dataset _completely safe_ ([anon
 
 ```{r inferLoc, fig.cap="Check inferred location", echo=TRUE}
 plotDT <- ftfDT[, .(nObs = .N), 
-                keyby = .(derivedLocation, obsHour, rDow)]
+                keyby = .(derivedLocation, obsHour = lubridate::hour(rDateTime), rDow = lubridate::wday(rDateTime))]
 
 ggplot(plotDT, aes(x = obsHour, y = nObs)) + 
   geom_col() + 
