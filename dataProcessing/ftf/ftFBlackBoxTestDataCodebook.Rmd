@@ -61,7 +61,7 @@ GREENGrid::setup() # sets a load of parameters which are then accessible via ggP
 
 If you wish to use any of the material from this report please cite as:
 
- * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) `r params$title`: `r params$subtitle`, `r ggParams$pubLoc`.
+ * Anderson, B. (`r 1900 + as.POSIXlt(Sys.Date())$year`) `r params$title`: `r params$subtitle` (File: `r params$fileName`), `r ggParams$pubLoc`.
 
 This work is (c) `r as.POSIXlt(Sys.time())$year + 1900` the University of Southampton.
 
@@ -80,9 +80,9 @@ This report is intended to:
 
  * load and test preliminary 'black box' EV monitoring data provided for assessment purposes by [FlipTheFleet](http://flipthefleet.org/).
 
-## Requirements:
+## Requirements
 
- * test dataset `r params$file`
+ * test dataset: `r params$file`
 
 ## History
 
@@ -91,7 +91,7 @@ This report is intended to:
  
 Specific history of this code:
 
- * https://github.com/CfSOtago/GREENGrid/tree/master/analysis/ev
+ * https://github.com/CfSOtago/GREENGrid/tree/master/dataProcessing/ftf/
 
 ## Support
 
