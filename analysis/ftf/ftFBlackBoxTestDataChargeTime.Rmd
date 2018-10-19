@@ -108,22 +108,26 @@ This document was created using [knitr](https://cran.r-project.org/package=knitr
 
 In this section we load and describe the pre-processed safe data from `r dFile`. First we load the data.
 
-```{r load ftf data, echo=TRUE}
+```{r load and fix ftf data, echo=TRUE}
 ftfSafeDT <- data.table::as.data.table(readr::read_csv(dFile))
+
+# create rTime
+ftfSafeDT <- ftfSafeDT[, rTime := hms::as.hms(rDateTime)]
+
 ```
 
-That loaded `r tidyNum(nrow(ftfDT))` observations.
+That loaded `r tidyNum(nrow(ftfSafeDT))` observations.
 
 Next we check for NA in dates and other key variables.
 
 ```{r check ftf data, echo = TRUE}
-t <- ftfDT[is.na(rDate), .(nObs = .N,
+t <- ftfSafeDT[is.na(rDate), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
 
 kableExtra::kable(caption = "Number of obs and mean pack volts where date cannot be set by original GPS Date and Time", t) %>% kable_styling()
 
-t <- ftfDT[is.na(rTime), .(nObs = .N,
+t <- ftfSafeDT[is.na(rTime), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
 
@@ -137,9 +141,9 @@ We remove these NAs from the data
 
 ```{r removeNA}
 # remove NA dates
-before <- nrow(ftfDT)
-ftfDT <- ftfDT[!is.na(rDate)]
-after <- nrow(ftfDT)
+before <- nrow(ftfSafeDT)
+ftfSafeDT <- ftfSafeDT[!is.na(rDate)]
+after <- nrow(ftfSafeDT)
 
 pcGPSNA <- round((before - after)/before*100, 2)
 ```
@@ -159,53 +163,81 @@ Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@re
 
 ```{r setCaptions}
 # for plots
-figCaption <- paste0("FlipTheFleet 'Black Box' test data for ", uniqueN(ftfDT$evID), " vehicles over " ,
-                     uniqueN(ftfDT$rDate), " days from ",
-                     min(ftfDT$rDate, na.rm = TRUE), " to ", max(ftfDT$rDate, na.rm = TRUE))
+figCaption <- paste0("FlipTheFleet 'Black Box' test data for ", uniqueN(ftfSafeDT$evID), " vehicles over " ,
+                     uniqueN(ftfSafeDT$rDate), " days from ",
+                     min(ftfSafeDT$rDate, na.rm = TRUE), " to ", max(ftfSafeDT$rDate, na.rm = TRUE))
 ```
 
-> Does negative Amps (Figure \@ref(fig:checkAmps)) indicate regeneration or charging or...? 
+> Does negative Amps (Figure \@ref(fig:checkAmps)) indicate power flow out or in to the batteries? Presumably in. And we need to filter our regeneration. 
 
-```{r checkAmps, fig.cap="Distribution of Pack amp readings by car"}
-ggplot(ftfDT, aes(x = `Pack amps`)) +
+Histogram for -ve and +ve amps.
+
+```{r checkAmps2, fig.cap="Distribution of Pack amp readings by car"}
+ftfSafeDT <- ftfSafeDT[, ampFlag := ifelse(`Pack amps` > 0, "Positive amps", "Negative amps")]
+
+t <- ftfSafeDT[, .(nObs = .N), keyby = .(ampFlag, evID)]
+
+kableExtra::kable(t, caption = "Amps check") %>% 
+  kable_styling()
+
+ggplot(ftfSafeDT, aes(x = `Pack amps`)) +
   geom_histogram(binwidth = 0.1) +
-  facet_grid(evID ~ .) +
+  facet_grid(evID ~ ampFlag, scales = "free_x") +
   labs(caption = figCaption)
 ```
+
+Next we check volts. Again we seperate -ve and +ve values. In this case it appears that we should probably filter out:
+
+ * -ve volts
+ * volts > 1000
 
 ```{r checkVolts, fig.cap="Distribution of charger volt readings"}
-ggplot(ftfDT, aes(x = `Pack volts`)) +
+ftfSafeDT <- ftfSafeDT[, voltFlag := ifelse(`Pack volts` > 0, "Positive volts", "Negative volts")]
+
+t <- ftfSafeDT[, .(nObs = .N), keyby = .(voltFlag, evID)]
+
+kableExtra::kable(t, caption = "Volts check") %>% 
+  kable_styling()
+
+ggplot(ftfSafeDT, aes(x = `Pack volts`)) +
   geom_histogram(binwidth = 5) +
-  facet_grid(evID ~ .) +
+  facet_grid(evID ~ voltFlag, scales = "free_x") +
   labs(caption = figCaption)
 ```
 
-```{r checkPower, fig.cap="Distribution of derived power demand"}
+Finally (\@ref(fig:checkPower)) we check the derived power values using the following filters:
 
-ftfDT <- ftfDT[, powerW := `Pack volts` * `Pack amps`]
+ * +ve volts only
+ * volts < 1000
+ 
+```{r checkPower, fig.cap="Distribution of derived power demand using these filters"}
 
-ggplot(ftfDT, aes(x = powerW/1000)) +
+ftfSafeDT <- ftfSafeDT[`Pack volts` > 0 & `Pack volts` < 1000, powerW := `Pack volts` * `Pack amps`]
+
+ftfSafeDT <- ftfSafeDT[, powerFlag := ifelse(powerW > 0, "Positive power", "Negative power")]
+
+t <- ftfSafeDT[, .(nObs = .N,
+                   meanPowerW = round(mean(powerW), 2),
+                   minPowerW = min(powerW),
+                   maxPowerW = max(powerW)), keyby = .(evID,powerFlag)]
+
+kableExtra::kable(t, caption = "Power check") %>% 
+  kable_styling()
+
+ggplot(ftfSafeDT, aes(x = powerW/1000)) +
   geom_histogram(binwidth = 0.1) +
-  facet_grid(evID ~ .) +
+  facet_grid(evID ~ powerFlag, scales = "free_x") +
   labs(x = "kW", caption = figCaption)
 ```
 
-The following table sumarises these distributions.
+Clearly we need to do some outlier analysis and possibly some data cleaning. We also need to seperate regeneration properly. 
 
-```{r summaryTable, fig.cap="Summary table"}
-t <- summary(ftfDT[, c("Pack amps", "Pack volts", "powerW")])
+# Analysis: Number of observations over time
 
-kableExtra::kable(caption = "Summary", t) %>% kable_styling()
-```
-
-Clearly we need to do some outlier analysis. In general we would not expect voltage to be higher than 
-
-# Analaysis: Number of cars over time
-
-Just a simple trend line...
+Just a simple trend line for each vehicle... Note that the `Reg No` has been replaced with a unique hash ID.
 
 ```{r carTrends}
-plotDT <- ftfDT[, .(obs = .N), keyby = .(evID, rDate)]
+plotDT <- ftfSafeDT[, .(obs = .N), keyby = .(evID, rDate)]
 
 ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
   geom_line() +
@@ -215,46 +247,44 @@ ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
        caption = figCaption)
 ```
 
-# Analaysis: Charging over time over time
+# Analysis: Charging over time
 
-```{r chargingTable}
-dt <- ftfDT[, .(meankW = mean(powerW/1000),
+We assume that -ve amps (and so -ve power) is current flowing in. For now, we ignore the difference between charging from grid and from regenerative braking.
+
+```{r powerTable}
+dt <- ftfSafeDT[, .(meankW = mean(powerW/1000),
                 sdkW = sd(powerW/1000),
-                mediankW = median(powerW/1000)), keyby = .(evID)]
+                mediankW = median(powerW/1000)), keyby = .(evID, ampFlag)]
 
-kableExtra::kable(dt, caption = "Summary of charging (powerW) per car") %>% 
+kableExtra::kable(dt, caption = "Summary of derived power per car") %>% 
   kable_styling()
 ```
 
-Visualise as a simple trend line...
+Visualise as a simple trend line for -ve power only.
 
-```{r carTrends}
-plotDT <- ftfDT[, .(meankW = mean(powerW)/1000), keyby = .(evID, rDate)]
+```{r powerTrends}
+plotDT <- ftfSafeDT[powerW < 0, .(meankW = mean(powerW)/1000), keyby = .(evID, rDate)]
 
 ggplot2::ggplot(plotDT, aes(x = rDate, y = meankW, colour = evID)) +
-  geom_line() +
+  geom_point() +
   theme(legend.position="bottom") +
   labs(x = "Date",
        y = "Mean power (kW) per day",
-       caption = figCaption)
+       caption = paste0(figCaption, "-ve power only"))
 ```
 
 # Analysis: Timing of charging
 
-We assume `powerW` is a good indicator of charging. 
+As before, we assume -ve `powerW` is a good indicator of charging. 
 
-```{r flagAmpOutliers}
-ftfDT <- ftfDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
-```
-
-Figure \@ref(fig:plotChargingTime) shows mean kW by time of day over the entire test datset of `r uniqueN(ftfDT$rDate)` days from `r min(ftfDT$rDate, na.rm = TRUE)` to `r max(ftfDT$rDate, na.rm = TRUE)`.
+Figure \@ref(fig:plotChargingTime) shows mean kW (-ve power only) by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
 
 ```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
-plotDT <- ftfDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow, ampOutlier,geoLoc, evID)]
+plotDT <- ftfSafeDT[powerW < 0, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow,derivedLocation, evID)]
 
 myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
   geom_point() +
-  facet_grid(evID + rDow ~ ampOutlier + geoLoc) +
+  facet_grid(rDow ~  derivedLocation) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
@@ -268,15 +298,15 @@ myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
 Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday and we also appear to see some night charging 'not at home' which may indicate our location inference is imperfect. Figure \@ref(fig:plotChargingTimeClean) re-draws this plot excluding the potential Amp errors and taking the mean for weekends and weekdays for clarity.
 
 ```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)", fig.height=6}
-ftfDT <- ftfDT[, rWday := "Mon-Fri"]
-ftfDT <- ftfDT[rDow == "Sun", rWday := "Sun"]
-ftfDT <- ftfDT[rDow == "Sat", rWday := "Sat"]
+ftfSafeDT <- ftfSafeDT[, rWday := "Mon-Fri"]
+ftfSafeDT <- ftfSafeDT[rDow == "Sun", rWday := "Sun"]
+ftfSafeDT <- ftfSafeDT[rDow == "Sat", rWday := "Sat"]
 
-plotDT <- ftfDT[, .(meanPowerkW = mean(powerW)/1000), keyby = .(rTime, rWday, ampOutlier,geoLoc, evID)]
+plotDT <- ftfSafeDT[, .(meanPowerkW = mean(powerW)/1000), keyby = .(rTime, rWday, ampOutlier,derivedLocation, evID)]
   
 myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data"], aes(x = rTime, y = meanPowerkW, colour = evID)) +
   geom_point() +
-  facet_grid(evID + rWday ~ geoLoc) +
+  facet_grid(evID + rWday ~ derivedLocation) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
   
