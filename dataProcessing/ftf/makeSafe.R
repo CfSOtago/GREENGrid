@@ -13,7 +13,7 @@ oPath <- paste0(dataLoc, "safe/")
 # get file list ----
 fileNames <- list.files(path = iPath , pattern = "EVBlackBox*")
 fListDT <- data.table::as.data.table(fileNames)
-fListDT <- fListDT[, fullPath := path.expand(paste0(path, fileNames))]
+fListDT <- fListDT[, fullPath := path.expand(paste0(iPath, fileNames))]
 
 # load the data into 1 data table ----
 ftfDT <- rbindlist(lapply(fListDT$fullPath,
@@ -25,7 +25,7 @@ ftfDT <- rbindlist(lapply(fListDT$fullPath,
                      )
 
 # create derived 
-ftfSafeDT <- GREENGrid::createDerivedFtF(ftfSafeDT) # any parsing failures are NA dates
+ftfDT <- GREENGrid::createDerivedFtF(ftfDT) # any parsing failures are NA dates
 
 # make it safe
 ftfSafeDT <- GREENGrid::createSafeFtF(ftfDT)
