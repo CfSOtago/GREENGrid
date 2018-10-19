@@ -109,14 +109,12 @@ This document was created using [knitr](https://cran.r-project.org/package=knitr
 In this section we load and describe the pre-processed safe data from `r dFile`. First we load the data.
 
 ```{r load ftf data, echo=TRUE}
-ftfDT <- data.table::as.data.table(readr::read_csv(dFile))
+ftfSafeDT <- data.table::as.data.table(readr::read_csv(dFile))
 ```
 
 That loaded `r tidyNum(nrow(ftfDT))` observations.
 
-## Create derived variables
-
-Next we create some useful derived variables. Errors may be 'odd' dates and times or even not set in the original data as we see below.
+Next we check for NA in dates and other key variables.
 
 ```{r check ftf data, echo = TRUE}
 t <- ftfDT[is.na(rDate), .(nObs = .N,
@@ -150,29 +148,33 @@ Doing so removed `r before - after` (`r pcGPSNA` %) observations.
 
 ## Check variables of interest for this analysis
 
-Check charger related variables. We think these are:
+Check charger related variables. These are:
 
- * `Charger (amps)`
- * `Charger (V)`
+ * `Pack amps`
+ * `Pack volts`
+
+> DM: "To determine charger power the variables 'Pack volts' and 'Pack amps' give you everything you need (with some extra code to separate out regen, and it is also useful to do some deltas of voltage and SoC over time to deal with noise in the current sensors)."
 
 Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@ref(fig:checkPower) examine the distribution of amps, volts and the derived W.
 
 ```{r setCaptions}
 # for plots
-figCaption <- paste0("FlipTheFleet 'Black Box' test data for 1 car for ", 
+figCaption <- paste0("FlipTheFleet 'Black Box' test data for ", uniqueN(ftfDT$evID), " vehicles over " ,
                      uniqueN(ftfDT$rDate), " days from ",
                      min(ftfDT$rDate, na.rm = TRUE), " to ", max(ftfDT$rDate, na.rm = TRUE))
 ```
 
-```{r checkAmps, fig.cap="Distribution of charger amp readings by car"}
-ggplot(ftfDT, aes(x = `Charger (amps)`)) +
+> Does negative Amps (Figure \@ref(fig:checkAmps)) indicate regeneration or charging or...? 
+
+```{r checkAmps, fig.cap="Distribution of Pack amp readings by car"}
+ggplot(ftfDT, aes(x = `Pack amps`)) +
   geom_histogram(binwidth = 0.1) +
   facet_grid(evID ~ .) +
   labs(caption = figCaption)
 ```
 
 ```{r checkVolts, fig.cap="Distribution of charger volt readings"}
-ggplot(ftfDT, aes(x = `Charger (V)`)) +
+ggplot(ftfDT, aes(x = `Pack volts`)) +
   geom_histogram(binwidth = 5) +
   facet_grid(evID ~ .) +
   labs(caption = figCaption)
@@ -180,7 +182,7 @@ ggplot(ftfDT, aes(x = `Charger (V)`)) +
 
 ```{r checkPower, fig.cap="Distribution of derived power demand"}
 
-ftfDT <- ftfDT[, powerW := `Charger (amps)` * `Charger (V)`]
+ftfDT <- ftfDT[, powerW := `Pack volts` * `Pack amps`]
 
 ggplot(ftfDT, aes(x = powerW/1000)) +
   geom_histogram(binwidth = 0.1) +
@@ -191,12 +193,12 @@ ggplot(ftfDT, aes(x = powerW/1000)) +
 The following table sumarises these distributions.
 
 ```{r summaryTable, fig.cap="Summary table"}
-t <- summary(ftfDT[, c("Charger (amps)", "Charger (V)", "powerW")])
+t <- summary(ftfDT[, c("Pack amps", "Pack volts", "powerW")])
 
-kableExtra::kable(caption = "Summary of Charger (amps)", t) %>% kable_styling()
+kableExtra::kable(caption = "Summary", t) %>% kable_styling()
 ```
 
-_XX Is the Amp reading of 33 an outlier? If so should we ignore the ~= 8kW values? XX_
+Clearly we need to do some outlier analysis. In general we would not expect voltage to be higher than 
 
 # Analaysis: Number of cars over time
 
@@ -239,7 +241,7 @@ ggplot2::ggplot(plotDT, aes(x = rDate, y = meankW, colour = evID)) +
 
 # Analysis: Timing of charging
 
-We assume `powerW` is a good indicator of charging. For now we do not exclude the apparent outlier caused by the few very high Amp values (`Charger (amps)` > 30) but we flag them as potential problems.
+We assume `powerW` is a good indicator of charging. 
 
 ```{r flagAmpOutliers}
 ftfDT <- ftfDT[, ampOutlier := ifelse(`Charger (amps)` > 30, "Possible Amp data error?", "OK Amp data")]
