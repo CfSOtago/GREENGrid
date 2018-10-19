@@ -157,7 +157,7 @@ Check charger related variables. These are:
  * `Pack amps`
  * `Pack volts`
 
-> DM: "To determine charger power the variables 'Pack volts' and 'Pack amps' give you everything you need (with some extra code to separate out regen, and it is also useful to do some deltas of voltage and SoC over time to deal with noise in the current sensors)."
+> DM: "To determine charger power the variables 'Pack volts' and 'Pack amps' give you everything you need (with some extra code to separate out regen, and it is also useful to do some deltas of voltage and SoC over time to deal with noise in the current sensors). Negative pack amps with speed also at zero is charging (speed greater than zero and negative pack amps is regen)."
 
 Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@ref(fig:checkPower) examine the distribution of amps, volts and the derived W.
 
@@ -168,12 +168,11 @@ figCaption <- paste0("FlipTheFleet 'Black Box' test data for ", uniqueN(ftfSafeD
                      min(ftfSafeDT$rDate, na.rm = TRUE), " to ", max(ftfSafeDT$rDate, na.rm = TRUE))
 ```
 
-> Does negative Amps (Figure \@ref(fig:checkAmps)) indicate power flow out or in to the batteries? Presumably in. And we need to filter our regeneration. 
-
 Histogram for -ve and +ve amps.
 
-```{r checkAmps2, fig.cap="Distribution of Pack amp readings by car"}
+```{r checkAmps, fig.cap="Distribution of Pack amp readings by car"}
 ftfSafeDT <- ftfSafeDT[, ampFlag := ifelse(`Pack amps` > 0, "Positive amps", "Negative amps")]
+ftfSafeDT <- ftfSafeDT[`Pack amps`== 0, ampFlag := "Zero amps"]
 
 t <- ftfSafeDT[, .(nObs = .N), keyby = .(ampFlag, evID)]
 
@@ -193,6 +192,7 @@ Next we check volts. Again we seperate -ve and +ve values. In this case it appea
 
 ```{r checkVolts, fig.cap="Distribution of charger volt readings"}
 ftfSafeDT <- ftfSafeDT[, voltFlag := ifelse(`Pack volts` > 0, "Positive volts", "Negative volts")]
+ftfSafeDT <- ftfSafeDT[`Pack volts`== 0, ampFlag := "Zero volts"]
 
 t <- ftfSafeDT[, .(nObs = .N), keyby = .(voltFlag, evID)]
 
@@ -211,10 +211,13 @@ Finally (\@ref(fig:checkPower)) we check the derived power values using the foll
  * volts < 1000
  
 ```{r checkPower, fig.cap="Distribution of derived power demand using these filters"}
+ftfSafeDT <- ftfSafeDT[, powerFlag := "Volt error?"]
 
 ftfSafeDT <- ftfSafeDT[`Pack volts` > 0 & `Pack volts` < 1000, powerW := `Pack volts` * `Pack amps`]
 
-ftfSafeDT <- ftfSafeDT[, powerFlag := ifelse(powerW > 0, "Positive power", "Negative power")]
+ftfSafeDT <- ftfSafeDT[powerW > 0, powerFlag :=  "Positive power"]
+ftfSafeDT <- ftfSafeDT[powerW < 0, powerFlag :=  "Negative power"]
+ftfSafeDT <- ftfSafeDT[powerW == 0, powerFlag := "Zero power"]
 
 t <- ftfSafeDT[, .(nObs = .N,
                    meanPowerW = round(mean(powerW), 2),
@@ -230,7 +233,7 @@ ggplot(ftfSafeDT, aes(x = powerW/1000)) +
   labs(x = "kW", caption = figCaption)
 ```
 
-Clearly we need to do some outlier analysis and possibly some data cleaning. We also need to seperate regeneration properly. 
+Clearly we need to do some outlier analysis and possibly some data cleaning. We also need to seperate regeneration properly by checking for speed = 0. 
 
 # Analysis: Number of observations over time
 
@@ -249,21 +252,25 @@ ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
 
 # Analysis: Charging over time
 
-We assume that -ve amps (and so -ve power) is current flowing in. For now, we ignore the difference between charging from grid and from regenerative braking.
+We assume that -ve amps (and so -ve power) is current flowing in and we filter out observations where speed > 0 (see above). We use `Speed (Speedometer)` as this has no missing values unlike `Speed (GPS)`.
 
 ```{r powerTable}
+ftfSafeDT <- ftfSafeDT[, chargingFlag := "Not charging"]
+ftfSafeDT <- ftfSafeDT[powerW < 0 & `Speed (Speedometer)` == 0, chargingFlag := "Grid"]
+ftfSafeDT <- ftfSafeDT[powerW < 0 & `Speed (Speedometer)` > 0, chargingFlag := "Regenerative"]
+
 dt <- ftfSafeDT[, .(meankW = mean(powerW/1000),
                 sdkW = sd(powerW/1000),
-                mediankW = median(powerW/1000)), keyby = .(evID, ampFlag)]
+                mediankW = median(powerW/1000)), keyby = .(evID, chargingFlag)]
 
-kableExtra::kable(dt, caption = "Summary of derived power per car") %>% 
+kableExtra::kable(dt, caption = "Summary of derived chargeingPowerW per car") %>% 
   kable_styling()
 ```
 
-Visualise as a simple trend line for -ve power only.
+Visualise as a simple daily trend line for Grid charging only.
 
 ```{r powerTrends}
-plotDT <- ftfSafeDT[powerW < 0, .(meankW = mean(powerW)/1000), keyby = .(evID, rDate)]
+plotDT <- ftfSafeDT[chargingFlag == "Grid", .(meankW = mean(powerW)/1000), keyby = .(evID, rDate)]
 
 ggplot2::ggplot(plotDT, aes(x = rDate, y = meankW, colour = evID)) +
   geom_point() +
@@ -275,12 +282,10 @@ ggplot2::ggplot(plotDT, aes(x = rDate, y = meankW, colour = evID)) +
 
 # Analysis: Timing of charging
 
-As before, we assume -ve `powerW` is a good indicator of charging. 
-
-Figure \@ref(fig:plotChargingTime) shows mean kW (-ve power only) by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
+Figure \@ref(fig:plotChargingTime) shows mean kW for inferred grid-based charging by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
 
 ```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
-plotDT <- ftfSafeDT[powerW < 0, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow,derivedLocation, evID)]
+plotDT <- ftfSafeDT[chargingFlag == "Grid", .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow,derivedLocation, evID)]
 
 myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
   geom_point() +
@@ -295,28 +300,9 @@ myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
   #                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
 ```
 
-Figure \@ref(fig:plotChargingTime) seems to show that the very high Amp values occured on one Sunday and we also appear to see some night charging 'not at home' which may indicate our location inference is imperfect. Figure \@ref(fig:plotChargingTimeClean) re-draws this plot excluding the potential Amp errors and taking the mean for weekends and weekdays for clarity.
+What does Figure \@ref(fig:plotChargingTime) show?
 
-```{r plotChargingTimeClean, fig.cap="Inferred charging times and power draw (outliers and exactly zero values excluded)", fig.height=6}
-ftfSafeDT <- ftfSafeDT[, rWday := "Mon-Fri"]
-ftfSafeDT <- ftfSafeDT[rDow == "Sun", rWday := "Sun"]
-ftfSafeDT <- ftfSafeDT[rDow == "Sat", rWday := "Sat"]
-
-plotDT <- ftfSafeDT[, .(meanPowerkW = mean(powerW)/1000), keyby = .(rTime, rWday, ampOutlier,derivedLocation, evID)]
-  
-myPlot <- ggplot(plotDT[ampOutlier == "OK Amp data"], aes(x = rTime, y = meanPowerkW, colour = evID)) +
-  geom_point() +
-  facet_grid(evID + rWday ~ derivedLocation) +
-  labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
-  theme(legend.position = "bottom") #  legend
-  
-myPlot + scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("06:00:00"),
-                        hms::as.hms("12:00:00"), hms::as.hms("18:00:00"), hms::as.hms("24:00:00")))
-```
-
-We can see that one of the cars appears to be on an overnight charging timer at home although we do still see charging scattered through the rest of the day. 
-
-So where is the non-home charging happening? We need a way to infer other locations without being disclosive.
+Where is the non-home charging happening? We need a way to infer other locations without being disclosive...
 
 # Conclusions
 
@@ -324,7 +310,7 @@ Questions to be asked
 
  * Data:
     + Do the Amp & Volt distributions look right?
-    + Cause of Amp outliers?
+    + Cause of Pack amp & Pack volt outliers?
     + Date/Time NA (`r pcGPSNA` % of observations) are due to a lack of GPS date/time (and lat/long). Does this mean that there is no date/time in the data when GPS has no signal? Our tests suggest that other data (e.g. power etc) is logged even though there is no date/time. Do we need another source of date/time? Could we infer time from seconds since powered on (assumes GPS OK at start-up?)?
  * Research:
     + Do all FlipTheFleet EV owners charge like this?
