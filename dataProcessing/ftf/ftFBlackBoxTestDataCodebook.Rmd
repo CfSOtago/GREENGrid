@@ -210,14 +210,12 @@ To avoid any risk of location disclosure we next infer a very coarse geo-locatio
 Note that this does not necessarily render this dataset _completely safe_ ([anonymised](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation)) as there may well be other variables that provide sufficient information either on their own or together which would [enable identification](https://www.ukdataservice.ac.uk/manage-data/legal-ethical/anonymisation) of the car and it's owner.
 
 ```{r inferLoc, fig.cap="Check inferred location", echo=TRUE}
-ftfDT <- GREENGrid::inferLocationFtF(ftfT)
-
 plotDT <- ftfDT[, .(nObs = .N), 
-                keyby = .(geoLoc, obsHour, rDow)]
+                keyby = .(derivedLocation, obsHour, rDow)]
 
 ggplot(plotDT, aes(x = obsHour, y = nObs)) + 
   geom_col() + 
-  facet_grid(rDow ~ geoLoc)
+  facet_grid(rDow ~ derivedLocation)
 ```
 
 Figure \@ref(fig:inferLoc) shows the results of this inference. Does it look like a reasonable guestimate of location?
