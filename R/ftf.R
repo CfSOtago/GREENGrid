@@ -23,11 +23,12 @@ createDerivedFtF <- function(dt){
   dt <- dt[, rDate := lubridate::dmy(`Date (GPS)`)] # fix date, some will be NA if no GPS signal
   dt <- dt[, rTime := hms::parse_hms(`Time (GPS)`)] # fix Time, some will be NA if no GPS signal
   dt <- dt[, rDateTime := lubridate::ymd_hms(paste0(rDate, rTime))] # set full dateTime
-  dt <- dt[, rDow := lubridate::wday(rDate, label = TRUE)]  # set day of the week
-  dt <- dt[, obsHour := lubridate::hour(rTime)]
+  dt$rTime <- NULL # to avoid space & confusion - easy to recreate later
+  dt$rDate <- NULL # as above
   # infer location
   # could use a fancy bounding box but...
   # find bb for the hours of 01:00 - 05:00: we assume this is 'home'
+  dt <- dt[, obsHour := lubridate::hour(rDateTime)]
   dt <- dt[, homeMinLat := min(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(`Reg No`)] # do this for each value of reg no so bbox is different for each one
   dt <- dt[, homeMaxLat := max(dt[obsHour > 1 & obsHour < 5]$Latitude), by = .(`Reg No`)]
   dt <- dt[, homeMinLon := min(dt[obsHour > 1 & obsHour < 5]$Longitude), by = .(`Reg No`)]
@@ -35,6 +36,7 @@ createDerivedFtF <- function(dt){
   dt <- dt[, derivedLocation := ifelse((Latitude >= homeMinLat & Latitude <= homeMaxLat) &
                                 (Longitude >= homeMinLon & Longitude <= homeMaxLon), "Home", "Not home"), # set home if within bb at any time
            by = .(`Reg No`)]
+  dt$obsHour <- NULL # as above
   return(dt)
 }
 
