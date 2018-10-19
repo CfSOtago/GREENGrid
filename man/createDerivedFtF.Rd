@@ -7,9 +7,12 @@
 createDerivedFtF(dt)
 }
 \description{
-\code{createDerivedFtF} sets proper dates and times for R
+\code{createDerivedFtF}:
 }
 \details{
+sets proper dates and times for R;
+   guesses 'home' by looking at location from 01:00 - 04:00. A future version might try geocoding other locations via lat/long look-up
+
 adds new derived variables to the passed data.table and returns it
 }
 \author{
