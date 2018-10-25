@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">NZ Electricity Generation Trends 1998-2017</h1>
 <h4 class="author"><em>Ben Anderson (<a href="mailto:b.anderson@soton.ac.uk">b.anderson@soton.ac.uk</a> <code>@dataknut</code>)</em></h4>
-<h4 class="date"><em>Last run at: 2018-09-20 12:53:37</em></h4>
+<h4 class="date"><em>Last run at: 2018-10-25 16:52:20</em></h4>
 
 </div>
 
@@ -774,7 +774,13 @@ makeMonthlyDodgedPlot(plotDT, &quot;cov&quot;, &quot;CoV half-hourly GWh&quot;) 
 <h2><span class="header-section-number">5.3</span> Half hourly profiles by month</h2>
 <p>However the monthly plots do not tell us about the use of different generation sources by time of day which has clear implications for how peaks in demand have been met over time.</p>
 <p>To do this, the following plots partially replicate one of those found in <a href="https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025">Staffel, 2018</a> for the UK to show how the different components of generation have changed over time.</p>
-<p>Figure <a href="#fig:sumProfileCol">5.6</a> shows the total half-hourly generation for each month summed over all days whilst Figure <a href="#fig:sumProfilePoint">5.7</a> shows the same data but as a point plot to more clearly show the absolute contribution of each fuel. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc…).</p>
+<p>Figure <a href="#fig:sumProfileCol">5.6</a> shows the total half-hourly generation for each month summed over all days whilst Figure <a href="#fig:sumProfilePoint">5.7</a> shows the same data but as a point plot to more clearly show the absolute contribution of each fuel.</p>
+<blockquote>
+<p>Note 1: the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc…)</p>
+</blockquote>
+<blockquote>
+<p>Note 2: rTime (Time of Day) is originally imputed from the TP1-48 periods (and TP49 &amp; TP50 on DST break days) and is therefore automatically set to the local NZ ‘civil’ time - so NZST or DST as appropriate. See <a href="https://github.com/CfSOtago/GREENGrid/blob/master/R/eaGen.R">?setEAGenTimePeriod</a> and the <a href="https://github.com/CfSOtago/GREENGrid/blob/master/dataProcessing/ea/getEAWholesaleGenData.R">data processing script</a> for more details.</p>
+</blockquote>
 <div class="figure"><span id="fig:sumProfileCol"></span>
 <img src="nzElecGenTrends_files/figure-html/sumProfileCol-1.png" alt="Half-hourly profile plot by fuel type (sum)" width="672" />
 <p class="caption">
@@ -870,11 +876,11 @@ Figure 5.12: Half-hourly profile plot by fuel type
 <h1><span class="header-section-number">6</span> Analysis: Trends 1998 - 2017</h1>
 <p>Using full dataset for each day, month &amp; year.</p>
 <pre><code>## [1] &quot;Files loaded&quot;</code></pre>
-<pre><code>## [1] &quot;Loaded 22,503,700 rows of data&quot;</code></pre>
+<pre><code>## [1] &quot;Loaded 22,940,350 rows of data&quot;</code></pre>
 <p>As above, in order to avoid future confusion and to save a lot of error checking we again remove NA kWh (i.e. TP49 &amp; TP 50) from the dataset.</p>
 <pre class="r"><code># N rows before:
 nrow(allGenDT)</code></pre>
-<pre><code>## [1] 22503700</code></pre>
+<pre><code>## [1] 22940350</code></pre>
 <pre class="r"><code># N time periods before:
 uniqueN(allGenDT$Time_Period)</code></pre>
 <pre><code>## [1] 50</code></pre>
@@ -882,7 +888,7 @@ uniqueN(allGenDT$Time_Period)</code></pre>
 allGenDT &lt;- allGenDT[!is.na(kWh)]
 # N rows after
 nrow(allGenDT)</code></pre>
-<pre><code>## [1] 21600076</code></pre>
+<pre><code>## [1] 22019260</code></pre>
 <pre class="r"><code># N time periods after:
 uniqueN(allGenDT$Time_Period)</code></pre>
 <pre><code>## [1] 50</code></pre>
@@ -1009,7 +1015,7 @@ Figure 8.1: Huntly fuel sources
 </div>
 <div id="runtime" class="section level1">
 <h1><span class="header-section-number">9</span> Runtime</h1>
-<p>Analysis completed in 664.94 seconds ( 11.08 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.1 (2018-07-02) running on x86_64-apple-darwin15.6.0.</p>
+<p>Analysis completed in 515.63 seconds ( 8.59 minutes) using <a href="https://cran.r-project.org/package=knitr">knitr</a> in <a href="http://www.rstudio.com">RStudio</a> with R version 3.5.1 (2018-07-02) running on x86_64-apple-darwin15.6.0.</p>
 </div>
 <div id="r-environment" class="section level1">
 <h1><span class="header-section-number">10</span> R environment</h1>
@@ -1035,41 +1041,38 @@ Figure 8.1: Huntly fuel sources
 ## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## [1] en_NZ.UTF-8/en_NZ.UTF-8/en_NZ.UTF-8/C/en_NZ.UTF-8/en_NZ.UTF-8
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] knitr_1.20.13     Hmisc_4.1-1       Formula_1.2-3    
-##  [4] survival_2.42-6   lattice_0.20-35   skimr_1.0.3      
+##  [1] knitr_1.20        Hmisc_4.1-1       Formula_1.2-3    
+##  [4] survival_2.42-3   lattice_0.20-35   skimr_1.0.3      
 ##  [7] readr_1.1.1       ggplot2_3.0.0     dplyr_0.7.6      
-## [10] data.table_1.11.4 GREENGrid_0.1.0  
+## [10] data.table_1.11.8 GREENGrid_0.1.0  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.18        lubridate_1.7.4     png_0.1-7          
-##  [4] utf8_1.1.4          assertthat_0.2.0    rprojroot_1.3-2    
-##  [7] digest_0.6.15       R6_2.2.2            plyr_1.8.4         
-## [10] backports_1.1.2     acepack_1.4.1       evaluate_0.11      
-## [13] highr_0.7           pillar_1.3.0        RgoogleMaps_1.4.2  
-## [16] rlang_0.2.2         lazyeval_0.2.1      rstudioapi_0.7     
-## [19] geosphere_1.5-7     rpart_4.1-13        Matrix_1.2-14      
-## [22] checkmate_1.8.5     rmarkdown_1.10      labeling_0.3       
-## [25] proto_1.0.0         splines_3.5.1       stringr_1.3.1      
-## [28] foreign_0.8-71      htmlwidgets_1.2     munsell_0.5.0      
-## [31] compiler_3.5.1      xfun_0.3            pkgconfig_2.0.2    
-## [34] base64enc_0.1-3     htmltools_0.3.6     nnet_7.3-12        
-## [37] openssl_1.0.2       tidyselect_0.2.4    tibble_1.4.2       
-## [40] gridExtra_2.3       htmlTable_1.12      bookdown_0.7       
-## [43] fansi_0.3.0         crayon_1.3.4        withr_2.1.2        
-## [46] grid_3.5.1          gtable_0.2.0        magrittr_1.5       
-## [49] scales_1.0.0        cli_1.0.0           stringi_1.2.4      
-## [52] mapproj_1.2.6       reshape2_1.4.3      bindrcpp_0.2.2     
-## [55] sp_1.3-1            latticeExtra_0.6-28 rjson_0.2.20       
-## [58] RColorBrewer_1.1-2  tools_3.5.1         ggmap_2.6.1        
-## [61] glue_1.3.0          purrr_0.2.5         maps_3.3.0         
-## [64] hms_0.4.2           jpeg_0.1-8          yaml_2.2.0         
-## [67] colorspace_1.3-2    cluster_2.0.7-1     bindr_0.1.1</code></pre>
+##  [1] tidyselect_0.2.4    xfun_0.3            reshape2_1.4.3     
+##  [4] purrr_0.2.5         splines_3.5.1       colorspace_1.3-2   
+##  [7] htmltools_0.3.6     yaml_2.2.0          base64enc_0.1-3    
+## [10] utf8_1.1.4          rlang_0.2.2         pillar_1.3.0       
+## [13] foreign_0.8-70      glue_1.3.0          withr_2.1.2        
+## [16] RColorBrewer_1.1-2  bindrcpp_0.2.2      bindr_0.1.1        
+## [19] plyr_1.8.4          stringr_1.3.1       munsell_0.5.0      
+## [22] gtable_0.2.0        htmlwidgets_1.3     evaluate_0.11      
+## [25] labeling_0.3        latticeExtra_0.6-28 fansi_0.4.0        
+## [28] highr_0.7           htmlTable_1.12      Rcpp_0.12.19       
+## [31] acepack_1.4.1       checkmate_1.8.5     openssl_1.0.2      
+## [34] scales_1.0.0        backports_1.1.2     gridExtra_2.3      
+## [37] hms_0.4.2           digest_0.6.17       stringi_1.2.4      
+## [40] bookdown_0.7        grid_3.5.1          rprojroot_1.3-2    
+## [43] cli_1.0.1           tools_3.5.1         magrittr_1.5       
+## [46] lazyeval_0.2.1      tibble_1.4.2        cluster_2.0.7-1    
+## [49] crayon_1.3.4        pkgconfig_2.0.2     Matrix_1.2-14      
+## [52] lubridate_1.7.4     rstudioapi_0.8      assertthat_0.2.0   
+## [55] rmarkdown_1.10      R6_2.3.0            rpart_4.1-13       
+## [58] nnet_7.3-12         compiler_3.5.1</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>

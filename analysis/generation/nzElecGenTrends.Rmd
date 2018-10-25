@@ -298,7 +298,7 @@ makeHalfHourlyColPlot <- function(dt, yVar, yLabel){
   ggplot(dt, aes(x = rTime, y = get(yVar)/1000000, fill = Fuel_Code)) +
     geom_col(alpha = 0.4) +
     facet_grid(month ~ year) +
-    labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day") +
+    labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day (local/'civil' time)") +
     theme(legend.title=element_blank()) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
@@ -309,7 +309,7 @@ makeHalfHourlyPointPlot <- function(dt, yVar, yLabel){
   ggplot(dt, aes(x = rTime, y = get(yVar)/1000000, colour = Fuel_Code)) +
     geom_point(alpha = 0.4) +
     facet_grid(month ~ year) +
-    labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day") +
+    labs(caption = ggParams$figCaption, y = eval(yLabel), x = "Time of Day (local/'civil' time)") +
     theme(legend.title=element_blank(), legend.position="bottom") +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) # resets alpha so we can see the legend
@@ -318,7 +318,11 @@ makeHalfHourlyPointPlot <- function(dt, yVar, yLabel){
 
 To do this, the following plots partially replicate one of those found in [Staffel, 2018](https://www.sciencedirect.com/science/article/pii/S0301421516307017#f0025) for the UK to show how the different components of generation have changed over time. 
 
-Figure \@ref(fig:sumProfileCol) shows the total half-hourly generation for each month summed over all days whilst Figure \@ref(fig:sumProfilePoint) shows the same data but as a point plot to more clearly show the absolute contribution of each fuel. Note that the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...).
+Figure \@ref(fig:sumProfileCol) shows the total half-hourly generation for each month summed over all days whilst Figure \@ref(fig:sumProfilePoint) shows the same data but as a point plot to more clearly show the absolute contribution of each fuel. 
+
+> Note 1: the half-hours are plotted at mid-points (00:15, 00:45, 01:15 etc...)
+
+> Note 2: rTime (Time of Day) is originally imputed from the TP1-48 periods (and TP49 & TP50 on DST break days) and is therefore automatically set to the local NZ 'civil' time - so NZST or DST as appropriate. See [?setEAGenTimePeriod](https://github.com/CfSOtago/GREENGrid/blob/master/R/eaGen.R) and the [data processing script](https://github.com/CfSOtago/GREENGrid/blob/master/dataProcessing/ea/getEAWholesaleGenData.R) for more details.
 
 ```{r sumProfileCol, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum)"}
 makeHalfHourlyColPlot(plotDT, "sumkWh", "Sum GWh per half hour across all days of the month")
@@ -333,7 +337,6 @@ Repeat for 2017 only
 ```{r sumProfilePoint2017, fig.height=6, fig.cap="Half-hourly profile plot by fuel type (sum), 2017 only"}
 makeHalfHourlyPointPlot(plotDT[year == 2017], "sumkWh", "Sum GWh per half hour across all days of the month")
 ```
-
 
 Figures \@ref(fig:meanProfileCol) and \@ref(fig:meanProfilePoint) repeat this analysis but shows the mean, again suggesting that the values for coal are skewed by some extremely large values in December 1998 and by high generation values when used in 2017.
 
