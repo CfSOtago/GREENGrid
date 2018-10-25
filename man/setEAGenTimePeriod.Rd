@@ -6,6 +6,9 @@
 \usage{
 setEAGenTimePeriod(dt)
 }
+\arguments{
+\item{dt}{the data table containing the Time_Period variable}
+}
 \description{
 \code{setEAGenTimePeriod} converts the given time periods (TP1 -> TP48, 49. 50) to hh:mm. It ignores
  TP49 & TP50 as evil incarnations of DST related clock changes (see https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/).
