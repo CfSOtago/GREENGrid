@@ -23,6 +23,7 @@ reshapeEAGenDT <- function(dt){
 #'  TP49 & TP50 as evil incarnations of DST related clock changes (see https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD/).
 #'  We advise NEVER using the months in which this happens as it will hurt your brain.
 #'
+#' @param dt the data table containing the Time_Period variable
 #' @import data.table
 #' @import hms
 #' @author Ben Anderson, \email{b.anderson@@soton.ac.uk} (original)
