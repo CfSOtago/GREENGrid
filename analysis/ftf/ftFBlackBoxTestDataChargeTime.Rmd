@@ -6,13 +6,17 @@ title: '`r params$title`'
 subtitle: '`r params$subtitle`'
 author: 'Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)'
 date: 'Last run at: `r Sys.time()`'
+always_allow_html: yes
 output:
+  bookdown::pdf_document2:
+  bookdown::word_document2:
+    toc: true
+    toc_depth: 2
   bookdown::html_document2:
     toc: true
     toc_float: TRUE
     toc_depth: 2
     self_contained: no
-  bookdown::pdf_document2: default
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
@@ -39,7 +43,7 @@ rmdLibs <- c("data.table", # data munching
              "codebook", # codebook
              "skimr", # for skim
              "GREENGrid", # ftf functions
-             "kableExtra" # for smart kable
+             "knitr" # for kable
 )
 # load them
 dkUtils::loadLibraries(rmdLibs)
@@ -128,7 +132,7 @@ t <- ftfSafeDT[, .(obsStart = min(rDateTime, na.rm = TRUE), # allows for broken 
                    obsEnd = max(rDateTime, na.rm = TRUE),
                    nObservations = .N),
                keyby = .(evID)]
-kableExtra::kable(caption = "Start and end of observation period and number of obs by anonymised vehicle ID", t) %>% kable_styling()
+knitr::kable(caption = "Start and end of observation period and number of obs by anonymised vehicle ID", t)
 ```
 
 
@@ -141,7 +145,7 @@ t <- ftfSafeDT[is.na(rDate), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
 
-kableExtra::kable(caption = "Number of obs and mean pack volts where date cannot be set by original GPS Date and Time", t) %>% kable_styling()
+knitr::kable(caption = "Number of obs and mean pack volts where date cannot be set by original GPS Date and Time", t)
 
 t <- ftfSafeDT[is.na(rTime), .(nObs = .N,
                            meanPackAmps = mean(`Pack amps`)), 
@@ -149,7 +153,7 @@ t <- ftfSafeDT[is.na(rTime), .(nObs = .N,
 ```
 
 ```{r checkAmps}
-kableExtra::kable(caption = "Number of obs and mean pack amps where time cannot be set by original GPS Date and Time", t) %>% kable_styling()
+knitr::kable(caption = "Number of obs and mean pack amps where time cannot be set by original GPS Date and Time", t) 
 
 ```
 
@@ -205,8 +209,7 @@ byVar <- c("ampFlag", "evID")
 
 t <- summaryTable(ftfSafeDT, sumVar, byVar)
 
-kableExtra::kable(t, caption = "Amps check") %>% 
-  kable_styling()
+knitr::kable(t, caption = "Amps check")
 
 ggplot(ftfSafeDT, aes(x = `Pack amps`, colour = evID)) +
   geom_density() +
@@ -229,8 +232,7 @@ byVar <- c("voltFlag", "evID")
 
 t <- summaryTable(ftfSafeDT, sumVar, byVar)
 
-kableExtra::kable(t, caption = "Volts check") %>% 
-  kable_styling()
+knitr::kable(t, caption = "Volts check")
 
 ggplot(ftfSafeDT, aes(x = `Pack volts`, colour = evID)) +
   geom_density() +
@@ -257,8 +259,7 @@ byVar <- c("powerFlag", "evID")
 
 t <- summaryTable(ftfSafeDT, sumVar, byVar)
 
-kableExtra::kable(t, caption = "Power check") %>% 
-  kable_styling()
+knitr::kable(t, caption = "Power check")
 
 ggplot(ftfSafeDT, aes(x = powerW/1000, fill = evID)) +
   geom_histogram() +
@@ -302,15 +303,13 @@ t <- ftfSafeDT[, .(minSpeed = min(`Speed (Speedometer)`),
               maxSpeed = max(`Speed (Speedometer)`)), 
           by = .(chargingFlag)]
 
-kableExtra::kable(t, caption = "Check coding") %>% 
-  kable_styling()
+knitr::kable(t, caption = "Check coding")
 
 dt <- ftfSafeDT[, .(meankW = mean(powerW/1000),
                 sdkW = sd(powerW/1000),
                 mediankW = median(powerW/1000)), keyby = .(evID, chargingFlag)]
 
-kableExtra::kable(dt, caption = "Summary of derived chargeingPowerW per car") %>% 
-  kable_styling()
+knitr::kable(dt, caption = "Summary of derived chargeingPowerW per car")
 ```
 
 Figure \@ref(fig:chargingHisto) shows the expected clustering of grid-based charging in the < 5 kW region.
