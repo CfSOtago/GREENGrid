@@ -13,7 +13,6 @@ output:
     toc: true
     toc_float: TRUE
     toc_depth: 2
-    keep_md: TRUE
     self_contained: no
   bookdown::pdf_document2:
     toc: true

@@ -9,7 +9,9 @@ date: 'Last run at: `r Sys.time()`'
 output:
   bookdown::html_document2:
     toc: true
-    toc_float: true
+    toc_float: TRUE
+    toc_depth: 2
+    self_contained: no
   bookdown::pdf_document2: default
 bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
@@ -106,21 +108,35 @@ This document was created using [knitr](https://cran.r-project.org/package=knitr
 
 ## Load data
 
-In this section we load and describe the pre-processed safe data from `r dFile`. First we load the data.
+In this section we load and describe the pre-processed safe data from `r dFile`. Note that this data does _not_ contain Latitude/Longitude or the vehicle registration number. This has been replaced by a unique hash code (per vehicle).
 
 ```{r load and fix ftf data, echo=TRUE}
 ftfSafeDT <- data.table::as.data.table(readr::read_csv(dFile))
 
-# create rTime
+# re-create rTime
 ftfSafeDT <- ftfSafeDT[, rTime := hms::as.hms(rDateTime)]
+
+# re-create rDow to stop it acting like a factor with alphabetic ordering
+ftfSafeDT <- ftfSafeDT[, rDow := lubridate::wday(rDateTime, lab = TRUE)]
 
 ```
 
-That loaded `r tidyNum(nrow(ftfSafeDT))` observations.
+That loaded `r tidyNum(nrow(ftfSafeDT))` observations from `r tidyNum(uniqueN(ftfSafeDT$evID))` vehicles. Table \@ref(tab:evSummary) summarises the available data for each EV.
+
+```{r evSummary}
+t <- ftfSafeDT[, .(obsStart = min(rDateTime, na.rm = TRUE), # allows for broken GPS Date/Time
+                   obsEnd = max(rDateTime, na.rm = TRUE),
+                   nObservations = .N),
+               keyby = .(evID)]
+kableExtra::kable(caption = "Start and end of observation period and number of obs by anonymised vehicle ID", t) %>% kable_styling()
+```
+
+
+## Check data quality
 
 Next we check for NA in dates and other key variables.
 
-```{r check ftf data, echo = TRUE}
+```{r checkVolts}
 t <- ftfSafeDT[is.na(rDate), .(nObs = .N,
                            meanPackVolts = mean(`Pack volts`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
@@ -130,7 +146,9 @@ kableExtra::kable(caption = "Number of obs and mean pack volts where date cannot
 t <- ftfSafeDT[is.na(rTime), .(nObs = .N,
                            meanPackAmps = mean(`Pack amps`)), 
            keyby = .(`Date (GPS)`, `Time (GPS)`)]
+```
 
+```{r checkAmps}
 kableExtra::kable(caption = "Number of obs and mean pack amps where time cannot be set by original GPS Date and Time", t) %>% kable_styling()
 
 ```
@@ -159,7 +177,7 @@ Check charger related variables. These are:
 
 > DM: "To determine charger power the variables 'Pack volts' and 'Pack amps' give you everything you need (with some extra code to separate out regen, and it is also useful to do some deltas of voltage and SoC over time to deal with noise in the current sensors). Negative pack amps with speed also at zero is charging (speed greater than zero and negative pack amps is regen)."
 
-Multiplying these two will give power in W. Figures \@ref(fig:checkAmps) to \@ref(fig:checkPower) examine the distribution of amps, volts and the derived W.
+Multiplying these two will give power in W. Figures \@ref(fig:checkAmpDist) to \@ref(fig:checkPowerDist) examine the distribution of amps, volts and the derived W.
 
 ```{r setCaptions}
 # for plots
@@ -168,9 +186,9 @@ figCaption <- paste0("FlipTheFleet 'Black Box' test data for ", uniqueN(ftfSafeD
                      min(ftfSafeDT$rDate, na.rm = TRUE), " to ", max(ftfSafeDT$rDate, na.rm = TRUE))
 ```
 
-Figure \@ref(fig:checkAmps) shows a density plot for pack amps by EV and by whether or not the amps are -ve, +ve or 0. As we can see, positive amps (providing power to the vehicle) has a cluster of readings close to 0 and then a long positive tail. Negative amps (re-charging the battery) appears to have two distinct clusters and a similarly long negative tail. Only one vehicle reports a large number of 0 Amp readings.
+Figure \@ref(fig:checkAmpDist) shows a density plot for pack amps by EV and by whether or not the amps are -ve, +ve or 0. As we can see, positive amps (providing power to the vehicle) has a cluster of readings close to 0 and then a long positive tail. Negative amps (re-charging the battery) appears to have two distinct clusters and a similarly long negative tail. Only one vehicle reports a large number of 0 Amp readings.
 
-```{r checkAmps, fig.cap="Distribution of Pack amp readings by car"}
+```{r checkAmpDist, fig.cap="Distribution of Pack amp readings by car"}
 summaryTable <- function(dt,sumVar, byVar){
   t <- dt[, .(nObs = .N,
                    max = max(get(sumVar)),
@@ -202,7 +220,7 @@ Next we check volts. Again we seperate -ve and +ve values. In this case it appea
  * -ve volts
  * volts > 1000
 
-```{r checkVolts, fig.cap="Distribution of charger volt readings"}
+```{r checkVoltsDist, fig.cap="Distribution of charger volt readings"}
 ftfSafeDT <- ftfSafeDT[, voltFlag := ifelse(`Pack volts` > 0, "Positive volts", "Negative volts")]
 ftfSafeDT <- ftfSafeDT[`Pack volts`== 0, ampFlag := "Zero volts"]
 
@@ -221,11 +239,11 @@ ggplot(ftfSafeDT, aes(x = `Pack volts`, colour = evID)) +
   labs(caption = figCaption)
 ```
 
-Finally (Figure \@ref(fig:checkPower)) shows the distirbution of the derived -ve, zero and +ve power values using the following filters:
+Finally (Figure \@ref(fig:checkPowerDist)) shows the distirbution of the derived -ve, zero and +ve power values using the following filters:
 
  * volts < 0 and volts > 1000 = "Volt error?"
  
-```{r checkPower, fig.cap="Distribution of derived power demand using these filters"}
+```{r checkPowerDist, fig.cap="Distribution of derived power demand using these filters"}
 ftfSafeDT <- ftfSafeDT[, powerFlag := "Volt error?"]
 
 ftfSafeDT <- ftfSafeDT[`Pack volts` > 0 & `Pack volts` < 1000, powerW := `Pack volts` * `Pack amps`]
@@ -252,11 +270,12 @@ ggplot(ftfSafeDT, aes(x = powerW/1000, fill = evID)) +
 
 As noted above, battery charging will be occuring when power is negative. This will be from the grid when speed is zero.
 
+
 # Analysis: Number of observations over time
 
 Just a simple trend line for each vehicle... Note that the `Reg No` has been replaced with a unique hash ID.
 
-```{r carTrends}
+```{r carTrends, fig.caption="Number of observations over time"}
 plotDT <- ftfSafeDT[, .(obs = .N), keyby = .(evID, rDate)]
 
 ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
@@ -267,14 +286,24 @@ ggplot2::ggplot(plotDT, aes(x = rDate, y = obs, colour = evID)) +
        caption = figCaption)
 ```
 
-# Analysis: Charging over time
+
+# Analysis: Power flows to/from batteries
 
 We use `Speed (Speedometer)` as this has no missing values (unlike `Speed (GPS)`) to flag observations which should be electricity grid based as opposed to regenerative charging.
 
 ```{r powerTable}
-ftfSafeDT <- ftfSafeDT[, chargingFlag := "Not charging (in use)?"]
+ftfSafeDT <- ftfSafeDT[, chargingFlag := "Vehicle in use (no charging)?"]
 ftfSafeDT <- ftfSafeDT[powerW < 0 & `Speed (Speedometer)` == 0, chargingFlag := "Grid?"]
 ftfSafeDT <- ftfSafeDT[powerW < 0 & `Speed (Speedometer)` > 0, chargingFlag := "Regenerative?"]
+
+# check coding
+t <- ftfSafeDT[, .(minSpeed = min(`Speed (Speedometer)`),
+              meanSpeed = mean(`Speed (Speedometer)`),
+              maxSpeed = max(`Speed (Speedometer)`)), 
+          by = .(chargingFlag)]
+
+kableExtra::kable(t, caption = "Check coding") %>% 
+  kable_styling()
 
 dt <- ftfSafeDT[, .(meankW = mean(powerW/1000),
                 sdkW = sd(powerW/1000),
@@ -286,7 +315,7 @@ kableExtra::kable(dt, caption = "Summary of derived chargeingPowerW per car") %>
 
 Figure \@ref(fig:chargingHisto) shows the expected clustering of grid-based charging in the < 5 kW region.
 
-```{r chargingHisto}
+```{r chargingHisto, fig.caption="Charging histogram"}
 ggplot(ftfSafeDT, aes(x = powerW/1000, colour = evID)) +
   geom_density() +
   theme(legend.position="bottom") +
@@ -300,13 +329,16 @@ ggplot(ftfSafeDT, aes(x = powerW/1000, colour = evID)) +
 
 Figure \@ref(fig:plotChargingTime) shows mean kW for inferred grid-based charging by time of day over the entire test datset of `r uniqueN(ftfSafeDT$rDate)` days from `r min(ftfSafeDT$rDate, na.rm = TRUE)` to `r max(ftfSafeDT$rDate, na.rm = TRUE)`.
 
-> XX looks like rTime is wrong tz? Regen should be during the day? XX
+> Does this look like what we expect?
 
-```{r plotChargingTime, fig.cap="Inferred charging times and power draw (all data)"}
-plotDT <- ftfSafeDT[, .(meanPowerW = mean(powerW)), keyby = .(rTime, rDow,derivedLocation, evID, chargingFlag)]
+```{r plotChargingTime, fig.height = 8, fig.cap="Inferred charging times and power draw (all data)"}
+# force the correct time zone
+ftfSafeDT <- ftfSafeDT[, nzTime := hms::as.hms(lubridate::force_tz(rDateTime, tzone = "Pacific/Auckland"))]
+plotDT <- ftfSafeDT[, .(meanPowerW = mean(powerW)), keyby = .(nzTime, rDow, evID, chargingFlag)]
 
-myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
+myPlot <- ggplot(plotDT, aes(x = nzTime, y = meanPowerW/1000, colour = evID)) +
   geom_point() +
+  #scale_x_datetime(timezone = "Pacific/Auckland") +
   facet_grid(rDow ~  chargingFlag) +
   labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
   theme(legend.position = "bottom") #  legend
@@ -318,9 +350,53 @@ myPlot <- ggplot(plotDT, aes(x = rTime, y = meanPowerW/1000, colour = evID)) +
   #                         hms::as.hms("18:00:00"), hms::as.hms("21:00:00"), hms::as.hms("24:00:00")))
 ```
 
-What does Figure \@ref(fig:plotChargingTime) show?
+Figure \@ref(fig:gridChargingTimingLine) reproduces the previous plot but only shows the mean power flow for observations which we think are `Grid?` charging and plots them by derived location. This highlights a few observations with apparently large power flows - is this fast charging or instrument error?
 
-Where is the non-home charging happening? We need a way to infer other locations without being disclosive...
+```{r gridChargingTimingLine, fig.height=8, fig.cap="Timing of power flow (all)"}
+# repeat but with only inferred grid charging & derived location
+plotDT <- ftfSafeDT[chargingFlag == "Grid?", .(meanPowerW = mean(powerW)), 
+                    keyby = .(nzTime, rDow, evID, derivedLocation)]
+
+myPlot <- ggplot(plotDT, aes(x = nzTime, y = meanPowerW/1000, colour = evID)) +
+  geom_point() +
+  #scale_x_datetime(timezone = "Pacific/Auckland") +
+  facet_grid(rDow ~  derivedLocation) +
+  labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
+  theme(legend.position = "bottom") #  legend
+  
+  myPlot
+```
+
+Finally, \@ref(fig:gridChargingTimingTile) shows the mean power flow by time of day and derived location using a tile plot with notional peak electricity demand periods marked. This visually masks rare events such as the large power flows and suggests charging timing patterns that make sense?
+
+```{r gridChargingTimingTile, fig.height=6, fig.cap="Timing of charging from the grid"}
+# repeat but with only inferred grid charging & derived location
+plotDT <- ftfSafeDT[chargingFlag == "Grid?", .(meanPowerW = mean(powerW)), 
+                    keyby = .(nzTime, rDow, evID, derivedLocation)]
+
+yMax <- max(plotDT$meanPowerW)
+yMin <- min(plotDT$meanPowerW)
+rectAlpha <- 0.1
+vLineAlpha <- 0.4
+vLineCol <- "#0072B2" # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+myTextSize <- 3
+
+
+myPlot <- ggplot(plotDT, aes(x = nzTime, y = rDow, fill = meanPowerW/1000)) +
+  geom_tile() +
+  #scale_x_datetime(timezone = "Pacific/Auckland") +
+  facet_grid(evID ~  derivedLocation) +
+  scale_fill_gradient(low="red", high = "green") +
+  labs(x='Time of Day', y = "Mean kW", caption = figCaption) +
+  theme(legend.position = "bottom") #  legend
+  
+  myPlot +
+    geom_vline(xintercept = hms::as.hms("06:00:00"), alpha = vLineAlpha, colour = vLineCol) +
+    geom_vline(xintercept = hms::as.hms("08:00:00"), alpha = vLineAlpha, colour = vLineCol) +
+    geom_vline(xintercept = hms::as.hms("16:00:00"), alpha = vLineAlpha, colour = vLineCol) +
+    geom_vline(xintercept = hms::as.hms("20:00:00"), alpha = vLineAlpha, colour = vLineCol)
+
+```
 
 # Conclusions
 
