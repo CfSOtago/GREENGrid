@@ -12,7 +12,6 @@ Description: Code here includes functions to:
 License: Apache License, Version 2.0, January 2004
 Imports: 
   data.table,
-  ggmap,
   hms,
   lubridate,
   openssl
