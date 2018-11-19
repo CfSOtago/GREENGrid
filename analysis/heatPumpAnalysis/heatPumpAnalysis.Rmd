@@ -100,7 +100,10 @@ This report uses the safe version of the grid spy 1 minute data which has been p
 ```{r generic sample, child=ggParams$sampleGeneric}
 ```
  
-This report provides summary analysis of one circuit type (`r params$circuit`) across all households as an example.
+Report purpose: 
+ 
+ * provides summary analysis of one circuit type (`r params$circuit`) across all households as an example.
+ * analysis for [8th International Conference on Energy and Environment of Residential Buildings (ICEERB 2018)](https://www.otago.ac.nz/iceerb-2018/index.html) presentation.
 
 # Load data
 
@@ -118,6 +121,15 @@ if(file.exists(hhFile)){
 } else {
   print(paste0("Failed to find ", hhFile," - is the data source available?"))
   } 
+
+# fix coding
+hhDT <- hhDT[Q57 == 1, nPeople := "1"]
+hhDT <- hhDT[Q57 == 2, nPeople := "2"]
+hhDT <- hhDT[Q57 == 3, nPeople := "3"]
+hhDT <- hhDT[Q57 > 3, nPeople := "4+"]
+
+hhDT <- hhDT[, presenceChildren := "0 children"]
+hhDT <- hhDT[nChildren0_12 > 0, presenceChildren := "1+ child"]
 
 ```
 
@@ -254,17 +266,14 @@ Table \@ref(tab:hhPeopleTable) shows the number of households who have different
 ```{r hhPeopleTable}
 t <- hhDT[, .(Freq = .N), keyby = Q57]
 
-kableExtra::kable(t, caption = paste0("Number of households with number of persons")) %>%
+kableExtra::kable(t, caption = paste0("Number of households with number of persons (full data)")) %>%
   kable_styling()
 ```
 
 Clearly this is too fine grained (too many categories). We therefor collapse to form the coding shown in \@ref(tab:hhPeopleTableReduced).
 
 ```{r hhPeopleTableReduced}
-hhDT <- hhDT[Q57 == 1, nPeople := "1"]
-hhDT <- hhDT[Q57 == 2, nPeople := "2"]
-hhDT <- hhDT[Q57 == 3, nPeople := "3"]
-hhDT <- hhDT[Q57 > 3, nPeople := "4+"]
+
 
 t <- hhDT[, .(Freq = .N), keyby = nPeople]
 
@@ -277,9 +286,10 @@ Now we link (join) the Grid Spy and household data.tables and aggregate (summari
 Figure \@ref(fig:nPeoplePlot) shows the mean kW per minute per season by presence of young children for this circuit (`r params$circuit`). Can you see anything interesting or unusual and might this be due to the numbers of households in each group?
 
 ```{r nPeoplePlot, fig.height=6, fig.cap="Demand profile plot - n people"}
-keepCols <- c("linkID", "nPeople")
+keepCols <- c("linkID", "nPeople", "presenceChildren")
 setkey(qHourDT, linkID)
 mergedDT <- qHourDT[hhDT[, ..keepCols]]
+
 plotDT <- mergedDT[!is.na(nPeople), .(meanW = mean(meanW),
                                       sdW = sd(meanW),
                                       nObs = .N), keyby = .(season, obsQHour, nPeople)]
@@ -297,7 +307,7 @@ basePlot <- ggplot2::ggplot(plotDT[!is.na(season)], # make sure no un-set season
   guides(colour = guide_legend(title = "Number of people: ")) +
   theme(legend.position = "bottom")  + 
   labs(title = paste0(params$circuit, ": seasonal mean power demand profiles by n people"),
-       y = "Mean kW per minute",
+       y = "Mean kW per 15 minutes",
        x = "Time of day",
        caption = myCaption
        )
@@ -312,6 +322,11 @@ basePlot
 
 ciPlot <- basePlot + geom_errorbar(aes(ymin = ci_lower/1000, ymax = ci_upper/1000))
 ciPlot
+
+# actual n household used 
+t <- mergedDT[!is.na(nPeople) & !is.na(season) , .(nHHs = uniqueN(linkID)), keyby = .(nPeople)]
+
+knitr::kable(t, caption = "Actual n households used in plot")
 ```
 
 ### Number of children
@@ -324,6 +339,11 @@ Table \@ref(tab:hhKidsTable) shows the number of households who have different n
 t <- hhDT[, .(Freq = .N), keyby = nChildren0_12]
 
 kableExtra::kable(t, caption = paste0("Number of households with children aged 0-12")) %>%
+  kable_styling()
+
+t <- hhDT[, .(Freq = .N), keyby = presenceChildren]
+
+kableExtra::kable(t, caption = paste0("Number of households with 1+ child aged 0-12")) %>%
   kable_styling()
 ```
 
@@ -366,6 +386,48 @@ basePlot
 
 ciPlot <- basePlot + geom_errorbar(aes(ymin = ci_lower/1000, ymax = ci_upper/1000))
 ciPlot
+
+# use reduced
+keepCols <- c("linkID", "presenceChildren")
+mergedDT <- qHourDT[hhDT[, ..keepCols]]
+plotDT <- mergedDT[!is.na(presenceChildren), .(meanW = mean(meanW),
+                                      sdW = sd(meanW),
+                                      nObs = .N), keyby = .(season, obsQHour, presenceChildren)]
+
+plotDT <- plotDT[, ci_upper := meanW + qnorm(0.975)*(sdW/sqrt(nObs))]
+plotDT <- plotDT[, ci_lower := meanW - qnorm(0.975)*(sdW/sqrt(nObs))]
+
+basePlot <- ggplot2::ggplot(plotDT[!is.na(season)], # make sure no un-set seasons/non-parsed dates
+                          aes(x = obsQHour, y = meanW/1000, 
+                              colour = as.factor(presenceChildren))) +
+  geom_line() + 
+  scale_colour_manual(values=ggParams$cbPalette) + # use colour-blind friendly palette
+  facet_grid(season  ~ .) + 
+  theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) + 
+  guides(colour = guide_legend(title = "Number of children aged 0 - 12: ")) +
+  theme(legend.position = "bottom")  + 
+  labs(title = paste0(params$circuit, ": seasonal mean power demand profiles by n children aged 0-12"),
+       y = "Mean kW per 15 minutes",
+       x = "Time of day",
+       caption = myCaption
+       )
+
+basePlot <- basePlot + 
+  scale_x_time(breaks = timeBreaks) +
+  geom_vline(xintercept = timeBreaks, alpha = vLineAlpha, colour = vLineCol)
+
+basePlot
+
+# add 95% CI
+
+ciPlot <- basePlot + geom_errorbar(aes(ymin = ci_lower/1000, ymax = ci_upper/1000))
+ciPlot
+
+# actual n household used 
+t <- mergedDT[!is.na(presenceChildren) & !is.na(season) , .(nHHs = uniqueN(linkID)), keyby = .(presenceChildren)]
+
+knitr::kable(t, caption = "Actual n households used in plot")
 ```
 
 Figure \@ref(fig:makeKidsPlot) shows the mean kW per minute per season by presence of young children for this circuit (`r params$circuit`). Can you see anything interesting or unusual and might this be due to the numbers of households in each group?
