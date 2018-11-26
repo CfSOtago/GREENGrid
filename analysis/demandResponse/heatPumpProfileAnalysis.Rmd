@@ -2839,7 +2839,7 @@ sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
   myPlot <- ggplot2::ggplot(sc3data, aes(x = obsHalfHour)) +
   geom_line(aes(y=GWhREF, color="orange"), size=0.5) +  
   geom_line(aes(y=GWhs4, color="red"), size=0.5) +
-  geom_line(aes(y=PumpandWater, color="blue"), size=0.5) +
+  #geom_line(aes(y=PumpandWater, color="blue"), size=0.5) +
   geom_line(aes(y=GWhHP, color="green"), size=0.5) + 
   geom_line(aes(y=GWhHW, color="black"), size=0.5) +
   theme(text = element_text(family = "Cambria")) +
@@ -8651,12 +8651,12 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
   myPlot <- ggplot2::ggplot(GenDT, aes(x = obsHalfHour)) +
   geom_line(aes(y=SuSc3, color="red"), size=0.5) +
      geom_line(aes(y=meanGWh, color="blue"), size=1.5) +
-  geom_line(aes(y=SuSc1, color="green"), size=0.5) +  
-     geom_line(aes(y=SuSc2, color="orange"), size=0.5) +  
+  #geom_line(aes(y=SuSc1, color="green"), size=0.5) +  
+     #geom_line(aes(y=SuSc2, color="orange"), size=0.5) +  
   theme(text = element_text(family = "Cambria")) +
   ggtitle("Effects of demand response scenarios 1-3 on total electricity generation per day") +
   scale_colour_manual(name = element_blank(), 
-      values = c('red'='red', 'blue'='blue','orange'='orange', 'green'='green'),  labels = c('Orig. Generation', 'SC1: Load curtailment', 'SC2: Halved load curtailment','SC3: Load shifting')) +
+      values = c('red'='red', 'blue'='blue','orange'='orange', 'green'='green'),  labels = c('Orig. Generation','SC1: Load curtailment', 'SC2: Halved load curtailment', 'SC3: Load shifting')) +
   facet_grid(season ~ .) +
   labs(x='Time of Day', y='GWh') +
   scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
@@ -8668,6 +8668,325 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
 
 
 #ggsave("Effects of DR.jpeg", dpi = 600)
+
+
+
+```
+
+
+#Variance test load profiles
+```{r hot water variance test load profiles}
+
+#Hot Water
+
+HotwaterHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Hot Water_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HotwaterObsDT2 <- data.table::as.data.table(HotwaterHCS)
+
+HotwaterObsDT2 <- HotwaterObsDT2[, year := lubridate::year(r_dateTime)]
+HotwaterObsDT2 <- HotwaterObsDT2[, obsHourMin := hms::as.hms(r_dateTime)]
+HotwaterObsDT2 <- HotwaterObsDT2[, month := lubridate::month(r_dateTime)]
+
+HotwaterObsDT2 <- HotwaterObsDT2[month >= 12 | month == 1 | month == 2, season := "Summer"]
+HotwaterObsDT2 <- HotwaterObsDT2[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+HotwaterObsDT2 <- HotwaterObsDT2[month == 6 | month == 7 | month == 8, season := "Winter"]
+HotwaterObsDT2 <- HotwaterObsDT2[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+HotWaterTestDT <- HotwaterObsDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Spring"),]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Summer"),]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Autumn"),]
+
+  
+
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(HotWaterTestDT, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance hot water load winter") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("powerW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Hot water winter variance winter.jpeg", dpi=600) 
+
+
+
+
+HotWaterTestDT <- HotwaterObsDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Spring"),]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Winter"),]
+HotWaterTestDT<-HotWaterTestDT[!(HotWaterTestDT$season=="Autumn"),]
+
+
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(HotWaterTestDT, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance hot water load summer") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("powerW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Hot water summer variance.jpeg", dpi=600) 
+
+
+  
+```
+
+
+```{r heat pump variance load}
+
+
+heatPumpProfileDT1 <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+#heatPumpProfileDT1 <- #data.table::as.data.table(readr::read_csv(ggParams$profilesFile))
+
+heatPumpProfileDT2 <- heatPumpProfileDT1
+heatPumpProfileDT2 <- heatPumpProfileDT2[, year := lubridate::year(r_dateTime)]
+heatPumpProfileDT2 <- heatPumpProfileDT2[, obsHourMin := hms::as.hms(r_dateTime)]
+heatPumpProfileDT2 <- heatPumpProfileDT2[, month := lubridate::month(r_dateTime)]
+
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 12 | month == 1 | month == 2, season := "Summer"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 3 | month == 4 | month == 5, season := "Autumn"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 6 | month == 7 | month == 8, season := "Winter"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+heatPumpProfileDT2 <- heatPumpProfileDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Spring"),]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Summer"),]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Autumn"),]
+
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(heatPumpProfileDT2, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance heat pump load winter") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("powerW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Heat pump variance winter.jpeg", dpi=600) 
+
+
+
+
+heatPumpProfileDT2 <- heatPumpProfileDT1
+heatPumpProfileDT2 <- heatPumpProfileDT2[, year := lubridate::year(r_dateTime)]
+heatPumpProfileDT2 <- heatPumpProfileDT2[, obsHourMin := hms::as.hms(r_dateTime)]
+heatPumpProfileDT2 <- heatPumpProfileDT2[, month := lubridate::month(r_dateTime)]
+
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 12 | month == 1 | month == 2, season := "Summer"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 3 | month == 4 | month == 5, season := "Autumn"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 6 | month == 7 | month == 8, season := "Winter"]
+heatPumpProfileDT2 <- heatPumpProfileDT2[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+heatPumpProfileDT2 <- heatPumpProfileDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Spring"),]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Winter"),]
+heatPumpProfileDT2<-heatPumpProfileDT2[!(heatPumpProfileDT2$season=="Autumn"),]
+
+
+
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(heatPumpProfileDT2, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance heat pump load summer") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("powerW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Heat pump variance summer.jpeg", dpi=600) 
+
+
+
+
+
+
+
+
+```
+
+
+```{r lighting variance load}
+
+LightingHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+LightObsDT2 <- data.table::as.data.table(LightingHCS)
+
+LightObsDT2 <- LightObsDT2[, year := lubridate::year(r_dateTime)]
+LightObsDT2 <- LightObsDT2[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT2 <- LightObsDT2[, month := lubridate::month(r_dateTime)]
+
+LightObsDT2 <- LightObsDT2[month >= 12 | month == 1 | month == 2, season := "Summer"]
+LightObsDT2 <- LightObsDT2[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+LightObsDT2 <- LightObsDT2[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT2 <- LightObsDT2[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+LightObsDT2 <- LightObsDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Spring"),]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Summer"),]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Autumn"),]
+
+
+
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(LightObsDT2, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance lighting load winter") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("meanW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Lighting variance winter.jpeg", dpi=600) 
+
+
+
+
+
+LightObsDT2 <- data.table::as.data.table(LightingHCS)
+
+LightObsDT2 <- LightObsDT2[, year := lubridate::year(r_dateTime)]
+LightObsDT2 <- LightObsDT2[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT2 <- LightObsDT2[, month := lubridate::month(r_dateTime)]
+
+LightObsDT2 <- LightObsDT2[month >= 12 | month == 1 | month == 2, season := "Summer"]
+LightObsDT2 <- LightObsDT2[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+LightObsDT2 <- LightObsDT2[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT2 <- LightObsDT2[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+LightObsDT2 <- LightObsDT2[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Spring"),]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Winter"),]
+LightObsDT2<-LightObsDT2[!(LightObsDT2$season=="Autumn"),]
+
+
+
+  
+legend_title <- "hhID"
+myPlot <- ggplot2::ggplot(LightObsDT2, aes(x = lubridate::hour(obsHourMin),
+                                              group=lubridate::hour(obsHourMin),
+                                              varwidth = FALSE)) +
+  geom_boxplot(aes(y=meanW, colour = meanW), size=0.5, outlier.alpha = 0.1) +
+  #geom_point(aes(y=meanW), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Variance lighting load summer") +
+  #facet_grid(season ~ .) +
+  labs(x='Hours of Day', y='Power W') +
+  scale_y_continuous( limits = c(0,3200))+
+  scale_color_manual(legend_title, labels = c("meanW")
+                                                     , values = c("#332288")) 
+ # scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                        #  hms::as.hms("04:00:00"), 
+                         # hms::as.hms("08:00:00"),       
+                          #hms::as.hms("12:00:00"), 
+                          #hms::as.hms("16:00:00"), 
+                          #hms::as.hms("20:00:00"),
+                          #hms::as.hms("24:00:00"))) 
+myPlot  
+  
+#ggsave("Lighting variance summer.jpeg", dpi=600) 
+  
+
+  
+
 
 ```
 ```{r  Figure 3 thesis}
@@ -8787,6 +9106,8 @@ NZhouseholds2023 <- 1935926.478
 NZhouseholds2025 <- 1968188.473
 NZhouseholds2027 <- 1998382.39
 NZhouseholds2029 <- 2026508.232
+
+NZhouseholds <- NZhouseholds2015
 
 EecaLight <- (1577 * 1000 * 1000) / NZhouseholds2015 #Yearly kWh per household for lighting based on EECA GWh and RBS number of households
 
@@ -9793,9 +10114,10 @@ myPlot
 ```{r Energy output: Daily average per day total NZ Lighting}
 
 
-sc3data <- EnergyOutput2[, .(EnergyOut = sum(ConsumptionTot2029)/1000),
+sc3intermediate <- sc3data
+sc3intermediate <- EnergyOutput2[, .(EnergyOut = sum(ConsumptionTot2029)/1000),
                    keyby = .(season, Period)]
-sc3data
+sc3intermediate
 
 ```
 ```{r Dailay average consumption profile with time-periods}
@@ -10138,6 +10460,8 @@ myPlot
 
 
 
+
+
 #MyPlot example
 ```{r scenario load curtailment}
 
@@ -10177,7 +10501,7 @@ myPlot
 #WiEP <- 75.27774
 #SpEP <- 35.80694
 #SuEP <- 10.12392
-
+#test
 #AuNP1 <- sc1data[ GWhs1[1:12 42:48]]
 #AuNP2 <- sc1data[ c(22:32), "GWhs1"]
 #WiNP1 <- sc1data[ c(145:156, 186:192), "GWhs1"]
