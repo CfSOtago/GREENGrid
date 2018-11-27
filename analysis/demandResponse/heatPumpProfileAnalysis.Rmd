@@ -1013,7 +1013,7 @@ sc2data <- hotWaterProfileDT
 sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
             "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
 
-sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
+sc2data <- sc2data[, .(GWhs2 = sum((scaledGWh)/90)*1000), 
                     keyby = .(season, obsHalfHour)]
 
 sc2data <- sc2data[, Period := "Not Peak"]
@@ -2327,7 +2327,7 @@ sc5data <- sc5data[obsHalfHour >= OP2S &
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"], sc5data[,"GWhREF"])
 
 #Building sum of heat pump and hot water consumption
-sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW + GWhREF]
+sc3data <- sc3data[, PumpandWater := (GWhHP + GWhHW + GWhREF)]
 
 sc3data$season <- factor(sc3data$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
@@ -2580,7 +2580,7 @@ sc5data <- sc5data[obsHalfHour >= OP2S &
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"], sc5data[,"GWhREF"])
 
 #Building sum of heat pump and hot water consumption
-sc3data <- sc3data[, PumpandWater := GWhHP + GWhHW + GWhREF]
+sc3data <- sc3data[, PumpandWater := ((GWhHP + GWhHW + GWhREF)/90)*1000]
 
 sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", PumpandWater*0.5, PumpandWater )] # If Period is Evening peak then make GWh zero
                    
@@ -7423,6 +7423,8 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
                            keyby = .(season, obsHalfHour)]
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
+
+
 
 #Calculating Probability
 CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
