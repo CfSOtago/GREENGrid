@@ -784,6 +784,24 @@ HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "
 HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
 
+
+#This shows the negative power error in the dataset 
+aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, obsDate = lubridate::date(r_dateTime))]
+
+myPlot <- ggplot(aggDT[minPower < 0], aes(x = obsDate, y = linkID, fill = minPower)) + geom_tile()
+myPlot
+
+
+#Correcting negative values
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$hhID=="rf_46"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$powerW<0)]
+
+aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, obsDate = lubridate::date(r_dateTime))]
+
+myPlot <- ggplot(aggDT[minPower < 0], aes(x = obsDate, y = linkID, fill = minPower)) + geom_tile()
+myPlot
+
+
 HotWatertestDT1 <- copy(HotwaterObsDT)#Used for test section after lighting analysis
 
 #Building daily average per season
@@ -8989,6 +9007,28 @@ myPlot
 
 
 ```
+#Microsimulation (Method 2)
+```{r Microsimulation Hot water}
+
+#This microsimulation depits a second approach of estimating the technical potential of demand response in New Zealand away from the mean towards acknowledging variance and individual hhID calculations. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
 ```{r  Figure 3 thesis}
 
 GenerationdataFig  <- read.csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/EA_Generation_Data/Monthly extract/2017_01_12_06.csv")
