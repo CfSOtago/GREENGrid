@@ -1013,7 +1013,7 @@ sc2data <- hotWaterProfileDT
 sc2data[, c("medianW", "obsHourMin", "meanW", "nObs", "sdW",
             "scaledMWmethod1", "EECApmMethod2"):=NULL] #Deleting unnecessary columns
 
-sc2data <- sc2data[, .(GWhs2 = sum((scaledGWh)/90)*1000), 
+sc2data <- sc2data[, .(GWhs2 = sum(scaledGWh)), 
                     keyby = .(season, obsHalfHour)]
 
 sc2data <- sc2data[, Period := "Not Peak"]
@@ -2580,7 +2580,7 @@ sc5data <- sc5data[obsHalfHour >= OP2S &
 sc3data <- cbind(sc3data, sc32data[,"GWhHW"], sc5data[,"GWhREF"])
 
 #Building sum of heat pump and hot water consumption
-sc3data <- sc3data[, PumpandWater := ((GWhHP + GWhHW + GWhREF)/90)*1000]
+sc3data <- sc3data[, PumpandWater := (GWhHP + GWhHW + GWhREF)]
 
 sc3data <- sc3data[, PumpandWater:= ifelse(Period == "Evening Peak", PumpandWater*0.5, PumpandWater )] # If Period is Evening peak then make GWh zero
                    
@@ -9013,10 +9013,146 @@ myPlot
 ```{r Microsimulation Hot water}
 
 #This microsimulation depits a second approach of estimating the technical potential of demand response in New Zealand away from the mean towards acknowledging variance and individual hhID calculations. 
+```
+##Hot water
+```{r loading and adjusting data}
+
+HotwaterHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Hot Water_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HotwaterObsDT <- data.table::as.data.table(HotwaterHCS)
+
+HotwaterObsDT <- HotwaterObsDT[, year := lubridate::year(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, date := lubridate::date(r_dateTime,tz = "Pacific/Auckland")]
+HotwaterObsDT <- HotwaterObsDT[, month := lubridate::month(r_dateTime)]
+
+HotwaterObsDT <- HotwaterObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+
+#This shows the negative power error in the dataset 
+aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, obsDate = lubridate::date(r_dateTime))]
+
+myPlot <- ggplot(aggDT[minPower < 0], aes(x = obsDate, y = linkID, fill = minPower)) + geom_tile()
+myPlot
+
+
+#Correcting negative values
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$hhID=="rf_46"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$powerW<0)]
+
+#Microsimulation only considers summer and winter
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Autumn"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Spring"),]
+
+#Creating new microsimulation DT
+
+MicroSimWinterHWDT <- HotwaterObsDT
+MicroSimWinterHWDT <- subset(MicroSimWinterHWDT, `r_dateTime` >= "2015-07-27 00:00:00" & `r_dateTime` <= "2015-08-02 23:59:00 ")#Make sure there are no public holidays or school holidays
+
+MicroSimSummerHWDT <- HotwaterObsDT
+MicroSimSummerHWDT <- subset(MicroSimSummerHWDT, `r_dateTime` >= "2016-2-15 00:00:00" & `r_dateTime` <= "2016-02-21 23:59:00")#Make sure there are no public holidays or school holidays
+
+
+#Next steps: Defining peak and off peak, conduct load shifting, plot profiles
+
+
+#Defining periods for summer and winter data
+
+#Defining peak and off-peak periods
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, Period := "Not Peak"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS & 
+                     obsHourMin <= MPE,
+                   Period := "Morning Peak"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS & 
+                     obsHourMin <= EPE,
+                   Period := "Evening Peak"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1S & 
+                     obsHourMin <= OP1E,
+                   Period := "Off Peak 1"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   Period := "Off Peak 1"]
+#____________________________________________________________________
 
 
 
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   Period := "Off Peak 2"]
 
+MicroSimSummerHWDT <- MicroSimSummerHWDT[, Period := "Not Peak"]
+
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= MPS & 
+                     obsHourMin <= MPE,
+                   Period := "Morning Peak"]
+
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= EPS & 
+                     obsHourMin <= EPE,
+                   Period := "Evening Peak"]
+
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP1S & 
+                     obsHourMin <= OP1E,
+                   Period := "Off Peak 1"]
+
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   Period := "Off Peak 1"]
+
+MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   Period := "Off Peak 2"]
+
+
+
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_06", "rf_15"))
+                          , aes(x = obsHourMin)) +
+  geom_line(aes(y=powerW, colour = "rf_06"), size=0.2) +
+  
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting energy for an average day per season and household - forecast") +
+ # scale_color_manual(legend_title, labels = c("2015",
+                                             # "2017",
+                                             # "2019",
+                                             # "2021",
+                                             # "2023",
+                                             # "2025",
+                                             # "2027",
+                                             # "2029"), values = c("#332288",
+                                                                 # "#88CCEE",
+                                                                 ## "#44AA99",
+                                                                #  "#117733",
+                                                                 # "#999933",
+                                                                 # "#DDCC77",
+                                                                 # "#CC6677",
+                                                                #  "#882255")) +
+  facet_grid(hhID ~ .) +
+  labs(x='Time of Day', y="W") +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
 
 
 
@@ -9028,7 +9164,6 @@ myPlot
 
 
 ```
-
 
 
 ```{r  Figure 3 thesis}
