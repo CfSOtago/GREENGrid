@@ -9040,72 +9040,52 @@ HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "
 HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
 HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
 
-
-#This shows the negative power error in the dataset 
-aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, obsDate = lubridate::date(r_dateTime))]
-
-myPlot <- ggplot(aggDT[minPower < 0], aes(x = obsDate, y = linkID, fill = minPower)) + geom_tile()
-myPlot
-
-
 #Correcting negative values
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$hhID=="rf_46"),]
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$powerW<0)]
-
 #Microsimulation only considers summer and winter
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Autumn"),]
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Spring"),]
 
-#Creating new microsimulation DT
-
-MicroSimWinterHWDT <- HotwaterObsDT
-MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateTime := ymd_hms(r_dateTime)]
-
-MicroSimWinterHWDT <- MicroSimWinterHWDT[!(dateTime<="2015-07-26 11:59:00")]
-
-
-MicroSimWinterHWDT <- MicroSimWinterHWDT[!(MicroSimWinterHWDT$dateTime < "2015-07-26 11:59:00"),]
-
-
-
-
+#Starting microsimulation
+MicroSimWinterHWDT <- HotwaterObsDT[, .(r_dateTime, powerW, hhID)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, obsHourMin := hms::as.hms(r_dateTime)]
+startdate <- as.POSIXct("2015-07-26 11:59:00", tz = "UTC")
+enddate <-as.POSIXct("2015-08-02 12:00:00", tz = "UTC")
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::date(r_dateTime)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := r_dateTime]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::with_tz(dateNZ,"Pacific/Auckland")]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::date(dateNZ)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime > startdate]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime < enddate]
 
 
-MicroSimWinterHWDT <- subset(MicroSimWinterHWDT, `dateTime` >= "2015-07-26 12:00:00" & `dateTime` <= "2015-08-02 00:00:00")
+#This shows the negative power error in the dataset 
+#aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, #obsDate = lubridate::date(r_dateTime))]
 
+#myPlot <- ggplot(aggDT[minPower < 0], aes(x = obsDate, y = linkID, fill = minPower)) + #geom_tile()
+#myPlot
 
-
-
-
-
-
-
-
-
-MicroSimSummerHWDT <- HotwaterObsDT
-MicroSimSummerHWDT <- subset(MicroSimSummerHWDT, `r_dateTime` >= "2016-2-15 00:00:00" & `r_dateTime` <= "2016-02-21 23:59:00")#Make sure there are no public holidays or school holidays
-
-
-#Next steps: Defining peak and off peak, conduct load shifting, plot profiles
 
 
 #Defining periods for summer and winter data
 
+
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:59:00")
+
 MPS <- hms::as.hms("06:00:00")
 MPE <- hms::as.hms("10:29:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:59:00")
 
 EPS <- hms::as.hms("17:00:00")
 EPE <- hms::as.hms("21:29:00")
 
 OP1S <- hms::as.hms("21:30:00")
 OP1E <- hms::as.hms("23:59:00")
-
-OP12S <- hms::as.hms("00:00:00")
-OP12E <- hms::as.hms("05:59:00")
-
-OP2S <- hms::as.hms("10:30:00")
-OP2E <- hms::as.hms("16:59:00")
-
 
 #Defining peak and off-peak periods
 MicroSimWinterHWDT <- MicroSimWinterHWDT[, Period := "Not Peak"]
@@ -9120,11 +9100,11 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS &
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1S & 
                      obsHourMin <= OP1E,
-                   Period := "Off Peak 1 (Morning)"]
+                   Period := "Off Peak 1 (Evening)"]
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP12S & 
                      obsHourMin <= OP12E,
-                   Period := "Off Peak 1 (Evening)"]
+                   Period := "Off Peak 1 (Morning)"]
 
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S & 
@@ -9163,23 +9143,18 @@ MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP2S &
 
 
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_06"))
-                          , aes(x = obsHourMin)) +
-  geom_line(aes(y=powerW, colour=Period), size=0.6) +
+myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_15"))
+                          , aes(x = obsHourMin, colour=Period)) +
+  geom_line(aes(y=powerW), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
+  scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
+                                "Morning Peak",
+                                "Off Peak 2",
+                                "Evening Peak",
+                                "Off Peak 1 (Evening)"))+
   ggtitle("Hot water power ") +
-  scale_color_manual(legend_title, labels = c("Off Peak 1 (Morning)",
-                                              "Morning Peak",
-                                              "Off Peak 2",
-                                              "Evening Peak",
-                                              "Off Peak 1 (Evening)"), values = 
-                                                                c("#332288",
-                                                                  "#88CCEE",
-                                                                  "#44AA99",
-                                                                  "#117733",
-                                                                  "#999933")) +
-  facet_grid(date ~ .) +
-  labs(x='Time of Day', y="W") +
+  facet_grid(dateNZ ~ .) +
+  labs(x='Time of Day', y="Power in W") +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
                           hms::as.hms("08:00:00"),       
