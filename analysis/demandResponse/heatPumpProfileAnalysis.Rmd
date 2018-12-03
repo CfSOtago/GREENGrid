@@ -9086,6 +9086,34 @@ EPE <- hms::as.hms("21:29:00")
 
 OP1S <- hms::as.hms("21:30:00")
 OP1E <- hms::as.hms("23:59:00")
+#______________________________________________________________
+
+
+#Building load shifting periods
+
+
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:59:00")
+
+MPS1 <- hms::as.hms("06:00:00")
+MPE1 <- hms::as.hms("08:14:00")
+
+MPS2 <- hms::as.hms("08:15:00")
+MPE2 <- hms::as.hms("10:29:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:59:00")
+
+EPS1 <- hms::as.hms("17:00:00")
+EPE1 <- hms::as.hms("19:14:00")
+
+EPS2 <- hms::as.hms("19:15:00")
+EPE2 <- hms::as.hms("21:29:00")
+
+OP1S <- hms::as.hms("21:30:00")
+OP1E <- hms::as.hms("23:59:00")
+
 
 #Defining peak and off-peak periods
 MicroSimWinterHWDT <- MicroSimWinterHWDT[, Period := "Not Peak"]
@@ -9113,46 +9141,87 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S &
 #____________________________________________________________________
 
 
+#Defining load shifting periods
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP2S & 
-                     obsHourMin <= OP2E,
-                   Period := "Off Peak 2"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[, Period := "Not Peak"]
+#Defining peak and off-peak periods
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, LsPeriod := "Not Peak"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= MPS & 
-                     obsHourMin <= MPE,
-                   Period := "Morning Peak"]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS1 & 
+                     obsHourMin <= MPE1,
+                   LsPeriod := "Morning Peak 1"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= EPS & 
-                     obsHourMin <= EPE,
-                   Period := "Evening Peak"]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS2 & 
+                     obsHourMin <= MPE2,
+                   LsPeriod := "Morning Peak 2"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP1S & 
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS1 & 
+                     obsHourMin <= EPE1,
+                   LsPeriod := "Evening Peak 1"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS2 & 
+                     obsHourMin <= EPE2,
+                   LsPeriod := "Evening Peak 2"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1S & 
                      obsHourMin <= OP1E,
-                   Period := "Off Peak 1 (Morning)"]
+                   LsPeriod := "Off Peak 1 (Evening)"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP12S & 
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP12S & 
                      obsHourMin <= OP12E,
-                   Period := "Off Peak 1 (Evening)"]
+                   LsPeriod := "Off Peak 1 (Morning)"]
 
-MicroSimSummerHWDT <- MicroSimSummerHWDT[obsHourMin >= OP2S & 
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S & 
                      obsHourMin <= OP2E,
-                   Period := "Off Peak 2"]
+                   LsPeriod := "Off Peak 2"]
+
+#_________________________________________________________________________
+
+#Applying load shifting with power values
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, powerLs := powerW]
+
+TestDT <- MicroSimWinterHWDT
+TestDT <- TestDT[, r_dateTime := NULL]
+TestDT <- TestDT[, Period := NULL]
+#TestDT <- TestDT[, powerm1:= powerW]
+#TestDT <- TestDT[, powerm1:= ifelse(LsPeriod=="Off Peak 2"|"Off Peak 1 (Morning)"|"Off Peak 1 (Evening)"|"Evening Peak 2"|"Evening Peak 1"|"Morning Peak 2", NA, powerm1)]
+TestDT <- TestDT[, power1 := powerW]
+TestDT <- TestDT[, power1 := NA]
+TestDT <- TestDT[, power1 := ifelse(obsHourMin >=hms::as.hms("03:45:00") & obsHourMin <= hms::as.hms("05:59:00"), powerW, power1)]
+Test2DT <- TestDT
+Test2DT <- Test2DT[, .(ifelse(obsHourMin >= hms::as.hms("00:00:00")& obsHourMin<=hms::as.hms("03:45:00"), NULL, obsHourMin))]
 
 
+
+
+
+
+
+
+
+
+
+
+
+#__________________________________________________________________________
+
+#Visualisation
 
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_15"))
-                          , aes(x = obsHourMin, colour=Period)) +
+myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_45"))
+                          , aes(x = obsHourMin, colour=LsPeriod)) +
   geom_line(aes(y=powerW), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
   scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
-                                "Morning Peak",
+                                "Morning Peak 1",
+                                "Morning Peak 2",
                                 "Off Peak 2",
-                                "Evening Peak",
+                                "Evening Peak 1",
+                                "Evening Peak 2",
                                 "Off Peak 1 (Evening)"))+
-  ggtitle("Hot water power ") +
+  ggtitle("Hot water power rf_15") +
   facet_grid(dateNZ ~ .) +
   labs(x='Time of Day', y="Power in W") +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
