@@ -9094,7 +9094,10 @@ OP1E <- hms::as.hms("23:59:00")
 
 
 OP12S <- hms::as.hms("00:00:00")
-OP12E <- hms::as.hms("05:59:00")
+OP12E <- hms::as.hms("03:44:00")
+
+OP1MP1S <- hms::as.hms("03:45:00")
+OP1MP1E <- hms::as.hms("05:59:00")
 
 MPS1 <- hms::as.hms("06:00:00")
 MPE1 <- hms::as.hms("08:14:00")
@@ -9102,8 +9105,14 @@ MPE1 <- hms::as.hms("08:14:00")
 MPS2 <- hms::as.hms("08:15:00")
 MPE2 <- hms::as.hms("10:29:00")
 
-OP2S <- hms::as.hms("10:30:00")
-OP2E <- hms::as.hms("16:59:00")
+OP2MP2S <- hms::as.hms("10:30:00")
+OP2MP2E <- hms::as.hms("12:44:00")
+
+OP2S <- hms::as.hms("12:45:00")
+OP2E <- hms::as.hms("14:44:00")
+
+OP2EP1S <- hms::as.hms("14:45:00")
+OP2EP1E <- hms::as.hms("16:59:00")
 
 EPS1 <- hms::as.hms("17:00:00")
 EPE1 <- hms::as.hms("19:14:00")
@@ -9111,7 +9120,10 @@ EPE1 <- hms::as.hms("19:14:00")
 EPS2 <- hms::as.hms("19:15:00")
 EPE2 <- hms::as.hms("21:29:00")
 
-OP1S <- hms::as.hms("21:30:00")
+OP1EP2S <- hms::as.hms("21:30:00")
+OP1EP2E <- hms::as.hms("23:44:00")
+
+OP1S <- hms::as.hms("23:45:00")
 OP1E <- hms::as.hms("23:59:00")
 
 
@@ -9147,6 +9159,14 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S &
 #Defining peak and off-peak periods
 MicroSimWinterHWDT <- MicroSimWinterHWDT[, LsPeriod := "Not Peak"]
 
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   LsPeriod := "Off Peak 1 (Morning)"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1MP1S & 
+                     obsHourMin <= OP1MP1E,
+                   LsPeriod := "Off Peak 1 (MP1 shifted)"]
+
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS1 & 
                      obsHourMin <= MPE1,
                    LsPeriod := "Morning Peak 1"]
@@ -9154,6 +9174,18 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS1 &
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= MPS2 & 
                      obsHourMin <= MPE2,
                    LsPeriod := "Morning Peak 2"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2MP2S & 
+                     obsHourMin <= OP2MP2E,
+                   LsPeriod := "Off Peak 2 (MP2 shifted)"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   LsPeriod := "Off Peak 2"]
+
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2EP1S & 
+                     obsHourMin <= OP2EP1E,
+                   LsPeriod := "Off Peak 2 (EP1 shifted"]
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS1 & 
                      obsHourMin <= EPE1,
@@ -9163,18 +9195,14 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS2 &
                      obsHourMin <= EPE2,
                    LsPeriod := "Evening Peak 2"]
 
+MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1EP2S & 
+                     obsHourMin <= OP1EP2E,
+                   LsPeriod := "Off Peak 1 (EP2 shifted)"]
+
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1S & 
                      obsHourMin <= OP1E,
-                   LsPeriod := "Off Peak 1 (Evening)"]
+                   LsPeriod := "Off Peak 1"]
 
-MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP12S & 
-                     obsHourMin <= OP12E,
-                   LsPeriod := "Off Peak 1 (Morning)"]
-
-
-MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S & 
-                     obsHourMin <= OP2E,
-                   LsPeriod := "Off Peak 2"]
 
 #_________________________________________________________________________
 
@@ -9182,18 +9210,56 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S &
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[, powerLs := powerW]
 
-TestDT <- MicroSimWinterHWDT
+TestDT <- copy(MicroSimWinterHWDT)
 TestDT <- TestDT[, r_dateTime := NULL]
 TestDT <- TestDT[, Period := NULL]
 #TestDT <- TestDT[, powerm1:= powerW]
 #TestDT <- TestDT[, powerm1:= ifelse(LsPeriod=="Off Peak 2"|"Off Peak 1 (Morning)"|"Off Peak 1 (Evening)"|"Evening Peak 2"|"Evening Peak 1"|"Morning Peak 2", NA, powerm1)]
 TestDT <- TestDT[, power1 := powerW]
-TestDT <- TestDT[, power1 := NA]
-TestDT <- TestDT[, power1 := ifelse(obsHourMin >=hms::as.hms("03:45:00") & obsHourMin <= hms::as.hms("05:59:00"), powerW, power1)]
-Test2DT <- TestDT
-Test2DT <- Test2DT[, .(ifelse(obsHourMin >= hms::as.hms("00:00:00")& obsHourMin<=hms::as.hms("03:45:00"), NULL, obsHourMin))]
+
+#___________________________________________________
+
+# M2.
+library(chron)
+x <- chron(times=time)
+data = TestDT %>% 
+  select(-powerLsShifted, -powerWShifted, -powerNew) %>% 
+  mutate(obsHourTime = obsHourMin +1-1) %>%
+  data.table
+
+data
+unique(data$LsPeriod)
+temp = data %>% 
+  filter(LsPeriod == "Morning Peak 1") %>% 
+  mutate(obsHourTime = obsHourTime -3*60*60)
+temp %>% head
+combineddata = data %>% 
+  merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
+        by = c('hhID','obsHourTime','dateNZ'),
+        all.y = TRUE, suffixes = c('','_mp1')) %>% 
+  mutate(powernew = power1 + powerW_mp1) %>% 
+  data.table
+
+combineddata 
+View(combineddata %>% filter(powerW!=powernew))
+
+# add powernew to testDT
+appenedTables = rbind(combinedata1, combineddata2)
+
+TestDTnew = TestDT %>% merge(combineddata %>% 
+                               select(hhID, obsHourMin, dateNZ, powernew),
+                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE) %>% data.table()
+TestDTnew %>% filter(LsPeriod=="Off Peak 1 (MP1 shifted)")
+#__________________________________________________________
 
 
+
+
+
+
+
+
+     
 
 
 
