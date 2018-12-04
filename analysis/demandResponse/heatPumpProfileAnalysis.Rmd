@@ -9213,8 +9213,6 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[, powerLs := powerW]
 TestDT <- copy(MicroSimWinterHWDT)
 TestDT <- TestDT[, r_dateTime := NULL]
 TestDT <- TestDT[, Period := NULL]
-#TestDT <- TestDT[, powerm1:= powerW]
-#TestDT <- TestDT[, powerm1:= ifelse(LsPeriod=="Off Peak 2"|"Off Peak 1 (Morning)"|"Off Peak 1 (Evening)"|"Evening Peak 2"|"Evening Peak 1"|"Morning Peak 2", NA, powerm1)]
 TestDT <- TestDT[, power1 := powerW]
 
 #___________________________________________________
@@ -9223,7 +9221,6 @@ TestDT <- TestDT[, power1 := powerW]
 library(chron)
 x <- chron(times=time)
 data = TestDT %>% 
-  select(-powerLsShifted, -powerWShifted, -powerNew) %>% 
   mutate(obsHourTime = obsHourMin +1-1) %>%
   data.table
 
@@ -9231,7 +9228,7 @@ data
 unique(data$LsPeriod)
 temp = data %>% 
   filter(LsPeriod == "Morning Peak 1") %>% 
-  mutate(obsHourTime = obsHourTime -3*60*60)
+  mutate(obsHourTime = obsHourTime -(2*60+15)*60)
 temp %>% head
 combineddata = data %>% 
   merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
@@ -9240,16 +9237,16 @@ combineddata = data %>%
   mutate(powernew = power1 + powerW_mp1) %>% 
   data.table
 
-combineddata 
-View(combineddata %>% filter(powerW!=powernew))
-
 # add powernew to testDT
-appenedTables = rbind(combinedata1, combineddata2)
+appenedTables = rbind(combineddata)#, combineddata2
 
 TestDTnew = TestDT %>% merge(combineddata %>% 
                                select(hhID, obsHourMin, dateNZ, powernew),
                              by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE) %>% data.table()
-TestDTnew %>% filter(LsPeriod=="Off Peak 1 (MP1 shifted)")
+
+TestDTnew <- TestDTnew[, LsPeriod := LsPeriod,
+                       keyby = .(dateNZ, hhID, obsHourMin)]
+
 #__________________________________________________________
 
 
@@ -9276,9 +9273,9 @@ TestDTnew %>% filter(LsPeriod=="Off Peak 1 (MP1 shifted)")
 #Visualisation
 
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(MicroSimWinterHWDT, hhID %in% c("rf_45"))
+myPlot <- ggplot2::ggplot(subset(TestDTnew, hhID %in% c("rf_14"))
                           , aes(x = obsHourMin, colour=LsPeriod)) +
-  geom_line(aes(y=powerW), size=0.6) +
+  geom_line(aes(y=powernew), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
   scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
                                 "Morning Peak 1",
