@@ -9059,6 +9059,16 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::date(dateNZ)]
 MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime > startdate]
 MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime < enddate]
 
+#Defining day of week (DOW) for plotting 
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := 0]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-07-27", "Mon", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-07-28", "Tue", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-07-29", "Wed", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-07-30", "Thu", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-07-31", "Fri", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-08-01", "Sat", DOW)]
+MicroSimWinterHWDT <- MicroSimWinterHWDT[, DOW := ifelse(dateNZ=="2015-08-02", "Sun", DOW)]
+
 
 #This shows the negative power error in the dataset 
 #aggDT <- HotwaterObsDT[, .(minPower = min(powerW), maxPower = max(powerW)), keyby = .(linkID, #obsDate = lubridate::date(r_dateTime))]
@@ -9185,7 +9195,7 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2S &
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP2EP1S & 
                      obsHourMin <= OP2EP1E,
-                   LsPeriod := "Off Peak 2 (EP1 shifted"]
+                   LsPeriod := "Off Peak 2 (EP1 shifted)"]
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= EPS1 & 
                      obsHourMin <= EPE1,
@@ -9201,65 +9211,162 @@ MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1EP2S &
 
 MicroSimWinterHWDT <- MicroSimWinterHWDT[obsHourMin >= OP1S & 
                      obsHourMin <= OP1E,
-                   LsPeriod := "Off Peak 1"]
+                   LsPeriod := "Off Peak 1 (Evening)"]
 
 
 #_________________________________________________________________________
 
 #Applying load shifting with power values
 
-MicroSimWinterHWDT <- MicroSimWinterHWDT[, powerLs := powerW]
-
-TestDT <- copy(MicroSimWinterHWDT)
-TestDT <- TestDT[, r_dateTime := NULL]
-TestDT <- TestDT[, Period := NULL]
-TestDT <- TestDT[, power1 := powerW]
+MicroSimDT <- copy(MicroSimWinterHWDT)
+MicroSimDT <- MicroSimDT[, r_dateTime := NULL]
+MicroSimDT <- MicroSimDT[, Period := NULL]
+MicroSimDT <- MicroSimDT[, power1 := powerW]
 
 #___________________________________________________
 
-# M2.
+# Shifting Morning Peak 1
 library(chron)
-x <- chron(times=time)
-data = TestDT %>% 
+dataMP1 = MicroSimDT %>% 
   mutate(obsHourTime = obsHourMin +1-1) %>%
   data.table
 
-data
-unique(data$LsPeriod)
-temp = data %>% 
+dataMP1
+unique(dataMP1$LsPeriod)
+temp = dataMP1 %>% 
   filter(LsPeriod == "Morning Peak 1") %>% 
   mutate(obsHourTime = obsHourTime -(2*60+15)*60)
 temp %>% head
-combineddata = data %>% 
+combineddataMP1 = dataMP1 %>% 
   merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
         by = c('hhID','obsHourTime','dateNZ'),
         all.y = TRUE, suffixes = c('','_mp1')) %>% 
   mutate(powernew = power1 + powerW_mp1) %>% 
   data.table
 
-# add powernew to testDT
-appenedTables = rbind(combineddata)#, combineddata2
+# add powernew to MicroSimDT
+appenedTables = rbind(combineddataMP1)#, combineddata2
 
-TestDTnew = TestDT %>% merge(combineddata %>% 
+MicroSimShifDT = MicroSimDT %>% merge(combineddataMP1 %>% 
                                select(hhID, obsHourMin, dateNZ, powernew),
-                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE) %>% data.table()
+                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE)%>%     data.table()
 
-TestDTnew <- TestDTnew[, LsPeriod := LsPeriod,
+MicroSimShifDT <- MicroSimShifDT[, LsPeriod := LsPeriod,
                        keyby = .(dateNZ, hhID, obsHourMin)]
 
 #__________________________________________________________
 
+#Shifting Morning Peak 2
 
+dataMP2 = MicroSimDT %>% 
+  mutate(obsHourTime = obsHourMin +1-1) %>%
+  data.table
 
+dataMP2
+unique(dataMP2$LsPeriod)
+temp = dataMP2 %>% 
+  filter(LsPeriod == "Morning Peak 2") %>% 
+  mutate(obsHourTime = obsHourTime +(2*60+15)*60)
+temp %>% head
+combineddataMP2 = dataMP2 %>% 
+  merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
+        by = c('hhID','obsHourTime','dateNZ'),
+        all.y = TRUE, suffixes = c('','_mp1')) %>% 
+  mutate(powernew = power1 + powerW_mp1) %>% 
+  data.table
 
+# add powernew to MicroSimDT
+appenedTables = rbind(combineddataMP1, combineddataMP2)#, combineddata2
 
+MicroSimShifDT = MicroSimDT %>% merge(appenedTables %>% 
+                               select(hhID, obsHourMin, dateNZ, powernew),
+                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE)%>% data.table()
 
+MicroSimShifDT <- MicroSimShifDT[, LsPeriod := LsPeriod,
+                       keyby = .(dateNZ, hhID, obsHourMin)]
 
+#______________________________________________________________
+#Shifting Evening Peak 1
 
-     
+dataEP1 = MicroSimDT %>% 
+  mutate(obsHourTime = obsHourMin +1-1) %>%
+  data.table
 
+dataEP1
+unique(dataEP1$LsPeriod)
+temp = dataEP1 %>% 
+  filter(LsPeriod == "Evening Peak 1") %>% 
+  mutate(obsHourTime = obsHourTime -(2*60+15)*60)
+temp %>% head
+combineddataEP1 = dataEP1 %>% 
+  merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
+        by = c('hhID','obsHourTime','dateNZ'),
+        all.y = TRUE, suffixes = c('','_mp1')) %>% 
+  mutate(powernew = power1 + powerW_mp1) %>% 
+  data.table
 
+# add powernew to MicroSimDT
+appenedTables = rbind(combineddataMP1, combineddataMP2, combineddataEP1)#, combineddata2
 
+MicroSimShifDT = MicroSimDT %>% merge(appenedTables %>% 
+                               select(hhID, obsHourMin, dateNZ, powernew),
+                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE)%>% data.table()
+
+MicroSimShifDT <- MicroSimShifDT[, LsPeriod := LsPeriod,
+                       keyby = .(dateNZ, hhID, obsHourMin)]
+
+#______________________________________________________________________
+
+#Shifting Evening Peak 2
+
+dataEP2 = MicroSimDT %>% 
+  mutate(obsHourTime = obsHourMin +1-1) %>%
+  data.table
+
+dataEP2
+unique(dataEP2$LsPeriod)
+temp = dataEP2 %>% 
+  filter(LsPeriod == "Evening Peak 2") %>% 
+  mutate(obsHourTime = obsHourTime +(2*60+15)*60)
+temp %>% head
+combineddataEP2 = dataEP2 %>% 
+  merge(temp %>% select(hhID, obsHourMin, obsHourTime, dateNZ, powerW), 
+        by = c('hhID','obsHourTime','dateNZ'),
+        all.y = TRUE, suffixes = c('','_mp1')) %>% 
+  mutate(powernew = power1 + powerW_mp1) %>% 
+  data.table
+
+# add powernew to MicroSimDT
+appenedTables = rbind(combineddataMP1, combineddataMP2, combineddataEP1, combineddataEP2)#, combineddata2
+
+MicroSimShifDT = MicroSimDT %>% merge(appenedTables %>% 
+                               select(hhID, obsHourMin, dateNZ, powernew),
+                             by = c('hhID','obsHourMin', 'dateNZ'), all.x = TRUE)%>% data.table()
+
+MicroSimShifDT <- MicroSimShifDT[, LsPeriod := LsPeriod,
+                       keyby = .(dateNZ, hhID, obsHourMin)]
+
+#Set Periods to zero or powerW to avoid NA's
+
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Off Peak 1 (Morning)",
+                                                      powerW, powernew)]
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Morning Peak 1",
+                                                      0, powernew)]
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Morning Peak 2",
+                                                      0, powernew)]  
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Off Peak 2",
+                                                      powerW, powernew)] 
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Evening Peak 1",
+                                                      0, powernew)]
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Evening Peak 2",
+                                                      0, powernew)]
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Off Peak 1 (Evening)",
+                                                      powerW, powernew)]
+MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(is.na(powernew), powerW, powernew)]
+
+#______________________________________________________________
+
+#Creating half hour averages
 
 
 
@@ -9272,20 +9379,32 @@ TestDTnew <- TestDTnew[, LsPeriod := LsPeriod,
 
 #Visualisation
 
+#Changes the order in facet_grid
+MicroSimShifDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
+                                                            "Tue",
+                                                            "Wed",
+                                                            "Thu",
+                                                            "Fri",
+                                                            "Sat",
+                                                            "Sun"))
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(TestDTnew, hhID %in% c("rf_14"))
+myPlot <- ggplot2::ggplot(subset(MicroSimShifDT, hhID %in% c("rf_22"))
                           , aes(x = obsHourMin, colour=LsPeriod)) +
-  geom_line(aes(y=powernew), size=0.6) +
+  geom_line(aes(y=powerW), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
   scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
+                                "Off Peak 1 (MP1 shifted)",
                                 "Morning Peak 1",
                                 "Morning Peak 2",
+                                "Off Peak 2 (MP2 shifted)",
                                 "Off Peak 2",
+                                "Off Peak 2 (EP1 shifted)",
                                 "Evening Peak 1",
                                 "Evening Peak 2",
+                                "Off Peak 1 (EP2 shifted)",
                                 "Off Peak 1 (Evening)"))+
-  ggtitle("Hot water power rf_15") +
-  facet_grid(dateNZ ~ .) +
+  ggtitle("Hot water power in winter for rf_22") +
+  facet_grid(DOW ~ .) +
   labs(x='Time of Day', y="Power in W") +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
@@ -9297,7 +9416,7 @@ myPlot <- ggplot2::ggplot(subset(TestDTnew, hhID %in% c("rf_14"))
 myPlot
 
 
-
+#ggsave("Hot water power in winter for rf_22 shifted.jpeg", dpi=600)
 
 
 
