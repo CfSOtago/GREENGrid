@@ -9398,9 +9398,22 @@ myPlot
   
 #___________________________________________________________________________________________
 
-#Creating half hour averages
+#Creating half hour averages for original and shifted power
 
 MicroSimShifDT <- MicroSimShifDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+
+#Original power
+#Origninal power
+MicroOrigPowerDT <- copy(MicroSimShifDT)
+MicroOrigPowerDT <- MicroOrigPowerDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(powerW)), keyby = .(hhID, obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(meankWhorig)), keyby = .(obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig/2/1000]#Power W to kwh/hh
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroOrigPowerDT <- MicroOrigPowerDT[, season := "Winter"]
+MicroOrigWiHWDT <- copy(MicroOrigPowerDT)
+
+
 
 MicroSimDT <- copy(MicroSimShifDT)
 MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
@@ -9832,6 +9845,21 @@ myPlot
 
 MicroSimShifDT <- MicroSimShifDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
 
+
+#Origninal power
+MicroOrigPowerDT <- copy(MicroSimShifDT)
+MicroOrigPowerDT <- MicroOrigPowerDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(powerW)), keyby = .(hhID, obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(meankWhorig)), keyby = .(obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig/2/1000]#Power W to kwh/hh
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroOrigPowerDT <- MicroOrigPowerDT[, season := "Summer"]
+MicroOrigSuHWDT <- copy(MicroOrigPowerDT)
+
+
+
+
+#Shifted
 MicroSimDT <- copy(MicroSimShifDT)
 MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
 MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
@@ -10263,6 +10291,19 @@ myPlot
 
 MicroSimShifDT <- MicroSimShifDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
 
+
+#Original
+#Origninal power
+MicroOrigPowerDT <- copy(MicroSimShifDT)
+MicroOrigPowerDT <- MicroOrigPowerDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(powerW)), keyby = .(hhID, obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(meankWhorig)), keyby = .(obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig/2/1000]#Power W to kwh/hh
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroOrigPowerDT <- MicroOrigPowerDT[, season := "Autumn"]
+MicroOrigAuHWDT <- copy(MicroOrigPowerDT)
+
+#Shifted
 MicroSimDT <- copy(MicroSimShifDT)
 MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
 MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
@@ -10690,15 +10731,28 @@ myPlot
   
 #___________________________________________________________________________________________
 
+
 #Creating half hour averages
 
+#Origninal power
+MicroOrigPowerDT <- copy(MicroSimShifDT)
+MicroOrigPowerDT <- MicroOrigPowerDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(powerW)), keyby = .(hhID, obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, .(meankWhorig = mean(meankWhorig)), keyby = .(obsHalfHour)]
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig/2/1000]#Power W to kwh/hh
+MicroOrigPowerDT <- MicroOrigPowerDT[, meankWhorig := meankWhorig * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroOrigPowerDT <- MicroOrigPowerDT[, season := "Spring"]
+MicroOrigSpHWDT <- copy(MicroOrigPowerDT)
+
+
+#Shifted power
 MicroSimShifDT <- MicroSimShifDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
 
 MicroSimDT <- copy(MicroSimShifDT)
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
-MicroSimDT <- MicroSimDT[, meankWh := meankWh/2/1000]#Power W to kwh/hh
-MicroSimDT <- MicroSimDT[, meankWh := meankWh * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(meankWhshif)), keyby = .(obsHalfHour)]#second average
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Spring"]#Average per household
 
 MiSimSpringHWDT <- copy(MicroSimDT)
@@ -10751,7 +10805,9 @@ MicroSimShifDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
 ###Combining
 ```{r combining data and further analysis}
 
-MiCombHWDT <- rbind(MiSimSpringHWDT, MiSimSummerHWDT, MiSimAutumnHWDT, MiSimWinterHWDT)
+MiShifCombHWDT <- rbind(MiSimSpringHWDT, MiSimSummerHWDT, MiSimAutumnHWDT, MiSimWinterHWDT, MicroOrigPowerDT)
+
+MiOriCombHWDT <- rbind(MicroOrigSpHWDT, MicroOrigSuHWDT, MicroOrigAuHWDT, MicroOrigWiHWDT)
 
 #Initial plot
 
