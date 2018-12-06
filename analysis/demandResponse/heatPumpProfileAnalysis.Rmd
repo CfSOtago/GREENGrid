@@ -6460,7 +6460,7 @@ myPlot
 
 
 
-###CPD analysis
+1###CPD analysis
 ```{r CPD analysis}
 
 #Hot water
@@ -6492,6 +6492,7 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
                            keyby = .(season, obsHalfHour)]
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
+
 
 #Calculating Probability
 CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
@@ -6635,6 +6636,9 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
                            keyby = .(season, obsHalfHour)]
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
+#HWprofileDT <- HWprofileDT[, kWperHh := kWperHh*0.6]
+
+
 
 
 #Loading and scaling hot refrigeration load
@@ -6758,6 +6762,7 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000))/90]#kW per household and half hour for the whole 90 day season
 
+HWprofileDT<- HWprofileDT[, kWperHh := kWperHh*1]
 #Calculating Probability
 CpdSumDT <- CpdMinAll[, .(SumMins = sum(CPDmin)/5), keyby = .(season, obsHalfHour)]
 CpdSumDT <- CpdSumDT[, totalMins := sum(SumMins)]
@@ -8221,6 +8226,8 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
 
+HWprofileDT <- HWprofileDT[, kWperHh:= kWperHh*1]
+
 REFprofileDT <- refrigerationProfileDT[ !(season %in% c("Spring", "Summer"))]
 REFprofileDT <- REFprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
                            keyby = .(season, obsHalfHour)]
@@ -8374,6 +8381,8 @@ HWprofileDT <- HWprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
 HWprofileDT <- HWprofileDT[, kWperHh := (((sumGWhperHalfHour *
                                                 2)*1000*1000)/nzHHhotWater)/90]#kW per household and half hour for the whole 90 day season
 
+
+HWprofileDT <- HWprofileDT[, kWperHh := kWperHh*1]
 REFprofileDT <- refrigerationProfileDT[ !(season %in% c("Spring", "Summer"))]
 REFprofileDT <- REFprofileDT[, .(sumGWhperHalfHour = sum(scaledGWh)),
                            keyby = .(season, obsHalfHour)]
@@ -8656,15 +8665,28 @@ GenDT <- GenDT[, SuSc2 := ifelse(Period=="Evening Peak" & season == "Summer", Su
 GenDT <- GenDT[, SuSc2 := ifelse(Period=="Morning Peak" & season == "Winter", SuSc2 * 0.8975, SuSc2)]
 GenDT <- GenDT[, SuSc2 := ifelse(Period=="Evening Peak" & season == "Winter", SuSc2 * 0.9089, SuSc2)]
 
+#GenDT <- GenDT[, SuSc3 := meanGWh]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Summer", SuSc3 * 0.8466, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Summer", SuSc3 * 0.8541, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Winter", SuSc3 * 0.8178, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Winter", SuSc3 * 0.7950, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Summer", SuSc3 * 1.1001, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Summer", SuSc3 * 1.0981, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Winter", SuSc3 * 1.1467, SuSc3)]
+#GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc3 * 1.1433, SuSc3)]
+
+#CAUTION______________
+
+#80% HW grid impact!!! Use above for 100% HW
 GenDT <- GenDT[, SuSc3 := meanGWh]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Summer", SuSc3 * 0.8466, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Summer", SuSc3 * 0.8541, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Winter", SuSc3 * 0.8178, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Winter", SuSc3 * 0.7950, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Summer", SuSc3 * 1.1001, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Summer", SuSc3 * 1.0981, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Winter", SuSc3 * 1.1467, SuSc3)]
-GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc3 * 1.1433, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Summer", SuSc3 * 0.8699, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Summer", SuSc3 * 0.8682, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Morning Peak" & season == "Winter", SuSc3 * 0.8160, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Evening Peak" & season == "Winter", SuSc3 * 0.8341, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Summer", SuSc3 * 1.1143, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Summer", SuSc3 * 1.1037, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 1" & season == "Winter", SuSc3 * 1.1289, SuSc3)]
+GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc3 * 1.1330, SuSc3)]
 
 
 #Visualising shifted and original consumption two colours
@@ -8674,11 +8696,11 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
   #geom_line(aes(y=SuSc1, color="green"), size=0.5) +  
      #geom_line(aes(y=SuSc2, color="orange"), size=0.5) +  
   theme(text = element_text(family = "Cambria")) +
-  ggtitle("Effects of demand response scenarios 1-3 on total electricity generation per day") +
+  ggtitle("Estimated daily effects of the peak load shifting scenario on total electricity generation profile 80% HW") +
   scale_colour_manual(name = element_blank(), 
       values = c('red'='red', 'blue'='blue','orange'='orange', 'green'='green'),  labels = c('Orig. Generation','SC1: Load curtailment', 'SC2: Halved load curtailment', 'SC3: Load shifting')) +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y='GWh') +
+  labs(x='Time of Day', y='GWh per ½ hour') +
   scale_y_continuous( limits = c(0,3.5), expand = c(0,0) )+
   #scale_y_continuous(breaks = c(0.1)) +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), hms::as.hms("04:00:00"), hms::as.hms("08:00:00"),       hms::as.hms("12:00:00"), hms::as.hms("16:00:00"), 
@@ -8687,7 +8709,7 @@ GenDT <- GenDT[, SuSc3 := ifelse(Period=="Off Peak 2" & season == "Winter", SuSc
   myPlot
 
 
-#ggsave("Effects of DR.jpeg", dpi = 600)
+ggsave("Estimated daily effects of the peak load shifting scenario on total electricity generation profile 80 HW.jpeg", dpi = 600)#80%!!!!!
 
 
 
@@ -9228,6 +9250,7 @@ MicroSimDT <- MicroSimDT[, power1 := powerW]
 
 # Shifting Morning Peak 1
 library(chron)
+library(dplyr)
 dataMP1 = MicroSimDT %>% 
   mutate(obsHourTime = obsHourMin +1-1) %>%
   data.table
@@ -9416,10 +9439,10 @@ MicroOrigWiHWDT <- copy(MicroOrigPowerDT)
 
 
 MicroSimDT <- copy(MicroSimShifDT)
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
-MicroSimDT <- MicroSimDT[, meankWh := meankWh/2/1000]#Power W to kwh/hh
-MicroSimDT <- MicroSimDT[, meankWh := meankWh * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(meankWhshif)), keyby = .(obsHalfHour)]#second average
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Winter"]#Average per household
 
 MiSimWinterHWDT <- copy(MicroSimDT)
@@ -9861,10 +9884,10 @@ MicroOrigSuHWDT <- copy(MicroOrigPowerDT)
 
 #Shifted
 MicroSimDT <- copy(MicroSimShifDT)
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
-MicroSimDT <- MicroSimDT[, meankWh := meankWh/2/1000]#Power W to kwh/hh
-MicroSimDT <- MicroSimDT[, meankWh := meankWh * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(meankWhshif)), keyby = .(obsHalfHour)]#second average
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Summer"]#Average per household
 
 MiSimSummerHWDT <- copy(MicroSimDT)
@@ -10305,10 +10328,10 @@ MicroOrigAuHWDT <- copy(MicroOrigPowerDT)
 
 #Shifted
 MicroSimDT <- copy(MicroSimShifDT)
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
-MicroSimDT <- MicroSimDT[, .(meankWh = mean(meankWh)), keyby = .(obsHalfHour)]#second average
-MicroSimDT <- MicroSimDT[, meankWh := meankWh/2/1000]#Power W to kwh/hh
-MicroSimDT <- MicroSimDT[, meankWh := meankWh * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(powernew)), keyby = .(hhID, obsHalfHour)]#first average
+MicroSimDT <- MicroSimDT[, .(meankWhshif = mean(meankWhshif)), keyby = .(obsHalfHour)]#second average
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
+MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Autumn"]#Average per household
 
 MiSimAutumnHWDT <- copy(MicroSimDT)
@@ -10805,9 +10828,13 @@ MicroSimShifDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
 ###Combining
 ```{r combining data and further analysis}
 
-MiShifCombHWDT <- rbind(MiSimSpringHWDT, MiSimSummerHWDT, MiSimAutumnHWDT, MiSimWinterHWDT, MicroOrigPowerDT)
+MiShifCombHWDT <- rbind(MiSimSpringHWDT, MiSimSummerHWDT, MiSimAutumnHWDT, MiSimWinterHWDT)
 
 MiOriCombHWDT <- rbind(MicroOrigSpHWDT, MicroOrigSuHWDT, MicroOrigAuHWDT, MicroOrigWiHWDT)
+
+MiShifCombHWDT <- MiShifCombHWDT[, meankWhorig := MiOriCombHWDT$meankWhorig]
+
+MiCombHWDT <- copy(MiShifCombHWDT)
 
 #Initial plot
 
@@ -10854,21 +10881,18 @@ MiCombHWDT <- MiCombHWDT[obsHalfHour >= OP2S &
 
 MiCombHWDT <- MiCombHWDT[, season := season, keyby =.(season, obsHalfHour)]
 
-legend_title <- "Period"
-myPlot <- ggplot2::ggplot(MiCombHWDT,
-                          aes(x = obsHalfHour, colour=Period, group = Period)) +
-  geom_point(aes(y=meankWh), size=0.6) +
-  geom_path(aes(y=meankWh))+
-  geom_line(aes(y=meankWh), size=0.6)+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(MiCombHWDT, aes(x = obsHalfHour)) +
+  geom_line(aes(y=meankWhorig, colour = "meankWhorig"), size=1) +
+  geom_line(aes(y=meankWhshif, colour = "meankWhshif"), size=1) +
   theme(text = element_text(family = "Cambria")) +
-  scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
-                                "Morning Peak",
-                                "Off Peak 2",
-                                "Evening Peak",
-                                "Off Peak 1 (Evening)"))+
-  ggtitle("Hot water power in summer for rf_22") +
+  ggtitle("Seasonal hot water energy consumption per HH microsimulation") +
+  scale_color_manual(legend_title, labels = c("Original",
+                                              "Shifted"), values = c("blue",
+                                                                  "red")) +
   facet_grid(season ~ .) +
-  labs(x='Time of Day', y="Power in W") +
+  labs(x='Time of Day', y='kWh per ½ hour') +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
                           hms::as.hms("04:00:00"), 
                           hms::as.hms("08:00:00"),       
@@ -10877,6 +10901,7 @@ myPlot <- ggplot2::ggplot(MiCombHWDT,
                           hms::as.hms("20:00:00"),
                           hms::as.hms("24:00:00"))) 
 myPlot
+
 
 
 
