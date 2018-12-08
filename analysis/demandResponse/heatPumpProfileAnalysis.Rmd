@@ -11271,8 +11271,12 @@ MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Off Peak 1 (Eve
                                                       powerW, powernew)]
 MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(is.na(powernew), powerW, powernew)]
 
+
+MiSimWinterHWDT <- copy(MicroSimShifDT)
 #______________________________________________________________
 
+
+#_________________________________________________________________________________________
 #Displaying variances before half hour averaged
 
 MicroSimShifVarDT <- copy(MicroSimShifDT)
@@ -11328,12 +11332,12 @@ MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
 MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Winter"]#Average per household
 
-MiSimWinterHWDT <- copy(MicroSimDT)
+
 
 #__________________________________________________________________________
 
 #Visualisation
-
+#MiSimWinterHWDT is generated just before the variance analysis and half hour average
 #Changes the order in facet_grid
 MiSimWinterHWDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
                                                             "Tue",
@@ -11342,10 +11346,13 @@ MiSimWinterHWDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
                                                             "Fri",
                                                             "Sat",
                                                             "Sun"))
+
+
+
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(MicroSimShifDT, hhID %in% c("rf_21"))
+myPlot <- ggplot2::ggplot(subset(MiSimWinterHWDT, hhID %in% c("rf_21"))
                           , aes(x = obsHourMin, colour=LsPeriod)) +
-  geom_line(aes(y=powerW), size=0.6) +
+  geom_line(aes(y=powernew), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
   scale_color_discrete(breaks=c("Off Peak 1 (Morning)",
                                 "Off Peak 1 (MP1 shifted)",
@@ -11358,7 +11365,7 @@ myPlot <- ggplot2::ggplot(subset(MicroSimShifDT, hhID %in% c("rf_21"))
                                 "Evening Peak 2",
                                 "Off Peak 1 (EP2 shifted)",
                                 "Off Peak 1 (Evening)"))+
-  ggtitle("Heat pump power in winter for rf_21") +
+  ggtitle("Heat pump power in winter for rf_21 shifted") +
   facet_grid(DOW ~ .) +
   labs(x='Time of Day', y="Power in W") +
   scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
@@ -11371,7 +11378,7 @@ myPlot <- ggplot2::ggplot(subset(MicroSimShifDT, hhID %in% c("rf_21"))
 myPlot
 
 
-ggsave("Heat pump power in winter for rf_21.jpeg", dpi=600)
+#ggsave("Heat pump power in winter for rf_21 shifted.jpeg", dpi=600)
 
 ```
 ###Summer
