@@ -11272,7 +11272,7 @@ MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(LsPeriod=="Off Peak 1 (Eve
 MicroSimShifDT <- MicroSimShifDT[, powernew := ifelse(is.na(powernew), powerW, powernew)]
 
 
-MiSimWinterHWDT <- copy(MicroSimShifDT)
+MiSimWinterHWDTVis <- copy(MicroSimShifDT)
 #______________________________________________________________
 
 
@@ -11332,14 +11332,14 @@ MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif/2/1000]#Power W to kwh/hh
 MicroSimDT <- MicroSimDT[, meankWhshif := meankWhshif * 13]#Creating seasonal average 52 weeks in the year, 13 weeks per season
 MicroSimDT <- MicroSimDT[, season := "Winter"]#Average per household
 
-
+MiSimWinterHWDT <- copy(MicroSimDT)
 
 #__________________________________________________________________________
 
 #Visualisation
-#MiSimWinterHWDT is generated just before the variance analysis and half hour average
+#MiSimWinterHWDTVis is generated just before the variance analysis and half hour average and used for visualisation only
 #Changes the order in facet_grid
-MiSimWinterHWDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
+MiSimWinterHWDTVis$DOW <- factor(MicroSimShifDTVis$DOW, levels = c("Mon",
                                                             "Tue",
                                                             "Wed",
                                                             "Thu",
@@ -11350,7 +11350,7 @@ MiSimWinterHWDT$DOW <- factor(MicroSimShifDT$DOW, levels = c("Mon",
 
 
 legend_title <- "Period"
-myPlot <- ggplot2::ggplot(subset(MiSimWinterHWDT, hhID %in% c("rf_21"))
+myPlot <- ggplot2::ggplot(subset(MiSimWinterHWDTVis, hhID %in% c("rf_21"))
                           , aes(x = obsHourMin, colour=LsPeriod)) +
   geom_line(aes(y=powernew), size=0.6) +
   theme(text = element_text(family = "Cambria")) +
