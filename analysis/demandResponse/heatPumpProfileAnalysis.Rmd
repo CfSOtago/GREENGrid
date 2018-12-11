@@ -8812,8 +8812,282 @@ myPlot
 
   
 ```
+#Load distribution
+##Hot Water
+```{r load distribution}
 
 
+
+HotwaterHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Hot Water_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HotwaterObsDT <- data.table::as.data.table(HotwaterHCS)
+
+HotwaterObsDT <- HotwaterObsDT[, year := lubridate::year(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+HotwaterObsDT <- HotwaterObsDT[, month := lubridate::month(r_dateTime)]
+
+HotwaterObsDT <- HotwaterObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+HotwaterObsDT <- HotwaterObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+HotwaterObsDT <- HotwaterObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+#Correcting negative values
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$hhID=="rf_46"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$powerW<0)]
+#Microsimulation only considers summer and winter
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Autumn"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Spring"),]
+HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Summer"),]
+
+
+#Defining periods for summer and winter data
+
+
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:59:00")
+
+MPS <- hms::as.hms("06:00:00")
+MPE <- hms::as.hms("10:29:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:59:00")
+
+EPS <- hms::as.hms("17:00:00")
+EPE <- hms::as.hms("21:29:00")
+
+OP1S <- hms::as.hms("21:30:00")
+OP1E <- hms::as.hms("23:59:00")
+
+LoadDistDT <- copy(HotwaterObsDT)
+
+#Defining peak and off-peak periods
+LoadDistDT <- LoadDistDT[, Period := "Not Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= MPS & 
+                     obsHourMin <= MPE,
+                   Period := "Morning Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= EPS & 
+                     obsHourMin <= EPE,
+                   Period := "Evening Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP1S & 
+                     obsHourMin <= OP1E,
+                   Period := "Off Peak 1 (Evening)"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   Period := "Off Peak 1 (Morning)"]
+
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   Period := "Off Peak 2"]
+
+LoadDistMPDT <- copy(LoadDistDT)
+
+
+
+
+
+myPlot <- ggplot2::ggplot(subset(LoadDistMPDT, Period %in% c("Morning Peak")), aes(x=powerW)) +
+  geom_density() +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Hot water winter morning peak density") 
+ # facet_grid(DOW ~ .) +
+myPlot
+
+
+
+myPlot <- ggplot2::ggplot(subset(LoadDistMPDT, Period %in% c("Evening Peak")), aes(x=powerW)) +
+  geom_density() +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Hot water winter evening peak density") 
+ # facet_grid(DOW ~ .) +
+myPlot
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Starting microsimulation
+#MicroSimWinterHWDT <- HotwaterObsDT[, .(r_dateTime, powerW, hhID)]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, obsHourMin := hms::as.hms(r_dateTime)]
+#startdate <- as.POSIXct("2015-07-26 11:59:00", tz = "UTC")
+#enddate <-as.POSIXct("2015-08-02 12:00:00", tz = "UTC")
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::date(r_dateTime)]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := r_dateTime]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := #lubridate::with_tz(dateNZ,"Pacific/Auckland")]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[, dateNZ := lubridate::date(dateNZ)]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime > startdate]
+#MicroSimWinterHWDT <- MicroSimWinterHWDT[r_dateTime < enddate]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+##Heat Pump
+```{r heat pump}
+
+
+heatPumpProfileHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Heat Pump_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+HeatPumpObsDT <- data.table::as.data.table(heatPumpProfileHCS)
+
+HeatPumpObsDT <- HeatPumpObsDT[, year := lubridate::year(r_dateTime)]
+HeatPumpObsDT <- HeatPumpObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+HeatPumpObsDT <- HeatPumpObsDT[, month := lubridate::month(r_dateTime)]
+
+HeatPumpObsDT <- HeatPumpObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+HeatPumpObsDT <- HeatPumpObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+HeatPumpObsDT <- HeatPumpObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+HeatPumpObsDT <- HeatPumpObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+#Correcting negative values
+HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$hhID=="rf_46"),]
+HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$powerW<0)]
+#HeatPumpObsDT<-HeatPumpObsDT[, ifelse(powerW==27759, 0, powerW)]
+#Microsimulation only considers summer and winter
+HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$season=="Autumn"),]
+HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$season=="Spring"),]
+HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$season=="Summer"),]
+
+
+
+#Defining periods for summer and winter data
+
+
+
+OP12S <- hms::as.hms("00:00:00")
+OP12E <- hms::as.hms("05:59:00")
+
+MPS <- hms::as.hms("06:00:00")
+MPE <- hms::as.hms("10:29:00")
+
+OP2S <- hms::as.hms("10:30:00")
+OP2E <- hms::as.hms("16:59:00")
+
+EPS <- hms::as.hms("17:00:00")
+EPE <- hms::as.hms("21:29:00")
+
+OP1S <- hms::as.hms("21:30:00")
+OP1E <- hms::as.hms("23:59:00")
+
+LoadDistDT <- copy(HeatPumpObsDT)
+
+#Defining peak and off-peak periods
+LoadDistDT <- LoadDistDT[, Period := "Not Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= MPS & 
+                     obsHourMin <= MPE,
+                   Period := "Morning Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= EPS & 
+                     obsHourMin <= EPE,
+                   Period := "Evening Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP1S & 
+                     obsHourMin <= OP1E,
+                   Period := "Off Peak 1 (Evening)"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   Period := "Off Peak 1 (Morning)"]
+
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   Period := "Off Peak 2"]
+
+LoadDistMPDT <- copy(LoadDistDT)
+
+
+
+myPlot <- ggplot2::ggplot(subset(LoadDistMPDT, Period %in% c("Morning Peak")), aes(x=powerW)) +
+  geom_density() +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Hot water winter morning peak density") 
+ # facet_grid(DOW ~ .) +
+myPlot
+
+
+
+myPlot <- ggplot2::ggplot(subset(LoadDistMPDT, Period %in% c("Evening Peak")), aes(x=powerW)) +
+  geom_density() +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Hot water winter evening peak density") 
+ # facet_grid(DOW ~ .) +
+myPlot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
 ```{r heat pump variance load}
 
 
