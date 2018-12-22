@@ -8844,6 +8844,7 @@ HotwaterObsDT <- HotwaterObsDT[month == 9 | month == 10 | month == 11, season :=
 #Correcting negative values
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$hhID=="rf_46"),]
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$powerW<0)]
+MinMax1DT <- copy(HotwaterObsDT)
 #Microsimulation only considers summer and winter
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Autumn"),]
 HotwaterObsDT <- HotwaterObsDT[!(HotwaterObsDT$season=="Spring"),]
@@ -8985,15 +8986,56 @@ myPlot
 
 #Calculation to depict minimum and maximum and mean power
 
-MinMaxDT <- copy(HotwaterObsDT)
-
-MinMaxDT <- MinMaxDT[. ,powerW = (mean(powerW)), keyby = .(obsHourMin, season)]
-
-
-
+#Calculating the mean
+MinMaxDT <- copy(MinMax1DT)
+MinMaxDT <- MinMaxDT[, .(powerWmean = mean(powerW)), keyby = .(obsHourMin, season)]
+MinMax2DT <- copy(MinMax1DT)
 
 
+#Calculating the maximum
+MinMax2DT <- MinMax2DT[, powerW95 := powerW]
+MinMax2DT <- MinMax2DT[, .(powerW95 = mean(powerW95)), keyby =.(obsHourMin, season, hhID)]
 
+MinMax2DT <- MinMax2DT[, .(powerW95 = sum(powerW95)), keyby = .(obsHourMin, season)]
+
+
+#Merging data tables
+MinMaxDT <- MinMaxDT[, powerWmax := MinMax2DT$powerW95]
+MinMaxDT <- MinMaxDT[, powerWmax := (powerWmax*((1/30)*nzHHhotWater))/1000/1000]
+
+MinMaxDT <- MinMaxDT[, powerWmean := (powerWmean*nzHHhotWater)/1000/1000]
+
+#MinMaxDT <- MinMaxDT[, powerW95 := quantile(powerW95, 0.95), keyby = .(obsHourMin, season, hhID)]
+
+
+
+#Change the order in facet_grid()
+MinMaxDT$season <- factor(MinMaxDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(MinMaxDT, aes(x = obsHourMin)) +
+  geom_line(aes(y=powerWmean, colour = "powerWmean"), size=0.5) +
+  geom_line(aes(y=powerWmax, colour = "powerWmax"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily Hot Water demand mean and maximum minute granularity") +
+  scale_color_manual(labels = c("Mean MW",
+                                              "Max MW"), values = c("red",
+                                                                  "blue")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MW') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Daily Hot Water demand mean and maximum minute granularity.jpeg", dpi=600)
 
 
 
@@ -9049,6 +9091,8 @@ HeatPumpObsDT <- HeatPumpObsDT[month == 9 | month == 10 | month == 11, season :=
 #Correcting negative values
 HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$hhID=="rf_46"),]
 HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$powerW<0)]
+
+MinMax1DT <- copy(HeatPumpObsDT)
 #HeatPumpObsDT<-HeatPumpObsDT[, ifelse(powerW==27759, 0, powerW)]
 #Microsimulation only considers summer and winter
 HeatPumpObsDT <- HeatPumpObsDT[!(HeatPumpObsDT$season=="Autumn"),]
@@ -9202,6 +9246,51 @@ myPlot
 
 #ggsave("Heat pump winter evening peak half hour histo no avg.jpg", dpi=600)
 
+
+
+MinMaxDT <- copy(MinMax1DT)
+MinMaxDT <- MinMaxDT[, .(powerW = mean(powerW)), keyby = .(obsHourMin, season, hhID)]
+MinMax2DT <- copy(MinMaxDT)
+MinMaxDT <- MinMaxDT[, .(powerW = mean(powerW)), keyby = .(obsHourMin, season)]
+
+MinMax2DT <- MinMax2DT[, powerW95 := powerW]
+MinMax2DT <- MinMax2DT[, .(powerW95 = max(powerW95)), keyby = .(obsHourMin, season)]
+MinMaxDT <- MinMaxDT[, powerWmax := MinMax2DT$powerW95]
+MinMaxDT <- MinMaxDT[, powerWmax := (powerWmax*nzHHheatPumps)/1000/1000]
+
+MinMaxDT <- MinMaxDT[, powerW := (powerW*nzHHheatPumps)/1000/1000]
+
+#MinMaxDT <- MinMaxDT[, powerW95 := quantile(powerW95, 0.95), keyby = .(obsHourMin, season, hhID)]
+
+
+
+#Change the order in facet_grid()
+MinMaxDT$season <- factor(MinMaxDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+
+#Visualising Lighting development in Wh per household
+legend_title <- "Year"
+myPlot <- ggplot2::ggplot(MinMaxDT, aes(x = obsHourMin)) +
+  geom_line(aes(y=powerW, colour = "powerW"), size=0.5) +
+  geom_line(aes(y=powerWmax, colour = "powerWmax"), size=0.5) +
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Daily Heat Pump demand mean and maximum minute granularity") +
+  scale_color_manual(labels = c("Mean MW",
+                                              "Max MW"), values = c("red",
+                                                                  "blue")) +
+  facet_grid(season ~ .) +
+  labs(x='Time of Day', y='MW') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+ggsave("Daily Heat Pump demand mean and maximum minute granularity.jpeg", dpi=600)
 
 
 
