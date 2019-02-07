@@ -14,9 +14,9 @@ _None_ of the code here will work unless you also have access to the data. While
 There are two .R files in this folder:
 
  * nzGGProfileExtractorTemplate.Rmd - an RMarkdown template for loading the data, calculating the demand profiles, producing the plots and saving the extract. You should not need to edit the template;
- * nzGGProfileExtractor.R - the script that calls the template. Use the parameters in this script to set the `circuitPattern` (a string) and the two dates `dateFrom` and `dateTo` which define the timeframe to search in.
+ * makefile.R - the script that calls the template. Use the parameters in this script to set the `circuitPattern` (a string) and the two dates `dateFrom` and `dateTo` which define the timeframe to search in.
  
-Depending on the parameters you set, the template will use the cleaned gridSpy data to produce seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.) by:
+Depending on the parameters you set in the makefile, the template will use the cleaned gridSpy data to produce seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.) by:
 
  * extracting observations from each household file which match `circuitPattern` and fall between the two dates `dateFrom` and `dateTo`;
  * calculating the seasonal 1 minute power demand profiles for each household individually (mean) and across all households (mean, median & s.d.);
