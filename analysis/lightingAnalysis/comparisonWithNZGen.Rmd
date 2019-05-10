@@ -1,0 +1,182 @@
+---
+title: "Misc lighting calculations"
+author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
+date: 'Last run at: `r Sys.time()`'
+output:
+  bookdown::html_document2:
+    code_folding: hide
+    fig_caption: yes
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: TRUE
+bibliography: '`r path.expand("~/bibliography.bib")`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(GREENGridData)
+
+library(data.table)
+library(ggplot2)
+library(hms)
+library(kableExtra)
+library(lubridate)
+library(skimr)
+```
+
+# Get GREEN Grid Lighting Data
+
+Get Carsten's re-weighted lighting profile data - derived from [@anderson_new_2018]
+
+```{r getLight}
+ggLightDT <- data.table::fread("~/Dropbox/Work/Otago_CfS_Ben/Students/CarstenDortans_MSc/Writing bursary/Lighting.csv")
+
+skimr::skim(ggLightDT)
+
+head(ggLightDT)
+```
+
+Check that the datetimes are NZ time otherwise we won't be comparing the same half-hours.
+
+```{r checkTimes}
+ggLightDT <- ggLightDT[, r_dateTime := lubridate::as_datetime(r_dateTime)]
+ggLightDT$V1 <- NULL # how did that get there?
+ggLightDT <- ggLightDT[, hms := hms::as.hms(r_dateTime)]
+ggLightDT <- ggLightDT[, halfHour := hms::trunc_hms(hms, 60*30)]
+                                              
+ggLightDT <- GREENGridData::addNZSeason(ggLightDT)
+plotDT <- ggLightDT[, .(meanGW = mean(powerW/10000000)), keyby = .(halfHour, season)]
+p <- ggplot2::ggplot(plotDT, aes(x = halfHour, y = meanGW, colour = season)) +
+  geom_line() +
+  labs(x = "Time of Day",
+       y = "Mean power demand (Lighting, GW)",
+       caption = "GREEN Grid lighting data re-weighted to NZ population")
+p
+```
+
+Looks OK. This is because `hms::as.hms()` cleverly converts `r_dateTime` which it assumes to be UTC (it is) into local time. Without telling us...
+
+Now convert that to half-hourly GWh for comparison with EA data.
+
+```{r convertToHHGwh}
+# do this before aggregating
+ggLightDT <- ggLightDT[, powerWh := powerW/60] # cos it's per minute
+ggLightDT <- ggLightDT[, consumptionGWh := powerWh/1000000000]
+
+# need to aggregate from 1 min to (all) half hours
+ggLightDT <- ggLightDT[, halfHourDate := lubridate::floor_date(r_dateTime, "30 mins")]
+dt <- ggLightDT[, .(consumptionGWh = sum(consumptionGWh)), keyby = .(halfHourDate, halfHour, season)]
+
+# now get the mean
+plotGG_DT <- dt[, .(MeanGWh = mean(consumptionGWh)), keyby = .(halfHour, season)]
+
+# check
+message("Sum of GWh before agg = ", sum(ggLightDT$consumptionGWh))
+message("Sum of GWh after agg = ", sum(dt$consumptionGWh))
+
+p <- ggplot2::ggplot(plotGG_DT, aes(x = halfHour, y = MeanGWh, colour = season)) +
+  geom_line() +
+  labs(x = "Time of Day",
+       y = "Mean power demand (Lighting, GW)",
+       caption = "GREEN Grid lighting data re-weighted to NZ population")
+p
+
+```
+
+# Get EA Generation data for 2015
+
+Get the 2015 Generation data from the EA (igores distributed gen - solar as not really relevant to evening peaks). Data pre-downloaded from https://www.emi.ea.govt.nz/Wholesale/Datasets/Generation/Generation_MD & cleaned.
+
+```{r getGen}
+eaPath <- "~/Data/NZ_GREENGrid/ea/"
+
+fList <- data.table::as.data.table(list.files(eaPath))
+
+f2015 <- fList[V1 %like% "2015" & V1 %like% "long"]
+f2015 <- f2015[, fullName := paste0(eaPath, V1)]
+ea2015GenDT <- data.table::data.table() # data bucket
+
+# load them all in one go very fast
+ea2015GenDT = rbindlist(lapply(f2015$fullName, fread))
+
+skimr::skim(ea2015GenDT)
+
+head(ea2015GenDT)
+```
+
+Now do the same process of checking and aggregating.
+
+```{r checkGen}
+ea2015GenDT <- ea2015GenDT[, r_dateTime := lubridate::as_datetime(rDateTime)]
+ea2015GenDT <- ea2015GenDT[, r_dateTime := lubridate::force_tz(r_dateTime, tzone = "Pacific/Auckland")] # got to force it
+
+ea2015GenDT <- ea2015GenDT[, hms := hms::as.hms(r_dateTime)]
+ea2015GenDT <- ea2015GenDT[, halfHour := hms::trunc_hms(hms, 60*30)]
+
+ea2015GenDT <- GREENGridData::addNZSeason(ea2015GenDT)
+
+# make GWh
+ea2015GenDT <- ea2015GenDT[, consumptionGWh := kWh/1000000]
+
+# add up to total GWh for eachhalf hour (currently it's per gen site/fuel)
+aggea2015GenDT <- ea2015GenDT[, .(consumptionGWh = sum(consumptionGWh)), keyby = .(season, r_dateTime, halfHour)]
+
+# check
+message("Sum of GWh = ", sum(aggea2015GenDT$consumptionGWh))
+
+# now re-create plotDT for the mean
+plotEA_DT <- aggea2015GenDT[, .(MeanGWh = mean(consumptionGWh)), keyby = .(halfHour, season)]
+p <- ggplot2::ggplot(plotEA_DT, aes(x = halfHour, y = MeanGWh, colour = season)) +
+  geom_line() +
+  labs(x = "Time of Day",
+       y = "Mean energy consumption per half-hour (All, GWh)",
+       caption = "EA Wholesale Generation data (excl. distributed solar)")
+p
+
+```
+
+# Lighting as a % of total consumption
+
+So now we need to plot the contribution of lighting to this.
+
+```{r combineData}
+setkey(plotEA_DT, season, halfHour)
+setkey(plotGG_DT, season, halfHour)
+
+plotEA_DT <- plotEA_DT[, eaMeanGWh := MeanGWh]
+plotGG_DT <- plotGG_DT[, lightingMeanGWh := MeanGWh]
+
+plotDT <- plotEA_DT[plotGG_DT]
+plotDT <- plotDT[, pc_lighting := 100*(lightingMeanGWh/eaMeanGWh)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = halfHour, y = pc_lighting, colour = season)) +
+  geom_line() +
+  labs(x = "Time of Day",
+       y = "Lighting as a % of total generation (GWh)",
+       caption = "EA Wholesale generation data & GREEN Grid population weighted lighting data")
+  
+p
+
+t <- summary(plotDT[, .(eaMeanGWh,lightingMeanGWh,pc_lighting )])
+
+kableExtra::kable(t, caption = "Summary of data results") %>%
+  kable_styling()
+```
+
+```{r theEnd}
+
+```
+
+# R packages used
+
+ * GREENGridData - [@GREENGridData]
+ * data.table - [@data.table]
+ * ggplot2 - [@ggplot2]
+ * hms - [@hms]
+ * kableExtra - [@kableExtra]
+ * lubridate - [@lubridate]
+ * skimr - [@skimr]
+
+# References
