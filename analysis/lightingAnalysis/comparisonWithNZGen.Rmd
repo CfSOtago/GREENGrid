@@ -79,7 +79,7 @@ message("Sum of GWh after agg = ", sum(dt$consumptionGWh))
 p <- ggplot2::ggplot(plotGG_DT, aes(x = halfHour, y = MeanGWh, colour = season)) +
   geom_line() +
   labs(x = "Time of Day",
-       y = "Mean power demand (Lighting, GW)",
+       y = "Mean energy consumption (Lighting, GWh)",
        caption = "GREEN Grid lighting data re-weighted to NZ population")
 p
 
