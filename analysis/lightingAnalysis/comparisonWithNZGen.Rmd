@@ -121,13 +121,15 @@ ea2015GenDT <- GREENGridData::addNZSeason(ea2015GenDT)
 ea2015GenDT <- ea2015GenDT[, consumptionGWh := kWh/1000000]
 
 # add up to total GWh for eachhalf hour (currently it's per gen site/fuel)
-aggea2015GenDT <- ea2015GenDT[, .(consumptionGWh = sum(consumptionGWh)), keyby = .(season, r_dateTime, halfHour)]
+aggea2015GenDT <- ea2015GenDT[, .(consumptionGWh = sum(consumptionGWh, na.rm = TRUE)), # avoid NAs in dates (DST breaks) & kWh
+                              keyby = .(season, r_dateTime, halfHour)]
 
 # check
 message("Sum of GWh = ", sum(aggea2015GenDT$consumptionGWh))
 
 # now re-create plotDT for the mean
-plotEA_DT <- aggea2015GenDT[, .(MeanGWh = mean(consumptionGWh)), keyby = .(halfHour, season)]
+plotEA_DT <- aggea2015GenDT[!is.na(r_dateTime), # avoid the single broken datetime as it messes with the plot
+                            .(MeanGWh = mean(consumptionGWh)), keyby = .(halfHour, season)]
 p <- ggplot2::ggplot(plotEA_DT, aes(x = halfHour, y = MeanGWh, colour = season)) +
   geom_line() +
   labs(x = "Time of Day",
@@ -145,10 +147,10 @@ So now we need to plot the contribution of lighting to this.
 setkey(plotEA_DT, season, halfHour)
 setkey(plotGG_DT, season, halfHour)
 
-plotEA_DT <- plotEA_DT[, eaMeanGWh := MeanGWh]
+plotEA_DT <- plotEA_DT[,eaMeanGWh := MeanGWh]
 plotGG_DT <- plotGG_DT[, lightingMeanGWh := MeanGWh]
 
-plotDT <- plotEA_DT[plotGG_DT]
+plotDT <- plotEA_DT[!is.na(MeanGWh)][plotGG_DT] #get rid of the bloody DST breaks
 plotDT <- plotDT[, pc_lighting := 100*(lightingMeanGWh/eaMeanGWh)]
 
 p <- ggplot2::ggplot(plotDT, aes(x = halfHour, y = pc_lighting, colour = season)) +
@@ -163,6 +165,38 @@ t <- summary(plotDT[, .(eaMeanGWh,lightingMeanGWh,pc_lighting )])
 
 kableExtra::kable(t, caption = "Summary of data results") %>%
   kable_styling()
+```
+
+Finally we calculate the mean GWh and % contribution of lighting in the morning and evening peak periods for use in the paper.
+
+```{r peaksTable}
+amPeakStart <- hms::as.hms("07:00:00")
+amPeakEnd <- hms::as.hms("09:00:00")
+pmPeakStart <- hms::as.hms("17:00:00") # see https://www.electrickiwi.co.nz/hour-of-power
+pmPeakEnd <- hms::as.hms("21:00:00") # see https://www.electrickiwi.co.nz/hour-of-power
+
+plotDT$peakCode <- "Off peak (night)"
+
+plotDT <- plotDT[, peakCode := ifelse(halfHour >= amPeakStart &
+                                        halfHour < amPeakEnd, 
+                                      "Morning peak", 
+                                      peakCode)]
+plotDT <- plotDT[, peakCode := ifelse(halfHour > amPeakEnd &
+                                        halfHour < pmPeakStart, 
+                                      "Off peak (day)", 
+                                      peakCode)]
+plotDT <- plotDT[, peakCode := ifelse(halfHour >= pmPeakStart &
+                                        halfHour < pmPeakEnd, 
+                                      "Evening peak", 
+                                      peakCode)]
+
+t <- plotDT[, .('Mean GWh generation' = mean(eaMeanGWh),
+                'Mean lighting GWh consumption' = mean(lightingMeanGWh),
+                'Mean lighting %' = mean(pc_lighting),
+                'Max lighting %' = max(pc_lighting)), keyby = .(season,peakCode)]
+kableExtra::kable(t, caption = "Summary of off/peak results (half-hourly data)") %>%
+  kable_styling()
+
 ```
 
 ```{r theEnd}
