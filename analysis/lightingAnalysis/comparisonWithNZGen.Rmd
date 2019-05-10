@@ -163,7 +163,7 @@ p
 
 t <- summary(plotDT[, .(eaMeanGWh,lightingMeanGWh,pc_lighting )])
 
-kableExtra::kable(t, caption = "Summary of data results") %>%
+kableExtra::kable(t, caption = "Summary of data results", digits = 3) %>%
   kable_styling()
 ```
 
@@ -194,7 +194,9 @@ t <- plotDT[, .('Mean GWh generation' = mean(eaMeanGWh),
                 'Mean lighting GWh consumption' = mean(lightingMeanGWh),
                 'Mean lighting %' = mean(pc_lighting),
                 'Max lighting %' = max(pc_lighting)), keyby = .(season,peakCode)]
-kableExtra::kable(t, caption = "Summary of off/peak results (half-hourly data)") %>%
+kableExtra::kable(t, 
+                  caption = "Summary of off/peak results (half-hourly data)",
+                  digits = 2) %>%
   kable_styling()
 
 ```
