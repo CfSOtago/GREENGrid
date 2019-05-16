@@ -9061,6 +9061,148 @@ myPlot
 
 
 ```
+##Lighting
+```{r lighting density}
+
+##Calculates density in winter evening peak
+LightingHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+LightObsDT <- data.table::as.data.table(LightingHCS)
+
+##BEN
+
+#LightObsDT <- LightObsDT[, hhID:=NULL]
+#LightObsDT <- LightObsDT[, linkID:=NULL]
+#LightObsDT <- LightObsDT[, circuit:=NULL]
+#LightObsDT <- LightObsDT[, powerW:= ifelse(powerW <= 0, 0, powerW)]
+#LightObsDT <- LightObsDT[, GWh := powerW/60/1000/1000/1000]
+
+#Scaling <- ConsumptionTot2015 / sum(LightObsDT$GWh)
+#LightObsDT <- LightObsDT[, GWh := GWh * Scaling]
+#LightObsDT <- LightObsDT[, powerW := GWh*60*1000*1000*1000]
+#LightObsDT <- LightObsDT[, GWh := NULL]
+
+#write.csv(LightObsDT, file = "Lighting.csv")
+
+
+
+
+
+
+
+
+LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
+LightObsDT <- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT <- LightObsDT[, month := lubridate::month(r_dateTime)]
+
+LightObsDT <- LightObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+LightObsDT <- LightObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT <- LightObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+
+LightObsDT <- LightObsDT[!(LightObsDT$season=="Autumn"),]
+LightObsDT <- LightObsDT[!(LightObsDT$season=="Spring"),]
+LightObsDT <- LightObsDT[!(LightObsDT$season=="Summer"),]
+
+
+LightObsDT <- LightObsDT[, powerW:= ifelse(powerW <= 0, 0, powerW)]
+
+
+LoadDistDT <- copy(LightObsDT)
+
+#Defining peak and off-peak periods
+LoadDistDT <- LoadDistDT[, Period := "Not Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= MPS & 
+                     obsHourMin <= MPE,
+                   Period := "Morning Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= EPS & 
+                     obsHourMin <= EPE,
+                   Period := "Evening Peak"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP1S & 
+                     obsHourMin <= OP1E,
+                   Period := "Off Peak 1 (Evening)"]
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP12S & 
+                     obsHourMin <= OP12E,
+                   Period := "Off Peak 1 (Morning)"]
+
+
+LoadDistDT <- LoadDistDT[obsHourMin >= OP2S & 
+                     obsHourMin <= OP2E,
+                   Period := "Off Peak 2"]
+
+LoadDistMPDT <- copy(LoadDistDT)
+
+
+
+
+
+#Test
+#LoadDistMPDT <- LoadDistMPDT[, GWh := powerW/60/1000/1000/1000]
+#Scaling <- ConsumptionTot2015 / sum(LoadDistMPDT$GWh)
+#LoadDistMPDT <- LoadDistMPDT[, GWh := GWh * Scaling]
+#LoadDistMPDT <- LoadDistMPDT[, powerW := GWh*60*1000*1000*1000]
+#LoadDistMPDT <- LoadDistMPDT[, GWh := NULL]
+
+#LoadDistMPDT <- LoadDistDT[, powerMW := (powerW*NZhouseholds2015)/1000/1000]
+LoadDistMPDT <- LoadDistMPDT[, powerMW := (powerW*NZhouseholds2015/1000/1000)]
+
+#LoadDistMPDT <- LoadDistMPDT[, powerW := (powerW)] ##Per household plot
+
+
+#Density plot morning peak
+
+myPlot <- ggplot2::ggplot(subset(LoadDistMPDT, Period %in% c("Evening Peak")), aes(x=powerMW)) +
+  geom_density() +
+ # scale_x_continuous( limits = c(0,3000))+
+     geom_vline(aes(xintercept=mean(powerMW)),
+            color="blue", linetype="dashed", size=0.5)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting winter evening peak half hour density whole season no avg") 
+ # facet_grid(DOW ~ .) +
+myPlot
+
+#ggsave("Lighting winter evening peak half hour density whole season no avg.jpg", dpi=600)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
 ##Heat Pump
 ```{r heat pump}
 
