@@ -1,0 +1,345 @@
+---
+params:
+  title: 'New Zealand Electricity Ripple Control Analysis'
+title: '`r params$title`'
+author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
+date: 'Last run at: `r Sys.time()`'
+output:
+  bookdown::html_document2:
+    code_folding: hide
+    fig_caption: yes
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: TRUE
+  bookdown::pdf_document2:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+bibliography: '`r path.expand("~/bibliography.bib")`'
+---
+
+```{r knitrSetup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # by default turn off code echo
+```
+
+
+```{r codeSetup, include=FALSE}
+
+# Set start time ----
+startTime <- proc.time()
+
+# Local parameters ----
+library(GREENGrid)
+GREENGrid::setup() # set package parameters mostly from ggParams.R
+
+# fix to suit
+etFile <- "https://comcom.govt.nz/__data/assets/excel_doc/0014/100670/Electricity-distribution-businesses-emerging-technology-data-10-October-2018.xlsx" #  original
+perfFile <- "https://comcom.govt.nz/__data/assets/excel_doc/0016/105253/Performance-summaries-for-electricity-distributors-Year-to-31-March-2018.XLSX"
+
+# cos read_xl can't do net calls
+etFileLocal <- path.expand("~/Data/NZ_ComCom/Electricity-distribution-businesses-emerging-technology-data-10-October-2018.xlsx")
+perfFileLocal <- path.expand("~/Data/NZ_ComCom/Performance-summaries-for-electricity-distributors-Year-to-31-March-2018.XLSX")
+
+# Packages needed in this .Rmd file ----
+rmdLibs <- c("data.table", # data munching
+             "ggplot2", # for fancy graphs
+             "kableExtra", # for pretty kable
+             "lubridate", # date & time stuff
+             "plotly", # interactive plots
+             "readr", # for reading & parsing .csv files
+             "readxl" # xlsx
+)
+# load them
+GREENGrid::loadLibraries(rmdLibs)
+
+# Local functions ----
+
+
+```
+
+\newpage
+
+# About
+
+## Report circulation:
+
+ * Public
+ 
+## License
+
+```{r ccby license, child=ggParams$licenseCCBY}
+```
+ 
+## Citation
+
+If you wish to use any of the material from this report please cite as:
+
+ * Anderson, B. (`r lubridate::year(today())`) `r paste0(params$title)`. `r ggParams$pubLoc`.
+
+This work is (c) `r lubridate::year(today())` the University of Southampton.
+
+## History
+
+ * [Report history](https://github.com/CfSOtago/GREENGrid/commits/master/analysis/rippleCOntrol/rippleControlAnalysis.Rmd)
+
+## Support
+
+```{r generic support, child=ggParams$supportGeneric}
+```
+ 
+\newpage
+
+# Introduction
+
+```{r generic sample, child=ggParams$sampleGeneric}
+```
+ 
+Report purpose: 
+ 
+ * provides summary analysis of hot water ripple control availability in New Zealand. Availability does not necessarily mean it is actually in use...
+
+# Load data
+
+The data used to generate this report is:
+
+ * `r perfFile`
+ * `r etFile`
+
+```{r loadData, include=FALSE}
+etDT <- data.table::as.data.table(readxl::read_xlsx(etFileLocal, 
+                                                  sheet = "Database")) 
+
+perfDT <- data.table::as.data.table(readxl::read_xlsx(perfFileLocal, 
+                                                  sheet = "dataset")) 
+```
+
+# Load control
+
+Variables available under load control:
+
+```{r}
+lcDT <- etDT[Category == "Load control"]
+t <- table(lcDT$Description)
+
+kableExtra::kable(t, caption = "Available variables (Load control)") %>%
+  kable_styling()
+```
+
+## Prevalence of ripple control
+
+```{r rippleDesc}
+
+# we need total ICPs from perfFile
+
+icpDT <- perfDT[Selection == "Average no. of ICPs in disclosure year"]
+icpDT$Source <- NULL
+icpDT$Selection <- NULL
+icpDT$Section <- NULL
+icpDT$Schedule <- NULL
+icpDT$Index <- NULL
+icpDT$Units <- NULL
+icpDT$Category <- NULL
+icpDT$xllookup <- NULL
+
+m_icpDT <- reshape2::melt(icpDT, id.vars = c("Year"))
+setnames(m_icpDT, "variable", "orgName")
+setnames(m_icpDT, "value","totalICPcount")
+m_icpDT[orgName %like% "MainPower", orgName := "Mainpower"] # for matching
+m_icpDT[orgName %like% "Orion", orgName := "Orion"] # for matching
+m_icpDT[orgName %like% "Unison", orgName := "Unison"] # for matching
+m_icpDT[orgName %like% "Vector", orgName := "Vector"] # for matching
+m_icpDT <- m_icpDT[orgName != "Industry" & orgName != "Price-quality"]
+
+setnames(lcDT, "EDB","orgName")
+
+rcDT <- lcDT[Description == "Estimated number of ICPs with ripple control" &
+               orgName != "Industry" & orgName != "Price-quality", # filter out the summaries
+             .(Year, orgName, Value)]
+
+setnames(rcDT, "Value", "rcICPs")
+rcDT[, Year := as.numeric(Year)]
+
+setkey(rcDT, Year, orgName)
+setkey(m_icpDT, Year, orgName)
+
+lcDTm <- merge(m_icpDT,rcDT, all = TRUE) # NB 'ID only' will not match
+
+lcDTm[, rcICPs := as.numeric(rcICPs)]
+lcDTm[, pc_rcICPs := rcICPs/totalICPcount]
+
+t <- lcDTm[, .("Mean %" = mean(pc_rcICPs, na.rm = TRUE)*100), keyby = .(Year)]
+
+kableExtra::kable(t, caption = "Mean % ICPs with ripple control by year", digits = 2) %>%
+  kable_styling()
+```
+
+NA and Inf errors indicate records where we can't match the ICP counts from the perfomrance data to the specfic EDB in the load control data.
+
+```{r trendPlot}
+t <- lcDTm[, .("Mean %" = mean(pc_rcICPs*100, na.rm = TRUE),
+               "Min %" = min(pc_rcICPs*100, na.rm = TRUE),
+               "Max %" = max(pc_rcICPs*100, na.rm = TRUE)),
+           keyby = .(orgName)][order(-`Mean %`)]
+
+kableExtra::kable(t, caption = "Mean % ICPs with ripple control by EDB", digits = 2) %>%
+  kable_styling()
+
+plotDT <- lcDTm[, .(pc_rcICPs, Year, orgName)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = 100*pc_rcICPs, colour = orgName)) + 
+  geom_line() +
+  labs(y = "%")
+
+plotly::ggplotly(p) # for interaction
+```
+
+## MW ripple control
+
+```{r descMWrc}
+rcMWDT <- lcDT[Description == "Load control capacity from ripple control", # filter out the summaries
+             .(Year, orgName, Value)]
+
+setnames(rcMWDT, "Value", "mw")
+rcMWDT[, Year := as.numeric(Year)]
+rcMWDT[, mw := as.numeric(mw)]
+
+t <- rcMWDT[, .("Mean MW" = mean(mw, na.rm = TRUE),
+                "Min MW" = min(mw, na.rm = TRUE),
+                "Max MW" = max(mw, na.rm = TRUE)), keyby = .(Year)]
+
+kableExtra::kable(t, caption = "MW ripple controlled by year (over EDBs)", digits = 2) %>%
+  kable_styling()
+```
+
+```{r mWtrendPlot}
+t <- rcMWDT[, .("Mean" = mean(mw, na.rm = TRUE),
+               "Min" = min(mw, na.rm = TRUE),
+               "Max" = max(mw, na.rm = TRUE)),
+           keyby = .(orgName)][order(-`Mean`)]
+
+kableExtra::kable(t, caption = "MW ripple control by EDB", digits = 2) %>%
+  kable_styling()
+
+plotDT <- rcMWDT[, .(mw, Year, orgName)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = mw, colour = orgName)) + 
+  geom_line() +
+  labs(y = "MW")
+
+plotly::ggplotly(p) # for interaction
+```
+
+## Demand response contracts
+
+Load control capacity from demand response contracts 
+
+```{r descMWdr}
+dt <- lcDT[Description == "Load control capacity from demand response contracts",
+             .(Year, orgName, Value)]
+
+setnames(dt, "Value", "mw")
+dt[, Year := as.numeric(Year)]
+dt[, mw := as.numeric(mw)]
+
+t <- dt[, .("Mean MW" = mean(mw, na.rm = TRUE),
+                "Min MW" = min(mw, na.rm = TRUE),
+                "Max MW" = max(mw, na.rm = TRUE)), keyby = .(Year)]
+
+kableExtra::kable(t, caption = "MW demand response contracts by year (over EDBs)", digits = 2) %>%
+  kable_styling()
+```
+
+```{r dr_mWtrendPlot}
+t <- dt[, .("Mean" = mean(mw, na.rm = TRUE),
+               "Min" = min(mw, na.rm = TRUE),
+               "Max" = max(mw, na.rm = TRUE)),
+           keyby = .(orgName)][order(-`Mean`)]
+
+kableExtra::kable(t, caption = "MW demand response contracts by EDB", digits = 2) %>%
+  kable_styling()
+
+plotDT <- dt[, .(mw, Year, orgName)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = mw, colour = orgName)) + 
+  geom_line() +
+  labs(y = "MW")
+
+plotly::ggplotly(p) # for interaction
+```
+
+
+
+## Distirbuted batteries
+
+Load control capacity from distributed batteries 
+
+```{r descMWbat}
+dt <- lcDT[Description == "Load control capacity from distributed batteries",
+             .(Year, orgName, Value)]
+
+setnames(dt, "Value", "mw")
+dt[, Year := as.numeric(Year)]
+dt[, mw := as.numeric(mw)]
+
+t <- dt[, .("Mean MW" = mean(mw, na.rm = TRUE),
+                "Min MW" = min(mw, na.rm = TRUE),
+                "Max MW" = max(mw, na.rm = TRUE)), keyby = .(Year)]
+
+kableExtra::kable(t, caption = "MW Load control capacity from distributed batteries by year (over EDBs)", digits = 2) %>%
+  kable_styling()
+```
+
+```{r bat_mWtrendPlot}
+t <- dt[, .("Mean" = mean(mw, na.rm = TRUE),
+               "Min" = min(mw, na.rm = TRUE),
+               "Max" = max(mw, na.rm = TRUE)),
+           keyby = .(orgName)][order(-`Mean`)]
+
+kableExtra::kable(t, caption = "MW Load control capacity from distributed batteries by EDB", digits = 2) %>%
+  kable_styling()
+
+plotDT <- dt[, .(mw, Year, orgName)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = mw, colour = orgName)) + 
+  geom_line() +
+  labs(y = "MW")
+
+plotly::ggplotly(p) # for interaction
+```
+
+
+
+# Runtime
+
+
+```{r check runtime, include=FALSE}
+t <- proc.time() - startTime
+
+elapsed <- t[[3]]
+```
+
+Analysis completed in `r round(elapsed,2)` seconds ( `r round(elapsed/60,2)` minutes) using [knitr](https://cran.r-project.org/package=knitr) in [RStudio](http://www.rstudio.com) with `r R.version.string` running on `r R.version$platform`.
+
+# R environment
+
+## R packages used
+
+ * base R [@baseR]
+ * bookdown [@bookdown]
+ * data.table [@data.table]
+ * ggplot2 [@ggplot2]
+ * readxl [@readxl]
+ * kableExtra [@kableExtra]
+ * knitr [@knitr]
+ * rmarkdown [@rmarkdown]
+
+## Session info
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References
