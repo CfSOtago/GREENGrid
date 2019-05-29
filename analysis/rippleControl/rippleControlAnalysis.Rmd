@@ -118,9 +118,9 @@ perfDT <- data.table::as.data.table(readxl::read_xlsx(perfFileLocal,
 
 # Load control
 
-Variables available under load control:
+Table \@ref(tab:loadControlVars) shows ariables available under load control.
 
-```{r}
+```{r loadControlVars}
 lcDT <- etDT[Category == "Load control"]
 t <- table(lcDT$Description)
 
@@ -129,6 +129,8 @@ kableExtra::kable(t, caption = "Available variables (Load control)") %>%
 ```
 
 ## Prevalence of ripple control
+
+To calculate this we use `Estimated number of ICPs with ripple control` (from `r etFile`) and the total number of ICPs for each EDB recorded in the performance data (`r perfFile`).
 
 ```{r rippleDesc}
 
@@ -176,14 +178,15 @@ kableExtra::kable(t, caption = "Mean % ICPs with ripple control by year", digits
   kable_styling()
 ```
 
-NA and Inf errors indicate records where we can't match the ICP counts from the perfomrance data to the specfic EDB in the load control data.
+NA and Inf errors indicate records where we can't match the ICP counts from the performance data to the specfic EDB in the load control data.
 
 ```{r trendPlot}
 t <- lcDTm[, .("Mean %" = mean(pc_rcICPs*100, na.rm = TRUE),
                "Min %" = min(pc_rcICPs*100, na.rm = TRUE),
-               "Max %" = max(pc_rcICPs*100, na.rm = TRUE)),
-           keyby = .(orgName)][order(-`Mean %`)]
-
+               "Max %" = max(pc_rcICPs*100, na.rm = TRUE),
+               "Max total n ICPs" = max(totalICPcount, na.rm = TRUE)),
+           keyby = .(orgName)][order(-`Max total n ICPs`)]
+t$`Max total n ICPs` <- tidyNum(t$`Max total n ICPs`) # do this here as make char
 kableExtra::kable(t, caption = "Mean % ICPs with ripple control by EDB", digits = 2) %>%
   kable_styling()
 
@@ -196,7 +199,9 @@ p <- ggplot2::ggplot(plotDT, aes(x = Year, y = 100*pc_rcICPs, colour = orgName))
 plotly::ggplotly(p) # for interaction
 ```
 
-## MW ripple control
+## Ripple control load control capacity
+
+-> `Load control capacity from ripple control`
 
 ```{r descMWrc}
 rcMWDT <- lcDT[Description == "Load control capacity from ripple control", # filter out the summaries
@@ -213,6 +218,17 @@ t <- rcMWDT[, .("Mean MW" = mean(mw, na.rm = TRUE),
 kableExtra::kable(t, caption = "MW ripple controlled by year (over EDBs)", digits = 2) %>%
   kable_styling()
 ```
+
+Table \@ref(missingMW) shows which EDBs did not submit MW capacity data.
+
+```{r missingMW}
+naDT <- rcMWDT[is.na(mw),]
+
+t <- with(naDT, table(orgName,Year))
+
+kableExtra::kable(t, caption = "Missing MW capacity (1 = missing data)")
+```
+
 
 ```{r mWtrendPlot}
 t <- rcMWDT[, .("Mean" = mean(mw, na.rm = TRUE),
