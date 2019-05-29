@@ -219,18 +219,15 @@ kableExtra::kable(t, caption = "MW ripple controlled by year (over EDBs)", digit
   kable_styling()
 ```
 
-<<<<<<< HEAD
 Table \@ref(tab:missingMW) shows which EDBs did not submit MW capacity data.
-=======
-Table \@ref(missingMW) shows which EDBs did not submit MW capacity data.
->>>>>>> 7d16829b31bffd339d179c53967db94b94f4a990
 
 ```{r missingMW}
 naDT <- rcMWDT[is.na(mw),]
 
 t <- with(naDT, table(orgName,Year))
 
-kableExtra::kable(t, caption = "Missing MW capacity (1 = missing data)")
+kableExtra::kable(t, caption = "Missing MW capacity (1 = missing data)") %>%
+  kable_styling()
 ```
 
 
