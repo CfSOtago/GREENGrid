@@ -16,6 +16,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 # Set start time ----
 startTime <- proc.time()
+
+# Libraries ----
 library(data.table)
 library(ggplot2)
 library(hms)
@@ -24,17 +26,28 @@ library(lubridate)
 library(plotly)
 library(skimr)
 
+# Data file ----
+# make platform independent
+
+dFile <- "/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/OtagoUni/MedicalSchoolBuildingsOtago.csv" # default
+
+# if BA
+userName <- Sys.info()[[7]]
+
+if(userName == "ben"){
+  dFile <- "~/Data/OtagoUni/MedicalSchoolBuildings.csv"
+}
 ```
 
 # Load data
 
 Use `data.table::fread()` to load the data. It deals with the `;` delimiter automatically.
 
-Then list the columns/variables.
+Loadng data from `dFile`, reporting any warnings and listing the columns/variables:
 
 ```{r loadData}
 
-dt <- data.table::fread(path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/OtagoUni/MedicalSchoolBuildingsOtago.csv"), 
+dt <- data.table::fread(path.expand(dFile), 
                   )
 message("N rows:", nrow(dt))
 names(dt)
