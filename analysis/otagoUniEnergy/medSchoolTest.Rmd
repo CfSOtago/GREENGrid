@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 startTime <- proc.time()
 library(data.table)
 library(ggplot2)
+library(hms)
 library(kableExtra)
 library(lubridate)
 library(plotly)
@@ -35,10 +36,13 @@ names(dt)
 ```
 
 # Clean data
+
+During this process we force R to think the timezone of the original `Time` variable to be NZ Time.
+
 ```{r cleanData}
 
-dt[, dateTime := lubridate::dmy_hms(Time)] # is this UTC?
-
+dt[, dateTime := lubridate::dmy_hms(Time)] # is this UTC? No we think it's NZ time
+dt[, dateTime := lubridate::force_tz(dateTime, tzone = "Pacific/Auckland")]
 dt[, hour := lubridate::hour(dateTime)]
 
 # check
@@ -63,7 +67,11 @@ ggplot2::ggplot(cleanDT, aes(x = dateTime)) +
   geom_line(aes(y = avg))
 ```
 
-So clearly we have cumulative observations. Calculate the difference making sure the data us sorted by date time and repeat the plot.
+So clearly we have cumulative observations. 
+
+# Test data
+
+Next we calculate the difference making sure the data us sorted by date time and repeat the plot.
 
 ```{r getEnergy, fig.cap="Average electricity consumption per 15 minute period" }
 setkey(cleanDT, dateTime)
@@ -116,7 +124,23 @@ Whats going on? Firstly:
  * 7 Apr 2019 - Daylight Saving Time Ended - this will effect observations around 02:00 on Sunday 7th April when there will be a whole hour 'catch up'. So 8 observations will be allocated to the DST break hour. This means that there will be a mini-spike in apparent consumption;
  * 18 Feb 2019 - most likely a data outage causes a 'catch-up' spike (see Figure \@ref(fig:getEnergy))
 
+# Demand profile plots
 
+No data cleaning here. Should remove the 18th Feb data point...
+
+```{r profilePlots, fig.height=8, fig.cap="Monthly consumption profile plots"}
+cleanDT[, hms := hms::as.hms(dateTime)]
+cleanDT[, dow := lubridate::wday(date, label = TRUE)]
+cleanDT[, month := lubridate::month(date, label = TRUE)]
+
+plotDT <- cleanDT[, .(nObs = .N,
+                      meanCons = mean(avgCons)), keyby = .(hms, dow, month)]
+
+ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons, colour = dow)) + 
+  geom_point() +
+  facet_grid(month ~ .)
+
+```
 # Runtime
 
 
