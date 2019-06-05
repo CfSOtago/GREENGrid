@@ -95,7 +95,7 @@ So clearly we have cumulative observations.
 
 # Test data
 
-Next we calculate the difference making sure the data us sorted by date time and repeat the plot.
+Next we calculate the difference making sure the data is sorted by date time and repeat the plot.
 
 ```{r getEnergy, fig.cap="Average electricity consumption per 15 minute period" }
 setkey(cleanDT, dateTime)
