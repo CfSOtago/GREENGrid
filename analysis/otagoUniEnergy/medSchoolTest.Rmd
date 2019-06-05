@@ -178,6 +178,7 @@ R packages used:
  * base R - for the basics [@baseR]
  * bookdown - to make the report [@bookdown]
  * data.table - for fast (big) data handling [@data.table]
+ * hms - clock time [@hms]
  * lubridate - date manipulation [@lubridate]
  * ggplot2 - for slick graphics [@ggplot2]
  * kableExtra - neat tables [@kableExtra]
