@@ -141,6 +141,23 @@ ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons, colour = dow)) +
   facet_grid(month ~ .)
 
 ```
+
+And now with the outlier removed...
+
+```{r profilePlotsClean, fig.height=8, fig.cap="Monthly consumption profile plots (Feb 2019 outlier removed)"}
+
+# just aggregate the data which is less than the max value
+plotDT <- cleanDT[avgCons < max(avgCons, na.rm = TRUE), # watch out for the NA
+                  .(nObs = .N,
+                      meanCons = mean(avgCons)), 
+                  keyby = .(hms, dow, month)]
+
+ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons, colour = dow)) + 
+  geom_point() +
+  facet_grid(month ~ .)
+
+```
+
 # Runtime
 
 
