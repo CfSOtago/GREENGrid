@@ -43,7 +43,7 @@ if(userName == "ben"){
 
 Use `data.table::fread()` to load the data. It deals with the `;` delimiter automatically.
 
-Loadng data from `dFile`, reporting any warnings and listing the columns/variables:
+Loadng data from `r dFile`, reporting any warnings and listing the columns/variables:
 
 ```{r loadData}
 
@@ -75,7 +75,7 @@ message("Keeping: ")
 names(cleanDT)
 ```
 
-Now clean the data. During this process we force R to think the timezone of the original `Time` variable is NZ Time. This is important because otherwise R might (sometimes) assume it is UTC and we would then get DST break errors and incorrect daily profiles.
+Now clean the data. During this process we force R to think the timezone of the original `Time` variable is NZ Time. If we didn't R might (sometimes) assume it is UTC and we would then get DST break errors and incorrect daily profiles.
 
 ```{r cleanData}
 
