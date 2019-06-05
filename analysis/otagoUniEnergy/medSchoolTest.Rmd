@@ -1,13 +1,13 @@
 ---
 title: "Otago University Medical School Buildings Energy Consumption Data"
-author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`)"
+author: "Ben Anderson (b.anderson@soton.ac.uk, `@dataknut`), Carsten Dortans (carsten.dortans@web.de)"
 date: 'Last run at: `r Sys.time()`'
 output:
   bookdown::html_document2:
     self_contained: no
     toc: yes
     toc_float: yes
-bibliography: '`r path.expand("~/bibliography.bib")`'
+#bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 # Setup
@@ -34,7 +34,7 @@ Then list the columns/variables.
 
 ```{r loadData}
 
-dt <- data.table::fread(path.expand("~/Data/OtagoUni/MedicalSchoolBuildings.csv"), 
+dt <- data.table::fread(path.expand("/Volumes/hum-csafe/Research Projects/GREEN Grid/externalData/OtagoUni/MedicalSchoolBuildingsOtago.csv"), 
                   )
 message("N rows:", nrow(dt))
 names(dt)
