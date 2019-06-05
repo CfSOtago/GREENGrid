@@ -37,21 +37,19 @@ names(dt)
 # Clean data
 ```{r cleanData}
 
-dt[, dateTimeUTC := lubridate::dmy_hms(Time)] # is this UTC?
-dt[, dateTimeNZ := lubridate::with_tz(dateTimeUTC, tzone = "Pacific/Auckland")] # assumes came in as UTC
+dt[, dateTime := lubridate::dmy_hms(Time)] # is this UTC?
 
-dt[, hourUTC := lubridate::hour(dateTimeUTC)]
-dt[, hourNZ := lubridate::hour(dateTimeNZ)]
+dt[, hour := lubridate::hour(dateTime)]
 
 # check
-head(dt[, .(Time, dateTimeUTC, dateTimeNZ, hourUTC, hourNZ)])
+head(dt[, .(Time, dateTime, hour)])
 
 ```
 
 ```{r keepVars}
 # keep the vars we want
 
-cleanDT <- dt[, .(dateTimeUTC, dateTimeNZ, hourUTC, hourNZ,
+cleanDT <- dt[, .(Time, dateTime, hour,
                   avg = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-avg[Wh]`,
                   min = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-min[Wh]`,
                   max = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-max[Wh]`)]
@@ -61,18 +59,18 @@ s <- summary(cleanDT)
 kableExtra::kable(s, caption = "Summary of data") %>%
   kable_styling()
 
-ggplot2::ggplot(cleanDT, aes(x = dateTimeNZ)) +
+ggplot2::ggplot(cleanDT, aes(x = dateTime)) +
   geom_line(aes(y = avg))
 ```
 
 So clearly we have cumulative observations. Calculate the difference making sure the data us sorted by date time and repeat the plot.
 
 ```{r getEnergy, fig.cap="Average electricity consumption per 15 minute period" }
-setkey(cleanDT, dateTimeNZ)
+setkey(cleanDT, dateTime)
 cleanDT[, avgCons := avg - shift(avg)]
 
 
-p <- ggplot2::ggplot(cleanDT, aes(x = dateTimeNZ)) +
+p <- ggplot2::ggplot(cleanDT, aes(x = dateTime)) +
   geom_line(aes(y = avgCons))
 
 p
@@ -80,16 +78,37 @@ p
 plotly::ggplotly(p) # interactive version
 ```
 
-Hmm, clearly some spikes where data has 'caught up'. We need to check where these data holes might be.
+Hmm, clearly some spikes where data has 'caught up'. We need to check where these data holes might be. The first set of plots summarise the data by date.
 
 
-```{r plotMissing}
-cleanDT[, dateNZ := lubridate::date(dateTimeNZ)]
+```{r byDate}
+cleanDT[, date := lubridate::date(dateTime)]
+plotDT <- cleanDT[, .(nObs = .N,
+                      meanCons = mean(avgCons)), keyby = .(date)]
+plotDT[, dow := lubridate::wday(date, label = TRUE)]
 
-plotDT <- cleanDT[, .(nObs = sum(.N)), keyby = .(dateNZ, hourNZ)]
+p <- ggplot2::ggplot(plotDT, aes(x = date, colour = dow)) + 
+  geom_point(aes(y = nObs))
+plotly::ggplotly(p)
 
-ggplot2::ggplot(plotDT, aes(x = dateNZ, y = hourNZ, alpha = nObs)) + geom_tile()
-#ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = max)) + geom_tile()
+
+p <- ggplot2::ggplot(plotDT, aes(x = date, colour = dow)) + 
+  geom_point(aes(y = meanCons))
+plotly::ggplotly(p)
+
+```
+
+Next we look by date and hour of the day.
+
+```{r byDateHour}
+plotDT <- cleanDT[, .(nObs = .N,
+                      meanCons = mean(avgCons)), keyby = .(date, hour)]
+
+ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = nObs)) + geom_tile()
+
+ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = meanCons)) + geom_tile()
+
+
 ```
 
 Whats going on? Firstly:
