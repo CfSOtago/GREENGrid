@@ -171,16 +171,52 @@ lcDTm <- merge(m_icpDT,rcDT, all = TRUE) # NB 'ID only' will not match
 
 lcDTm[, rcICPs := as.numeric(rcICPs)]
 lcDTm[, pc_rcICPs := rcICPs/totalICPcount]
+```
 
-t <- lcDTm[, .("Mean %" = mean(pc_rcICPs, na.rm = TRUE)*100), keyby = .(Year)]
+Note that not all EDBs reported ripple control data in all years. This means that the overall % of ICPs with ripple control is uncertain as we cannot assume _necessarily_ assume that EDBs who did not provide ripple control data do not actually have ripple control on some ICPs.
 
-kableExtra::kable(t, caption = "Mean % ICPs with ripple control by year", digits = 2) %>%
+Table \@ref(tab:tableFilter) is calculated using only those EDBs who reported ripple control data and Figure \@ref(fig:tableFilter) shows the skewed distribution. As we can see the national mean value is not a good representation.
+
+```{r tableFilter, fig.cap="Density plot of % ICPs with ripple control by year"}
+t1 <- lcDTm[!is.na(pc_rcICPs), .("Min % across EDBs reporting" = min(pc_rcICPs, na.rm = TRUE)*100,
+               "Mean % across EDBs reporting" = mean(pc_rcICPs, na.rm = TRUE)*100,
+               "Median % across EDBs reporting" = 100*median(pc_rcICPs, na.rm = TRUE),
+               "Max % across EDBs reporting" = max(pc_rcICPs, na.rm = TRUE)*100,
+               Total_ICPs = sum(totalICPcount,na.rm = TRUE),
+               Total_rcICPs = sum(rcICPs, na.rm = TRUE)), keyby = .(Year)]
+
+t1[, "% across all ICPs for reporting EDBs" := 100*(Total_rcICPs/Total_ICPs)]
+
+ggplot2::ggplot(lcDTm, aes(x = 100 * pc_rcICPs, fill = Year, group = Year)) +
+  geom_density() +
+  labs(x = "% ICPs with ripple control by EDB and year")
+
+kableExtra::kable(t1, caption = "% ICPs with ripple control by year (excludes ripple control non-reporting EDBs)", digits = 2) %>%
   kable_styling()
 ```
 
-NA and Inf errors indicate records where we can't match the ICP counts from the performance data to the specfic EDB in the load control data.
+Table \@ref(tab:tableAll) on the other hand shows the results where we treat the EDBs who did not report ripple control ICPs as having 0. As we can see this produces lower estimates for the national level figure per year.
 
-```{r trendPlot}
+```{r tableAll, warning=FALSE,}
+t2 <- lcDTm[, .("Min % across EDBs reporting" = min(pc_rcICPs, na.rm = TRUE)*100,
+               "Mean % across EDBs reporting" = mean(pc_rcICPs, na.rm = TRUE)*100,
+               "Median % across EDBs reporting" = 100*median(pc_rcICPs, na.rm = TRUE),
+               "Max % across EDBs reporting" = max(pc_rcICPs, na.rm = TRUE)*100,
+               Total_ICPs = sum(totalICPcount,na.rm = TRUE),
+               Total_rcICPs = sum(rcICPs, na.rm = TRUE)), keyby = .(Year)]
+
+t2[Total_rcICPs == 0, Total_rcICPs := NA] # force NA
+
+t2[, "% across all ICPs (treats non-reports as 0)" := 100*(Total_rcICPs/Total_ICPs)]
+
+kableExtra::kable(t2, caption = "% ICPs with ripple control by year (treats ripple control non-reporting EDBs as 0)", digits = 2) %>%
+  kable_styling()
+
+```
+
+Figure \@ref(fig:trendPlot) shows the distribution over time for each EDB that reported ripple control. This distribution reflects that shown in Figure \@ref(fig:tableFilter).
+
+```{r trendPlot, warning=FALSE, fig.cap="% ripple control trend plot by EDB"}
 t <- lcDTm[, .("Mean %" = mean(pc_rcICPs*100, na.rm = TRUE),
                "Min %" = min(pc_rcICPs*100, na.rm = TRUE),
                "Max %" = max(pc_rcICPs*100, na.rm = TRUE),
