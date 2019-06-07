@@ -118,7 +118,7 @@ perfDT <- data.table::as.data.table(readxl::read_xlsx(perfFileLocal,
 
 # Load control
 
-Table \@ref(tab:loadControlVars) shows ariables available under load control.
+Table \@ref(tab:loadControlVars) shows variables available under the `load control` category.
 
 ```{r loadControlVars}
 lcDT <- etDT[Category == "Load control"]
@@ -217,15 +217,6 @@ kableExtra::kable(t2, caption = "% ICPs with ripple control by year (treats ripp
 Figure \@ref(fig:trendPlot) shows the distribution over time for each EDB that reported ripple control. This distribution reflects that shown in Figure \@ref(fig:tableFilter).
 
 ```{r trendPlot, warning=FALSE, fig.cap="% ripple control trend plot by EDB"}
-t <- lcDTm[, .("Mean %" = mean(pc_rcICPs*100, na.rm = TRUE),
-               "Min %" = min(pc_rcICPs*100, na.rm = TRUE),
-               "Max %" = max(pc_rcICPs*100, na.rm = TRUE),
-               "Max total n ICPs" = max(totalICPcount, na.rm = TRUE)),
-           keyby = .(orgName)][order(-`Max total n ICPs`)]
-t$`Max total n ICPs` <- tidyNum(t$`Max total n ICPs`) # do this here as make char
-kableExtra::kable(t, caption = "Mean % ICPs with ripple control by EDB", digits = 2) %>%
-  kable_styling()
-
 plotDT <- lcDTm[, .(pc_rcICPs, Year, orgName)]
 
 p <- ggplot2::ggplot(plotDT, aes(x = Year, y = 100*pc_rcICPs, colour = orgName)) + 
@@ -363,6 +354,35 @@ p <- ggplot2::ggplot(plotDT, aes(x = Year, y = mw, colour = orgName)) +
 plotly::ggplotly(p) # for interaction
 ```
 
+
+
+# Statistical Annex
+
+## Original emerging technology data
+
+Source: `r etFile`:
+
+```{r skimRC}
+skimr::skim(etDT)
+```
+
+## Original EDB performance data
+
+Source: `r perfFile`:
+
+```{r skimPerf}
+skimr::skim(perfDT)
+```
+## Derived ripple control counts
+
+```{r derivedRC}
+lcDTm[, pc_rcICPs := pc_rcICPs*100]
+setnames(lcDTm, "totalICPcount", "Total ICPs")
+setnames(lcDTm, "rcICPs", "Total ripple control ICPs")
+setnames(lcDTm, "pc_rcICPs", "% ripple control ICPs")
+kableExtra::kable(lcDTm, caption = "% ICPs with ripple control by EDB", digits = 2) %>%
+  kable_styling()
+```
 
 
 # Runtime
