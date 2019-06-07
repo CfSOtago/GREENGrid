@@ -103,10 +103,12 @@ Report purpose:
 
 # Load data
 
-The data used to generate this report is:
+The data used to generate this report is available from the New Zealand Commerce Comission as:
 
- * `r perfFile`
- * `r etFile`
+ * `r perfFile` - information collected as part of https://comcom.govt.nz/regulated-industries/electricity-lines/electricity-distributor-performance-and-data/performance-summaries-for-electricity-distributors
+ * `r etFile` - infomation collected as part of https://comcom.govt.nz/regulated-industries/electricity-lines/electricity-distributor-performance-and-data/impact-of-emerging-technologies-in-monopoly-parts-of-electricity-sector
+
+It is not clear if this data refers _only_ to residential ICPs...
 
 ```{r loadData, include=FALSE}
 etDT <- data.table::as.data.table(readxl::read_xlsx(etFileLocal, 
