@@ -43,7 +43,7 @@ if(userName == "ben"){
 
 Use `data.table::fread()` to load the data. It deals with the `;` delimiter automatically.
 
-Loadng data from `dFile`, reporting any warnings and listing the columns/variables:
+Loadng data from `r dFile`, reporting any warnings and listing the columns/variables:
 
 ```{r loadData}
 
@@ -59,29 +59,45 @@ Describe the raw data:
 skimr::skim(dt)
 ```
 
-# Clean data
+# Clean and process original data
 
-During this process we force R to think the timezone of the original `Time` variable to be NZ Time.
-
-```{r cleanData}
-
-dt[, dateTime := lubridate::dmy_hms(Time)] # is this UTC? No we think it's NZ time
-dt[, dateTime := lubridate::force_tz(dateTime, tzone = "Pacific/Auckland")]
-dt[, hour := lubridate::hour(dateTime)]
-
-# check
-head(dt[, .(Time, dateTime, hour)])
-
-```
+Keep the vars we want and test.
 
 ```{r keepVars}
 # keep the vars we want
 
-cleanDT <- dt[, .(Time, dateTime, hour,
+cleanDT <- dt[, .(Time,
                   avg = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-avg[Wh]`,
                   min = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-min[Wh]`,
                   max = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-max[Wh]`)]
 
+message("Keeping: ")
+names(cleanDT)
+```
+
+Now clean the data. During this process we force R to think the timezone of the original `Time` variable is NZ Time. If we didn't R might (sometimes) assume it is UTC and we would then get DST break errors and incorrect daily profiles.
+
+```{r cleanData}
+
+cleanDT[, dateTime := lubridate::dmy_hms(Time)] # is this UTC? No we think it's NZ time
+cleanDT[, dateTime := lubridate::force_tz(dateTime, tzone = "Pacific/Auckland")]
+cleanDT[, hour := lubridate::hour(dateTime)]
+
+cleanDT[, hms := hms::as.hms(dateTime)]
+cleanDT[, date := lubridate::date(dateTime)]
+cleanDT[, dow := lubridate::wday(date, label = TRUE)]
+cleanDT[, month := lubridate::month(date, label = TRUE)]
+
+# check
+t <- head(cleanDT[, .(Time, dateTime, hour)])
+
+kableExtra::kable(t, caption = "Testing conversion of Time variable")
+
+```
+
+Now summarise and test consumption.
+
+```{r testClean}
 s <- summary(cleanDT)
 
 kableExtra::kable(s, caption = "Summary of data") %>%
@@ -114,7 +130,6 @@ Hmm, clearly some spikes where data has 'caught up'. We need to check where thes
 
 
 ```{r byDate}
-cleanDT[, date := lubridate::date(dateTime)]
 plotDT <- cleanDT[, .(nObs = .N,
                       meanCons = mean(avgCons)), keyby = .(date)]
 plotDT[, dow := lubridate::wday(date, label = TRUE)]
@@ -136,10 +151,33 @@ Next we look by date and hour of the day.
 plotDT <- cleanDT[, .(nObs = .N,
                       meanCons = mean(avgCons)), keyby = .(date, hour)]
 
-ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = nObs)) + geom_tile()
+myCaption <- "Non-shaded dates indicate missing observations"
 
-ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = meanCons)) + geom_tile()
+ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = nObs)) + geom_tile()+
+  labs(x = "Date",
+       y = "Hour",
+       caption = myCaption) +
+  guides(alpha = guide_legend(title = "N Obs"))
 
+ggplot2::ggplot(plotDT, aes(x = date, y = hour, alpha = meanCons/1000)) + # kWh
+  geom_tile() +
+  labs(x = "Date",
+       y = "Hour",
+       caption = myCaption) +
+  guides(alpha = guide_legend(title = "Average kWh"))
+
+
+```
+
+And finally we try to plot all the data to see which observations stand out.
+
+```{r byDateHMS}
+
+ggplot2::ggplot(cleanDT, aes(x = date, y = hms, alpha = avgCons/1000)) + #kWh
+  geom_tile() +
+  labs(x = "Date",
+       y = "Time of day") +
+  guides(alpha = guide_legend(title = "Average kWh"))
 
 ```
 
@@ -153,9 +191,6 @@ Whats going on? Firstly:
 No data cleaning here. Should remove the 18th Feb data point...
 
 ```{r profilePlots, fig.height=8, fig.cap="Monthly consumption profile plots"}
-cleanDT[, hms := hms::as.hms(dateTime)]
-cleanDT[, dow := lubridate::wday(date, label = TRUE)]
-cleanDT[, month := lubridate::month(date, label = TRUE)]
 
 plotDT <- cleanDT[, .(nObs = .N,
                       meanCons = mean(avgCons)), keyby = .(hms, dow, month)]
@@ -163,7 +198,8 @@ plotDT <- cleanDT[, .(nObs = .N,
 ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons/1000, colour = dow)) + 
   geom_point() +
   facet_grid(month ~ .) +
-  labs(y = "kWh per 15 minutes")
+  labs(y = "kWh per 15 minutes") +
+  guides(colour = guide_legend(title = "Day of the week"))
 
 ```
 
@@ -180,7 +216,8 @@ plotDT <- cleanDT[avgCons < max(avgCons, na.rm = TRUE), # watch out for the NA
 ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons/1000, colour = dow)) + 
   geom_point() +
   facet_grid(month ~ .) +
-  labs(y = "kWh per 15 minutes")
+  labs(y = "kWh per 15 minutes") +
+  guides(colour = guide_legend(title = "Day of the week"))
 
 ```
 
