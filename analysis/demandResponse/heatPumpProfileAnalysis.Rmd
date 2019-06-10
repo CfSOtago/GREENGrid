@@ -13517,6 +13517,21 @@ WPDTFig$season <- factor(WPDTFig$season, levels = c("Summer", "Winter"))
 
 
 #Energy Efficiency: Lighting
+##Lighting paper calculations
+
+```{r paper calculations}
+
+
+
+
+
+
+
+
+
+
+```
+
 ##Data import
 
 ```{r importing lighting data}
