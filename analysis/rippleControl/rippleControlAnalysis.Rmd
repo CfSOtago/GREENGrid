@@ -318,9 +318,9 @@ plotly::ggplotly(p) # for interaction
 
 
 
-## Distirbuted batteries
+## Distributed batteries available for load control
 
-Load control capacity from distributed batteries 
+Load control capacity from distributed batteries. See below for further battery analysis.
 
 ```{r descMWbat}
 dt <- lcDT[Description == "Load control capacity from distributed batteries",
@@ -356,6 +356,66 @@ p <- ggplot2::ggplot(plotDT, aes(x = Year, y = mw, colour = orgName)) +
 plotly::ggplotly(p) # for interaction
 ```
 
+
+
+# Batteries
+
+The data contains various information on batteries. We used the EDB estimates of installed battery capacity above but there is more...
+
+```{r selectBatteryData}
+battDT <- etDT[Description %like% "batter"]
+
+t <- table(battDT$Description)
+
+kableExtra::kable(t, caption = "Category related to 'battery'") %>%
+  kable_styling()
+```
+
+For example, the following shows the the number of distributed batteries.
+
+```{r distBattCount, fig.cap = "Number of distributed batteries"}
+
+plotDT <- battDT[Description == "Number of distributed batteries", .(nBatt = sum(as.integer(Value))),
+                 keyby = .(Year, EDB)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = nBatt, group = EDB, colour = EDB)) + 
+  geom_line() +
+  labs(y = "N distirbuted batteries")
+
+plotly::ggplotly(p) # for interaction
+```
+
+Figure \@ref(fig:netBatt) shows the the number of network batteries.
+
+```{r netBatt, fig.cap = "Number of network batteries", warning=FALSE}
+
+plotDT <- battDT[Description %like% "network batteries" & Year != "All", .(nBatt = sum(as.integer(Value), na.rm = TRUE)),
+                 keyby = .(Year, EDB)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = nBatt, group = EDB, colour = EDB)) + 
+  geom_line() +
+  labs(y = "N network batteries")
+
+plotly::ggplotly(p) # for interaction
+```
+
+Figure \@ref(fig:netBatt) shows the the capacity of these batteries.
+
+```{r mwBatt, fig.cap="Battery storage capacity"}
+
+plotDT <- battDT[Description %like% "torage capacity" & Year != "All", .(nBatt = sum(as.integer(Value), na.rm = TRUE)),
+                 keyby = .(Year, EDB, Description)]
+
+p <- ggplot2::ggplot(plotDT, aes(x = Year, y = nBatt, group = EDB, colour = EDB)) + 
+  geom_line() +
+  facet_grid(. ~ Description) +
+  theme(legend.position="bottom") +
+  labs(y = "Capacity (MW?)")
+
+p # as facet_grid does not play nicely with plotly
+
+plotly::ggplotly(p) # for interaction
+```
 
 
 # Statistical Annex
