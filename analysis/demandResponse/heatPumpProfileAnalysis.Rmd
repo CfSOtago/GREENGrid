@@ -13521,10 +13521,86 @@ WPDTFig$season <- factor(WPDTFig$season, levels = c("Summer", "Winter"))
 
 ```{r paper calculations}
 
+##Data import
+LightingHCS <- data.table::as.data.table(
+ readr::read_csv("/Volumes/hum-csafe/Research Projects/GREEN Grid/cleanData/safe/gridSpy/1min/dataExtracts/Lighting_2015-04-01_2016-03-31_observations.csv.gz",
+                       col_types = cols(
+                       hhID = col_character(),
+                       linkID = col_character(),
+                       r_dateTime = col_datetime(format = ""),
+                       circuit = col_character(),
+                       powerW = col_double() # <- crucial otherwise readr infers integers for some reason
+                     )
+                 )
+)
+
+LightObsDT <- data.table::as.data.table(LightingHCS)
+
+LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
+LightObsDT <- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
+LightObsDT <- LightObsDT[, month := lubridate::month(r_dateTime)]
+
+LightObsDT <- LightObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
+LightObsDT <- LightObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
+LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
+LightObsDT <- LightObsDT[month == 9 | month == 10 | month == 11, season := "Spring"]
+
+#LightObsDT <- LightObsDT[, powerW := ifelse(powerW<0, 0, powerW)]
+LightObsDT <- LightObsDT[!(LightObsDT$hhID=="rf_46"),]
+LightObsDT$season <- factor(LightObsDT$season, levels = c("Spring","Summer",
+                                                    "Autumn", "Winter"))
+
+#Defining peak and off-peak periods
+
+LightDT <- LightObsDT
+LightDT <- LightDT[, Period := "Not Peak"]
+
+LightDT <- LightDT[obsHalfHour >= MPS & 
+                     obsHalfHour <= MPE,
+                   Period := "Morning Peak"]
+
+LightDT <- LightDT[obsHalfHour >= EPS & 
+                     obsHalfHour <= EPE,
+                   Period := "Evening Peak"]
+
+LightDT <- LightDT[obsHalfHour >= OP1S & 
+                     obsHalfHour <= OP1E,
+                   Period := "Off Peak 1"]
+
+LightDT <- LightDT[obsHalfHour >= OP12S & 
+                     obsHalfHour <= OP12E,
+                   Period := "Off Peak 1"]
+
+LightDT <- LightDT[obsHalfHour >= OP2S & 
+                     obsHalfHour <= OP2E,
+                   Period := "Off Peak 2"]
+
+LightDT <- LightDT[, var := 0]
+#PlotDT <- LightDT[, . (var = mean(meanW)), keyby =.(season, Period)]
+PlotDT <- LightDT[, .(var = min(meanW)), keyby =.(season)]
 
 
+#Plot
 
+PlotDT <- LightObsDT
+PlotDT <- PlotDT[, meankW := meanW/1000]
 
+myPlot <- ggplot2::ggplot(PlotDT, aes(x = obsHalfHour, group = season)) +
+  geom_line(aes(y=meankW, colour = season), size=0.6) +
+  geom_point(aes(y=meankW), size = 0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  ggtitle("Lighting seasonal mean power demand profiles") +
+  labs(x='Time of Day', y='Mean kW per half-hour') +
+  scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+myPlot
+
+#ggsave("Lighting seasonal mean power demand profiles.jpg", dpi=600)
 
 
 
@@ -13553,6 +13629,7 @@ LightObsDT <- LightObsDT[, year := lubridate::year(r_dateTime)]
 LightObsDT <- LightObsDT[, obsHourMin := hms::as.hms(r_dateTime)]
 LightObsDT <- LightObsDT[, month := lubridate::month(r_dateTime)]
 
+
 LightObsDT <- LightObsDT[month >= 12 | month == 1 | month == 2, season := "Summer"]
 LightObsDT <- LightObsDT[month >= 3 | month == 4 | month == 5, season := "Autumn"]
 LightObsDT <- LightObsDT[month == 6 | month == 7 | month == 8, season := "Winter"]
@@ -13560,7 +13637,9 @@ LightObsDT <- LightObsDT[month == 9 | month == 10 | month == 11, season := "Spri
 
 #Building daily average per season
 
-LightDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
+LightObsDT <- LightObsDT[, .(meanW = mean(powerW)), keyby = .(obsHourMin, season)]
+LightObsDT <- LightObsDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]
+LightObsDT <- LightObsDT[, .(meanW = mean(meanW)), keyby = .(obsHalfHour, season)]
 
 
 
