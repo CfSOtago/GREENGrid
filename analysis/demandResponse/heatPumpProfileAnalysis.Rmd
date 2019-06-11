@@ -9200,7 +9200,6 @@ myPlot
 
 
 
-
 ```
 
 ##Heat Pump
@@ -13684,11 +13683,11 @@ ConsumptionTot2027 <-  734.28
 ConsumptionTot2029 <-  621.46
   
   
-  
+LightDT <- LightObsDT  
 
 
 #Calculation
-LightDT <- LightDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]#Creating half hour time-steps
+#LightObsDT <- LightObsDT[, obsHalfHour := hms::trunc_hms(obsHourMin, 1800)]#Creating half hour time-steps
 
 LightHHDT <- LightDT[, .(meanW = mean(meanW)), keyby = .(obsHalfHour, season)]
 LightTestDT1 <- copy(LightHHDT)
@@ -14361,13 +14360,38 @@ myPlot
 
 ```
 ###Average day per season total NZ
-```{r Plot 1 1}
+```{r paper plot update }
+
+
 
 #Change the order in facet_grid()
 LightHHTotDT$season <- factor(LightHHTotDT$season, levels = c("Spring","Summer",
                                                     "Autumn", "Winter"))
 
 
+PlotDT <- copy(LightHHTotDT)
+PlotDT <- PlotDT[, ConsumptionTot2015 := ConsumptionTot2015*2 ]
+
+
+myPlot <- ggplot2::ggplot(PlotDT, aes(x = obsHalfHour, group=season)) +
+  geom_line(aes(y=ConsumptionTot2015, colour = season), size=0.6) +
+  geom_point(aes(y=ConsumptionTot2015), size=0.1)+
+  theme(text = element_text(family = "Cambria")) +
+  labs(x='Time of Day', y='MW') +
+ scale_x_time(breaks = c(hms::as.hms("00:00:00"), 
+                          hms::as.hms("04:00:00"), 
+                          hms::as.hms("08:00:00"),       
+                          hms::as.hms("12:00:00"), 
+                          hms::as.hms("16:00:00"), 
+                          hms::as.hms("20:00:00"),
+                          hms::as.hms("24:00:00"))) 
+ myPlot 
+#ggsave("Lighting energy for an average day per season total NZ forecast.jpg", dpi=600)  
+  
+  
+```
+
+```{r plot lighting 1}
 #Visualising Lighting development in Wh per household
 legend_title <- "Year"
 myPlot <- ggplot2::ggplot(LightHHTotDT, aes(x = obsHalfHour)) +
