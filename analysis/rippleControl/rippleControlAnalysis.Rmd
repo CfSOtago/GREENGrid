@@ -101,7 +101,7 @@ Report purpose:
  
  * provides summary analysis of hot water ripple control availability in New Zealand. Availability does not necessarily mean it is actually in use...
 
-# Load data
+# Process data
 
 The data used to generate this report is available from the New Zealand Commerce Comission as:
 
@@ -436,6 +436,8 @@ Source: `r perfFile`:
 skimr::skim(perfDT)
 ```
 ## Derived ripple control counts
+
+Why are there fractional ICP counts? What does this suggest about the data being reported? _Discuss_
 
 ```{r derivedRC}
 lcDTm[, pc_rcICPs := pc_rcICPs*100]
