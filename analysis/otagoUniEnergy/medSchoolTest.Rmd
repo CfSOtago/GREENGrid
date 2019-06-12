@@ -7,7 +7,7 @@ output:
     self_contained: no
     toc: yes
     toc_float: yes
-#bibliography: '`r path.expand("~/bibliography.bib")`'
+bibliography: '`r path.expand("~/bibliography.bib")`'
 ---
 
 # Setup
