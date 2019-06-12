@@ -47,16 +47,10 @@ Loadng data from `r dFile`, reporting any warnings and listing the columns/varia
 
 ```{r loadData}
 
-dt <- data.table::fread(path.expand(dFile), 
+rdt <- data.table::fread(path.expand(dFile), 
                   )
-message("N rows:", nrow(dt))
-names(dt)
-```
-
-Describe the raw data:
-
-```{r skimData}
-skimr::skim(dt)
+message("N rows:", nrow(rdt))
+names(rdt)
 ```
 
 # Clean and process original data
@@ -66,7 +60,7 @@ Keep the vars we want and test.
 ```{r keepVars}
 # keep the vars we want
 
-cleanDT <- dt[, .(Time,
+cleanDT <- rdt[, .(Time,
                   avg = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-avg[Wh]`,
                   min = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-min[Wh]`,
                   max = `Consumed Active Energy Total Tariff Sum L1-L3 (15m) [D20X Whole Medical School]-max[Wh]`)]
@@ -219,6 +213,14 @@ ggplot2::ggplot(plotDT, aes(x = hms, y = meanCons/1000, colour = dow)) +
   labs(y = "kWh per 15 minutes") +
   guides(colour = guide_legend(title = "Day of the week"))
 
+```
+
+# Statistical Annex
+
+Describe the raw data:
+
+```{r skimRawData}
+skimr::skim(rdt)
 ```
 
 # Runtime
