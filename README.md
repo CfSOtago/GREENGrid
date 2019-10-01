@@ -17,6 +17,16 @@ This repo follows the structure of an [R package](https://github.com/ropensci/rr
 
 If you are using the household electricity demand data you may also need to [install our data package](https://cfsotago.github.io/GREENGridData/) using `devtools::install_github("CfSOtago/GREENGridData")`.
 
+## Analysis
+
+Various draft data anlaysis notebooks:
+
+  * [early demand response analysis](analysis/demandResponse/heatPumpProfileAnalysis.html) using GREEN Grid data
+  * [heat pump analysis](analysis/heatPump/heatPumpAnalysis.html) using GREEN Grid data
+  * [lighting analysis](analysis/lightingAnalysis/comparisonWithNZGen.html) using GREEN Grid data (well, sort of)
+  * [test analysis of Otago Medical School energy use data](analysis/otagoUniEnergy/medSchoolTest.html) using GREEN Grid data (well, sort of)
+  * [ripple control](analysis/rippleControl/rippleControlAnalysis.html) in New Zealand using submissions to the NZ Commerce Commision
+
 ## Funding support
 
 The development of the code in this repo has been supported by:
