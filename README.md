@@ -27,6 +27,13 @@ Various draft data anlaysis notebooks:
   * [test analysis of Otago Medical School energy use data](analysis/otagoUniEnergy/medSchoolTest.html) using GREEN Grid data (well, sort of)
   * [ripple control](analysis/rippleControl/rippleControlAnalysis.html) in New Zealand using submissions to the NZ Commerce Commision
 
+You also might be interested in other related projects:
+
+ * [GREEN Grid Data](https://cfsotago.github.io/GREENGridData/)
+ * Electric Vehicle [charging patterns](https://cfsotago.github.io/evAnalysis/)
+ * Analysis of New Zealand's [electricity system GHG emissions](https://cfsotago.github.io/gridCarbon/) over time
+
+ 
 ## Funding support
 
 The development of the code in this repo has been supported by:
